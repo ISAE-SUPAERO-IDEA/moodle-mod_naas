@@ -1,0 +1,60 @@
+.path-mod-url .resourcecontent {
+    text-align: center;
+}
+
+.nugget-display {
+  width: 100%;
+}
+
+.nugget-post {
+  border-radius: 10px;
+  box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+  padding: 10px;
+  margin: 10px;
+}
+
+.nugget-post:hover {
+  box-shadow: 0 10px 20px 0 rgba(0,0,0,0.2);
+}
+
+.card-selected {
+  background: #A6C3FE;
+}
+
+.search_center {
+  display: block;
+  margin-top: auto;
+  margin-bottom: auto;
+  margin-left:10px;
+  border: 1px solid;
+}
+div.filters {
+    float: left;
+    width: 200 px;
+    margin-left: 40 px;
+  }
+div.filters-inner {
+  background-color: white;
+  display: table-cell;
+  padding: 10 px;
+  margin-bottom: 10 px;
+}
+div.separator {
+  height: 15 px;
+}
+
+.clear-filters {
+  font-size: 13 px;
+  margin-top: 15 px;
+}
+
+.md-layout {
+  margin-left: 0 px;
+  margin-right: 0 px;
+}
+a.aggregation-title {
+  color: #000000;
+}
+a.aggregation-title:hover {
+  text-decoration: none;
+}

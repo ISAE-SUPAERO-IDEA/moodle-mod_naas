@@ -1,0 +1,26 @@
+<?php
+
+// Proxy.php can be used for the NaaS API requests
+// It uses an instance of the NaasClient.php to send the requests
+
+// Accepts two kinds of headers:
+// 1- ?fulltext=...&is_default_version=...&page_size=...
+// 2- ?nugget_id=...
+
+require_once($_SERVER['DOCUMENT_ROOT']."/config.php");
+require_once('classes/NaasClient.php');
+
+
+// Only teachers can use the proxy
+$roleid = $DB->get_field('role', 'id', ['shortname' => 'editingteacher']);
+$isteacheranywhere = $DB->record_exists('role_assignments', ['userid' => $USER->id, 'roleid' => $roleid]);
+if (!$isteacheranywhere) die;
+
+$config = get_config('naas');
+$naas = new NaasClient($config);
+
+// Maybe we should add a filter there
+$path  = $_GET['path'];
+$response = $naas->request('GET', $path);
+echo json_encode($response);
+?>

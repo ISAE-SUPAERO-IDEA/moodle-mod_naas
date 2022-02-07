@@ -1,0 +1,8 @@
+
+Short Description:
+The Naas plugin for moodle allows teachers to add an Aerospace Digital Nugget (ADN) to a course. The students can then visualize the interactive nugget content on the moodle page.
+
+Long Description:
+The Naas plugin for moodle allows teachers to add an Aerospace Digital Nugget (ADN) to a course. The teacher can choose an ADN from a large list of contents. Some ADN are public and opened to all schools, others depend on the school credentials of the NaaS. An ADN can be selected by a single click, another click will unselect the ADN.
+
+The ADN is imported in the moodle course with this plugin. The students can directly interact with the learning content.
