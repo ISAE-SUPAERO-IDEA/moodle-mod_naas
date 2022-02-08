@@ -31,23 +31,16 @@ require_once('classes/NaasClient.php');
 
 
 class mod_naas_mod_form extends moodleform_mod {
-    /*function sort_by_name($a, $b) {
-      // Compares two nuggets (sort by name)
-      if ($a->name == $b->name) {
-          return 0;
-      }
-      return ($a->name < $b->name) ? -1 : 1;
-    }*/
-
     function definition() {
         global $CFG, $DB;
         $mform = $this->_form;
 
-        $config = get_config('naas');
+        $config = (object) array_merge((array) get_config('naas'), (array) $CFG);
         $naas = new NaasClient($config);
 
-        $info = $naas->get_api_info();
-
+        // API info is not ready yet on production servers
+        //$info = $naas->get_api_info();
+        $info = $naas->get_connected_user();
         if ($info == null) {
             $mform->addElement('html', '<div class="alert alert-danger">Impossible de contacter le serveur NaaS</div>');
         }
