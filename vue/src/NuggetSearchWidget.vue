@@ -20,7 +20,7 @@
                         <nugget-post
                           v-bind:key="index"
                           v-bind:post="post"
-                          v-bind:class="{'card-selected':(post.nugget_id == selected_id)}"
+                          v-bind:class="{'card-selected': post.nugget_id == selected_id}"
                           v-on:click.native="clickOnNugget(post)"
                         ></nugget-post>
                       </div>
@@ -35,7 +35,7 @@
                     v-bind:class="{'card-selected': false}"
                   ></nugget-post>
                 <a href="javascript:;" v-on:click="selected_nugget=null;search();">
-                {{ config.click_to_modify }}
+                {{ config.labels.click_to_modify }}
                 </a>
               </div>
             </div>
@@ -44,15 +44,17 @@
 </template>
 <script>
 import NuggetSearchFilter from "./components/NuggetSearchFilter"
+import NuggetPost from "./components/NuggetPost"
 export default {
   name: 'NuggetSearchWidget',
-  components: { NuggetSearchFilter },
+  components: { NuggetSearchFilter, NuggetPost },
   data() {
     return {
       typed: '',
       posts: [],
       selected_nugget: null,
       filters: {},
+      selected_id: null
     }
   },
   watch: {
@@ -119,8 +121,10 @@ export default {
       }
     },
     clickOnNugget: function(post) {
+
       event.preventDefault();
       this.selected_id = (this.selected_id == post.nugget_id) ? null : post.nugget_id;
+      console.log(this.selected_id)
     },
     checkSelected() {
       for (let post of this.posts) {
