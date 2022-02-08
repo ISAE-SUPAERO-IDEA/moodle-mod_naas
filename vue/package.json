@@ -10,6 +10,7 @@
   "dependencies": {
     "axios": "^0.25.0",
     "core-js": "^3.6.5",
+    "debounce": "^1.2.1",
     "vue": "^2.6.11",
     "vue-simple-suggest": "^1.11.2"
   },

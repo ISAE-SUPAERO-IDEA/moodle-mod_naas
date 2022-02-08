@@ -45,12 +45,14 @@
 <script>
 import NuggetSearchFilter from "./components/NuggetSearchFilter"
 import NuggetPost from "./components/NuggetPost"
+import debounce from "debounce"
 export default {
   name: 'NuggetSearchWidget',
   components: { NuggetSearchFilter, NuggetPost },
   data() {
     return {
       typed: '',
+      debounced_typed: "",
       posts: [],
       selected_nugget: null,
       filters: {},
@@ -61,6 +63,9 @@ export default {
     selected_id() {
       this.checkSelected();
     },
+    debounced_typed() {
+      this.search();
+    },
     filters() {
       this.search();
     }
@@ -68,13 +73,12 @@ export default {
   computed: {
     searching() {
       return true;
-      //return this.typed.length >= 3;
     },
     filter_options() {
       return Object.assign({}, {
         is_default_version: true,
         page_size: 12,
-        fulltext: this.typed
+        fulltext: this.debounced_typed
       });
     },
     search_options() {
@@ -113,18 +117,13 @@ export default {
     onFilters(filters) {
       this.filters = filters;
     },
-    onInput() {
-      if (this.searching) {
-        this.search();
-      } else {
-        //this.initialize();
-      }
-    },
+    onInput: debounce(function() {
+      this.debounced_typed = this.typed;
+    }, 500),
     clickOnNugget: function(post) {
 
       event.preventDefault();
       this.selected_id = (this.selected_id == post.nugget_id) ? null : post.nugget_id;
-      console.log(this.selected_id)
     },
     checkSelected() {
       for (let post of this.posts) {

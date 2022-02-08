@@ -1,6 +1,5 @@
 module.exports = {
 	"mount_point": "#app",
-	"initial_nugget_id": "",
 	"proxy_url": "http://moodle.local.isae.fr/mod/naas/proxy.php",
 	"labels": {
             "search_here" : "search_here",
@@ -23,5 +22,5 @@ module.exports = {
                 "tags" : "tags",
             }
 	},
-	"nugget_id": "9ecc00aa-c4eb-4c16-8921-8d410cd52a9c"
+    "nugget_id": ""
 }
