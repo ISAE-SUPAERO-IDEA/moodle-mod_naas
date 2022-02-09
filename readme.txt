@@ -4,25 +4,22 @@ NaaS Module
 Overview
 ________
 
-This module enables Moodle user to add Nugget activiies in their courses
-
+This module enables Moodle user to add Nugget activiies in their courses. IT connects to a NaasServer to fetch the content.
 
 
 Developing this module
 ______________________
 
 
-This module uses a VueJS componenet to handle the search and the selection of a nugget.
-The sources for this component are in the vue directory
+This module uses a VueJS component to handle the search and the selection of a nugget. The sources for this component are in the vue directory. To develop this component, You will need nodejs https://nodejs.org/en/.
 
-To build the component go the vue directory and run `yarn build`
+In the vue directory:
+- Install the dependencies: yarn install
+- To build the component run `yarn build`
+=> The assets will be deployed in assets/vue
+- To develop the component in a sandbox and run `yarn serve`. In this case, the development environnement can be setup to improve the developpement experience:
 
-To develop the component go to the vue directory and run `yarn serve`
-The development environnement can be setup to improve the developpement experience
-
-
-- Apache configuration
-----------------------
+=> Apache configuration
  to put in your moodle instance Virtualhost configurationµ. this will solve the CORS configuration error since you will be avle to access the component on the same webserver your moodle instance is working on.
 
 ProxyPass /sockjs-node/  http://localhost:8083/sockjs-node/
@@ -33,10 +30,8 @@ RewriteCond %{HTTP:Upgrade} websocket [NC]
 RewriteCond %{HTTP:Connection} upgrade [NC]
 RewriteRule ^/?(.*) "ws://moodle.local.isae.fr/$1" [P,L]
 
-- development configuration file
---------------------------------
-
+=> development configuration file
 : vue/dev_config.js
--- proxy_url: the url where the proxy.php of the naas module can be reached
--- nugget_id: initial nugget_id to simulate the fact that a nugget has already been selected
--- labels: translation to be displayed on the interface
+--- proxy_url: the url where the proxy.php of the naas module can be reached
+--- nugget_id: initial nugget_id to simulate the fact that a nugget has already been selected
+--- labels: translation to be displayed on the interface
