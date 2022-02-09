@@ -4,12 +4,11 @@ NaaS Module
 Overview
 ________
 
-This module enables Moodle user to add Nugget activiies in their courses. IT connects to a NaasServer to fetch the content.
+This module enables Moodle user to add Nugget activiies in their courses. It connects to a NaasServer to fetch the content.
 
 
-Developing this module
-______________________
-
+Developer notes
+---------------
 
 This module uses a VueJS component to handle the search and the selection of a nugget. The sources for this component are in the vue directory. To develop this component, You will need nodejs https://nodejs.org/en/.
 
@@ -35,3 +34,16 @@ RewriteRule ^/?(.*) "ws://moodle.local.isae.fr/$1" [P,L]
 --- proxy_url: the url where the proxy.php of the naas module can be reached
 --- nugget_id: initial nugget_id to simulate the fact that a nugget has already been selected
 --- labels: translation to be displayed on the interface
+
+Contributing to this module
+______________________
+
+This module is currently hosted on a private repository. To gain access please contact idea-lab@isae-supaero.fr
+
+Once you have access. You should:
+- Clone the repository
+- Branch from the develop branch 
+- Make your changes (while regularly merging the develop branch)
+- Create a merge request
+
+For the time being, in regard with vue search widget,  you should commit both the sources and the artifacts resulting from the build wommand.
