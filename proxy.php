@@ -16,7 +16,7 @@ $roleid = $DB->get_field('role', 'id', ['shortname' => 'editingteacher']);
 $isteacheranywhere = $DB->record_exists('role_assignments', ['userid' => $USER->id, 'roleid' => $roleid]);
 if (!$isteacheranywhere) die;
 
-$config = get_config('naas');
+$config = (object) array_merge((array) get_config('naas'), (array) $CFG);
 $naas = new NaasClient($config);
 
 // Maybe we should add a filter there

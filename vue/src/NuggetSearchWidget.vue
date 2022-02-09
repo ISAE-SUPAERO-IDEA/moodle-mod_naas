@@ -1,65 +1,26 @@
-/**
- * @copyright 2021 Alban Dupire <dupire.alban@gmail.com>
- */
-
-// fonction filter pour couper les strings trop longs
-Vue.filter('truncate', function(text, length, suffix) {
-  if (text.length > length) {
-    return text.substring(0, length) + suffix;
-  } else {
-    return text;
-  }
-});
-
-// Global functions
-Vue.mixin({
-  data() {
-    return {
-      labels: NAAS_LABELS
-    }
-  },
-  computed: {
-    url_root() {
-      return this.labels.url_root;
-    }
-  },
-  methods: {
-    $id(thing) {
-      return this._uid + '.' + thing;
-    },
-    // Queries the proxy
-    proxy(path) {
-      const myaxios = axios.create({ baseURL: this.url_proxy });
-      return myaxios.get('/mod/naas/proxy.php', { params: { path } }).then(response => response.data.payload);
-    }
-  }
-});
-
-// Composant racine
-var app = new Vue({
-  template: `
+<template>
         <div>
           <div class="row" v-if="selected_nugget==null">
               <div class="col-md-3 col-form-label d-flex pb-0 pr-md-0">
-                  <label class="d-inline word-break" id="nugget_search">{{labels.search}} </label>
+                  <label class="d-inline word-break" id="nugget_search">{{config.labels.search}} </label>
               </div>
 
               <div class="col-md-9 form-inline align-items-start felement" data-fieldtype="text">
-                  <input v-model="typed" @input="onInput" @keydown="$event.keyCode === 13 ? $event.preventDefault() : false" size="43" class="form-control" :placeholder="labels.search_here">
+                  <input v-model="typed" @input="onInput" @keydown="$event.keyCode === 13 ? $event.preventDefault() : false" size="43" class="form-control" :placeholder="config.search_here">
                   <img v-bind:src="'../mod/naas/assets/search_icon.png'" class="search_center" width="35" height="35">
               </div>
 
 
               <div class="col-md-3">
-                <nugget-filter :query="filter_query" v-on:filters="onFilters"></nugget-filter>
+                <nugget-search-filter :query="filter_query" v-on:filters="onFilters"></nugget-search-filter>
               </div>
               <div class="col-md-9">
                 <div class="row">
-                      <div class="col-md-4" v-for="(post,index) in posts">
+                      <div class="col-md-4" v-for="(post,index) in posts" :key="index">
                         <nugget-post
                           v-bind:key="index"
                           v-bind:post="post"
-                          v-bind:class="{'card-selected':(post.nugget_id == selected_id)}"
+                          v-bind:class="{'card-selected': post.nugget_id == selected_id}"
                           v-on:click.native="clickOnNugget(post)"
                         ></nugget-post>
                       </div>
@@ -74,26 +35,36 @@ var app = new Vue({
                     v-bind:class="{'card-selected': false}"
                   ></nugget-post>
                 <a href="javascript:;" v-on:click="selected_nugget=null;search();">
-                {{ labels.click_to_modify }}
+                {{ config.labels.click_to_modify }}
                 </a>
               </div>
             </div>
 
         </div>  
-      `,
-  el: '#app',
+</template>
+<script>
+import NuggetSearchFilter from "./components/NuggetSearchFilter"
+import NuggetPost from "./components/NuggetPost"
+import debounce from "debounce"
+export default {
+  name: 'NuggetSearchWidget',
+  components: { NuggetSearchFilter, NuggetPost },
   data() {
     return {
       typed: '',
+      debounced_typed: "",
       posts: [],
-      selected_id: null,
       selected_nugget: null,
       filters: {},
+      selected_id: null
     }
   },
   watch: {
-    selected_id(selected_id) {
+    selected_id() {
       this.checkSelected();
+    },
+    debounced_typed() {
+      this.search();
     },
     filters() {
       this.search();
@@ -102,13 +73,12 @@ var app = new Vue({
   computed: {
     searching() {
       return true;
-      //return this.typed.length >= 3;
     },
     filter_options() {
       return Object.assign({}, {
         is_default_version: true,
         page_size: 12,
-        fulltext: this.typed
+        fulltext: this.debounced_typed
       });
     },
     search_options() {
@@ -147,14 +117,11 @@ var app = new Vue({
     onFilters(filters) {
       this.filters = filters;
     },
-    onInput() {
-      if (this.searching) {
-        this.search();
-      } else {
-        //this.initialize();
-      }
-    },
+    onInput: debounce(function() {
+      this.debounced_typed = this.typed;
+    }, 500),
     clickOnNugget: function(post) {
+
       event.preventDefault();
       this.selected_id = (this.selected_id == post.nugget_id) ? null : post.nugget_id;
     },
@@ -174,4 +141,5 @@ var app = new Vue({
   mounted: function() {
     this.initialize();
   }
-});
+}
+</script>

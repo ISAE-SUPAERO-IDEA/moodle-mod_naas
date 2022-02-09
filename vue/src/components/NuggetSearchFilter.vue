@@ -1,4 +1,43 @@
-// Card component to display basic nugget  information
+<template>
+  <div class="filters" ref="filters">
+    <div
+      v-show="has_aggregations"
+      class="filters-inner"
+    >
+      <div
+        v-for="(aggregation, aggregation_key) in aggregations"
+        :v-if="aggregation.buckets"
+        :key="aggregation_key"
+      >
+        <a href="javascript:;" class="aggregation-title"
+          @click="switch_aggregation_visibility(aggregation)" data-toggle="dropdown">
+          <h6>
+            {{ config.labels.metadata[aggregation_key] }}
+            <i v-if="aggregation.visible" class="icon fa fa-arrow-down"></i>
+            <i v-else class="icon fa fa-arrow-up"></i>
+          </h6>
+        </a>
+          <div :id="$id(aggregation_key)" v-show="aggregation.visible">
+            <span v-for="bucket in aggregation.buckets" :key="bucket.key">
+              <a href="javascript:;"
+                ><span
+                  class="badge badge-margin"
+                  :class="bucket_class(bucket)"
+                  @click="switch_facet(aggregation_key, bucket.key)"
+                  >{{ bucket.caption }}</span>
+              </a>
+            </span>
+          </div>
+      </div>
+      <div class="clear-filters" v-show="has_filters">
+        <a href="javascript:;" @click="clear_filters()">
+          {{config.labels.clear_filters}}
+        </a>
+      </div>
+    </div>
+  </div>
+</template>
+<script>
 var NAAS_aggregations_order = [
   "level",
   "field_of_study",
@@ -7,48 +46,8 @@ var NAAS_aggregations_order = [
   "authors",
   "references"
 ];
-
-Vue.component('nugget-filter', {
-  template: ` 
-        <div class="filters" ref="filters">
-            <div
-              v-show="has_aggregations"
-              class="filters-inner"
-            >
-              <div
-                v-for="(aggregation, aggregation_key) in aggregations"
-                :v-if="aggregation.buckets"
-                :key="aggregation_key"
-              >
-                <a href="javascript:;" class="aggregation-title"
-                  @click="switch_aggregation_visibility(aggregation)" data-toggle="dropdown">
-                  <h6>
-                    {{ labels.metadata[aggregation_key] }}
-                    <i v-if="aggregation.visible" class="icon fa fa-arrow-down"></i>
-                    <i v-else class="icon fa fa-arrow-up"></i>
-                  </h6>
-                </a>
-                  <div :id="$id(aggregation_key)" v-show="aggregation.visible">
-                    <span v-for="bucket in aggregation.buckets" :key="bucket.key">
-                      <a href="javascript:;"
-                        ><span
-                          class="badge badge-margin"
-                          :class="bucket_class(bucket)"
-                          @click="switch_facet(aggregation_key, bucket.key)"
-                          >{{ bucket.caption }}</span>
-                      </a>
-                    </span>
-                  </div>
-              </div>
-              <div class="clear-filters" v-show="has_filters">
-                <a href="javascript:;" @click="clear_filters()">
-                  {{labels.clear_filters}}
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-    `,
+export default {
+  name: "NuggetSearchFilter",
   props: ["query"],
   data() {
     return {
@@ -215,4 +214,5 @@ Vue.component('nugget-filter', {
       return false;
     }
   }
-});
+};
+</script>
