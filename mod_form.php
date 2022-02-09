@@ -1,5 +1,7 @@
 <?php
 
+use Phpml\Helper\Optimizer\div;
+
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -48,32 +50,39 @@ class mod_naas_mod_form extends moodleform_mod {
         //-------------------------------------------------------
         $mform->addElement('header', 'general', get_string('general', 'form'));
 
-        $html = file_get_contents($CFG->wwwroot . '/mod/naas/assets/nuggetSearchWidget.html');
         $labels = json_encode([
-            "url_root" => $CFG->wwwroot,
-            "search_here" => get_string('nugget_search_here','naas'),
-            "search" => get_string('nugget_search','naas'),
-            "click_to_modify" => get_string('click_to_modify','naas'),
-            "clear_filters" => get_string('clear_filters','naas'),
-            "no_nugget" => get_string('no_nugget','naas'),
-            "click_to_modify" => get_string('click_to_modify','naas'),
-            "metadata" => [
-                "learning_outcomes" => get_string('learning_outcomes','naas'),
-                "prerequisites" => get_string('prerequisites','naas'),
-                "references" => get_string('references','naas'),
-                "field_of_study" => get_string('field_of_study','naas'),
-                "language" => get_string('language','naas'),
-                "duration" => get_string('duration','naas'),
-                "level" => get_string('level','naas'),
-                "structure_id" => get_string('structure_id','naas'),
-                "advanced" => get_string('advanced','naas'),
-                "intermediate" => get_string('intermediate','naas'),
-                "beginner" => get_string('beginner','naas'),
-                "tags" => get_string('tags','naas'),
+            "mount_point"=> "#naas_search_widget",
+            "proxy_url"=> "$CFG->wwwroot/mod/naas/proxy.php",
+                "labels" => [
+                "search_here" => get_string('nugget_search_here','naas'),
+                "search" => get_string('nugget_search','naas'),
+                "click_to_modify" => get_string('click_to_modify','naas'),
+                "clear_filters" => get_string('clear_filters','naas'),
+                "no_nugget" => get_string('no_nugget','naas'),
+                "click_to_modify" => get_string('click_to_modify','naas'),
+                "metadata" => [
+                    "learning_outcomes" => get_string('learning_outcomes','naas'),
+                    "prerequisites" => get_string('prerequisites','naas'),
+                    "references" => get_string('references','naas'),
+                    "field_of_study" => get_string('field_of_study','naas'),
+                    "language" => get_string('language','naas'),
+                    "duration" => get_string('duration','naas'),
+                    "level" => get_string('level','naas'),
+                    "structure_id" => get_string('structure_id','naas'),
+                    "advanced" => get_string('advanced','naas'),
+                    "intermediate" => get_string('intermediate','naas'),
+                    "beginner" => get_string('beginner','naas'),
+                    "tags" => get_string('tags','naas'),
+                ]
             ]
         ]);
+        $html = "";
+        $html .= "<div id='naas_search_widget'></div>"; 
+        $html .= "<script>NAAS=$labels</script>"; 
+        // TODO: use $PAGE->require->js
+        $search_widget_url = new moodle_url('/mod/naas/assets/vue/search_widget.js');
+        $html .= "<script src='$search_widget_url' ></script>";
 
-        $html = str_replace('$$labels$$', $labels, $html); 
 
         $mform->addElement('html', $html );
 
