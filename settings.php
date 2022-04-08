@@ -14,7 +14,7 @@ if ($hassiteconfig) {
     $settings->add(new admin_setting_heading(
         'naas',
         get_string('naas_settings', 'naas'),
-        get_string('naas_settings_help', 'naas'), 
+        get_string('naas_settings_help', 'naas') 
     ));
 
     // Endpoint
