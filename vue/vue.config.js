@@ -3,7 +3,6 @@ let dev_config;
 const path = require('path');
 
 if (process.env.NODE_ENV != 'production') {
-  console.log("toto");
   dev_config = require('./dev_config');
   console.log(dev_config);
 }
