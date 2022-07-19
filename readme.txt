@@ -15,8 +15,6 @@ This module uses a VueJS component to handle the search and the selection of a n
 In the vue directory:
 - Install the dependencies: yarn install
 - To build the component run `yarn build`
-=> The assets will be deployed in assets/vue
-- To develop the component in a sandbox and run `yarn serve`. In this case, the development environnement can be setup to improve the developpement experience:
 
 => Apache configuration
  to put in your moodle instance Virtualhost configurationµ. this will solve the CORS configuration error since you will be avle to access the component on the same webserver your moodle instance is working on.
@@ -34,6 +32,10 @@ RewriteRule ^/?(.*) "ws://moodle.local.isae.fr/$1" [P,L]
 --- proxy_url: the url where the proxy.php of the naas module can be reached
 --- nugget_id: initial nugget_id to simulate the fact that a nugget has already been selected
 --- labels: translation to be displayed on the interface
+
+=> The assets will be deployed in assets/vue
+- To develop the component in a sandbox and run `yarn serve -- --port 8083`.
+
 
 Contributing to this module
 ______________________

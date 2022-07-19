@@ -1,9 +1,13 @@
- const InjectPlugin = require('webpack-inject-plugin').default;
- const dev_config = require('./dev_config');
+const InjectPlugin = require('webpack-inject-plugin').default;
+let dev_config;
 const path = require('path');
 
+if (process.env.NODE_ENV != 'production') {
+  dev_config = require('./dev_config');
+  console.log(dev_config);
+}
 
- module.exports = {
+module.exports = {
   publicPath: "/vue/",
   outputDir: path.resolve(__dirname, '../assets/vue'),
   devServer: {
