@@ -110,7 +110,7 @@ class NaasMoodle  {
 
         foreach($roles as $role) {
 
-            if ($role->shortname == 'manager' || $role->shortname == 'editingteacher') return true;
+            if (is_siteadmin() || $role->shortname == 'manager' || $role->shortname == 'editingteacher') return true;
 
         }
 
