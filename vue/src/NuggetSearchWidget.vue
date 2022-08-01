@@ -10,20 +10,19 @@
                   <img v-bind:src="'../mod/naas/assets/search_icon.png'" class="search_center" width="35" height="35">
               </div>
 
-
               <div class="col-md-3">
                 <nugget-search-filter :query="filter_query" v-on:filters="onFilters"></nugget-search-filter>
               </div>
               <div class="col-md-9">
                 <div class="row">
-                      <div class="col-md-4" v-for="(post,index) in posts" :key="index">
-                        <nugget-post
-                          v-bind:key="index"
-                          v-bind:post="post"
-                          v-bind:class="{'card-selected': post.nugget_id == selected_id}"
-                          v-on:click.native="clickOnNugget(post)"
-                        ></nugget-post>
-                      </div>
+                    <div class="col-md-4" v-for="(post,index) in posts" :key="index">
+                      <nugget-post
+                        v-bind:key="index"
+                        v-bind:post="post"
+                        v-bind:class="{'card-selected': post.nugget_id == selected_id}"
+                        v-on:click.native="clickOnNugget(post)"
+                      ></nugget-post>
+                    </div>
                 </div>
               </div>
             </div>
@@ -105,14 +104,35 @@ export default {
     },
     search() {
       this.proxy(this.search_query).then(
-          (payload) => {
-            this.posts = payload ? payload.items : [];
-          })
+        async (payload) => {
+          var posts = payload ? payload.items : [];
+          var promises = [];
+          for (var i = 0; i < posts.length; i++) {
+            var authors = posts[i]['authors'];
+            for (var j = 0; j < authors.length; j++) {
+              ( (ipost, iauthor) => {
+                promises.push(this.getAuthorsName(authors[iauthor]).then(
+                  (AuthorsName) => {
+                      posts[ipost]["authors_name"] = posts[ipost]["authors_name"] || [];
+                      posts[ipost]["authors_name"].push(AuthorsName.toUpperCase());
+                    }
+                  ));
+              } )(i, j);
+            }
+          }
+          await Promise.all(promises);
+          this.posts = [...posts];
+        });
     },
     searchQuery(params) {
       var params_str = new URLSearchParams(params).toString();
-      return `/nuggets/search?${params_str}`; 
-
+      return `/nuggets/search?${params_str}`;
+    },
+    getAuthorsName(email) {
+      return this.proxy(`/persons/` + email).then(
+        (payload) => {
+          return payload['firstname'] + " " + payload['lastname'];
+        });
     },
     onFilters(filters) {
       this.filters = filters;

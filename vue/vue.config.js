@@ -4,7 +4,6 @@ const path = require('path');
 
 if (process.env.NODE_ENV != 'production') {
   dev_config = require('./dev_config');
-  console.log(dev_config);
 }
 
 module.exports = {
