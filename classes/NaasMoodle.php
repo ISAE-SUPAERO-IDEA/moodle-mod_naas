@@ -110,7 +110,7 @@ class NaasMoodle  {
 
         foreach($roles as $role) {
 
-            if ($role->shortname == 'editingteacher') return true;
+            if (is_siteadmin() || $role->shortname == 'manager' || $role->shortname == 'editingteacher') return true;
 
         }
 
@@ -131,6 +131,7 @@ class NaasMoodle  {
     function lti_launch($naas_instance_id) {
         global $PAGE;
         global $DB;
+        global $CFG;
         $cm = get_coursemodule_from_id('naas', $naas_instance_id, 0, false, MUST_EXIST);
         $naas_instance = $DB->get_record('naas', array('id' => $cm->instance), '*', MUST_EXIST);
         $context = \context_module::instance($cm->id);
@@ -156,6 +157,7 @@ class NaasMoodle  {
         $naas_instance->resourcekey = $nugget_config->key;
         $naas_instance->debuglaunch = 0;
         $custom = [
+            "hostname" => $CFG->wwwroot,
             "css" => $config->naas_css
         ];
         $naas_instance->instructorcustomparameters = "naas=". json_encode($custom);

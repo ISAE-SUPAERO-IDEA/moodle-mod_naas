@@ -10,11 +10,18 @@
 require_once($_SERVER['DOCUMENT_ROOT']."/config.php");
 require_once('classes/NaasClient.php');
 
+if (!is_siteadmin()) {
+	// Only managers and teachers can use the proxy
+	$roleid = $DB->get_field('role', 'id', ['shortname' => 'manager']);
+	$isManager = $DB->record_exists('role_assignments', ['userid' => $USER->id, 'roleid' => $roleid]);
 
-// Only teachers can use the proxy
-$roleid = $DB->get_field('role', 'id', ['shortname' => 'editingteacher']);
-$isteacheranywhere = $DB->record_exists('role_assignments', ['userid' => $USER->id, 'roleid' => $roleid]);
-if (!$isteacheranywhere) die;
+	if (!$isManager) {
+		$roleid = $DB->get_field('role', 'id', ['shortname' => 'editingteacher']);
+		$isTeacher = $DB->record_exists('role_assignments', ['userid' => $USER->id, 'roleid' => $roleid]);
+
+		if (!$isTeacher) die;
+	}
+}
 
 $config = (object) array_merge((array) get_config('naas'), (array) $CFG);
 $naas = new NaasClient($config);
