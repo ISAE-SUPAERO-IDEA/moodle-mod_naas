@@ -163,8 +163,8 @@ class NaasMoodle  {
         $naas_instance->instructorcustomparameters = "naas=". json_encode($custom);
 
         # TODO: permettre de configurer ces paramètes de sécurité
-        $naas_instance->instructorchoicesendname = 1;
-        $naas_instance->instructorchoicesendemailaddr = 1;
+        $naas_instance->instructorchoicesendname = $config->naas_privacy_learner_name;
+        $naas_instance->instructorchoicesendemailaddr = $config->naas_privacy_learner_mail;
         $naas_instance->instructorchoiceacceptgrades = 1;
         $naas_instance->instructorchoiceallowroster = null;
 

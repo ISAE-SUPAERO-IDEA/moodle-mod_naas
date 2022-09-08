@@ -68,5 +68,20 @@ if ($hassiteconfig) {
         PARAM_TEXT
     ));
 
+    // Privacy mail
+    $settings->add(new admin_setting_configcheckbox(
+        'naas/naas_privacy_learner_mail',
+        new lang_string('naas_settings_privacy_learner_mail', 'naas'),
+        new lang_string('naas_settings_privacy_learner_mail_help', 'naas'),
+        1
+    ));
+
+    // Privacy name
+    $settings->add(new admin_setting_configcheckbox(
+        'naas/naas_privacy_learner_name',
+        new lang_string('naas_settings_privacy_learner_name', 'naas'),
+        new lang_string('naas_settings_privacy_learner_name_help', 'naas'),
+        1
+    ));    
 }
 

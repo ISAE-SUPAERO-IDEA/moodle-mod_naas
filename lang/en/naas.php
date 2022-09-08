@@ -45,6 +45,10 @@ $string['naas_settings_timeout'] = 'Naas API timeout';
 $string['naas_settings_timeout_help'] = 'Number of seconds to wait before aborting a call to the NaaS API (0 for infinite)';
 $string['naas_settings_css'] = 'Naas CSS';
 $string['naas_settings_css_help'] = 'Extra CSS to be applied to Naas ressources)';
+$string['naas_settings_privacy_learner_mail'] = 'Collect nugget learners emails';
+$string['naas_settings_privacy_learner_mail_help'] = 'Send the learner email when connecting the user to the NaaS server to help improve the user experience by improving anonymous statistical data analysis';
+$string['naas_settings_privacy_learner_name'] = 'Collect nugget learners names';
+$string['naas_settings_privacy_learner_name_help'] = 'Send the learner name when connecting the user to the NaaS to improve their experience';
 
 $string['name_help'] = 'Name of the nugget that will appear in the course section';
 $string['name_display'] = 'Name to display';
