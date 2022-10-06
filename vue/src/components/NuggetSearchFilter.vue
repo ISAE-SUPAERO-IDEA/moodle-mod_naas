@@ -11,26 +11,28 @@
       >
         <a href="javascript:;" class="aggregation-title"
           @click="switch_aggregation_visibility(aggregation)" data-toggle="dropdown">
-          <h6>
+          <h6 style="margin-top: 10px; margin-bottom: 0px; padding-top: 0px;">
             {{ config.labels.metadata[aggregation_key] }}
             <i v-if="aggregation.visible" class="icon fa fa-arrow-down"></i>
-            <i v-else class="icon fa fa-arrow-up"></i>
+            <i v-else class="icon fa fa-arrow-right"></i>
           </h6>
         </a>
-          <div :id="$id(aggregation_key)" v-show="aggregation.visible">
-            <span v-for="bucket in aggregation.buckets" :key="bucket.key">
-              <a href="javascript:;"
-                ><span
-                  class="badge badge-margin"
-                  :class="bucket_class(bucket)"
-                  @click="switch_facet(aggregation_key, bucket.key)"
-                  >{{ bucket.caption }}</span>
-              </a>
-            </span>
-          </div>
+
+
+        <div :id="$id(aggregation_key)" v-show="aggregation.visible">
+          <span v-for="bucket in aggregation.buckets" :key="bucket.key">
+            <a href="javascript:;"
+              ><span
+                class="badge badge-margin"
+                :class="bucket_class(bucket)"
+                @click="switch_facet(aggregation_key, bucket.key)"
+                >{{ bucket.caption }}</span>
+            </a>
+          </span>
+        </div>
       </div>
       <div class="clear-filters" v-show="has_filters">
-        <a href="javascript:;" @click="clear_filters()">
+        <a href="javascript:;" @click="clear_filters()" class="btn btn-primary btn-small">
           {{config.labels.clear_filters}}
         </a>
       </div>

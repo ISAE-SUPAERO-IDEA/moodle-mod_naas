@@ -7,7 +7,7 @@
 }
 
 .nugget-post {
-  border-radius: 10px;
+  border-radius: 5px;
   box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
   padding: 10px;
   margin: 10px;
@@ -54,6 +54,7 @@ div.separator {
 }
 a.aggregation-title {
   color: #000000;
+  font-weight: 400;
 }
 a.aggregation-title:hover {
   text-decoration: none;
