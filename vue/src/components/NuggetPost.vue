@@ -2,9 +2,9 @@
   <div class="nugget-post">
     <img style="width:100%" :src="post.nugget_thumbnail_url.concat('?width=700&height=394')" alt="">
     <h3>{{ post.name }}</h3>
-    <h5 v-if="post.authors_name">by {{ post.authors_name.join(", ") }}</h5>
-    <p>{{ post.resume | truncate(190, "...") }}</p>
-    <p>{{ post.displayinfo }}</p>
+    <h4 v-if="post.authors_name">by {{ post.authors_name.join(", ") }}</h4>
+    <h5>{{ post.resume | truncate(190, "...") }}</h5>
+    <h5>{{ post.displayinfo }}</h5>
   </div>
 </template>
 <script>
@@ -13,3 +13,8 @@
     props: ["post"]
   }
 </script>
+<style scoped>
+  h3 { font-size: 1.17em; margin-top: 10px;}
+  h4 { font-size: 1em; }
+  h5 { font-size: 0.83em; }
+</style>
