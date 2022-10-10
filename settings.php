@@ -67,6 +67,14 @@ if ($hassiteconfig) {
         '',
         PARAM_TEXT
     ));
+    // Filter
+    $settings->add(new admin_setting_configtextarea(
+        'naas/naas_filter',
+        new lang_string('naas_settings_filter', 'naas'),
+        new lang_string('naas_settings_filter_help', 'naas'),
+        '',
+        PARAM_TEXT
+    ));
 
     // Privacy mail
     $settings->add(new admin_setting_configcheckbox(
