@@ -35,8 +35,6 @@ if ($nql) {
 	if (strpos($path, "/nuggets/search") === 0) {
 		$separator = strpos($path, "?") >=0 ? "&" : "?";
 		$path = "$path$separator"."nql=$nql";
-		error_log($path);
-
 	}
 }
 
