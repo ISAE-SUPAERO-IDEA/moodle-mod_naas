@@ -20,7 +20,7 @@
                         v-bind:key="index"
                         v-bind:post="post"
                         v-bind:class="{'card-selected': post.nugget_id == selected_id}"
-                        v-on:click.native="clickOnNugget(post)"
+                        @SelectButton="clickOnNugget"
                       ></nugget-post>
                     </div>
                 </div>
