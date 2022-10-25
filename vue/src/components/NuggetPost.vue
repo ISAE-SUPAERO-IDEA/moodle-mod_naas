@@ -1,51 +1,68 @@
 <template>
   <div class="nugget-post">
-    <img style="width:100%" :src="post.nugget_thumbnail_url.concat('?width=700&height=394')" alt="">
-    <h3>{{ post.name }}</h3>
-    <h4 v-if="post.authors_name">by {{ post.authors_name.join(", ") }}</h4>
-    <h5>{{ post.resume | truncate(190, "...") }}</h5>
-    <h5>{{ post.displayinfo }}</h5>
-    
-    <button
-      class="btn btn-primary"
-      @click="showNuggetModal()"
-    >
-      Preview
-    </button>
-    
-    <button 
-      class="btn btn-primary"
-      @click="SelectClickHandler(post)"
-    >
-      Select
-    </button>
+    <div @click="SelectClickHandler(post)" style="height: 100%; cursor: pointer;">
+      <img style="width:100%" :src="post.nugget_thumbnail_url.concat('?width=700&height=394')" alt="">
+      <h3>{{ post.name | truncate(35, "...") }}</h3>
+      <h4 v-if="post.authors_name">by {{ post.authors_name.join(", ") }}</h4>
+      <h5>{{ post.resume | truncate(190, "...") }}</h5>
+      <h5>{{ post.displayinfo }}</h5>
+    </div>
+    <div style="position: absolute; left: 35px; bottom: 20px;">
+      <button
+        class="btn btn-primary"
+        @click="showNuggetViewModal()"
+      >
+        Preview
+      </button>
+      <button
+        class="btn btn-primary"
+        @click="showNuggetDetailModal()"
+      >
+        Detail
+      </button>
+    </div>
 
-    <NuggetModal
-      v-show="isNuggetModalVisible"
+    <NuggetDetailModal
+      v-show="isNuggetDetailModalVisible"
       :post="post"
-      @close="closeNuggetModal()"
+      @close="closeNuggetDetailModal()"
+    />
+    <NuggetViewModal
+      v-show="isNuggetViewModalVisible"
+      :post="post"
+      @close="closeNuggetViewModal()"
     />
   </div>
 </template>
 <script>
-  import NuggetModal from './NuggetModal.vue';
+  import NuggetDetailModal from './NuggetDetailModal.vue';
+  import NuggetViewModal from './NuggetViewModal.vue';
+
   export default {
     name: "NuggetPost",
     props: ["post"],
     components: {
-      NuggetModal
+      NuggetDetailModal,
+      NuggetViewModal
     },
     data() {
       return {
-        isNuggetModalVisible: false
+        isNuggetDetailModalVisible: false,
+        isNuggetViewModalVisible: false
       };
     },
     methods: {
-      showNuggetModal() {
-        this.isNuggetModalVisible = true;
+      showNuggetDetailModal() {
+        this.isNuggetDetailModalVisible = true;
       },
-      closeNuggetModal() {
-        this.isNuggetModalVisible = false;
+      closeNuggetDetailModal() {
+        this.isNuggetDetailModalVisible = false;
+      },
+      showNuggetViewModal() {
+        this.isNuggetViewModalVisible = true;
+      },
+      closeNuggetViewModal() {
+        this.isNuggetViewModalVisible = false;
       },
       SelectClickHandler(post) {
         this.$emit('SelectButton', post);

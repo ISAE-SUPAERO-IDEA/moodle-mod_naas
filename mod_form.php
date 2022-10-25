@@ -61,6 +61,8 @@ class mod_naas_mod_form extends moodleform_mod {
                 "no_nugget" => get_string('no_nugget','naas'),
                 "click_to_modify" => get_string('click_to_modify','naas'),
                 "metadata" => [
+                    "resume" => get_string('resume','naas'),
+                    "about_author" => get_string('about_author','naas'),
                     "learning_outcomes" => get_string('learning_outcomes','naas'),
                     "prerequisites" => get_string('prerequisites','naas'),
                     "references" => get_string('references','naas'),
@@ -73,6 +75,10 @@ class mod_naas_mod_form extends moodleform_mod {
                     "intermediate" => get_string('intermediate','naas'),
                     "beginner" => get_string('beginner','naas'),
                     "tags" => get_string('tags','naas'),
+                    "en" => get_string('en','naas'),
+                    "english" => get_string('english','naas'),
+                    "fr" => get_string('fr','naas'),
+                    "french" => get_string('french','naas'),
                 ]
             ]
         ]);

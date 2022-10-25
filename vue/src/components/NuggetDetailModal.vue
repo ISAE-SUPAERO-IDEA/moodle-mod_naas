@@ -13,16 +13,7 @@
           </button>
         </header>
 
-        <div class="row" style="margin: 0px 5px 15px 5px;">
-          <button v-on:click="showNuggetView = false" class="btn" style="width: 50%; background: #F5F5F5; border: solid black 1px;">
-            Detail
-          </button>
-          <button v-on:click="showNuggetView = true" class="btn" style="width: 50%; background: #F5F5F5; border: solid black 1px;">
-            View
-          </button>
-        </div>
-
-        <section class="modal-body" v-show="!showNuggetView">
+        <section class="modal-body">
           <div class="row row_item">
             <div style="float: left; width: 69%;" >
               <!-- Resume -->
@@ -117,39 +108,17 @@
               </ul>
             </div>
           </div>
-         </section>
-
-         <section class="modal-body" v-show="showNuggetView">
-          <div class="row row_item NuggetView">           
-            <iframe id='lti_frame' :src='NuggetView' style='border:none; width:100%'></iframe>
-          </div>
         </section>
+
       </div>
     </div>
   </transition>
 </template>
-
 <script>
   export default {
-    name: 'NuggetModal',
+    name: 'NuggetDetailModal',
     props: ["post"],
-    data() {      
-      return {
-        showNuggetView: false,
-        NuggetView: ""
-      }
-    },
-    mounted() {
-      this.initialize();
-    },
     methods: {
-      initialize() {
-        this.proxy(`/versions/` + this.post.version_id + `/preview_url`).then(
-          (payload) => {
-            this.NuggetView = payload;
-          }
-        );
-      },
       closeNuggetModal() {
         this.$emit('close');
       },
@@ -178,8 +147,7 @@
     }
   };
 </script>
-
-<style>
+<style scoped>
   .modal-fade-enter,
   .modal-fade-leave-to {
     opacity: 0;
@@ -215,10 +183,8 @@
     transform: translate(-50%, -50%);
   }
   .modal-header {
-    padding: 15px 15px 0px 15px;
+    padding: 15px 15px 0 15px;
     display: flex;
-  }
-  .modal-header {
     position: relative;
     border-bottom: 1px solid #eeeeee;
     justify-content: space-between;
@@ -226,7 +192,7 @@
   .modal-body {
     position: relative;
     overflow-y: auto;
-    padding: 0px;
+    padding: 0;
   }
   .btn-close {
     position: absolute;
@@ -242,10 +208,6 @@
   }
 
   .row_item {
-    margin: 0px 10px 0px 10px;
-  }
-  .NuggetView {
-    padding: 0px 0px 10px 0px;
-    height: 100%;
+    margin: 0 15px;
   }
 </style>

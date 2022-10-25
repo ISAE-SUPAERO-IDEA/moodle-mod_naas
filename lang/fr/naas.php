@@ -63,6 +63,9 @@ $string['clear_filters'] = 'Effacer les filtres';
 
 $string['back_to_course'] = 'Retour au cours';
 
+$string["resume"] = "Résumé";
+$string["in_brief"] = "En Bref";
+$string["about_author"] = "À propos de l'auteur";
 $string["learning_outcomes"] = "Objectifs d'apprentissage";
 $string["prerequisites"] = "Prérequis";
 $string["references"] = "Réferences";
@@ -76,3 +79,8 @@ $string["advanced"] = "Avancé";
 $string["intermediate"] = "Intermédiaire";
 $string["beginner"] = "Débutant";
 $string["tags"] = "Mots clés";
+
+$string["en"] = "Anglais";
+$string["english"] = "Anglais";
+$string["fr"] = "Français";
+$string["french"] = "Français";

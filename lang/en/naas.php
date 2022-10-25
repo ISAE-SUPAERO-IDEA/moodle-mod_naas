@@ -63,6 +63,9 @@ $string['clear_filters'] = 'Clear filters';
 
 $string['back_to_course'] = 'Back to course';
 
+$string["resume"] = "Resume";
+$string["in_brief"] = "In Brief";
+$string["about_author"] = "About the author";
 $string["learning_outcomes"] = "Learning outcomes";
 $string["prerequisites"] = "Prerequisites";
 $string["references"] = "References";
@@ -77,3 +80,7 @@ $string["intermediate"] = "Intermediate";
 $string["beginner"] = "Beginner";
 $string["tags"] = "Tags";
 
+$string["en"] = "English";
+$string["english"] = "English";
+$string["fr"] = "French";
+$string["french"] = "French";
