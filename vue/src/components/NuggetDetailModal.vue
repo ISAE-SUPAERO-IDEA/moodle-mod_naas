@@ -1,82 +1,78 @@
 <template>
   <transition name="modal-fade">
-    <div class="modal-backdrop">
-      <div class="modal">
-        <header class="modal-header">
-          <h3>Preview : {{ post.name }}</h3>
+    <div style="position: fixed; top: 0; bottom: 0; left: 0; right: 0; background-color: rgba(0, 0, 0, 0.3); display: flex; justify-content: center; align-items: center; z-index: 2;">
+      <div style="overflow-x: auto; display: flex; height: 50%; width: 50%; position: absolute; left: 50%; top: 50%; background: #FFFFFF; box-shadow: 2px 2px 20px 1px; border-radius: 5px; flex-direction: column; transform: translate(-50%, -50%);">
+        <header style="padding: 15px 15px 0 15px; display: flex; border-bottom: 1px solid #eeeeee; justify-content: space-between; position: relative;">
+          <h3>Details : {{ post.name }}</h3>
           <button
             type="button"
-            class="btn-close"
+            style="position: absolute; top: 0; right: 0; border: none; font-size: 20px; padding: 10px; cursor: pointer; font-weight: bold; color: #999999; background: transparent;"
             @click="closeNuggetModal()"
           >
             x
           </button>
         </header>
-        <section class="modal-body">
-          <div class="row row_item">
+        <section style="overflow-y: auto; position: relative; padding: 0;">
+          <div class="row" style="margin: 0 15px;">
             <div style="float: left; width: 69%;" >
               <!-- Resume -->
               <div v-show="is_shown(post.resume)">
-                <h3>Resume</h3>
+                <h3>{{ config.labels.metadata.resume }}</h3>
                 <p class="p-position">{{ post.resume }}</p>
               </div>
               <!-- About author -->
               <div v-show="is_shown(post.authors_name)">
-                <h3>About the author</h3>
+                <h3>{{ config.labels.metadata.about_author }}</h3>
                 <h5>{{ post.authors_name.join(", ") }}</h5>
               </div>
             </div>
             <div style="width: 2%;"></div>
             <!-- In brief -->
             <div v-show="in_brief_shown" style="float: right; width: 29%;">
-              <h3>In Brief</h3>
+              <h3>{{ config.labels.metadata.in_brief }}</h3>
               <div>
                 <ul style="list-style: none">
                   <li v-show="is_shown(post.duration)">
-                    <i class="icon fa fa-clock"></i>
-                    Learning time:
+                    <i class="icon fa fa-clock-o"></i>
+                    {{ config.labels.metadata.duration }}:
                     <strong id="formatage-duration">
                       {{ post.duration }} minutes
                     </strong>
                   </li>
                   <li v-show="is_shown(post.language)">
                     <i class="icon fa fa-globe"></i>
-                    Language:
-                    <strong>{{ post.language }}</strong>
+                    {{ config.labels.metadata.language }}:
+                    <strong>{{ config.labels.metadata[post.language] }}</strong>
                   </li>
                   <li v-show="is_shown(post.level)">
-                    <i class="icon fa fa-arrows-up-down"></i>
-                    Level:
-                    <strong>{{ post.level }}</strong>
+                    <i class="icon fa fa-arrow-up"></i>
+                    {{ config.labels.metadata.level }}:
+                    <strong>{{ config.labels.metadata[post.level] }}</strong>
                   </li>
                   <li v-show="is_shown(post.domainsData)">
-                    <i class="icon fa fa-octagon"></i>
-                    Fields of study<br />
-                    <span v-for="item in post.domainsData" :key="item.id">
-                      <span class="badge badge-pill badge-primary">{{
-                        item.label
-                      }}</span>
-                      <br
-                    /></span>
+                    <i class="icon fa fa-home"></i>
+                    {{ config.labels.metadata.field_of_study }}:<br />
+                    <span v-for="item in post.domainsData" :key="item.id" style="margin-left: 30px;">
+                      <span class="badge badge-pill badge-primary">{{ item.label }}</span>
+                      <br/>
+                    </span>
                   </li>
                   <li v-show="is_shown(post.tags)">
                     <i class="icon fa fa-tag"></i>
-                    Tags<br />
-                    <span v-for="item in post.tags" :key="item">
-                      <span class="badge badge-pill badge-primary">{{
-                        item
-                      }}</span>
-                      <br
-                    /></span>
+                    {{ config.labels.metadata.tags }}:<br />
+                    <span v-for="item in post.tags" :key="item" style="margin-left: 30px;">
+                      <span class="badge badge-pill badge-primary">{{ item }}</span>
+                      <br/>
+                    </span>
                   </li>
                 </ul>
               </div>
             </div>
           </div>
           <!-- Prerequisites -->
-          <div v-show="is_shown(post.prerequisites)" class="row row_item">
-            <div class="w-100">
-              <h3>Prerequisites</h3>
+          <div v-show="is_shown(post.prerequisites)" class="row" style="margin: 0 15px;">
+            <div style="width: 100%;">
+              <h3>{{ config.labels.metadata.prerequisites }}</h3>
               <ul class="about-list ul-position">
                 <li v-for="item in post.prerequisites" :key="item">
                   <p>{{ item }}</p>
@@ -85,9 +81,9 @@
             </div>
           </div>
           <!-- Learning outcomes -->
-          <div v-show="is_shown(post.learning_outcomes)" class="row row_item">
-            <div class="w-100">
-              <h3>Learning outcomes</h3>
+          <div v-show="is_shown(post.learning_outcomes)" class="row" style="margin: 0 15px;">
+            <div style="width: 100%;">
+              <h3>{{ config.labels.metadata.learning_outcomes }}</h3>
               <ul class="about-list ul-position">
                 <li v-for="item in post.learning_outcomes" :key="item">
                   <p>{{ item }}</p>
@@ -96,9 +92,9 @@
             </div>
           </div>
           <!-- References -->
-          <div v-show="is_shown(post.references)" class="row row_item">
-            <div class="w-100">
-              <h3>References</h3>
+          <div v-show="is_shown(post.references)" class="row" style="margin: 0 15px;">
+            <div style="width: 100%;">
+              <h3>{{ config.labels.metadata.references }}</h3>
               <ul class="about-list ul-position">
                 <li v-for="item in post.references" :key="item">
                   <p>{{ item }}</p>
@@ -145,38 +141,19 @@
   };
 </script>
 <style scoped>
-  .modal-backdrop {
-    background-color: rgba(0, 0, 0, 0.3);
-    position: fixed;
-    top: 0;
-    left: 0;
+  .modal-fade-enter,
+  .modal-fade-leave-to {
+    opacity: 0;
   }
-  .modal {
-    overflow-x: auto;
-    display: flex;
-    height: 50%;
-    width: 50%;
-    position: absolute;
-    left: 50%;
-    top: 50%;
+  .modal-fade-enter-active,
+  .modal-fade-leave-active {
+    transition: opacity .3s ease;
   }
+
   @media (max-width: 1250px) {
     .modal {
       height: 75%;
       width: 75%;
     }
-  }
-  .modal-header {
-    padding: 15px 15px 0 15px;
-    display: flex;
-    border-bottom: 1px solid #eeeeee;
-    justify-content: space-between;
-  }
-  .modal-body {
-    position: relative;
-    padding: 0;
-  }
-  .row_item {
-    margin: 0 15px;
   }
 </style>

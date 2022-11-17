@@ -53,7 +53,7 @@ class mod_naas_mod_form extends moodleform_mod {
         $labels = json_encode([
             "mount_point"=> "#naas_search_widget",
             "proxy_url"=> "$CFG->wwwroot/mod/naas/proxy.php",
-                "labels" => [
+            "labels" => [
                 "search_here" => get_string('nugget_search_here','naas'),
                 "search" => get_string('nugget_search','naas'),
                 "click_to_modify" => get_string('click_to_modify','naas'),
@@ -62,6 +62,7 @@ class mod_naas_mod_form extends moodleform_mod {
                 "click_to_modify" => get_string('click_to_modify','naas'),
                 "metadata" => [
                     "resume" => get_string('resume','naas'),
+                    "in_brief" => get_string('in_brief','naas'),
                     "about_author" => get_string('about_author','naas'),
                     "learning_outcomes" => get_string('learning_outcomes','naas'),
                     "prerequisites" => get_string('prerequisites','naas'),

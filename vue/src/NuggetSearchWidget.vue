@@ -1,45 +1,44 @@
 <template>
-        <div>
-          <div class="row" v-if="selected_nugget==null">
-              <div class="col-md-3 col-form-label d-flex pb-0 pr-md-0">
-                  <label class="d-inline word-break" id="nugget_search">{{config.labels.search}} </label>
-              </div>
+  <div>
+    <div class="row" v-if="selected_nugget==null">
+      <div class="col-md-3 col-form-label d-flex pb-0 pr-md-0">
+        <label class="d-inline word-break" id="nugget_search">{{config.labels.search}} </label>
+      </div>
 
-              <div class="col-md-9 form-inline align-items-start felement" data-fieldtype="text">
-                  <input v-model="typed" @input="onInput" @keydown="$event.keyCode === 13 ? $event.preventDefault() : false" size="43" class="form-control" :placeholder="config.search_here">
-                  <img v-bind:src="'../mod/naas/assets/search_icon.png'" class="search_center" width="35" height="35">
-              </div>
+      <div class="col-md-9 form-inline align-items-start felement" data-fieldtype="text">
+        <input v-model="typed" @input="onInput" @keydown="$event.keyCode === 13 ? $event.preventDefault() : false" size="43" class="form-control" :placeholder="config.search_here">
+        <img v-bind:src="'../mod/naas/assets/search_icon.png'" class="search_center" width="35" height="35">
+      </div>
 
-              <div class="col-md-3">
-                <nugget-search-filter :query="filter_query" v-on:filters="onFilters"></nugget-search-filter>
-              </div>
-              <div class="col-md-9">
-                <div class="row">
-                    <div class="col-md-4" v-for="(post,index) in posts" :key="index">
-                      <nugget-post
-                        v-bind:key="index"
-                        v-bind:post="post"
-                        v-bind:class="{'card-selected': post.nugget_id == selected_id}"
-                        @SelectButton="clickOnNugget"
-                      ></nugget-post>
-                    </div>
-                </div>
-              </div>
-            </div>
-            <div class="row" v-else>
-              <div class="col-md-3"></div>
-              <div class="col-md-9">
-                <nugget-post
-                    v-bind:post="selected_nugget"
-                    v-bind:class="{'card-selected': false}"
-                  ></nugget-post>
-                <a href="javascript:;" v-on:click="selected_nugget=null;search();">
-                {{ config.labels.click_to_modify }}
-                </a>
-              </div>
-            </div>
-
-        </div>  
+      <div class="col-md-3">
+        <nugget-search-filter :query="filter_query" v-on:filters="onFilters"></nugget-search-filter>
+      </div>
+      <div class="col-md-9">
+        <div class="row">
+          <div class="col-md-4" style="margin-bottom: 20px;" v-for="(post,index) in posts" :key="index">
+            <nugget-post
+              v-bind:key="index"
+              v-bind:post="post"
+              v-bind:class="{'card-selected': post.nugget_id == selected_id}"
+              @SelectButton="clickOnNugget"
+            ></nugget-post>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row" v-else>
+      <div class="col-md-3"></div>
+      <div class="col-md-9" style="margin-bottom: 75px;">
+        <nugget-post
+          v-bind:post="selected_nugget"
+          v-bind:class="{'card-selected': false}"
+        ></nugget-post>
+        <a href="javascript:;" v-on:click="selected_nugget=null; search();">
+        {{ config.labels.click_to_modify }}
+        </a>
+      </div>
+    </div>
+  </div>
 </template>
 <script>
 import NuggetSearchFilter from "./components/NuggetSearchFilter"
@@ -96,7 +95,20 @@ export default {
       if (this.selected_id != '') {
         // Nugget_id in memory -> Retrieve from id
         this.proxy(`/nuggets/${this.selected_id}/default_version`).then(
-          (payload) => {
+          async (payload) => {
+            var authors = payload['authors'];
+            var promises = [];
+            for (var j = 0; j < authors.length; j++) {
+              ( (iauthor) => {
+                promises.push(this.getAuthorsName(authors[iauthor]).then(
+                  (AuthorsName) => {
+                      payload["authors_name"] = payload["authors_name"] || [];
+                      payload["authors_name"].push(AuthorsName.toUpperCase());
+                    }
+                  ));
+              } )(j);
+            }
+            await Promise.all(promises);
             this.selected_nugget = payload;
           }
         );
