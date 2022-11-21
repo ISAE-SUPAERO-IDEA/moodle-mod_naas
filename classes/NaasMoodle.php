@@ -138,7 +138,7 @@ class NaasMoodle  {
         $course = $DB->get_record('course', array('id'=>$cm->course), '*', MUST_EXIST);
 
         // Retrieve LTI config from NaaS server
-        $config = \get_config('naas');
+        $config = (object) array_merge((array) \get_config('naas'), (array) $CFG);
         $naas = new \NaasClient($config);
         $nugget_config = $naas->get_nugget_lti_config($naas_instance->nugget_id);
         if ($nugget_config==null || array_key_exists("error", $nugget_config)) {
