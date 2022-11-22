@@ -10,6 +10,7 @@
 
 require_once($_SERVER['DOCUMENT_ROOT']."/config.php");
 require_once($CFG->dirroot.'/mod/lti/locallib.php');
+require_once('classes/NaasClient.php');
 
 $id        = optional_param('id', 0, PARAM_INT);        // Course module ID
 $u         = optional_param('u', 0, PARAM_INT);         // Naas instance id
@@ -24,7 +25,11 @@ if ($u) {  // Two ways to specify the module
     $cm = get_coursemodule_from_id('naas', $id, 0, false, MUST_EXIST);
     $naas_instance = $DB->get_record('naas', array('id'=>$cm->instance), '*', MUST_EXIST);
 }
- 
+
+$config = (object) array_merge((array) get_config('naas'), (array) $CFG);
+$naas = new NaasClient($config);
+$nugget_detail = $naas->request('GET', "/nuggets/".$naas_instance->nugget_id);
+
 $course = $DB->get_record('course', array('id'=>$cm->course), '*', MUST_EXIST);
 $context = context_module::instance($cm->id);
 
@@ -49,6 +54,217 @@ echo $OUTPUT->header();
 echo $OUTPUT->heading($naas_instance->name);
 
 
+// Get authors full name
+$nugget_authors = [];
+foreach ($nugget_detail->payload->authors as $author) {
+    $request = $naas->request('GET', "/persons/".$author);
+    array_push($nugget_authors, strtoupper($request->payload->firstname." ".$request->payload->lastname));
+}
+
+// Create Detail Modal
+function is_shown($val) {
+    if (empty($val)) return false;
+    if ($val == "") return false;
+    return true;
+}
+
+echo '<a href="javascript:;" class="btn btn-primary" onclick=showModal()>See nugget details</a>';
+echo '
+    <script>
+        function showModal() { document.getElementById("DetailModal").style.display = "block"; }
+        function hideModal() { document.getElementById("DetailModal").style.display = "none"; }
+    </script>
+
+    <div id="DetailModal" style="display:none;">
+        <div style="position: fixed; top: 0; bottom: 0; left: 0; right: 0; background-color: rgba(0, 0, 0, 0.3); display: flex; justify-content: center; align-items: center; z-index: 2;">
+            
+            <div style="overflow-x: auto; display: flex; height: 50%; width: 50%; position: absolute; left: 50%; top: 50%; background: #FFFFFF; box-shadow: 2px 2px 20px 1px; border-radius: 5px; flex-direction: column; transform: translate(-50%, -50%);">
+                <header style="padding: 15px 15px 0 15px; display: flex; border-bottom: 1px solid #eeeeee; justify-content: space-between; position: relative;">
+                    <h3>Details : '.$nugget_detail->payload->name.'</h3>
+                    <button
+                        type="button"
+                        style="position: absolute; top: 0; right: 0; border: none; font-size: 20px; padding: 10px; cursor: pointer; font-weight: bold; color: #999999; background: transparent;"
+                        onclick="hideModal()"
+                    >
+                        x
+                    </button>
+                </header>
+                <section style="overflow-y: auto; position: relative; padding: 0;">
+                    <div class="row" style="margin: 0 15px;">
+                        <div style="float: left; width: 69%;">
+                            ';
+                            if (is_shown($nugget_detail->payload->resume)) {    // Resume
+                                echo '
+                                <div>
+                                    <h3>'.get_string('resume','naas').'</h3>
+                                    <p class="p-position">'.$nugget_detail->payload->resume.'</p>
+                                </div>';
+                            }
+                            if (is_shown($nugget_authors)) {    // About author
+                                echo '
+                                <div>
+                                    <h3>'.get_string('about_author','naas').'</h3>
+                                ';
+                                foreach ($nugget_authors as $nugget_author) {
+                                    echo '
+                                    <h5>'.$nugget_author.'</h5>
+                                    ';
+                                }
+                                echo '
+                                </div>
+                                ';
+                            }
+                            echo '
+                        </div>
+                        <div style="width: 2%;"></div>
+                        ';
+                        if (is_shown($nugget_detail->payload->duration) || is_shown($nugget_detail->payload->language) || is_shown($nugget_detail->payload->level) || is_shown($nugget_detail->payload->domains) || is_shown($nugget_detail->payload->tags)) {   // In brief
+                            echo '
+                            <div style="float: right; width: 29%;">
+                                <h3>'.get_string('in_brief','naas').'</h3>
+                                <div>
+                                    <ul style="list-style: none">
+                                        ';
+                                        if (is_shown($nugget_detail->payload->duration)) {      // Duration
+                                            echo '
+                                            <li>
+                                                <i class="icon fa fa-clock-o"></i>
+                                                '.get_string('duration','naas').':
+                                                <strong id="formatage-duration">'.$nugget_detail->payload->duration.' minutes</strong>
+                                            </li>
+                                            ';
+                                        }
+                                        if (is_shown($nugget_detail->payload->language)) {      // Language
+                                            echo '
+                                            <li>
+                                                <i class="icon fa fa-globe"></i>
+                                                '.get_string('language','naas').':
+                                                <strong>'.get_string($nugget_detail->payload->language,'naas').'</strong>
+                                            </li>
+                                            ';
+                                        }
+                                        if (is_shown($nugget_detail->payload->level)) {         // Level
+                                            echo '
+                                            <li>
+                                                <i class="icon fa fa-arrow-up"></i>
+                                                '.get_string('level','naas').':
+                                                <strong>'.get_string($nugget_detail->payload->level,'naas').'</strong>
+                                            </li>
+                                            ';
+                                        }
+                                        if (is_shown($nugget_detail->payload->domains)) {       // Field of study
+                                            echo '
+                                            <li>
+                                                <i class="icon fa fa-home"></i>
+                                                '.get_string('field_of_study','naas').':<br />
+                                                ';
+                                                foreach ($nugget_detail->payload->domains as $domain) {
+                                                    echo '
+                                                    <span style="margin-left: 30px;">
+                                                        <span class="badge badge-pill badge-primary">'.$domain.'</span>
+                                                        <br/>
+                                                    </span>
+                                                    ';
+                                                }
+                                                echo '
+                                            </li>
+                                            ';
+                                        }
+                                        if (is_shown($nugget_detail->payload->tags)) {          // Tags
+                                            echo '
+                                            <li>
+                                                <i class="icon fa fa-tag"></i>
+                                                '.get_string('tags','naas').':<br />
+                                                ';
+                                                foreach ($nugget_detail->payload->tags as $tag) {
+                                                    echo '
+                                                    <span style="margin-left: 30px;">
+                                                        <span class="badge badge-pill badge-primary">'.$tag.'</span>
+                                                        <br/>
+                                                    </span>
+                                                    ';
+                                                }
+                                                echo '
+                                            </li>
+                                            ';
+                                        }
+                                        echo '
+                                    </ul>
+                                </div>
+                            </div>
+                            ';
+                        }
+                    echo '
+                    </div>
+                    ';
+                    if (is_shown($nugget_detail->payload->prerequisites)) {     // Prerequisites
+                        echo '
+                        <div class="row" style="margin: 0 15px;">
+                            <div style="width: 100%;">
+                              <h3>'.get_string('prerequisites','naas').'</h3>
+                              <ul class="about-list ul-position">
+                                ';
+                                foreach ($nugget_detail->payload->prerequisites as $prerequisite) {
+                                    echo '
+                                    <li>
+                                      <p>'.$prerequisite.'</p>
+                                    </li>
+                                    ';
+                                }
+                                echo '
+                              </ul>
+                            </div>
+                        </div>
+                        ';
+                    }
+                    if (is_shown($nugget_detail->payload->learning_outcomes)) {     // Learning outcomes
+                        echo '
+                        <div class="row" style="margin: 0 15px;">
+                            <div style="width: 100%;">
+                                <h3>'.get_string('learning_outcomes','naas').'</h3>
+                                <ul class="about-list ul-position">
+                                ';
+                                foreach ($nugget_detail->payload->learning_outcomes as $learning_outcome) {
+                                    echo '
+                                    <li>
+                                        <p>'.$learning_outcome.'</p>
+                                    </li>
+                                    ';
+                                }
+                                echo '
+                              </ul>
+                            </div>
+                        </div>
+                        ';
+                    }
+                    if (is_shown($nugget_detail->payload->references)) {      // References
+                        echo '
+                        <div class="row" style="margin: 0 15px;">
+                            <div style="width: 100%;">
+                                <h3>'.get_string('references','naas').'</h3>
+                                <ul class="about-list ul-position">
+                                ';
+                                foreach ($nugget_detail->payload->references as $reference) {
+                                    echo '
+                                    <li>
+                                        <p>'.$reference.'</p>
+                                    </li>
+                                    ';
+                                }
+                                echo '
+                              </ul>
+                            </div>
+                        </div>
+                        ';
+                    }
+                    echo '
+                </section>
+            </div>
+        </div>
+    </div>
+';
+
+
 // Request the launch content with an iframe tag.
 $iframeresizer_url = new moodle_url('/mod/naas/assets/iframeResizer.min.js');
 echo "<script src='$iframeresizer_url' ></script>";
@@ -59,7 +275,5 @@ echo "<iframe id='naascontentframe' height='600px' width='100%' src='launch.php?
 // Back to course button
 echo "<a class='back-to-course btn btn-primary' href=".$CFG->wwwroot."/course/view.php?id=".$COURSE->id.">".get_string('back_to_course', 'naas')."</a>";
 
- // Finish the page.
+// Finish the page.
 echo $OUTPUT->footer();
-
-
