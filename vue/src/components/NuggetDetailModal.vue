@@ -1,18 +1,18 @@
 <template>
   <transition name="modal-fade">
-    <div style="position: fixed; top: 0; bottom: 0; left: 0; right: 0; background-color: rgba(0, 0, 0, 0.3); display: flex; justify-content: center; align-items: center; z-index: 2;">
-      <div style="overflow-x: auto; display: flex; height: 50%; width: 50%; position: absolute; left: 50%; top: 50%; background: #FFFFFF; box-shadow: 2px 2px 20px 1px; border-radius: 5px; flex-direction: column; transform: translate(-50%, -50%);">
-        <header style="padding: 15px 15px 0 15px; display: flex; border-bottom: 1px solid #eeeeee; justify-content: space-between; position: relative;">
+    <div class="nugget-modal-backdrop">
+      <div class="nugget-modal">
+        <header class="nugget-modal-header">
           <h3>Details : {{ post.name }}</h3>
           <button
             type="button"
-            style="position: absolute; top: 0; right: 0; border: none; font-size: 20px; padding: 10px; cursor: pointer; font-weight: bold; color: #999999; background: transparent;"
+            class="btn-close"
             @click="closeNuggetModal()"
           >
             x
           </button>
         </header>
-        <section style="overflow-y: auto; position: relative; padding: 0;">
+        <section class="nugget-modal-body">
           <div class="row" style="margin: 0 15px;">
             <div style="float: left; width: 69%;" >
               <!-- Resume -->
@@ -71,7 +71,7 @@
           </div>
           <!-- Prerequisites -->
           <div v-show="is_shown(post.prerequisites)" class="row" style="margin: 0 15px;">
-            <div style="width: 100%;">
+            <div class="w-100">
               <h3>{{ config.labels.metadata.prerequisites }}</h3>
               <ul class="about-list ul-position">
                 <li v-for="item in post.prerequisites" :key="item">
@@ -82,7 +82,7 @@
           </div>
           <!-- Learning outcomes -->
           <div v-show="is_shown(post.learning_outcomes)" class="row" style="margin: 0 15px;">
-            <div style="width: 100%;">
+            <div class="w-100">
               <h3>{{ config.labels.metadata.learning_outcomes }}</h3>
               <ul class="about-list ul-position">
                 <li v-for="item in post.learning_outcomes" :key="item">
@@ -93,7 +93,7 @@
           </div>
           <!-- References -->
           <div v-show="is_shown(post.references)" class="row" style="margin: 0 15px;">
-            <div style="width: 100%;">
+            <div class="w-100">
               <h3>{{ config.labels.metadata.references }}</h3>
               <ul class="about-list ul-position">
                 <li v-for="item in post.references" :key="item">
@@ -140,20 +140,3 @@
     }
   };
 </script>
-<style scoped>
-  .modal-fade-enter,
-  .modal-fade-leave-to {
-    opacity: 0;
-  }
-  .modal-fade-enter-active,
-  .modal-fade-leave-active {
-    transition: opacity .3s ease;
-  }
-
-  @media (max-width: 1250px) {
-    .modal {
-      height: 75%;
-      width: 75%;
-    }
-  }
-</style>

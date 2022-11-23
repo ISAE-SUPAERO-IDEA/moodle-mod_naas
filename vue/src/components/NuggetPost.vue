@@ -1,7 +1,7 @@
 <template>
-  <div class="nugget-post" style="height: 100%; margin-bottom: 25px;">
-    <div @click="SelectClickHandler(post)" style="height: 100%; cursor: pointer;">
-      <img style="width: 100%;" :src="post.nugget_thumbnail_url.concat('?width=700&height=394')" alt="">
+  <div class="nugget-post h-100" style="margin-bottom: 25px;">
+    <div @click="SelectClickHandler(post)" class="h-100" style="cursor: pointer;">
+      <img class="w-100" :src="post.nugget_thumbnail_url.concat('?width=700&height=394')" alt="">
       <h3>{{ post.name | truncate(35, "...") }}</h3>
       <h4 v-if="post.authors_name">by {{ post.authors_name.join(", ") }}</h4>
       <h5>{{ post.resume | truncate(190, "...") }}</h5>
