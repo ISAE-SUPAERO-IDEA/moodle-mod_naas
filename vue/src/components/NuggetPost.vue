@@ -2,23 +2,21 @@
   <div class="nugget-post h-100" style="margin-bottom: 25px;">
     <div @click="SelectClickHandler(post)" class="h-100" style="cursor: pointer;">
       <img class="w-100" :src="post.nugget_thumbnail_url.concat('?width=700&height=394')" alt="">
-      <h3>{{ post.name | truncate(35, "...") }}</h3>
-      <h4 v-if="post.authors_name">by {{ post.authors_name.join(", ") }}</h4>
-      <h5>{{ post.resume | truncate(190, "...") }}</h5>
+      <h4>{{ post.name | truncate(50, "...") }}</h4>
+      <h5 v-if="post.authors_name">by {{ post.authors_name.join(", ") }}</h5>
+      <h6>{{ post.resume | truncate(190, "...") }}</h6>
       <h5>{{ post.displayinfo }}</h5>
     </div>
-    <div style="position: absolute; right: 30px; bottom: 0px;">
+    <div class="nugget-buttons">
       <a
         href="javascript:;"
-        class="btn btn-primary"
-        style="margin-right: 5px;"
+        class="btn btn-primary nugget-button"
         v-on:click="showNuggetViewModal()">
         Preview
       </a>
       <a
         href="javascript:;"
-        class="btn btn-primary"
-        style="margin-right: 5px;"
+        class="btn btn-primary nugget-button"
         v-on:click="showNuggetDetailModal()">
         Details
       </a>

@@ -89,8 +89,8 @@ echo '
                         </button>
                     </header>
                     <section class="nugget-modal-body">
-                        <div class="row" style="margin: 0 15px;">
-                            <div style="float: left; width: 69%;">
+                        <div class="row metadata_field">
+                            <div class="left_element">
                                 ';
                                 if (is_shown($nugget_detail->payload->resume)) {    // Resume
                                     echo '
@@ -109,11 +109,11 @@ echo '
                                 }
                                 echo '
                             </div>
-                            <div style="width: 2%;"></div>
+                            <div class="center_element"></div>
                             ';
                             if (is_shown($nugget_detail->payload->duration) || is_shown($nugget_detail->payload->language) || is_shown($nugget_detail->payload->level) || is_shown($nugget_detail->payload->domains) || is_shown($nugget_detail->payload->tags)) {   // In brief
                                 echo '
-                                <div style="float: right; width: 29%;">
+                                <div class="right_element">
                                     <h3>'.get_string('in_brief','naas').'</h3>
                                     <div>
                                         <ul style="list-style: none">
@@ -153,7 +153,7 @@ echo '
                                                     ';
                                                     foreach ($nugget_detail->payload->domains as $domain) {
                                                         echo '
-                                                        <span style="margin-left: 30px;">
+                                                        <span class="metadata_list">
                                                             <span class="badge badge-pill badge-primary">'.$domain.'</span>
                                                             <br/>
                                                         </span>
@@ -171,7 +171,7 @@ echo '
                                                     ';
                                                     foreach ($nugget_detail->payload->tags as $tag) {
                                                         echo '
-                                                        <span style="margin-left: 30px;">
+                                                        <span class="metadata_list">
                                                             <span class="badge badge-pill badge-primary">'.$tag.'</span>
                                                             <br/>
                                                         </span>
@@ -192,7 +192,7 @@ echo '
                         ';
                         if (is_shown($nugget_detail->payload->prerequisites)) {     // Prerequisites
                             echo '
-                            <div class="row" style="margin: 0 15px;">
+                            <div class="row metadata_field">
                                 <div class="w-100">
                                   <h3>'.get_string('prerequisites','naas').'</h3>
                                   <ul class="about-list ul-position">
@@ -212,7 +212,7 @@ echo '
                         }
                         if (is_shown($nugget_detail->payload->learning_outcomes)) {     // Learning outcomes
                             echo '
-                            <div class="row" style="margin: 0 15px;">
+                            <div class="row metadata_field">
                                 <div class="w-100">
                                     <h3>'.get_string('learning_outcomes','naas').'</h3>
                                     <ul class="about-list ul-position">
@@ -232,7 +232,7 @@ echo '
                         }
                         if (is_shown($nugget_detail->payload->references)) {      // References
                             echo '
-                            <div class="row" style="margin: 0 15px;">
+                            <div class="row metadata_field">
                                 <div class="w-100">
                                     <h3>'.get_string('references','naas').'</h3>
                                     <ul class="about-list ul-position">

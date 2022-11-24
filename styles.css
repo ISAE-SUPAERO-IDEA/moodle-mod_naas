@@ -12,9 +12,16 @@
   padding: 10px;
   margin: 10px;
 }
-
 .nugget-post:hover {
   box-shadow: 0 10px 20px 0 rgba(0,0,0,0.2);
+}
+.nugget-buttons {
+  position: absolute;
+  right: 30px;
+  bottom: 0px;
+}
+.nugget-button {
+  margin-right: 5px !important;
 }
 
 .card-selected {
@@ -131,4 +138,21 @@ a.aggregation-title:hover {
 }
 .w-100 {
   width: 100%;
+}
+.metadata_field {
+  margin: 0 15px !important;
+}
+.metadata_list {
+  margin-left: 30px;
+}
+.left_element {
+  float: left;
+  width: 69%;
+}
+.center_element {
+  width: 2%;
+}
+.right_element {
+  float: right;
+  width: 29%;
 }

@@ -13,8 +13,8 @@
           </button>
         </header>
         <section class="nugget-modal-body">
-          <div class="row" style="margin: 0 15px;">
-            <div style="float: left; width: 69%;" >
+          <div class="row metadata_field">
+            <div class="left_element" >
               <!-- Resume -->
               <div v-show="is_shown(post.resume)">
                 <h3>{{ config.labels.metadata.resume }}</h3>
@@ -26,9 +26,9 @@
                 <h5>{{ post.authors_name.join(", ") }}</h5>
               </div>
             </div>
-            <div style="width: 2%;"></div>
+            <div class="center_element"></div>
             <!-- In brief -->
-            <div v-show="in_brief_shown" style="float: right; width: 29%;">
+            <div v-show="in_brief_shown" class="right_element">
               <h3>{{ config.labels.metadata.in_brief }}</h3>
               <div>
                 <ul style="list-style: none">
@@ -52,7 +52,7 @@
                   <li v-show="is_shown(post.domainsData)">
                     <i class="icon fa fa-home"></i>
                     {{ config.labels.metadata.field_of_study }}:<br />
-                    <span v-for="item in post.domainsData" :key="item.id" style="margin-left: 30px;">
+                    <span v-for="item in post.domainsData" :key="item.id" class="metadata_list">
                       <span class="badge badge-pill badge-primary">{{ item.label }}</span>
                       <br/>
                     </span>
@@ -60,7 +60,7 @@
                   <li v-show="is_shown(post.tags)">
                     <i class="icon fa fa-tag"></i>
                     {{ config.labels.metadata.tags }}:<br />
-                    <span v-for="item in post.tags" :key="item" style="margin-left: 30px;">
+                    <span v-for="item in post.tags" :key="item" class="metadata_list">
                       <span class="badge badge-pill badge-primary">{{ item }}</span>
                       <br/>
                     </span>
@@ -70,7 +70,7 @@
             </div>
           </div>
           <!-- Prerequisites -->
-          <div v-show="is_shown(post.prerequisites)" class="row" style="margin: 0 15px;">
+          <div v-show="is_shown(post.prerequisites)" class="row metadata_field">
             <div class="w-100">
               <h3>{{ config.labels.metadata.prerequisites }}</h3>
               <ul class="about-list ul-position">
@@ -81,7 +81,7 @@
             </div>
           </div>
           <!-- Learning outcomes -->
-          <div v-show="is_shown(post.learning_outcomes)" class="row" style="margin: 0 15px;">
+          <div v-show="is_shown(post.learning_outcomes)" class="row metadata_field">
             <div class="w-100">
               <h3>{{ config.labels.metadata.learning_outcomes }}</h3>
               <ul class="about-list ul-position">
@@ -92,7 +92,7 @@
             </div>
           </div>
           <!-- References -->
-          <div v-show="is_shown(post.references)" class="row" style="margin: 0 15px;">
+          <div v-show="is_shown(post.references)" class="row metadata_field">
             <div class="w-100">
               <h3>{{ config.labels.metadata.references }}</h3>
               <ul class="about-list ul-position">
