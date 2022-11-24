@@ -31,7 +31,7 @@
             <div v-show="in_brief_shown" class="right_element">
               <h3>{{ config.labels.metadata.in_brief }}</h3>
               <div>
-                <ul style="list-style: none">
+                <ul class="metadata_list">
                   <li v-show="is_shown(post.duration)">
                     <i class="icon fa fa-clock-o"></i>
                     {{ config.labels.metadata.duration }}:
@@ -52,7 +52,7 @@
                   <li v-show="is_shown(post.domainsData)">
                     <i class="icon fa fa-home"></i>
                     {{ config.labels.metadata.field_of_study }}:<br />
-                    <span v-for="item in post.domainsData" :key="item.id" class="metadata_list">
+                    <span v-for="item in post.domainsData" :key="item.id" class="metadata_list_item">
                       <span class="badge badge-pill badge-primary">{{ item.label }}</span>
                       <br/>
                     </span>
@@ -60,7 +60,7 @@
                   <li v-show="is_shown(post.tags)">
                     <i class="icon fa fa-tag"></i>
                     {{ config.labels.metadata.tags }}:<br />
-                    <span v-for="item in post.tags" :key="item" class="metadata_list">
+                    <span v-for="item in post.tags" :key="item" class="metadata_list_item">
                       <span class="badge badge-pill badge-primary">{{ item }}</span>
                       <br/>
                     </span>

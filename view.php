@@ -68,7 +68,7 @@ function is_shown($val) {
     return true;
 }
 
-echo '<a href="javascript:;" class="btn btn-primary" style="margin-bottom: 7px;" onclick=showModal()>See nugget details</a>';
+echo '<a href="javascript:;" class="btn btn-primary course-button" onclick=showModal()>See nugget details</a>';
 echo '
     <script>
         function showModal() { document.getElementById("DetailModal").style.display = "block"; }
@@ -116,7 +116,7 @@ echo '
                                 <div class="right_element">
                                     <h3>'.get_string('in_brief','naas').'</h3>
                                     <div>
-                                        <ul style="list-style: none">
+                                        <ul class="metadata_list">
                                             ';
                                             if (is_shown($nugget_detail->payload->duration)) {      // Duration
                                                 echo '
@@ -153,7 +153,7 @@ echo '
                                                     ';
                                                     foreach ($nugget_detail->payload->domains as $domain) {
                                                         echo '
-                                                        <span class="metadata_list">
+                                                        <span class="metadata_list_item">
                                                             <span class="badge badge-pill badge-primary">'.$domain.'</span>
                                                             <br/>
                                                         </span>
@@ -171,7 +171,7 @@ echo '
                                                     ';
                                                     foreach ($nugget_detail->payload->tags as $tag) {
                                                         echo '
-                                                        <span class="metadata_list">
+                                                        <span class="metadata_list_item">
                                                             <span class="badge badge-pill badge-primary">'.$tag.'</span>
                                                             <br/>
                                                         </span>
@@ -267,7 +267,7 @@ echo "<iframe id='naascontentframe' height='600px' width='100%' src='launch.php?
      "&triggerview=0\' webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>";
 
 // Back to course button
-echo "<a class='back-to-course btn btn-primary' href=".$CFG->wwwroot."/course/view.php?id=".$COURSE->id.">".get_string('back_to_course', 'naas')."</a>";
+echo "<a class='btn btn-primary course-button' href=".$CFG->wwwroot."/course/view.php?id=".$COURSE->id.">".get_string('back_to_course', 'naas')."</a>";
 
 // Finish the page.
 echo $OUTPUT->footer();

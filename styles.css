@@ -6,11 +6,21 @@
   width: 100%;
 }
 
+.course-button {
+  margin: 7px 0px !important;
+}
+
+.nugget-post-selected {
+  margin-bottom: 75px !important;
+}
+.nugget-post-selection {
+  margin-bottom: 20px !important;
+}
 .nugget-post {
   border-radius: 5px;
   box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
   padding: 10px;
-  margin: 10px;
+  margin: 10px 10px 25px 10px;
 }
 .nugget-post:hover {
   box-shadow: 0 10px 20px 0 rgba(0,0,0,0.2);
@@ -143,6 +153,9 @@ a.aggregation-title:hover {
   margin: 0 15px !important;
 }
 .metadata_list {
+  list-style: none
+}
+.metadata_list_item {
   margin-left: 30px;
 }
 .left_element {
@@ -155,4 +168,11 @@ a.aggregation-title:hover {
 .right_element {
   float: right;
   width: 29%;
+}
+.nugget_view {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+.preview-iframe {
+  border: none !important;
 }

@@ -13,8 +13,8 @@
           </button>
         </header>
         <section class="nugget-modal-body h-100">
-          <div class="row h-100" style="margin: 0; padding: 0;">
-            <iframe id="lti_frame" :src="NuggetView" class="w-100" style="border:none;"></iframe>
+          <div class="row nugget_view h-100">
+            <iframe id="lti_frame" :src="NuggetView" class="preview-iframe w-100"></iframe>
           </div>
         </section>
       </div>

@@ -15,7 +15,7 @@
       </div>
       <div class="col-md-9">
         <div class="row">
-          <div class="col-md-4" style="margin-bottom: 20px;" v-for="(post,index) in posts" :key="index">
+          <div class="col-md-4 nugget-post-selection" v-for="(post,index) in posts" :key="index">
             <nugget-post
               v-bind:key="index"
               v-bind:post="post"
@@ -28,7 +28,7 @@
     </div>
     <div class="row" v-else>
       <div class="col-md-3"></div>
-      <div class="col-md-9" style="margin-bottom: 75px;">
+      <div class="col-md-9 nugget-post-selected">
         <nugget-post
           v-bind:post="selected_nugget"
           v-bind:class="{'card-selected': false}"

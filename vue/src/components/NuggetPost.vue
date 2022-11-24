@@ -1,5 +1,5 @@
 <template>
-  <div class="nugget-post h-100" style="margin-bottom: 25px;">
+  <div class="nugget-post h-100">
     <div @click="SelectClickHandler(post)" class="h-100" style="cursor: pointer;">
       <img class="w-100" :src="post.nugget_thumbnail_url.concat('?width=700&height=394')" alt="">
       <h4>{{ post.name | truncate(50, "...") }}</h4>
