@@ -28,6 +28,16 @@ $naas = new NaasClient($config);
 
 // Maybe we should add a filter there
 $path  = $_GET['path'];
+// Add nql filter
+$nql = $config->naas_filter;
+if ($nql) {
+	$nql = urlencode($nql);
+	if (strpos($path, "/nuggets/search") === 0) {
+		$separator = strpos($path, "?") >=0 ? "&" : "?";
+		$path = "$path$separator"."nql=$nql";
+	}
+}
+
 $response = $naas->request('GET', $path);
 echo json_encode($response);
 ?>

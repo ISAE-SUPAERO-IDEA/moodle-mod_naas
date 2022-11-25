@@ -8,6 +8,9 @@ module.exports = {
             "clear_filters" : "clear_filters",
             "no_nugget" : "no_nugget",
             "metadata" : {
+                "resume" : "resume",
+                "in_brief" : "in_brief",
+                "about_author" : "about_author",
                 "learning_outcomes" : "learning_outcomes",
                 "prerequisites" : "prerequisites",
                 "references" : "references",
@@ -20,6 +23,10 @@ module.exports = {
                 "intermediate" : "intermediate",
                 "beginner" : "beginner",
                 "tags" : "tags",
+                "en" : "en",
+                "english" : "english",
+                "fr" : "fr",
+                "french" : "french",
             }
 	},
     "nugget_id": ""

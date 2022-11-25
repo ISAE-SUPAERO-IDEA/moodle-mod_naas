@@ -45,6 +45,8 @@ $string['naas_settings_timeout'] = 'Naas API timeout';
 $string['naas_settings_timeout_help'] = 'Number of seconds to wait before aborting a call to the NaaS API (0 for infinite)';
 $string['naas_settings_css'] = 'Naas CSS';
 $string['naas_settings_css_help'] = 'Extra CSS to be applied to Naas ressources)';
+$string['naas_settings_filter'] = 'Naas search filter';
+$string['naas_settings_filter_help'] = 'A query to filter search results';
 $string['naas_settings_privacy_learner_mail'] = 'Collect nugget learners emails';
 $string['naas_settings_privacy_learner_mail_help'] = 'Send the learner email when connecting the user to the NaaS server to help improve the user experience by improving anonymous statistical data analysis';
 $string['naas_settings_privacy_learner_name'] = 'Collect nugget learners names';
@@ -61,6 +63,9 @@ $string['clear_filters'] = 'Clear filters';
 
 $string['back_to_course'] = 'Back to course';
 
+$string["resume"] = "Resume";
+$string["in_brief"] = "In Brief";
+$string["about_author"] = "About the author";
 $string["learning_outcomes"] = "Learning outcomes";
 $string["prerequisites"] = "Prerequisites";
 $string["references"] = "References";
@@ -75,3 +80,7 @@ $string["intermediate"] = "Intermediate";
 $string["beginner"] = "Beginner";
 $string["tags"] = "Tags";
 
+$string["en"] = "English";
+$string["english"] = "English";
+$string["fr"] = "French";
+$string["french"] = "French";

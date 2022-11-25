@@ -6,15 +6,35 @@
   width: 100%;
 }
 
-.nugget-post {
-  border-radius: 10px;
-  box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
-  padding: 10px;
-  margin: 10px;
+.course-button {
+  margin: 7px 0px !important;
 }
 
+.nugget-post-selected {
+  margin-bottom: 75px !important;
+}
+.nugget-post-selection {
+  margin-bottom: 20px !important;
+}
+.nugget-post-select {
+  cursor: pointer;
+}
+.nugget-post {
+  border-radius: 5px;
+  box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+  padding: 10px;
+  margin: 10px 10px 25px 10px;
+}
 .nugget-post:hover {
   box-shadow: 0 10px 20px 0 rgba(0,0,0,0.2);
+}
+.nugget-buttons {
+  position: absolute;
+  right: 30px;
+  bottom: 0px;
+}
+.nugget-button {
+  margin-right: 5px !important;
 }
 
 .card-selected {
@@ -54,7 +74,111 @@ div.separator {
 }
 a.aggregation-title {
   color: #000000;
+  font-weight: 400;
 }
 a.aggregation-title:hover {
   text-decoration: none;
+}
+
+
+/* Detail and Preview Modal */
+.modal-fade-enter,
+.modal-fade-leave-to {
+  opacity: 0;
+}
+.modal-fade-enter-active,
+.modal-fade-leave-active {
+  transition: opacity .3s ease;
+}
+.nugget-modal-backdrop {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: rgba(0, 0, 0, 0.3);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2;
+}
+.nugget-modal {
+  overflow-x: auto;
+  display: flex;
+  height: 50%;
+  width: 50%;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  background: #FFFFFF;
+  box-shadow: 2px 2px 20px 1px;
+  border-radius: 5px;
+  flex-direction: column;
+  transform: translate(-50%, -50%);
+}
+@media (max-width: 1250px) {
+  .nugget-modal {
+    height: 75%;
+    width: 75%;
+  }
+}
+.nugget-modal-header {
+  padding: 15px 15px 0 15px;
+  display: flex;
+  border-bottom: 1px solid #eeeeee;
+  justify-content: space-between;
+  position: relative;
+}
+.btn-close {
+  position: absolute;
+  top: 0;
+  right: 0;
+  border: none;
+  font-size: 20px;
+  padding: 10px;
+  cursor: pointer;
+  font-weight: bold;
+  color: #999999;
+  background: transparent;
+}
+.nugget-modal-body {
+  overflow-y: auto;
+  position: relative;
+  padding: 0;
+}
+.h-100 {
+  height: 100%;
+}
+.w-100 {
+  width: 100%;
+}
+.metadata_field {
+  margin: 0 15px !important;
+}
+.metadata_list {
+  list-style: none
+}
+.metadata_list_item {
+  margin-left: 30px;
+}
+.left_element {
+  float: left;
+  width: 69%;
+}
+.center_element {
+  width: 2%;
+}
+.right_element {
+  float: right;
+  width: 29%;
+}
+.nugget_view {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+.preview-iframe {
+  border: none !important;
+}
+.DetailModal {
+  display: none;
 }
