@@ -1,6 +1,6 @@
 <template>
   <div class="nugget-post h-100">
-    <div @click="SelectClickHandler(post)" class="h-100" style="cursor: pointer;">
+    <div @click="SelectClickHandler(post)" class="nugget-post-select h-100">
       <img class="w-100" :src="post.nugget_thumbnail_url.concat('?width=700&height=394')" alt="">
       <h4>{{ post.name | truncate(50, "...") }}</h4>
       <h5 v-if="post.authors_name">by {{ post.authors_name.join(", ") }}</h5>

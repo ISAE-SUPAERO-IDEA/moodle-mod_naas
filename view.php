@@ -74,7 +74,7 @@ echo '
         function showModal() { document.getElementById("DetailModal").style.display = "block"; }
         function hideModal() { document.getElementById("DetailModal").style.display = "none"; }
     </script>
-    <div id="DetailModal" style="display:none;">
+    <div id="DetailModal" class="DetailModal">
         <transition name="modal-fade">
             <div class="nugget-modal-backdrop">
                 <div class="nugget-modal">
