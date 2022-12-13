@@ -3,7 +3,7 @@
     <div class="nugget-modal-backdrop">
       <div class="nugget-modal">
         <header class="nugget-modal-header">
-          <h3>Preview : {{ post.name }}</h3>
+          <h3>{{ config.labels.metadata.preview }}{{ post.name }}</h3>
           <button
             type="button"
             class="btn-close"

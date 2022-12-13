@@ -12,13 +12,13 @@
         href="javascript:;"
         class="btn btn-primary nugget-button"
         v-on:click="showNuggetViewModal()">
-        Preview
+        {{ config.labels.preview_button }}
       </a>
       <a
         href="javascript:;"
         class="btn btn-primary nugget-button"
         v-on:click="showNuggetDetailModal()">
-        Details
+        {{ config.labels.details_button }}
       </a>
     </div>
     <NuggetDetailModal
