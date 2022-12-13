@@ -61,8 +61,14 @@ $string['click_to_modify'] = 'Clickez ici pour modifier la nugget selectionnée'
 $string['no_nugget'] = 'Aucun nugget trouvé';
 $string['clear_filters'] = 'Effacer les filtres';
 
+$string['see_nugget_details'] = 'Voir les infos du nugget';
 $string['back_to_course'] = 'Retour au cours';
 
+$string['preview_button'] = 'Aperçu';
+$string['details_button'] = 'Infos';
+
+$string["preview"] = "Aperçu : ";
+$string["details"] = "Infos : ";
 $string["resume"] = "Résumé";
 $string["in_brief"] = "En Bref";
 $string["about_author"] = "À propos de l'auteur";

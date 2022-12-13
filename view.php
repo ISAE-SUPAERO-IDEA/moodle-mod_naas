@@ -68,7 +68,7 @@ function is_shown($val) {
     return true;
 }
 
-echo '<a href="javascript:;" class="btn btn-primary course-button" onclick=showModal()>See nugget details</a>';
+echo '<a href="javascript:;" class="btn btn-primary course-button" onclick=showModal()>'.get_string('see_nugget_details','naas').'</a>';
 echo '
     <script>
         function showModal() { document.getElementById("DetailModal").style.display = "block"; }
@@ -79,7 +79,7 @@ echo '
             <div class="nugget-modal-backdrop">
                 <div class="nugget-modal">
                     <header class="nugget-modal-header">
-                        <h3>Details : '.$nugget_detail->payload->name.'</h3>
+                        <h3>'.get_string('details','naas').$nugget_detail->payload->name.'</h3>
                         <button
                             type="button"
                             class="btn-close"
