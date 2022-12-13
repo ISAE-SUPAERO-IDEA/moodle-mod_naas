@@ -58,7 +58,7 @@ echo $OUTPUT->heading($naas_instance->name);
 $nugget_authors = [];
 foreach ($nugget_detail->payload->authors as $author) {
     $request = $naas->request('GET', "/persons/".$author);
-    array_push($nugget_authors, strtoupper($request->payload->firstname." ".$request->payload->lastname));
+    if ($request->payload->firstname != "" && $request->payload->lastname != "") array_push($nugget_authors, strtoupper($request->payload->firstname." ".$request->payload->lastname));
 }
 
 // Create Detail Modal
