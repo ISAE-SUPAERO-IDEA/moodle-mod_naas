@@ -24,6 +24,13 @@
             ></nugget-post>
           </div>
         </div>
+        <div class="row">
+          <div class="show_more">
+            <a href="javascript:;" v-if="show_more_button" v-on:click="show_more()" class="btn btn-primary nugget-button show_more_button">
+            Show more ...
+            </a>
+          </div>
+        </div>
       </div>
     </div>
     <div class="row" v-else>
@@ -54,7 +61,10 @@ export default {
       posts: [],
       selected_nugget: null,
       filters: {},
-      selected_id: null
+      selected_id: null,
+      show_more_button: false,
+      default_page_size: 6,
+      add_page_item: 6
     }
   },
   watch: {
@@ -75,7 +85,7 @@ export default {
     filter_options() {
       return Object.assign({}, {
         is_default_version: true,
-        page_size: 12,
+        page_size: this.default_page_size,
         fulltext: this.debounced_typed
       });
     },
@@ -103,16 +113,21 @@ export default {
                 promises.push(this.getAuthorsName(authors[iauthor]).then(
                   (AuthorsName) => {
                       payload["authors_name"] = payload["authors_name"] || [];
-                      payload["authors_name"].push(AuthorsName.toUpperCase());
+                      if (AuthorsName != "") payload["authors_name"].push(AuthorsName.toUpperCase());
                     }
                   ));
               } )(j);
             }
+            if (authors.length == 0) payload["authors_name"] = [];
             await Promise.all(promises);
             this.selected_nugget = payload;
           }
         );
       }
+    },
+    show_more() {
+      this.default_page_size = this.default_page_size + this.add_page_item;
+      this.search();
     },
     search() {
       this.proxy(this.search_query).then(
@@ -126,12 +141,15 @@ export default {
                 promises.push(this.getAuthorsName(authors[iauthor]).then(
                   (AuthorsName) => {
                       posts[ipost]["authors_name"] = posts[ipost]["authors_name"] || [];
-                      posts[ipost]["authors_name"].push(AuthorsName.toUpperCase());
+                      if (AuthorsName != "") posts[ipost]["authors_name"].push(AuthorsName.toUpperCase());
                     }
                   ));
               } )(i, j);
             }
+            if (authors.length == 0) posts[i]["authors_name"] = []
           }
+          if (payload.results_count > this.default_page_size) this.show_more_button = true;
+          else this.show_more_button = false;
           await Promise.all(promises);
           this.posts = [...posts];
         });
@@ -143,7 +161,7 @@ export default {
     getAuthorsName(email) {
       return this.proxy(`/persons/` + email).then(
         (payload) => {
-          return payload['firstname'] + " " + payload['lastname'];
+          return ((payload != undefined && payload['firstname'] != "" && payload['lastname'] != "") ? payload['firstname'] + " " + payload['lastname'] : "");
         });
     },
     onFilters(filters) {
@@ -151,6 +169,7 @@ export default {
     },
     onInput: debounce(function() {
       this.debounced_typed = this.typed;
+      this.default_page_size = 6;
     }, 500),
     clickOnNugget: function(post) {
 
