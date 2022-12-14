@@ -40,7 +40,7 @@
           v-bind:post="selected_nugget"
           v-bind:class="{'card-selected': false}"
         ></nugget-post>
-        <a href="javascript:;" v-on:click="selected_nugget=null; search();">
+        <a href="javascript:;" v-on:click="selected_nugget=null; search();" class="btn btn-primary">
         {{ config.labels.click_to_modify }}
         </a>
       </div>

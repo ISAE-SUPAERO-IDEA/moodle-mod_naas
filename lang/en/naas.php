@@ -57,7 +57,7 @@ $string['name_display'] = 'Name to display';
 
 $string['nugget_search'] = 'Search Nuggets';
 $string['nugget_search_here'] = 'Search here';
-$string['click_to_modify'] = 'Click to modify the selected nugget';
+$string['click_to_modify'] = 'Modify the selected nugget';
 $string['no_nugget'] = 'No nugget found';
 $string['clear_filters'] = 'Clear filters';
 
