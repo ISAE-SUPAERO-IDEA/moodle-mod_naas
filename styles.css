@@ -36,6 +36,14 @@
 .nugget-button {
   margin-right: 5px !important;
 }
+.show_more {
+  margin-left: 25px;
+  margin-bottom: 20px;
+}
+.show_more_button:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
 
 .card-selected {
   background: #A6C3FE;

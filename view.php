@@ -58,7 +58,7 @@ echo $OUTPUT->heading($naas_instance->name);
 $nugget_authors = [];
 foreach ($nugget_detail->payload->authors as $author) {
     $request = $naas->request('GET', "/persons/".$author);
-    array_push($nugget_authors, strtoupper($request->payload->firstname." ".$request->payload->lastname));
+    if ($request->payload->firstname != "" && $request->payload->lastname != "") array_push($nugget_authors, strtoupper($request->payload->firstname." ".$request->payload->lastname));
 }
 
 // Create Detail Modal
@@ -68,7 +68,7 @@ function is_shown($val) {
     return true;
 }
 
-echo '<a href="javascript:;" class="btn btn-primary course-button" onclick=showModal()>See nugget details</a>';
+echo '<a href="javascript:;" class="btn btn-primary course-button" onclick=showModal()>'.get_string('see_nugget_details','naas').'</a>';
 echo '
     <script>
         function showModal() { document.getElementById("DetailModal").style.display = "block"; }
@@ -79,7 +79,7 @@ echo '
             <div class="nugget-modal-backdrop">
                 <div class="nugget-modal">
                     <header class="nugget-modal-header">
-                        <h3>Details : '.$nugget_detail->payload->name.'</h3>
+                        <h3>'.get_string('details','naas').$nugget_detail->payload->name.'</h3>
                         <button
                             type="button"
                             class="btn-close"

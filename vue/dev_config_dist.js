@@ -7,7 +7,13 @@ module.exports = {
             "click_to_modify" : "click_to_modify",
             "clear_filters" : "clear_filters",
             "no_nugget" : "no_nugget",
+            "see_nugget_details" : "see_nugget_details",
+            "back_to_course" : "back_to_course",
+            "preview_button" : "preview_button",
+            "details_button" : "details_button",
             "metadata" : {
+                "preview" : "preview",
+                "details" : "details",
                 "resume" : "resume",
                 "in_brief" : "in_brief",
                 "about_author" : "about_author",
