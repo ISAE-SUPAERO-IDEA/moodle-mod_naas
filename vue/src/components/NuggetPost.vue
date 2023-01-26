@@ -22,12 +22,12 @@
       </a>
     </div>
     <NuggetDetailModal
-      v-show="isNuggetDetailModalVisible"
+      :visible="isNuggetDetailModalVisible"
       :post="post"
       @close="closeNuggetDetailModal()"
     />
     <NuggetViewModal
-      v-show="isNuggetViewModalVisible"
+      :visible="isNuggetViewModalVisible"
       :post="post"
       @close="closeNuggetViewModal()"
     />

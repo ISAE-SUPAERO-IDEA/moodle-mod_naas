@@ -1,4 +1,5 @@
 <template>
+  <div v-show="visible">
   <transition name="modal-fade">
     <div class="nugget-modal-backdrop">
       <div class="nugget-modal">
@@ -20,26 +21,33 @@
       </div>
     </div>
   </transition>
+</div>
 </template>
 <script>
   export default {
     name: "NuggetViewModal",
-    props: ["post"],
+    props: ["post", "visible"],
     data() {
       return {
-        NuggetView: ""
+        NuggetView: "",
+        initialized: false
       }
     },
-    mounted() {
-      this.initialize();
+    watch: {
+      visible(val) {
+        if (val) this.initialize();
+      }
     },
     methods: {
       initialize() {
+        if (!this.initialized) {
         this.proxy(`/versions/` + this.post.version_id + `/preview_url`).then(
           (payload) => {
             this.NuggetView = payload;
           }
         );
+          
+      }
       },
       closeNuggetModal() {
         this.$emit('close');
