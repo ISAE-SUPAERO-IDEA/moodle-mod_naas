@@ -141,7 +141,7 @@ class NaasMoodle  {
         $config = (object) array_merge((array) \get_config('naas'), (array) $CFG);
         $naas = new \NaasClient($config);
         $nugget_config = $naas->get_nugget_lti_config($naas_instance->nugget_id);
-        if ($nugget_config==null || array_key_exists("error", $nugget_config)) {
+        if ($nugget_config==null || isset($nugget_config->error)) {
             error_log("Cannot get nugget information from Naas server");
             echo("Cannot get nugget information from NaaS server");
             return;
