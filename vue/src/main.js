@@ -16,6 +16,8 @@ Vue.filter('truncate', function(text, length, suffix) {
 });
 
 // Global functions
+const cache = {}
+const client = axios.create({ baseURL: NAAS.proxy_url });
 Vue.mixin({
   data() {
     return {
@@ -33,8 +35,14 @@ Vue.mixin({
     },
     // Queries the proxy
     proxy(path) {
-      const myaxios = axios.create({ baseURL: this.config.proxy_url });
-      return myaxios.get('/mod/naas/proxy.php', { params: { path } }).then(response => response.data.payload);
+      if (cache[path]) {
+        return Promise.resolve(cache["path"]);
+      }
+      return client.get('/mod/naas/proxy.php', { params: { path } })
+      .then(response => {
+        cache[path] = response.data.payload;
+        return response.data.payload
+      });
     }
   }
 });
