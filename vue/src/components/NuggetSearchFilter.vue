@@ -40,14 +40,73 @@
   </div>
 </template>
 <script>
-var NAAS_aggregations_order = [
-  "level",
-  "field_of_study",
+// Useful for aggregation display order
+const utils = {
+  truncate(text, length, suffix) {
+    suffix = suffix || "...";
+    if (text && text.length > length) {
+      return text.substring(0, length) + suffix;
+    } else {
+      return text;
+    }
+  }
+};
+
+var aggregations_definitions = [
+  {
+    name: "related_domains",
+    bucket_key_to_ui(bucket_key, component) {
+      return component
+        .proxy(`/vocabularies/nugget_domains_vocabulary/${bucket_key}`)
+        .then(entry => (entry ? entry.label : bucket_key));
+    }
+  },
+  {
+    name: "level",
+    bucket_key_to_ui: (bucket_key, component) =>
+      component.$t(`${bucket_key}`)
+  },
   "tags",
-  "structure_id",
-  "authors",
-  "references"
+  {
+    name: "producers",
+    aggregation_key: "producers",
+    bucket_key_to_query: bucket_key => bucket_key,
+    bucket_key_to_ui: (bucket_key, component) =>
+      component
+      .proxy(`/structures/${bucket_key}`)
+        .then(structure => (structure ? structure.acronym : bucket_key))
+  },
+  {
+    name: "authors",
+    aggregation_key: "authors",
+    bucket_key_to_query: bucket_key => bucket_key,
+    bucket_key_to_ui: (bucket_key, component) =>
+      component
+        .proxy(`/persons/${bucket_key}`)
+        .then(author =>
+          author ? `${author.firstname} ${author.lastname}` : bucket_key
+        )
+  },
+  "references",
+  {
+    name: "type",
+    bucket_key_to_ui: (bucket_key, component) =>
+      component.$t(`${bucket_key}`)
+  }
 ];
+// Setting default values for simple aggregations
+for (var i in aggregations_definitions) {
+  var def = aggregations_definitions[i];
+  if (typeof def === "string" || def instanceof String) def = { name: def };
+  def.aggregation_key = def.aggregation_key || def.name;
+  def.bucket_key_filter = def.bucket_key_filter || (bucket_key => bucket_key);
+  def.bucket_key_to_ui = def.bucket_key_to_ui || (bucket_key => bucket_key);
+  def.bucket_key_to_ui_help = def.bucket_key_to_ui_help || def.bucket_key_to_ui;
+  def.bucket_key_to_query =
+    def.bucket_key_to_query || (bucket_key => bucket_key);
+  aggregations_definitions[i] = def;
+}
+
 export default {
   name: "NuggetSearchFilter",
   props: ["query"],
@@ -72,6 +131,7 @@ export default {
       if (this.query) {
         this.proxy(this.query).then(
           (payload) => {
+            if (payload)
             this.handle_aggregations(payload.aggregations);
           });
       }
@@ -81,43 +141,66 @@ export default {
     },
     // Updates aggregation data from response
     async handle_aggregations(network_aggregations) {
-      var __this = this;
       if (network_aggregations) {
         var aggregations = Object.assign({});
         var j = 1;
-        for (var i in NAAS_aggregations_order) {
+        for (var i in aggregations_definitions) {
           // going through expected aggregations
-          var aggregation_key = NAAS_aggregations_order[i];
+          var aggregation_definition = aggregations_definitions[i];
+          var aggregation_key = aggregation_definition.aggregation_key;
+          var name = aggregation_definition.name;
           if (network_aggregations[aggregation_key]) {
             var state_buckets = network_aggregations[aggregation_key].buckets;
             // add bucket only if it has content
             if (state_buckets.length > 0) {
-              let old_aggregation = this.aggregations[aggregation_key];
+              let old_aggregation = this.aggregations[name];
+              // Aggregations are not visible by default on smaller devices
               let visible = true;
               if (old_aggregation) visible = old_aggregation.visible;
-              aggregations[aggregation_key] = aggregations[aggregation_key] || {
+              aggregations[name] = aggregations[name] || {
                 buckets: {},
-                visible
+                visible,
+                name: aggregation_definition.name
               };
-              aggregations[aggregation_key].id = j;
+              aggregations[name].id = j;
               j = j + 1;
+              // Convert all buckets into data structures adapted to the UI
               for (var item_key in state_buckets) {
                 var state_bucket = state_buckets[item_key];
-                state_bucket.selected = false;
-                // Computing captions
-                if (aggregation_key == "structure_id") {
-                  // For structures we have to fetch data from the API
-                  // TODO: Not good, we should call those in parrallel
-                  var structure = await __this.get_structure_cached(
-                    state_bucket.key
+                if (
+                  aggregation_definition.bucket_key_filter(
+                    state_bucket.key,
+                    this
+                  )
+                ) {
+                  // Bucket is not selected by default
+                  state_bucket.selected = false;
+                  // Convert key to UI readable string and add document count
+                  state_bucket.caption = await aggregation_definition.bucket_key_to_ui(
+                    state_bucket.key,
+                    this
                   );
-                  if (structure) state_bucket.caption = structure.name;
-                } else {
-                  state_bucket.caption = state_bucket.key;
+                  state_bucket.caption = utils.truncate(
+                    `${state_bucket.caption}`,
+                    30,
+                    "..."
+                  );
+                  state_bucket.caption = `${state_bucket.caption} (${state_bucket.docCount})`;
+                  // Convert key to a help text
+                  state_bucket.help = await aggregation_definition.bucket_key_to_ui_help(
+                    state_bucket.key,
+                    this
+                  );
+                  // Convert key to query key (for actual search)
+                  state_bucket.query_value = aggregation_definition.bucket_key_to_query(
+                    state_bucket.key,
+                    this
+                  );
+
+                  aggregations[name].buckets[
+                    state_bucket.query_value
+                  ] = state_bucket;
                 }
-                aggregations[aggregation_key].buckets[
-                  state_bucket.key
-                ] = state_bucket;
               }
             }
           }
@@ -125,6 +208,7 @@ export default {
         this.aggregations = aggregations;
       }
     },
+
     facet_exists(aggregation_key, bucket_key) {
       return (
         this.aggregations[aggregation_key] !== undefined &&

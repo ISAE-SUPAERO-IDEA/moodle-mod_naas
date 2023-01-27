@@ -36,13 +36,17 @@ Vue.mixin({
     // Queries the proxy
     proxy(path) {
       if (cache[path]) {
-        return Promise.resolve(cache["path"]);
+        return Promise.resolve(cache[path]);
       }
       return client.get('/mod/naas/proxy.php', { params: { path } })
       .then(response => {
         cache[path] = response.data.payload;
         return response.data.payload
       });
+    },
+    // Translation
+    $t(text) {
+      return NAAS.labels.metadata[text] || text
     }
   }
 });

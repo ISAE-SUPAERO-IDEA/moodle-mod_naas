@@ -132,26 +132,29 @@ export default {
     search() {
       this.proxy(this.search_query).then(
         async (payload) => {
-          var posts = payload ? payload.items : [];
-          var promises = [];
-          for (var i = 0; i < posts.length; i++) {
-            var authors = posts[i]['authors'];
-            for (var j = 0; j < authors.length; j++) {
-              ( (ipost, iauthor) => {
-                promises.push(this.getAuthorsName(authors[iauthor]).then(
-                  (AuthorsName) => {
-                      posts[ipost]["authors_name"] = posts[ipost]["authors_name"] || [];
-                      if (AuthorsName != "") posts[ipost]["authors_name"].push(AuthorsName.toUpperCase());
-                    }
-                  ));
-              } )(i, j);
+          if (payload) {
+            var posts = payload.items;
+            var promises = [];
+            for (var i = 0; i < posts.length; i++) {
+              var authors = posts[i]['authors'];
+              for (var j = 0; j < authors.length; j++) {
+                ( (ipost, iauthor) => {
+                  promises.push(this.getAuthorsName(authors[iauthor]).then(
+                    (AuthorsName) => {
+                        posts[ipost]["authors_name"] = posts[ipost]["authors_name"] || [];
+                        if (AuthorsName != "") posts[ipost]["authors_name"].push(AuthorsName.toUpperCase());
+                      }
+                    ));
+                } )(i, j);
+              }
+              if (authors.length == 0) posts[i]["authors_name"] = []
             }
-            if (authors.length == 0) posts[i]["authors_name"] = []
+            if (payload.results_count > this.default_page_size) this.show_more_button = true;
+            else this.show_more_button = false;
+            await Promise.all(promises);
+            this.posts = [...posts];
           }
-          if (payload.results_count > this.default_page_size) this.show_more_button = true;
-          else this.show_more_button = false;
-          await Promise.all(promises);
-          this.posts = [...posts];
+          else this.posts = [];
         });
     },
     searchQuery(params) {
