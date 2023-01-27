@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="row" v-if="selected_nugget==null">
+    <div class="row" v-if="selected_nugget==null && selected_nugget_loading==0">
       <div class="col-md-3 col-form-label d-flex pb-0 pr-md-0">
         <label class="d-inline word-break" id="nugget_search">{{config.labels.search}} </label>
       </div>
@@ -40,14 +40,16 @@
     <div class="row" v-else>
       <div class="col-md-3"></div>
       <div class="col-md-9 nugget-post-selected">
-        <loading :loading="loading"></loading>
-        <nugget-post
-          v-bind:nugget="selected_nugget"
-          v-bind:class="{'card-selected': false}"
-        ></nugget-post>
-        <a href="javascript:;" v-on:click="selected_nugget=null; search();" class="btn btn-primary">
-        {{ config.labels.click_to_modify }}
-        </a>
+        <loading :loading="selected_nugget_loading"></loading>
+        <div v-if="!selected_nugget_loading">
+          <nugget-post
+            v-bind:nugget="selected_nugget"
+            v-bind:class="{'card-selected': false}"
+          ></nugget-post>
+          <a href="javascript:;" v-on:click="selected_nugget=null; search();" class="btn btn-primary">
+          {{ config.labels.click_to_modify }}
+          </a>
+        </div>
       </div>
     </div>
   </div>
@@ -66,12 +68,14 @@ export default {
       debounced_typed: "",
       nuggets: [],
       selected_nugget: null,
+      default_nugget_list: [],
       filters: {},
       selected_id: null,
       show_more_button: false,
       default_page_size: 6,
       add_page_item: 6,
-      loading: 0
+      loading: 0,
+      selected_nugget_loading: 0,
     }
   },
   watch: {
@@ -110,9 +114,16 @@ export default {
       this.selected_id = document.getElementsByName('nugget_id')[0].value;
       if (this.selected_id != '') {
         // Nugget_id in memory -> Retrieve from id
-        this.loading ++;
-        this.selected_nugget = await this.get_nugget_default_version(this.selected_id);
-        this.loading --;
+        this.selected_nugget_loading ++;
+        try {
+          this.selected_nugget = await this.get_nugget_default_version(this.selected_id);
+          this.default_nugget_list = [this.selected_nugget];
+        }
+        catch (e) {
+          this.selected_nugget_loading --;
+          throw(e);
+        }
+        this.selected_nugget_loading --;
       }
     },
     show_more() {
@@ -140,7 +151,7 @@ export default {
             this.loading --;
           }).catch(() => { this.loading-- });
       }
-      else this.nuggets = [];
+      else this.nuggets = this.default_nugget_list;
                     
 
     },
