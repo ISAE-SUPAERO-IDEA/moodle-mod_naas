@@ -8,8 +8,8 @@
       <!-- Search input -->
       <div class="col-md-9 form-inline align-items-start felement" data-fieldtype="text">
         <input v-model="typed" @input="onInput" @keydown="$event.keyCode === 13 ? $event.preventDefault() : false" size="43" class="form-control" :placeholder="config.search_here">
-        <img v-bind:src="'../mod/naas/assets/search_icon.png'" class="search_center" width="35" height="35">
-        <span v-show="loading>0">loading...</span>
+        <img v-bind:src="'../mod/naas/assets/search_icon.png'" class="search_center" width="35" height="35"><br/>
+        <loading :loading="loading"></loading>
       </div>
       <!-- Search filter -->
       <div class="col-md-3">
@@ -40,6 +40,7 @@
     <div class="row" v-else>
       <div class="col-md-3"></div>
       <div class="col-md-9 nugget-post-selected">
+        <loading :loading="loading"></loading>
         <nugget-post
           v-bind:nugget="selected_nugget"
           v-bind:class="{'card-selected': false}"
@@ -54,10 +55,11 @@
 <script>
 import NuggetSearchFilter from "./NuggetSearchFilter"
 import NuggetPost from "./NuggetPost"
+import Loading from "./Loading"
 import debounce from "debounce"
 export default {
   name: 'NuggetSearchWidget',
-  components: { NuggetSearchFilter, NuggetPost },
+  components: { NuggetSearchFilter, NuggetPost, Loading },
   data() {
     return {
       typed: '',
@@ -108,7 +110,9 @@ export default {
       this.selected_id = document.getElementsByName('nugget_id')[0].value;
       if (this.selected_id != '') {
         // Nugget_id in memory -> Retrieve from id
+        this.loading ++;
         this.selected_nugget = await this.get_nugget_default_version(this.selected_id);
+        this.loading --;
       }
     },
     show_more() {

@@ -92,6 +92,8 @@ $string["lesson"] = "Lesson";
 $string["tutorial"] = "Tutorial";
 $string["demo"] = "Demo";
 
+$string["loading"] = "Loading...";
+
 $string["en"] = "English";
 $string["english"] = "English";
 $string["fr"] = "French";

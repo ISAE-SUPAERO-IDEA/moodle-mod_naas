@@ -42,6 +42,7 @@ function naas_widget_html($nugget_id, $component) {
             "back_to_course" => get_string('back_to_course','naas'),
             "preview_button" => get_string('preview_button','naas'),
             "details_button" => get_string('details_button','naas'),
+            "loading" => get_string('loading','naas'),
             "metadata" => [
                 "preview" => get_string('preview','naas'),
                 "details" => get_string('details','naas'),
@@ -63,6 +64,10 @@ function naas_widget_html($nugget_id, $component) {
                 "producers" => get_string('producers','naas'),
                 "authors" => get_string('authors','naas'),
                 "related_domains" => get_string('field_of_study','naas'),
+                "type" => get_string('tags','naas'),
+                "lesson" => get_string('lesson','naas'),
+                "demo" => get_string('demo','naas'),
+                "tutorial" => get_string('tutorial','naas'),
                 "en" => get_string('en','naas'),
                 "english" => get_string('english','naas'),
                 "fr" => get_string('fr','naas'),

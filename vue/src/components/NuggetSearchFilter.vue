@@ -1,5 +1,6 @@
 <template>
   <div class="filters" ref="filters">
+    <img v-show="loading" v-bind:src="'../mod/naas/assets/loading.gif'" width="35" height="35">
     <div
       v-show="has_aggregations"
       class="filters-inner"
@@ -103,15 +104,18 @@ for (var i in aggregations_definitions) {
   aggregations_definitions[i] = def;
 }
 
+import Loading from "./Loading"
 export default {
   name: "NuggetSearchFilter",
   props: ["query"],
+  component: { Loading },
   data() {
     return {
       state: {},
       aggregations: {},
       nuggets: undefined,
-      filters_collapse: true
+      filters_collapse: true,
+      loading: false
     };
   },
   watch: {
@@ -123,12 +127,14 @@ export default {
     this.load();
   },
   methods: {
-    load() {
+    async load() {
       if (this.query) {
         this.proxy(this.query).then(
-          (payload) => {
+          async (payload) => {
             if (payload)
-            this.handle_aggregations(payload.aggregations);
+            this.loading = true;
+            await this.handle_aggregations(payload.aggregations);
+            this.loading = false;
           });
       }
       else {
@@ -140,6 +146,7 @@ export default {
       if (network_aggregations) {
         var aggregations = Object.assign({});
         var j = 1;
+        var promises = [];
         for (var i in aggregations_definitions) {
           // going through expected aggregations
           var aggregation_definition = aggregations_definitions[i];
@@ -172,21 +179,33 @@ export default {
                   // Bucket is not selected by default
                   state_bucket.selected = false;
                   // Convert key to UI readable string and add document count
-                  state_bucket.caption = await aggregation_definition.bucket_key_to_ui(
-                    state_bucket.key,
-                    this
+                  promises.push(
+                    Promise.resolve(aggregation_definition.bucket_key_to_ui(
+                      state_bucket.key,
+                      this
+                    )).then(((saved_bucket) => {
+                      return (res) => {
+                        saved_bucket.caption = res;
+                        saved_bucket.caption = utils.truncate(
+                          saved_bucket.caption,
+                          30,
+                          "..."
+                        );
+                        saved_bucket.caption = `${saved_bucket.caption} (${saved_bucket.docCount})`;
+                      }
+                    })(state_bucket))
                   );
-                  state_bucket.caption = utils.truncate(
-                    `${state_bucket.caption}`,
-                    30,
-                    "..."
-                  );
-                  state_bucket.caption = `${state_bucket.caption} (${state_bucket.docCount})`;
+
                   // Convert key to a help text
-                  state_bucket.help = await aggregation_definition.bucket_key_to_ui_help(
-                    state_bucket.key,
-                    this
+                  promises.push(
+                    Promise.resolve(aggregation_definition.bucket_key_to_ui_help(
+                      state_bucket.key,
+                      this
+                    )).then(((saved_bucket) => {
+                      return (res) => saved_bucket.help = res;
+                    })(state_bucket))
                   );
+
                   // Convert key to query key (for actual search)
                   state_bucket.query_value = aggregation_definition.bucket_key_to_query(
                     state_bucket.key,
@@ -201,6 +220,7 @@ export default {
             }
           }
         }
+        await Promise.all(promises);
         this.aggregations = aggregations;
       }
     },
