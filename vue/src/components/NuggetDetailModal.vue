@@ -22,9 +22,9 @@
                   <p class="p-position">{{ post.resume }}</p>
                 </div>
                 <!-- About author -->
-                <div v-show="is_shown(post.authors_name)">
+                <div v-show="is_shown(post.authors_data)">
                   <h3>{{ config.labels.metadata.about_author }}</h3>
-                  <h5>{{ post.authors_name.join(", ") }}</h5>
+                  <h5>{{ post.authors_data.join(", ") }}</h5>
                 </div>
               </div>
               <div class="center_element"></div>
@@ -63,6 +63,14 @@
                       {{ config.labels.metadata.tags }}:<br />
                       <span v-for="item in post.tags" :key="item" class="metadata_list_item">
                         <span class="badge badge-pill badge-primary">{{ item }}</span>
+                        <br/>
+                      </span>
+                    </li>
+                    <li v-show="is_shown(post.domains_data)">
+                      <i class="icon fa fa-tag"></i>
+                      {{ config.labels.metadata.related_domains }}:<br />
+                      <span v-for="domain in post.domains_data" :key="domain.id" class="metadata_list_item">
+                        <span class="badge badge-pill badge-primary">{{ domain.label }}</span>
                         <br/>
                       </span>
                     </li>

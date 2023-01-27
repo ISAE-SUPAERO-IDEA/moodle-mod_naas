@@ -100,19 +100,26 @@ export default {
     }
   },
   methods: {
-    make_nugget_promises(nugget) {
+    make_data_array_load_promises(nugget, field, handler) {
+      const dest_field = `${field}_data`;
       var promises = [];
-      var authors = nugget.authors;
-      nugget.authors_name = [];
-      for (var j = 0; j < authors.length; j++) {
-        ( (iauthor) => {
-          promises.push(this.getAuthorsName(authors[iauthor])
-            .then((AuthorsName) => {
-                if (AuthorsName != "") nugget.authors_name.push(AuthorsName.toUpperCase());
+      nugget[dest_field] = [];
+      for (var j = 0; j < nugget[field].length; j++) {
+        ( (i) => {
+          promises.push(handler(nugget[field][i])
+            .then((res) => {
+                if (res) nugget[dest_field].push(res);
               }
             ));
         } )(j);
       }
+      return promises;
+    },
+    make_nugget_promises(nugget) {
+      var promises = [];
+      promises = promises
+        .concat(this.make_data_array_load_promises(nugget, "authors", (email) => this.getAuthorsName(email)))
+        .concat(this.make_data_array_load_promises(nugget, "domains", (key) => this.getDomain(key)));
       return promises;
     },
     initialize() {
@@ -155,9 +162,16 @@ export default {
       return `/nuggets/search?${params_str}`;
     },
     getAuthorsName(email) {
-      return this.proxy(`/persons/` + email).then(
+      return this.proxy(`/persons/${email}`).then(
         (payload) => {
-          return ((payload != undefined && payload['firstname'] != "" && payload['lastname'] != "") ? payload['firstname'] + " " + payload['lastname'] : "");
+          return ((payload != undefined && payload.firstname != "" && payload.lastname != "") ? 
+          `${payload.firstname} ${payload.lastname}`.toUpperCase() : "");
+        });
+    },
+    getDomain(key) {
+      return this.proxy(`/vocabularies/nugget_domains_vocabulary/${key}`).then(
+        (payload) => {
+          return payload;
         });
     },
     onFilters(filters) {
