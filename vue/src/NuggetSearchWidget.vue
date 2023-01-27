@@ -15,11 +15,11 @@
       </div>
       <div class="col-md-9">
         <div class="row">
-          <div class="col-md-4 nugget-post-selection" v-for="(post,index) in posts" :key="index">
+          <div class="col-md-4 nugget-post-selection" v-for="(nugget,index) in nuggets" :key="index">
             <nugget-post
               v-bind:key="index"
-              v-bind:post="post"
-              v-bind:class="{'card-selected': post.nugget_id == selected_id}"
+              v-bind:post="nugget"
+              v-bind:class="{'card-selected': nugget.nugget_id == selected_id}"
               @SelectButton="clickOnNugget"
             ></nugget-post>
           </div>
@@ -58,7 +58,7 @@ export default {
     return {
       typed: '',
       debounced_typed: "",
-      posts: [],
+      nuggets: [],
       selected_nugget: null,
       filters: {},
       selected_id: null,
@@ -100,27 +100,30 @@ export default {
     }
   },
   methods: {
+    make_nugget_promises(nugget) {
+      var promises = [];
+      var authors = nugget.authors;
+      nugget.authors_name = [];
+      for (var j = 0; j < authors.length; j++) {
+        ( (iauthor) => {
+          promises.push(this.getAuthorsName(authors[iauthor])
+            .then((AuthorsName) => {
+                if (AuthorsName != "") nugget.authors_name.push(AuthorsName.toUpperCase());
+              }
+            ));
+        } )(j);
+      }
+      return promises;
+    },
     initialize() {
       this.selected_id = document.getElementsByName('nugget_id')[0].value;
       if (this.selected_id != '') {
         // Nugget_id in memory -> Retrieve from id
         this.proxy(`/nuggets/${this.selected_id}/default_version`).then(
-          async (payload) => {
-            var authors = payload['authors'];
-            var promises = [];
-            for (var j = 0; j < authors.length; j++) {
-              ( (iauthor) => {
-                promises.push(this.getAuthorsName(authors[iauthor]).then(
-                  (AuthorsName) => {
-                      payload["authors_name"] = payload["authors_name"] || [];
-                      if (AuthorsName != "") payload["authors_name"].push(AuthorsName.toUpperCase());
-                    }
-                  ));
-              } )(j);
-            }
-            if (authors.length == 0) payload["authors_name"] = [];
+          async (nugget) => {
+            var promises = this.make_nugget_promises(nugget);
             await Promise.all(promises);
-            this.selected_nugget = payload;
+            this.selected_nugget = nugget;
           }
         );
       }
@@ -133,28 +136,18 @@ export default {
       this.proxy(this.search_query).then(
         async (payload) => {
           if (payload) {
-            var posts = payload.items;
+            var nuggets = payload.items;
             var promises = [];
-            for (var i = 0; i < posts.length; i++) {
-              var authors = posts[i]['authors'];
-              for (var j = 0; j < authors.length; j++) {
-                ( (ipost, iauthor) => {
-                  promises.push(this.getAuthorsName(authors[iauthor]).then(
-                    (AuthorsName) => {
-                        posts[ipost]["authors_name"] = posts[ipost]["authors_name"] || [];
-                        if (AuthorsName != "") posts[ipost]["authors_name"].push(AuthorsName.toUpperCase());
-                      }
-                    ));
-                } )(i, j);
-              }
-              if (authors.length == 0) posts[i]["authors_name"] = []
+            for (var i = 0; i < nuggets.length; i++) {
+              const nugget = nuggets[i]; 
+              promises = promises.concat(this.make_nugget_promises(nugget));
             }
+            await Promise.all(promises);
+            this.nuggets = [...nuggets];
             if (payload.results_count > this.default_page_size) this.show_more_button = true;
             else this.show_more_button = false;
-            await Promise.all(promises);
-            this.posts = [...posts];
           }
-          else this.posts = [];
+          else this.nuggets = [];
         });
     },
     searchQuery(params) {
@@ -174,16 +167,16 @@ export default {
       this.debounced_typed = this.typed;
       this.default_page_size = 6;
     }, 500),
-    clickOnNugget: function(post) {
+    clickOnNugget: function(nugget) {
 
       event.preventDefault();
-      this.selected_id = (this.selected_id == post.nugget_id) ? null : post.nugget_id;
+      this.selected_id = (this.selected_id == nugget.nugget_id) ? null : nugget.nugget_id;
     },
     checkSelected() {
-      for (let post of this.posts) {
-        if (post.nugget_id == this.selected_id) {
-          document.getElementById('id_name').value = post.name;
-          document.getElementsByName('nugget_id')[0].value = post.nugget_id;
+      for (let nugget of this.nuggets) {
+        if (nugget.nugget_id == this.selected_id) {
+          document.getElementById('id_name').value = nugget.name;
+          document.getElementsByName('nugget_id')[0].value = nugget.nugget_id;
           break;
         } else {
           document.getElementById('id_name').value = '';
