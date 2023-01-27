@@ -1,24 +1,29 @@
 <template>
   <div class="filters" ref="filters">
-    <img v-show="loading" v-bind:src="'../mod/naas/assets/loading.gif'" width="35" height="35">
-    <div
-      v-show="has_aggregations"
-      class="filters-inner"
-    >
+    <img
+      v-show="loading"
+      v-bind:src="'../mod/naas/assets/loading.gif'"
+      width="35"
+      height="35"
+    />
+    <div v-show="has_aggregations" class="filters-inner">
       <div
         v-for="(aggregation, aggregation_key) in aggregations"
         :v-if="aggregation.buckets"
         :key="aggregation_key"
       >
-        <a href="javascript:;" class="aggregation-title"
-          @click="switch_aggregation_visibility(aggregation)" data-toggle="dropdown">
-          <h6 style="margin-top: 10px; margin-bottom: 0px; padding-top: 0px;">
+        <a
+          href="javascript:;"
+          class="aggregation-title"
+          @click="switch_aggregation_visibility(aggregation)"
+          data-toggle="dropdown"
+        >
+          <h6 style="margin-top: 10px; margin-bottom: 0px; padding-top: 0px">
             {{ config.labels.metadata[aggregation_key] }}
             <i v-if="aggregation.visible" class="icon fa fa-arrow-down"></i>
             <i v-else class="icon fa fa-arrow-right"></i>
           </h6>
         </a>
-
 
         <div :id="$id(aggregation_key)" v-show="aggregation.visible">
           <span v-for="bucket in aggregation.buckets" :key="bucket.key">
@@ -27,14 +32,19 @@
                 class="badge badge-margin"
                 :class="bucket_class(bucket)"
                 @click="switch_facet(aggregation_key, bucket.key)"
-                >{{ bucket.caption }}</span>
+                >{{ bucket.caption }}</span
+              >
             </a>
           </span>
         </div>
       </div>
       <div class="clear-filters" v-show="has_filters">
-        <a href="javascript:;" @click="clear_filters()" class="btn btn-primary btn-small">
-          {{config.labels.clear_filters}}
+        <a
+          href="javascript:;"
+          @click="clear_filters()"
+          class="btn btn-primary btn-small"
+        >
+          {{ config.labels.clear_filters }}
         </a>
       </div>
     </div>
@@ -50,61 +60,55 @@ const utils = {
     } else {
       return text;
     }
-  }
+  },
 };
 
 var aggregations_definitions = [
   {
     name: "related_domains",
     bucket_key_to_ui(bucket_key, component) {
-      return component
-        .getDomainLabel(bucket_key)
-    }
+      return component.getDomainLabel(bucket_key);
+    },
   },
   {
     name: "level",
-    bucket_key_to_ui: (bucket_key, component) =>
-      component.$t(`${bucket_key}`)
+    bucket_key_to_ui: (bucket_key, component) => component.$t(`${bucket_key}`),
   },
   "tags",
   {
     name: "producers",
     aggregation_key: "producers",
-    bucket_key_to_query: bucket_key => bucket_key,
+    bucket_key_to_query: (bucket_key) => bucket_key,
     bucket_key_to_ui: (bucket_key, component) =>
-      component
-      .getStructureAcronym(bucket_key)
-        
+      component.getStructureAcronym(bucket_key),
   },
   {
     name: "authors",
     aggregation_key: "authors",
-    bucket_key_to_query: bucket_key => bucket_key,
+    bucket_key_to_query: (bucket_key) => bucket_key,
     bucket_key_to_ui: (bucket_key, component) =>
-      component
-        .getPersonName(bucket_key)
+      component.getPersonName(bucket_key),
   },
   "references",
   {
     name: "type",
-    bucket_key_to_ui: (bucket_key, component) =>
-      component.$t(`${bucket_key}`)
-  }
+    bucket_key_to_ui: (bucket_key, component) => component.$t(`${bucket_key}`),
+  },
 ];
 // Setting default values for simple aggregations
 for (var i in aggregations_definitions) {
   var def = aggregations_definitions[i];
   if (typeof def === "string" || def instanceof String) def = { name: def };
   def.aggregation_key = def.aggregation_key || def.name;
-  def.bucket_key_filter = def.bucket_key_filter || (bucket_key => bucket_key);
-  def.bucket_key_to_ui = def.bucket_key_to_ui || (bucket_key => bucket_key);
+  def.bucket_key_filter = def.bucket_key_filter || ((bucket_key) => bucket_key);
+  def.bucket_key_to_ui = def.bucket_key_to_ui || ((bucket_key) => bucket_key);
   def.bucket_key_to_ui_help = def.bucket_key_to_ui_help || def.bucket_key_to_ui;
   def.bucket_key_to_query =
-    def.bucket_key_to_query || (bucket_key => bucket_key);
+    def.bucket_key_to_query || ((bucket_key) => bucket_key);
   aggregations_definitions[i] = def;
 }
 
-import Loading from "./Loading"
+import Loading from "./Loading";
 export default {
   name: "NuggetSearchFilter",
   props: ["query"],
@@ -115,13 +119,13 @@ export default {
       aggregations: {},
       nuggets: undefined,
       filters_collapse: true,
-      loading: false
+      loading: false,
     };
   },
   watch: {
     query() {
       this.load();
-    }
+    },
   },
   mounted() {
     this.load();
@@ -129,15 +133,12 @@ export default {
   methods: {
     async load() {
       if (this.query) {
-        this.proxy(this.query).then(
-          async (payload) => {
-            if (payload)
-            this.loading = true;
-            await this.handle_aggregations(payload.aggregations);
-            this.loading = false;
-          });
-      }
-      else {
+        this.proxy(this.query).then(async (payload) => {
+          if (payload) this.loading = true;
+          await this.handle_aggregations(payload.aggregations);
+          this.loading = false;
+        });
+      } else {
         this.aggregations = {};
       }
     },
@@ -163,7 +164,7 @@ export default {
               aggregations[name] = aggregations[name] || {
                 buckets: {},
                 visible,
-                name: aggregation_definition.name
+                name: aggregation_definition.name,
               };
               aggregations[name].id = j;
               j = j + 1;
@@ -180,41 +181,49 @@ export default {
                   state_bucket.selected = false;
                   // Convert key to UI readable string and add document count
                   promises.push(
-                    Promise.resolve(aggregation_definition.bucket_key_to_ui(
-                      state_bucket.key,
-                      this
-                    )).then(((saved_bucket) => {
-                      return (res) => {
-                        saved_bucket.caption = res;
-                        saved_bucket.caption = utils.truncate(
-                          saved_bucket.caption,
-                          30,
-                          "..."
-                        );
-                        saved_bucket.caption = `${saved_bucket.caption} (${saved_bucket.docCount})`;
-                      }
-                    })(state_bucket))
+                    Promise.resolve(
+                      aggregation_definition.bucket_key_to_ui(
+                        state_bucket.key,
+                        this
+                      )
+                    ).then(
+                      ((saved_bucket) => {
+                        return (res) => {
+                          saved_bucket.caption = res;
+                          saved_bucket.caption = utils.truncate(
+                            saved_bucket.caption,
+                            30,
+                            "..."
+                          );
+                          saved_bucket.caption = `${saved_bucket.caption} (${saved_bucket.docCount})`;
+                        };
+                      })(state_bucket)
+                    )
                   );
 
                   // Convert key to a help text
                   promises.push(
-                    Promise.resolve(aggregation_definition.bucket_key_to_ui_help(
-                      state_bucket.key,
-                      this
-                    )).then(((saved_bucket) => {
-                      return (res) => saved_bucket.help = res;
-                    })(state_bucket))
+                    Promise.resolve(
+                      aggregation_definition.bucket_key_to_ui_help(
+                        state_bucket.key,
+                        this
+                      )
+                    ).then(
+                      ((saved_bucket) => {
+                        return (res) => (saved_bucket.help = res);
+                      })(state_bucket)
+                    )
                   );
 
                   // Convert key to query key (for actual search)
-                  state_bucket.query_value = aggregation_definition.bucket_key_to_query(
-                    state_bucket.key,
-                    this
-                  );
+                  state_bucket.query_value =
+                    aggregation_definition.bucket_key_to_query(
+                      state_bucket.key,
+                      this
+                    );
 
-                  aggregations[name].buckets[
-                    state_bucket.query_value
-                  ] = state_bucket;
+                  aggregations[name].buckets[state_bucket.query_value] =
+                    state_bucket;
                 }
               }
             }
@@ -240,9 +249,8 @@ export default {
     set_facet_selected(aggregation_key, bucket_key, selected) {
       if (this.facet_exists(aggregation_key, bucket_key)) {
         if (this.get_facet_selected(aggregation_key, bucket_key) != selected) {
-          this.aggregations[aggregation_key].buckets[
-            bucket_key
-          ].selected = selected;
+          this.aggregations[aggregation_key].buckets[bucket_key].selected =
+            selected;
           this.aggregations = Object.assign({}, this.aggregations);
         }
       }
@@ -257,13 +265,13 @@ export default {
       // Unselect all other bucket of this aggregation
       if (this.aggregations[aggregation_key]) {
         for (var other_bucket_key in this.aggregations[aggregation_key]
-            .buckets) {
+          .buckets) {
           if (bucket_key != other_bucket_key) {
             this.set_facet_selected(aggregation_key, other_bucket_key, false);
           }
         }
       }
-      this.$emit("filters", this.get_extra_params())
+      this.$emit("filters", this.get_extra_params());
     },
     bucket_class(bucket) {
       var mode = bucket.selected ? "primary" : "default";
@@ -279,7 +287,7 @@ export default {
           this.set_facet_selected(aggregation_key, bucket_key, false);
         }
       }
-      this.$emit("filters", this.get_extra_params())
+      this.$emit("filters", this.get_extra_params());
     },
     switch_aggregation_visibility(aggregation) {
       aggregation.visible = !aggregation.visible;
@@ -298,7 +306,7 @@ export default {
         }
       }
       return query;
-    }
+    },
   },
   computed: {
     has_aggregations() {
@@ -310,11 +318,12 @@ export default {
     has_filters() {
       for (var aggregation_key in this.aggregations) {
         for (var bucket_key in this.aggregations[aggregation_key].buckets) {
-          if (this.aggregations[aggregation_key].buckets[bucket_key].selected) return true;
+          if (this.aggregations[aggregation_key].buckets[bucket_key].selected)
+            return true;
         }
       }
       return false;
-    }
-  }
+    },
+  },
 };
 </script>

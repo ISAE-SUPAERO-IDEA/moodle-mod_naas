@@ -4,7 +4,8 @@
       <a
         href="javascript:;"
         class="btn btn-primary"
-        v-on:click="showNuggetDetailModal()">
+        v-on:click="showNuggetDetailModal()"
+      >
         {{ config.labels.see_nugget_details }}
       </a>
     </div>
@@ -16,29 +17,29 @@
   </div>
 </template>
 <script>
-  import NuggetDetailModal from './NuggetDetailModal.vue';
-  export default {
-    name: "NuggetPost",
-    components: {
-      NuggetDetailModal,
+import NuggetDetailModal from "./NuggetDetailModal.vue";
+export default {
+  name: "NuggetPost",
+  components: {
+    NuggetDetailModal,
+  },
+  data() {
+    return {
+      isNuggetDetailModalVisible: false,
+      nugget_id: undefined,
+      nugget: {},
+    };
+  },
+  async mounted() {
+    this.nugget = await this.get_nugget_default_version(this.config.nugget_id);
+  },
+  methods: {
+    showNuggetDetailModal() {
+      this.isNuggetDetailModalVisible = true;
     },
-    data() {
-      return {
-        isNuggetDetailModalVisible: false,
-        nugget_id: undefined,
-        nugget: {}
-      };
+    closeNuggetDetailModal() {
+      this.isNuggetDetailModalVisible = false;
     },
-    async mounted() {
-      this.nugget = await this.get_nugget_default_version(this.config.nugget_id);
-    },
-    methods: {
-      showNuggetDetailModal() {
-        this.isNuggetDetailModalVisible = true;
-      },
-      closeNuggetDetailModal() {
-        this.isNuggetDetailModalVisible = false;
-      }
-    }
-  }
+  },
+};
 </script>
