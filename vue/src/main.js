@@ -1,7 +1,6 @@
 import Vue from 'vue'
-import NuggetSearchWidget from './NuggetSearchWidget.vue'
-import axios from "axios"
-
+import Main from '@/Main'
+import mixin from '@/mixin'
 /*global NAAS*/
 
 Vue.config.productionTip = false
@@ -15,42 +14,8 @@ Vue.filter('truncate', function(text, length, suffix) {
   }
 });
 
-// Global functions
-const cache = {}
-const client = axios.create({ baseURL: NAAS.proxy_url });
-Vue.mixin({
-  data() {
-    return {
-      config: NAAS
-    }
-  },
-  computed: {
-    url_root() {
-      return this.labels.url_root;
-    }
-  },
-  methods: {
-    $id(thing) {
-      return this._uid + '.' + thing;
-    },
-    // Queries the proxy
-    proxy(path) {
-      if (cache[path]) {
-        return Promise.resolve(cache[path]);
-      }
-      return client.get('/mod/naas/proxy.php', { params: { path } })
-      .then(response => {
-        cache[path] = response.data.payload;
-        return response.data.payload
-      });
-    },
-    // Translation
-    $t(text) {
-      return NAAS.labels.metadata[text] || text
-    }
-  }
-});
+Vue.mixin(mixin);
 
 new Vue({
-  render: h => h(NuggetSearchWidget),
+  render: h => h(Main),
 }).$mount(NAAS.mount_point)

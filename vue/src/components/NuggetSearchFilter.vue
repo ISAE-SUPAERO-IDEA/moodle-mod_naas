@@ -57,8 +57,7 @@ var aggregations_definitions = [
     name: "related_domains",
     bucket_key_to_ui(bucket_key, component) {
       return component
-        .proxy(`/vocabularies/nugget_domains_vocabulary/${bucket_key}`)
-        .then(entry => (entry ? entry.label : bucket_key));
+        .getDomainLabel(bucket_key)
     }
   },
   {
@@ -73,8 +72,8 @@ var aggregations_definitions = [
     bucket_key_to_query: bucket_key => bucket_key,
     bucket_key_to_ui: (bucket_key, component) =>
       component
-      .proxy(`/structures/${bucket_key}`)
-        .then(structure => (structure ? structure.acronym : bucket_key))
+      .getStructureAcronym(bucket_key)
+        
   },
   {
     name: "authors",
@@ -82,10 +81,7 @@ var aggregations_definitions = [
     bucket_key_to_query: bucket_key => bucket_key,
     bucket_key_to_ui: (bucket_key, component) =>
       component
-        .proxy(`/persons/${bucket_key}`)
-        .then(author =>
-          author ? `${author.firstname} ${author.lastname}` : bucket_key
-        )
+        .getPersonName(bucket_key)
   },
   "references",
   {

@@ -1,11 +1,11 @@
 <template>
   <div class="nugget-post h-100">
     <div @click="SelectClickHandler(post)" class="nugget-post-select h-100">
-      <img class="w-100" :src="post.nugget_thumbnail_url.concat('?width=700&height=394')" alt="">
-      <h4>{{ post.name | truncate(50, "...") }}</h4>
-      <h5 v-if="post.authors_name && post.authors_name != ''">by {{ post.authors_name.join(", ") }}</h5>
-      <h6>{{ post.resume | truncate(190, "...") }}</h6>
-      <h5>{{ post.displayinfo }}</h5>
+      <img class="w-100" :src="nugget.nugget_thumbnail_url.concat('?width=700&height=394')" alt="">
+      <h4>{{ nugget.name | truncate(50, "...") }}</h4>
+      <h5> {{ authors_names }}</h5>
+      <h6>{{ nugget.resume | truncate(190, "...") }}</h6>
+      <h5>{{ nugget.displayinfo }}</h5>
     </div>
     <div class="nugget-buttons">
       <a
@@ -23,12 +23,12 @@
     </div>
     <NuggetDetailModal
       :visible="isNuggetDetailModalVisible"
-      :post="post"
+      :nugget="nugget"
       @close="closeNuggetDetailModal()"
     />
     <NuggetViewModal
       :visible="isNuggetViewModalVisible"
-      :post="post"
+      :nugget="nugget"
       @close="closeNuggetViewModal()"
     />
   </div>
@@ -38,7 +38,7 @@
   import NuggetViewModal from './NuggetViewModal.vue';
   export default {
     name: "NuggetPost",
-    props: ["post"],
+    props: ["nugget"],
     components: {
       NuggetDetailModal,
       NuggetViewModal
@@ -62,8 +62,21 @@
       closeNuggetViewModal() {
         this.isNuggetViewModalVisible = false;
       },
-      SelectClickHandler(post) {
-        this.$emit('SelectButton', post);
+      SelectClickHandler(nugget) {
+        this.$emit('SelectButton', nugget);
+      }
+    },
+    computed: {
+      authors_names() {
+        var authors_names = []
+        if (this.nugget.authors_data) {
+          this.nugget.authors_data.forEach(author => {
+            if (author) {
+              authors_names.push(`${author.firstname} ${author.lastname}`)
+            }
+          });
+        }
+        return authors_names.join(", ")
       }
     }
   }

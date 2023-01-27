@@ -4,7 +4,7 @@
     <div class="nugget-modal-backdrop">
       <div class="nugget-modal">
         <header class="nugget-modal-header">
-          <h3>{{ config.labels.metadata.preview }}{{ post.name }}</h3>
+          <h3>{{ config.labels.metadata.preview }}{{ nugget.name }}</h3>
           <button
             type="button"
             class="btn-close"
@@ -26,7 +26,7 @@
 <script>
   export default {
     name: "NuggetViewModal",
-    props: ["post", "visible"],
+    props: ["nugget", "visible"],
     data() {
       return {
         NuggetView: "",
@@ -41,7 +41,7 @@
     methods: {
       initialize() {
         if (!this.initialized) {
-        this.proxy(`/versions/` + this.post.version_id + `/preview_url`).then(
+        this.proxy(`/versions/` + this.nugget.version_id + `/preview_url`).then(
           (payload) => {
             this.NuggetView = payload;
           }
