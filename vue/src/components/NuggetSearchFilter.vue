@@ -1,23 +1,29 @@
 <template>
   <div class="filters" ref="filters">
-    <div
-      v-show="has_aggregations"
-      class="filters-inner"
-    >
+    <img
+      v-show="loading"
+      v-bind:src="'../mod/naas/assets/loading.gif'"
+      width="35"
+      height="35"
+    />
+    <div v-show="has_aggregations" class="filters-inner">
       <div
         v-for="(aggregation, aggregation_key) in aggregations"
         :v-if="aggregation.buckets"
         :key="aggregation_key"
       >
-        <a href="javascript:;" class="aggregation-title"
-          @click="switch_aggregation_visibility(aggregation)" data-toggle="dropdown">
-          <h6 style="margin-top: 10px; margin-bottom: 0px; padding-top: 0px;">
+        <a
+          href="javascript:;"
+          class="aggregation-title"
+          @click="switch_aggregation_visibility(aggregation)"
+          data-toggle="dropdown"
+        >
+          <h6 style="margin-top: 10px; margin-bottom: 0px; padding-top: 0px">
             {{ config.labels.metadata[aggregation_key] }}
             <i v-if="aggregation.visible" class="icon fa fa-arrow-down"></i>
             <i v-else class="icon fa fa-arrow-right"></i>
           </h6>
         </a>
-
 
         <div :id="$id(aggregation_key)" v-show="aggregation.visible">
           <span v-for="bucket in aggregation.buckets" :key="bucket.key">
@@ -26,105 +32,208 @@
                 class="badge badge-margin"
                 :class="bucket_class(bucket)"
                 @click="switch_facet(aggregation_key, bucket.key)"
-                >{{ bucket.caption }}</span>
+                >{{ bucket.caption }}</span
+              >
             </a>
           </span>
         </div>
       </div>
       <div class="clear-filters" v-show="has_filters">
-        <a href="javascript:;" @click="clear_filters()" class="btn btn-primary btn-small">
-          {{config.labels.clear_filters}}
+        <a
+          href="javascript:;"
+          @click="clear_filters()"
+          class="btn btn-primary btn-small"
+        >
+          {{ config.labels.clear_filters }}
         </a>
       </div>
     </div>
   </div>
 </template>
 <script>
-var NAAS_aggregations_order = [
-  "level",
-  "field_of_study",
+// Useful for aggregation display order
+const utils = {
+  truncate(text, length, suffix) {
+    suffix = suffix || "...";
+    if (text && text.length > length) {
+      return text.substring(0, length) + suffix;
+    } else {
+      return text;
+    }
+  },
+};
+
+var aggregations_definitions = [
+  {
+    name: "related_domains",
+    bucket_key_to_ui(bucket_key, component) {
+      return component.getDomainLabel(bucket_key);
+    },
+  },
+  {
+    name: "level",
+    bucket_key_to_ui: (bucket_key, component) => component.$t(`${bucket_key}`),
+  },
   "tags",
-  "structure_id",
-  "authors",
-  "references"
+  {
+    name: "producers",
+    aggregation_key: "producers",
+    bucket_key_to_query: (bucket_key) => bucket_key,
+    bucket_key_to_ui: (bucket_key, component) =>
+      component.getStructureAcronym(bucket_key),
+  },
+  {
+    name: "authors",
+    aggregation_key: "authors",
+    bucket_key_to_query: (bucket_key) => bucket_key,
+    bucket_key_to_ui: (bucket_key, component) =>
+      component.getPersonName(bucket_key),
+  },
+  "references",
+  {
+    name: "type",
+    bucket_key_to_ui: (bucket_key, component) => component.$t(`${bucket_key}`),
+  },
 ];
+// Setting default values for simple aggregations
+for (var i in aggregations_definitions) {
+  var def = aggregations_definitions[i];
+  if (typeof def === "string" || def instanceof String) def = { name: def };
+  def.aggregation_key = def.aggregation_key || def.name;
+  def.bucket_key_filter = def.bucket_key_filter || ((bucket_key) => bucket_key);
+  def.bucket_key_to_ui = def.bucket_key_to_ui || ((bucket_key) => bucket_key);
+  def.bucket_key_to_ui_help = def.bucket_key_to_ui_help || def.bucket_key_to_ui;
+  def.bucket_key_to_query =
+    def.bucket_key_to_query || ((bucket_key) => bucket_key);
+  aggregations_definitions[i] = def;
+}
+
+import Loading from "./Loading";
 export default {
   name: "NuggetSearchFilter",
   props: ["query"],
+  component: { Loading },
   data() {
     return {
       state: {},
       aggregations: {},
       nuggets: undefined,
-      filters_collapse: true
+      filters_collapse: true,
+      loading: false,
     };
   },
   watch: {
     query() {
       this.load();
-    }
+    },
   },
   mounted() {
     this.load();
   },
   methods: {
-    load() {
+    async load() {
       if (this.query) {
-        this.proxy(this.query).then(
-          (payload) => {
-            this.handle_aggregations(payload.aggregations);
-          });
-      }
-      else {
+        this.proxy(this.query).then(async (payload) => {
+          if (payload) this.loading = true;
+          await this.handle_aggregations(payload.aggregations);
+          this.loading = false;
+        });
+      } else {
         this.aggregations = {};
       }
     },
     // Updates aggregation data from response
     async handle_aggregations(network_aggregations) {
-      var __this = this;
       if (network_aggregations) {
         var aggregations = Object.assign({});
         var j = 1;
-        for (var i in NAAS_aggregations_order) {
+        var promises = [];
+        for (var i in aggregations_definitions) {
           // going through expected aggregations
-          var aggregation_key = NAAS_aggregations_order[i];
+          var aggregation_definition = aggregations_definitions[i];
+          var aggregation_key = aggregation_definition.aggregation_key;
+          var name = aggregation_definition.name;
           if (network_aggregations[aggregation_key]) {
             var state_buckets = network_aggregations[aggregation_key].buckets;
             // add bucket only if it has content
             if (state_buckets.length > 0) {
-              let old_aggregation = this.aggregations[aggregation_key];
+              let old_aggregation = this.aggregations[name];
+              // Aggregations are not visible by default on smaller devices
               let visible = true;
               if (old_aggregation) visible = old_aggregation.visible;
-              aggregations[aggregation_key] = aggregations[aggregation_key] || {
+              aggregations[name] = aggregations[name] || {
                 buckets: {},
-                visible
+                visible,
+                name: aggregation_definition.name,
               };
-              aggregations[aggregation_key].id = j;
+              aggregations[name].id = j;
               j = j + 1;
+              // Convert all buckets into data structures adapted to the UI
               for (var item_key in state_buckets) {
                 var state_bucket = state_buckets[item_key];
-                state_bucket.selected = false;
-                // Computing captions
-                if (aggregation_key == "structure_id") {
-                  // For structures we have to fetch data from the API
-                  // TODO: Not good, we should call those in parrallel
-                  var structure = await __this.get_structure_cached(
-                    state_bucket.key
+                if (
+                  aggregation_definition.bucket_key_filter(
+                    state_bucket.key,
+                    this
+                  )
+                ) {
+                  // Bucket is not selected by default
+                  state_bucket.selected = false;
+                  // Convert key to UI readable string and add document count
+                  promises.push(
+                    Promise.resolve(
+                      aggregation_definition.bucket_key_to_ui(
+                        state_bucket.key,
+                        this
+                      )
+                    ).then(
+                      ((saved_bucket) => {
+                        return (res) => {
+                          saved_bucket.caption = res;
+                          saved_bucket.caption = utils.truncate(
+                            saved_bucket.caption,
+                            30,
+                            "..."
+                          );
+                          saved_bucket.caption = `${saved_bucket.caption} (${saved_bucket.docCount})`;
+                        };
+                      })(state_bucket)
+                    )
                   );
-                  if (structure) state_bucket.caption = structure.name;
-                } else {
-                  state_bucket.caption = state_bucket.key;
+
+                  // Convert key to a help text
+                  promises.push(
+                    Promise.resolve(
+                      aggregation_definition.bucket_key_to_ui_help(
+                        state_bucket.key,
+                        this
+                      )
+                    ).then(
+                      ((saved_bucket) => {
+                        return (res) => (saved_bucket.help = res);
+                      })(state_bucket)
+                    )
+                  );
+
+                  // Convert key to query key (for actual search)
+                  state_bucket.query_value =
+                    aggregation_definition.bucket_key_to_query(
+                      state_bucket.key,
+                      this
+                    );
+
+                  aggregations[name].buckets[state_bucket.query_value] =
+                    state_bucket;
                 }
-                aggregations[aggregation_key].buckets[
-                  state_bucket.key
-                ] = state_bucket;
               }
             }
           }
         }
+        await Promise.all(promises);
         this.aggregations = aggregations;
       }
     },
+
     facet_exists(aggregation_key, bucket_key) {
       return (
         this.aggregations[aggregation_key] !== undefined &&
@@ -140,9 +249,8 @@ export default {
     set_facet_selected(aggregation_key, bucket_key, selected) {
       if (this.facet_exists(aggregation_key, bucket_key)) {
         if (this.get_facet_selected(aggregation_key, bucket_key) != selected) {
-          this.aggregations[aggregation_key].buckets[
-            bucket_key
-          ].selected = selected;
+          this.aggregations[aggregation_key].buckets[bucket_key].selected =
+            selected;
           this.aggregations = Object.assign({}, this.aggregations);
         }
       }
@@ -157,13 +265,13 @@ export default {
       // Unselect all other bucket of this aggregation
       if (this.aggregations[aggregation_key]) {
         for (var other_bucket_key in this.aggregations[aggregation_key]
-            .buckets) {
+          .buckets) {
           if (bucket_key != other_bucket_key) {
             this.set_facet_selected(aggregation_key, other_bucket_key, false);
           }
         }
       }
-      this.$emit("filters", this.get_extra_params())
+      this.$emit("filters", this.get_extra_params());
     },
     bucket_class(bucket) {
       var mode = bucket.selected ? "primary" : "default";
@@ -179,7 +287,7 @@ export default {
           this.set_facet_selected(aggregation_key, bucket_key, false);
         }
       }
-      this.$emit("filters", this.get_extra_params())
+      this.$emit("filters", this.get_extra_params());
     },
     switch_aggregation_visibility(aggregation) {
       aggregation.visible = !aggregation.visible;
@@ -198,7 +306,7 @@ export default {
         }
       }
       return query;
-    }
+    },
   },
   computed: {
     has_aggregations() {
@@ -210,11 +318,12 @@ export default {
     has_filters() {
       for (var aggregation_key in this.aggregations) {
         for (var bucket_key in this.aggregations[aggregation_key].buckets) {
-          if (this.aggregations[aggregation_key].buckets[bucket_key].selected) return true;
+          if (this.aggregations[aggregation_key].buckets[bucket_key].selected)
+            return true;
         }
       }
       return false;
-    }
-  }
+    },
+  },
 };
 </script>

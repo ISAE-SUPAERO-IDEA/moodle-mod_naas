@@ -77,6 +77,7 @@ $string["prerequisites"] = "Prérequis";
 $string["references"] = "Réferences";
 $string["field_of_study"] = "Domaine";
 $string["authors"] = "Auteurs";
+$string["producers"] = "Producteurs";
 $string["language"] = "Langue";
 $string["duration"] = "Durée";
 $string["level"] = "Niveau";
@@ -85,6 +86,13 @@ $string["advanced"] = "Avancé";
 $string["intermediate"] = "Intermédiaire";
 $string["beginner"] = "Débutant";
 $string["tags"] = "Mots clés";
+
+$string["type"] = "Type";
+$string["lesson"] = "Lesson";
+$string["tutorial"] = "Tutorial";
+$string["demo"] = "Démo";
+
+$string["loading"] = "Chargement...";
 
 $string["en"] = "Anglais";
 $string["english"] = "Anglais";
