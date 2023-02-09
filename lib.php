@@ -16,7 +16,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Moodle Nugget Plugin : Mandatory public API of naas module
+ * Moodle Nugget Plugin : Mandatory public API of NaaS module
  *
  * @package    mod_naas
  * @copyright  2019 Bruno Ilponse
@@ -26,7 +26,7 @@
 defined('MOODLE_INTERNAL') || die;
 
 /**
- * List of features supported in naas module
+ * List of features supported in NaaS module
  * @param string $feature FEATURE_xx constant for requested feature
  * @return mixed True if module supports feature, false if not, null if doesn't know
  */
@@ -107,7 +107,7 @@ function naas_add_instance($data, $mform) {
 }
 
 /**
- * Update naas instance.
+ * Update NaaS instance.
  * @param object $data
  * @param object $mform
  * @return bool true

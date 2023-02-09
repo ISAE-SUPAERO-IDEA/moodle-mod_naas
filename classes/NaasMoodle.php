@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Moodle Nugget Plugin : Push to naas
+ * Moodle Nugget Plugin : Push to NaaS
  *
  * @package    mod_naas
  * @copyright  2019 onwards ISAE-SUPAERO
