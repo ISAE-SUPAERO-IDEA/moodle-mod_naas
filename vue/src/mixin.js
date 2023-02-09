@@ -99,7 +99,6 @@ export default {
         structure ? structure.acronym : key
       );
     },
-
     // Translation
     $t(text) {
       return NAAS.labels.metadata[text] || text;

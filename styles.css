@@ -1,16 +1,10 @@
-.path-mod-url .resourcecontent {
-    text-align: center;
-}
-
 .nugget-display {
   width: 100%;
 }
-
 .course-button {
   margin: 7px 0px !important;
 }
-
-.nugget-post-selected {
+.nugget-selected {
   margin-bottom: 75px !important;
 }
 .nugget-post-selection {
@@ -18,6 +12,9 @@
 }
 .nugget-post-select {
   cursor: pointer;
+}
+.nugget-post-selected {
+  background: #A6C3FE;
 }
 .nugget-post {
   border-radius: 5px;
@@ -45,10 +42,6 @@
   box-shadow: none !important;
 }
 
-.card-selected {
-  background: #A6C3FE;
-}
-
 .search_center {
   display: block;
   margin-top: auto;
@@ -58,27 +51,30 @@
 }
 div.filters {
     float: left;
-    width: 200 px;
-    margin-left: 40 px;
+    width: 200px;
+    margin-left: 40px;
   }
 div.filters-inner {
   background-color: white;
   display: table-cell;
-  padding: 10 px;
-  margin-bottom: 10 px;
+  padding: 10px;
+  margin-bottom: 10px;
 }
 div.separator {
-  height: 15 px;
+  height: 15px;
 }
-
+.filters-title {
+  margin-top: 10px;
+  margin-bottom: 0px;
+  padding-top: 0px
+}
 .clear-filters {
-  font-size: 13 px;
-  margin-top: 15 px;
+  font-size: 13px;
+  margin-top: 15px;
 }
 
 .md-layout {
-  margin-left: 0 px;
-  margin-right: 0 px;
+  margin: 0;
 }
 a.aggregation-title {
   color: #000000;
@@ -87,7 +83,9 @@ a.aggregation-title {
 a.aggregation-title:hover {
   text-decoration: none;
 }
-
+.btn-modify {
+  margin-left: 10px;
+}
 
 /* Detail and Preview Modal */
 .modal-fade-enter,
@@ -131,22 +129,22 @@ a.aggregation-title:hover {
   }
 }
 .nugget-modal-header {
-  padding: 15px 15px 0 15px;
   display: flex;
-  border-bottom: 1px solid #eeeeee;
   justify-content: space-between;
   position: relative;
+  padding: 15px 15px 0 15px;
+  border-bottom: 1px solid #eeeeee;
 }
 .btn-close {
   position: absolute;
   top: 0;
   right: 0;
-  border: none;
   font-size: 20px;
   padding: 10px;
   cursor: pointer;
   font-weight: bold;
   color: #999999;
+  border: none;
   background: transparent;
 }
 .nugget-modal-body {

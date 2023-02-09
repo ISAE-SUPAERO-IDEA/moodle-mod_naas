@@ -1,56 +1,34 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
-
 //
-
 // Moodle is free software: you can redistribute it and/or modify
-
 // it under the terms of the GNU General Public License as published by
-
 // the Free Software Foundation, either version 3 of the License, or
-
 // (at your option) any later version.
-
 //
-
 // Moodle is distributed in the hope that it will be useful,
-
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-
 // GNU General Public License for more details.
-
 //
-
 // You should have received a copy of the GNU General Public License
-
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
-
- * Push to naas
-
+ * Moodle Nugget Plugin : Push to naas
  *
-
- * @package    naas
-
+ * @package    mod_naas
  * @copyright  2019 onwards ISAE-SUPAERO
-
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
-
  */
 
 namespace mod_naas;
 #require_once($CFG->dirroot.'/mod/hvp/autoloader.php');
 
 class NaasMoodle  {
-    public function __construct() { 
-    }
+    public function __construct() { }
 
     // Inspired from /mod/hvp/lib.php
-
     function get_hvp_file_for_course($course_id, $context_id) {
         global $DB;
         $activity = $DB->get_record('hvp', array('course' => $course_id));
@@ -61,7 +39,7 @@ class NaasMoodle  {
         global $DB;
         $activity = $DB->get_record('hvp', array('id' => $id));
         $h5pinterface = \mod_hvp\framework::instance('interface');
-        $h5pcore = \mod_hvp\framework::instance('core');
+        // $h5pcore = \mod_hvp\framework::instance('core');
         $contentid = $activity->id;
         $content = $h5pinterface->loadContent($contentid);
         $slug = $activity->slug;
@@ -77,54 +55,36 @@ class NaasMoodle  {
         }    
         return $file;
     }
+
     function get_course_img($context_id) {
         $fs = get_file_storage();
         $files = $fs->get_area_files($context_id, 'course', "overviewfiles", 0);
         foreach ($files as $file) {
-            if ($file->get_filesize()>0) {
-                return $file;
-            }
-
+            if ($file->get_filesize() > 0) return $file;
         }
     }
 
     // Returns the value of the nugget_id field for a given course
-
     function get_nugget_id_from_course($course_id) {
-
         $handler = \core_course\customfield\course_handler::create();
-
         $custom_data = $handler-> export_instance_data_object($course_id);
-
-        $nugget_id = $custom_data->nugget_id;
-
-        return $nugget_id;
-
+        return $custom_data->nugget_id;
     }
 
     // Returns True if the user is an editing teacher in the course context
-
     function can_push($userid, $context) {
-
         $roles = get_user_roles($userid, $context);
-
         foreach($roles as $role) {
-
             if (is_siteadmin() || $role->shortname == 'manager' || $role->shortname == 'editingteacher') return true;
-
         }
-
         return false;
-
     }
 
     // Gets the physical path of a moodle file
-
     function get_stored_file_path($file) {
         $file_handle = $file->get_content_file_handle();
         $meta_data = stream_get_meta_data($file_handle);
-        $file_path = $meta_data["uri"];
-        return $file_path;
+        return $meta_data["uri"];
     }
 
     // Launch LTI content
@@ -142,8 +102,8 @@ class NaasMoodle  {
         $naas = new \NaasClient($config);
         $nugget_config = $naas->get_nugget_lti_config($naas_instance->nugget_id);
         if ($nugget_config==null || isset($nugget_config->error)) {
-            error_log("Cannot get nugget information from Naas server");
-            echo("Cannot get nugget information from NaaS server");
+            error_log(" Cannot get nugget information from NaaS server. ");
+            echo(" Cannot get nugget information from NaaS server. ");
             return;
         }
 

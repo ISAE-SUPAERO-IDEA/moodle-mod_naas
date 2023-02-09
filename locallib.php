@@ -16,7 +16,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Private url module utility functions
+ * Moodle Nugget Plugin : Private url module utility functions
  *
  * @package    mod_naas
  * @copyright  2019 Bruno Ilponse  {@link http://skodak.org}
@@ -40,6 +40,7 @@ function naas_widget_html($nugget_id, $component) {
             "no_nugget" => get_string('no_nugget','naas'),
             "see_nugget_details" => get_string('see_nugget_details','naas'),
             "back_to_course" => get_string('back_to_course','naas'),
+            "show_more_button" => get_string('show_more_button','naas'),
             "preview_button" => get_string('preview_button','naas'),
             "details_button" => get_string('details_button','naas'),
             "loading" => get_string('loading','naas'),
@@ -64,7 +65,7 @@ function naas_widget_html($nugget_id, $component) {
                 "producers" => get_string('producers','naas'),
                 "authors" => get_string('authors','naas'),
                 "related_domains" => get_string('field_of_study','naas'),
-                "type" => get_string('tags','naas'),
+                "type" => get_string('type','naas'),
                 "lesson" => get_string('lesson','naas'),
                 "demo" => get_string('demo','naas'),
                 "tutorial" => get_string('tutorial','naas'),
@@ -75,8 +76,7 @@ function naas_widget_html($nugget_id, $component) {
             ]
         ]
     ]);
-    $html = "";
-    $html .= "<div id='naas_search_widget'></div>"; 
+    $html = "<div id='naas_search_widget'></div>"; 
     $html .= "<script>NAAS=$widget_config</script>"; 
     // TODO: use $PAGE->require->js
     $search_widget_url = new moodle_url('/mod/naas/assets/vue/search_widget.js');

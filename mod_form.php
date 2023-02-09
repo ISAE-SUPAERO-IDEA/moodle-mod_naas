@@ -18,7 +18,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * NaaS configuration form
+ * Moodle Nugget Plugin : NaaS configuration form
  *
  * @package    mod_naas
  * @copyright  2019 Bruno Ilponse
@@ -31,8 +31,6 @@ require_once ($CFG->dirroot.'/course/moodleform_mod.php');
 require_once('classes/NaasClient.php');
 require_once('locallib.php');
 
-
-
 class mod_naas_mod_form extends moodleform_mod {
     function definition() {
         global $CFG, $DB;
@@ -42,11 +40,9 @@ class mod_naas_mod_form extends moodleform_mod {
         $naas = new NaasClient($config);
 
         // API info is not ready yet on production servers
-        //$info = $naas->get_api_info();
+        // $info = $naas->get_api_info();
         $info = $naas->get_connected_user();
-        if ($info == null) {
-            $mform->addElement('html', '<div class="alert alert-danger">Impossible de contacter le serveur NaaS</div>');
-        }
+        if ($info == null) $mform->addElement('html', '<div class="alert alert-danger">'.get_string("naas_unable_connect", "naas").'</div>');
 
         //-------------------------------------------------------
         $mform->addElement('header', 'general', get_string('general', 'form'));
@@ -59,22 +55,17 @@ class mod_naas_mod_form extends moodleform_mod {
         $mform->addElement('hidden', 'nugget_id', 'nugget_id', array('size'=>'48'));
         $mform->setType('nugget_id', PARAM_TEXT);
 
-
-        // Description du cours
+        // Course description
         $this->standard_intro_elements();
         
         $this->standard_coursemodule_elements();
         $this->add_action_buttons();
     }
 
-    function data_preprocessing(&$default_values) {
-    }
+    function data_preprocessing(&$default_values) { }
 
     function validation($data, $files) {
         $errors = parent::validation($data, $files);
         return $errors;
     }
-
 }
-
-

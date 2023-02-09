@@ -16,7 +16,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Mandatory public API of naas module
+ * Moodle Nugget Plugin : Mandatory public API of naas module
  *
  * @package    mod_naas
  * @copyright  2019 Bruno Ilponse
@@ -116,7 +116,6 @@ function naas_update_instance($data, $mform) {
     global $CFG, $DB;
 
     $data->timemodified = time();
-
 
     $data->id = $data->instance;
     $DB->update_record('naas', $data);
@@ -232,8 +231,8 @@ function naas_export_contents($cm, $baseurl) {
  */
 function naas_dndupload_register() {
     return array('types' => array(
-                     array('identifier' => 'url', 'message' => get_string('createurl', 'url'))
-                 ));
+        array('identifier' => 'url', 'message' => get_string('createurl', 'url'))
+    ));
 }
 
 /**

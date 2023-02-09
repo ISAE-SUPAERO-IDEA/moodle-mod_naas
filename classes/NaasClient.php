@@ -15,13 +15,12 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Push to naas
+ * Moodle Nugget Plugin : Push to naas
  *
- * @package    naas
+ * @package    mod_naas
  * @copyright  2019 onwards ISAE-SUPAERO
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 
 class NaasClient  {
      /**
@@ -32,8 +31,7 @@ class NaasClient  {
 
     public function __construct($config) { 
         $this->config = $config;
-        if (property_exists($this->config, "naas_debug")) $this->debug = $this->config->naas_debug;
-        else $this->debug = False;
+        $this->debug = property_exists($config, "naas_debug") ? $this->config->naas_debug : false;
     }
     function log($thing) {
         error_log("[NaaS] ".print_r($thing, 1));
@@ -43,7 +41,6 @@ class NaasClient  {
     }
     // Makes a curl file from a moodle file
     function make_curl_file($file) {
-
         $mime = mime_content_type($file);
         $name = basename($file);
         return new \CURLFile($file, $mime, $name);
@@ -54,8 +51,7 @@ class NaasClient  {
         if ($params != null) {
             // Remove indices from query params
             $query = preg_replace('/\%5B\d+\%5D/', '', http_build_query($params));
-
-            $url = $url."?".$query;
+            $url .= "?".$query;
         }
         $ch = curl_init();
         $headers = [];
@@ -98,16 +94,13 @@ class NaasClient  {
             $this->debug($body);
         }
         curl_close($ch);
-      
-        $result = $body;
-       
-        return $result;
+
+        return $body;
     }
     function request($protocol, $service, $data = null, $params = null) {
         $result = $this->request_raw($protocol, $service, $data, $params);
         return json_decode($result);
     }        
-
     function handle_result($res) {
         if ($res!=null) {
             if (property_exists($res, "payload") && ($res->payload!=null || is_array($res->payload))) {
@@ -132,7 +125,7 @@ class NaasClient  {
     }
     // Retrieve the LTI config of a nugget from the NaaS
     function get_nugget_lti_config($nugget_id, $structure_id=null) {
-        if ($structure_id==null) $structure_id = $this->config->naas_structure_id;
+        if ($structure_id == null) $structure_id = $this->config->naas_structure_id;
         $this->debug("Get nugget LTI config: ".$nugget_id);
         $protocol = "GET";
         $params = [ "structure_id" => $structure_id ];

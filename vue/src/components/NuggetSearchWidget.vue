@@ -50,7 +50,7 @@
               v-bind:key="index"
               v-bind:nugget="nugget"
               v-bind:class="{
-                'card-selected': nugget.nugget_id == selected_id,
+                'nugget-post-selected': nugget.nugget_id == selected_id,
               }"
               @SelectButton="clickOnNugget"
             ></nugget-post>
@@ -64,7 +64,7 @@
               v-on:click="show_more()"
               class="btn btn-primary nugget-button show_more_button"
             >
-              Show more ...
+              {{ config.labels.show_more_button }}
             </a>
           </div>
         </div>
@@ -73,12 +73,12 @@
     <!-- Selected nugget -->
     <div class="row" v-else>
       <div class="col-md-3"></div>
-      <div class="col-md-9 nugget-post-selected">
+      <div class="col-md-9 nugget-selected">
         <loading :loading="selected_nugget_loading"></loading>
         <div v-if="!selected_nugget_loading">
           <nugget-post
             v-bind:nugget="selected_nugget"
-            v-bind:class="{ 'card-selected': false }"
+            v-bind:class="{ 'nugget-post-selected': false }"
           ></nugget-post>
           <a
             href="javascript:;"
@@ -86,7 +86,7 @@
               selected_nugget = null;
               search();
             "
-            class="btn btn-primary"
+            class="btn btn-primary btn-modify"
           >
             {{ config.labels.click_to_modify }}
           </a>
@@ -176,6 +176,7 @@ export default {
       this.search();
     },
     search() {
+      this.show_more_button = false;
       if (this.search_query) {
         this.loading++;
         this.proxy(this.search_query)
@@ -191,8 +192,9 @@ export default {
               this.nuggets = [...nuggets];
               if (payload.results_count > this.default_page_size)
                 this.show_more_button = true;
-              else this.show_more_button = false;
-            } else this.nuggets = [];
+            } else {
+              this.nuggets = [];
+            }
             this.loading--;
           })
           .catch(() => {
