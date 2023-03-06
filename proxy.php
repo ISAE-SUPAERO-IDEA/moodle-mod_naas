@@ -1,5 +1,4 @@
 <?php
-
 // Proxy.php can be used for the NaaS API requests
 // It uses an instance of the NaasClient.php to send the requests
 
@@ -18,7 +17,6 @@ if (!is_siteadmin()) {
 	if (!$isManager) {
 		$roleid = $DB->get_field('role', 'id', ['shortname' => 'editingteacher']);
 		$isTeacher = $DB->record_exists('role_assignments', ['userid' => $USER->id, 'roleid' => $roleid]);
-
 		if (!$isTeacher) die;
 	}
 }
@@ -33,11 +31,10 @@ $nql = $config->naas_filter;
 if ($nql) {
 	$nql = urlencode($nql);
 	if (strpos($path, "/nuggets/search") === 0) {
-		$separator = strpos($path, "?") >=0 ? "&" : "?";
+		$separator = strpos($path, "?") >= 0 ? "&" : "?";
 		$path = "$path$separator"."nql=$nql";
 	}
 }
 
 $response = $naas->request('GET', $path);
 echo json_encode($response);
-?>

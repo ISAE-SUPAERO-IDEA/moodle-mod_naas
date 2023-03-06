@@ -1,6 +1,8 @@
 <?php
-/*
- * @package mod_naas
+/**
+ * Moodle Nugget Plugin : launch LTI
+ *
+ * @package    mod_naas
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -24,6 +26,3 @@ require_capability('mod/naas:view', $context);
 # Launch LTI
 $naas_moodle = new \mod_naas\NaasMoodle();
 $naas_moodle->lti_launch($id);
-
-
-

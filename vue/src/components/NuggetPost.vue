@@ -77,9 +77,8 @@ export default {
       var authors_names = [];
       if (this.nugget.authors_data) {
         this.nugget.authors_data.forEach((author) => {
-          if (author) {
+          if (author)
             authors_names.push(`${author.firstname} ${author.lastname}`);
-          }
         });
       }
       return authors_names.join(", ");

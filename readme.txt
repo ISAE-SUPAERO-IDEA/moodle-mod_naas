@@ -2,22 +2,25 @@ NaaS Module
 ===========
 
 Overview
-________
+---------------
 
-This module enables Moodle user to add Nugget activiies in their courses. It connects to a NaasServer to fetch the content.
+This module enables Moodle users to add Nugget activities in their courses by connecting to a NaaS Server to fetch the content.
 
 
 Developer notes
 ---------------
 
-This module uses a VueJS component to handle the search and the selection of a nugget. The sources for this component are in the vue directory. To develop this component, You will need nodejs https://nodejs.org/en/.
+This module uses a VueJS component to handle the search and selection of a nugget. The sources for this component are located in the vue directory. To develop this component, you will need Node.js (https://nodejs.org/en/).
 
 In the vue directory:
-- Install the dependencies: yarn install
-- To build the component run `yarn build`
+- Install the dependencies with `yarn install`
+- To build the component, run `yarn build`
 
-=> Apache configuration
- to put in your moodle instance Virtualhost configurationµ. this will solve the CORS configuration error since you will be avle to access the component on the same webserver your moodle instance is working on.
+
+Apache configuration
+---------------
+
+This configuration should be added to the Virtualhost configuration of your Moodle instance to solve CORS configuration errors. By accessing the component on the same webserver as your Moodle instance, the following Apache configuration should be added:
 
 ProxyPass /sockjs-node/  http://localhost:8083/sockjs-node/
 ProxyPass /vue/  http://localhost:8083/vue/
@@ -27,25 +30,28 @@ RewriteCond %{HTTP:Upgrade} websocket [NC]
 RewriteCond %{HTTP:Connection} upgrade [NC]
 RewriteRule ^/?(.*) "ws://moodle.local.isae.fr/$1" [P,L]
 
-=> development configuration file
-: vue/dev_config.js
---- proxy_url: the url where the proxy.php of the naas module can be reached
---- nugget_id: initial nugget_id to simulate the fact that a nugget has already been selected
---- labels: translation to be displayed on the interface
 
-=> The assets will be deployed in assets/vue
-- To develop the component in a sandbox and run `yarn serve -- --port 8083`.
+Development Configuration File
+---------------
+
+The following file contains the development configuration for the Vue component: `vue/dev_config.js`
+  - `proxy_url`: the url where the `proxy.php` of the NaaS module can be reached
+  - `nugget_id`: initial nugget_id to simulate the fact that a nugget has already been selected
+  - `labels`: translation to be displayed on the interface
+
+=> The assets will be deployed in `assets/vue`
+- To develop the component in a sandbox, run `yarn serve -- --port 8083`.
 
 
 Contributing to this module
-______________________
+---------------
 
-This module is currently hosted on a private repository. To gain access please contact idea-lab@isae-supaero.fr
+This module is currently hosted on a private repository. To gain access please contact `idea-lab@isae-supaero.fr`.
 
 Once you have access. You should:
 - Clone the repository
-- Branch from the develop branch 
-- Make your changes (while regularly merging the develop branch)
+- Branch from the `develop` branch 
+- Make your changes (while regularly merging the `develop branch`)
 - Create a merge request
 
-For the time being, in regard with vue search widget,  you should commit both the sources and the artifacts resulting from the build wommand.
+Note: For the time being, with regards to the Vue search widget, you should commit both the sources and the artifacts resulting from the build command.

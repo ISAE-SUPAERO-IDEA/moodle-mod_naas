@@ -16,7 +16,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Moodle NaaS plugin
+ * Moodle Nugget Plugin
  *
  * @package    mod_naas
  * @copyright  2009 onwards Martin Dougiamas (http://dougiamas.com)
@@ -26,14 +26,12 @@
 require_once($_SERVER['DOCUMENT_ROOT']."/config.php");
 
 $id = required_param('id', PARAM_INT); // course id
-
 $course = $DB->get_record('course', array('id'=>$id), '*', MUST_EXIST);
-
 require_course_login($course, true);
-$PAGE->set_pagelayout('incourse');
 
-$strurl       = get_string('modulename', 'url');
-$strurls      = get_string('modulenameplural', 'url');
+$PAGE->set_pagelayout('incourse');
+$strurl          = get_string('modulename', 'url');
+$strurls         = get_string('modulenameplural', 'url');
 $strname         = get_string('name');
 $strintro        = get_string('moduleintro');
 $strlastmodified = get_string('lastmodified');
@@ -51,7 +49,6 @@ if (!$urls = get_all_instances_in_course('url', $course)) {
 }
 
 $usesections = course_format_uses_sections($course->format);
-
 $table = new html_table();
 $table->attributes['class'] = 'generaltable mod_index';
 

@@ -18,7 +18,7 @@
           @click="switch_aggregation_visibility(aggregation)"
           data-toggle="dropdown"
         >
-          <h6 style="margin-top: 10px; margin-bottom: 0px; padding-top: 0px">
+          <h6 class="filters-title">
             {{ config.labels.metadata[aggregation_key] }}
             <i v-if="aggregation.visible" class="icon fa fa-arrow-down"></i>
             <i v-else class="icon fa fa-arrow-right"></i>
@@ -55,11 +55,8 @@
 const utils = {
   truncate(text, length, suffix) {
     suffix = suffix || "...";
-    if (text && text.length > length) {
-      return text.substring(0, length) + suffix;
-    } else {
-      return text;
-    }
+    if (text && text.length > length) return text.substring(0, length) + suffix;
+    else return text;
   },
 };
 
@@ -233,7 +230,6 @@ export default {
         this.aggregations = aggregations;
       }
     },
-
     facet_exists(aggregation_key, bucket_key) {
       return (
         this.aggregations[aggregation_key] !== undefined &&

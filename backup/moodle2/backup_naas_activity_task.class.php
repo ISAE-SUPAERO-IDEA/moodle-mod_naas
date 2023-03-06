@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -36,15 +35,13 @@ class backup_naas_activity_task extends backup_activity_task {
     /**
      * No specific settings for this activity
      */
-    protected function define_my_settings() {
-    }
+    protected function define_my_settings() { }
 
     /**
      * Defines a backup step to store the instance data in the naas.xml file
      */
     protected function define_my_steps() {
         $this->add_step(new backup_naas_activity_structure_step('naas_structure', 'naas.xml'));
-
     }
 
     /**
@@ -54,8 +51,6 @@ class backup_naas_activity_task extends backup_activity_task {
      * @return string the content with the URLs encoded
      */
     static public function encode_content_links($content) {
-
         return $content;
-
     }
 }
