@@ -34,51 +34,60 @@
               class="related-domains-list"
               v-if="aggregation_key == 'related_domains'"
             >
-              <li class="badge badge-margin related-domains-list-element">
-                <label
-                  class="related-domains-label"
-                  v-if="bucket.key.length == '2'"
-                  :title="bucket.caption"
-                >
-                  <input
-                    type="checkbox"
-                    class="related-domains-checkbox"
-                    @click="switch_facet(aggregation_key, bucket.query_value)"
-                  />
-                  {{ bucket.caption | truncate(30, "...") }}
-                </label>
+              <li class="related-domains-list-element">
+                <a href="javascript:;" class="badge badge-margin">
+                  <label
+                    class="related-domains-label"
+                    v-if="bucket.key.length == '2'"
+                    :title="bucket.caption"
+                  >
+                    <input
+                      type="checkbox"
+                      class="related-domains-checkbox"
+                      @click="switch_facet(aggregation_key, bucket.query_value)"
+                    />
+                    {{ bucket.caption | truncate(33, "...") }}
+                  </label>
+                </a>
                 <ul class="related-domains-list" style="padding-left: 20px">
                   <li class="related-domains-list-element">
-                    <label
-                      class="related-domains-label"
-                      v-if="bucket.key.length == '3'"
-                      :title="bucket.caption"
-                    >
-                      <input
-                        type="checkbox"
-                        class="related-domains-checkbox"
-                        @click="
-                          switch_facet(aggregation_key, bucket.query_value)
-                        "
-                      />
-                      {{ bucket.caption | truncate(30, "...") }}
-                    </label>
+                    <a href="javascript:;" class="badge badge-margin">
+                      <label
+                        class="related-domains-label"
+                        v-if="bucket.key.length == '3'"
+                        :title="bucket.caption"
+                      >
+                        <input
+                          type="checkbox"
+                          class="related-domains-checkbox"
+                          @click="
+                            switch_facet(aggregation_key, bucket.query_value)
+                          "
+                        />
+                        {{ bucket.caption | truncate(30, "...") }}
+                      </label>
+                    </a>
                     <ul class="related-domains-list" style="padding-left: 20px">
                       <li class="related-domains-list-element">
-                        <label
-                          class="related-domains-label"
-                          v-if="bucket.key.length == '4'"
-                          :title="bucket.caption"
-                        >
-                          <input
-                            type="checkbox"
-                            class="related-domains-checkbox"
-                            @click="
-                              switch_facet(aggregation_key, bucket.query_value)
-                            "
-                          />
-                          {{ bucket.caption | truncate(30, "...") }}
-                        </label>
+                        <a href="javascript:;" class="badge badge-margin">
+                          <label
+                            class="related-domains-label"
+                            v-if="bucket.key.length == '4'"
+                            :title="bucket.caption"
+                          >
+                            <input
+                              type="checkbox"
+                              class="related-domains-checkbox"
+                              @click="
+                                switch_facet(
+                                  aggregation_key,
+                                  bucket.query_value
+                                )
+                              "
+                            />
+                            {{ bucket.caption | truncate(27, "...") }}
+                          </label>
+                        </a>
                       </li>
                     </ul>
                   </li>
