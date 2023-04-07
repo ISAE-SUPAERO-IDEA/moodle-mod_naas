@@ -8,6 +8,8 @@ module.exports = {
     search: "search",
     click_to_modify: "click_to_modify",
     clear_filters: "clear_filters",
+    show_more_authors: "show_more_authors",
+    hide_authors: "hide_authors",
     no_nugget: "no_nugget",
     see_nugget_details: "see_nugget_details",
     back_to_course: "back_to_course",

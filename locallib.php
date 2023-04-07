@@ -37,6 +37,8 @@ function naas_widget_html($nugget_id, $component) {
             "search" => get_string('nugget_search','naas'),
             "click_to_modify" => get_string('click_to_modify','naas'),
             "clear_filters" => get_string('clear_filters','naas'),
+            "show_more_authors" => get_string('show_more_authors','naas'),
+            "hide_authors" => get_string('hide_authors','naas'),
             "no_nugget" => get_string('no_nugget','naas'),
             "see_nugget_details" => get_string('see_nugget_details','naas'),
             "back_to_course" => get_string('back_to_course','naas'),

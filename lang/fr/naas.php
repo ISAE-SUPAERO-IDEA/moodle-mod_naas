@@ -65,6 +65,8 @@ $string['nugget_search_here'] = 'Rechercher ici';
 $string['click_to_modify'] = 'Modifier la nugget selectionnée';
 $string['no_nugget'] = 'Aucun nugget trouvé';
 $string['clear_filters'] = 'Effacer les filtres';
+$string['show_more_authors'] = 'Afficher plus';
+$string['hide_authors'] = 'Cacher';
 
 $string['see_nugget_details'] = 'Voir les infos du nugget';
 $string['back_to_course'] = 'Retour au cours';

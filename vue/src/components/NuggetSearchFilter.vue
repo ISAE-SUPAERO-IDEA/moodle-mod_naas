@@ -26,9 +26,73 @@
         </a>
 
         <div :id="$id(aggregation_key)" v-show="aggregation.visible">
-          <span v-for="bucket in aggregation.buckets" :key="bucket.key">
-            <a href="javascript:;"
-              ><span
+          <span
+            v-for="(bucket, id, index) in aggregation.buckets"
+            :key="bucket.key"
+          >
+            <ul
+              class="related-domains-list"
+              v-if="aggregation_key == 'related_domains'"
+            >
+              <li class="badge badge-margin related-domains-list-element">
+                <label
+                  class="related-domains-label"
+                  v-if="bucket.key.length == '2'"
+                  :title="bucket.caption"
+                >
+                  <input
+                    type="checkbox"
+                    class="related-domains-checkbox"
+                    @click="switch_facet(aggregation_key, bucket.query_value)"
+                  />
+                  {{ bucket.caption | truncate(30, "...") }}
+                </label>
+                <ul class="related-domains-list" style="padding-left: 20px">
+                  <li class="related-domains-list-element">
+                    <label
+                      class="related-domains-label"
+                      v-if="bucket.key.length == '3'"
+                      :title="bucket.caption"
+                    >
+                      <input
+                        type="checkbox"
+                        class="related-domains-checkbox"
+                        @click="
+                          switch_facet(aggregation_key, bucket.query_value)
+                        "
+                      />
+                      {{ bucket.caption | truncate(30, "...") }}
+                    </label>
+                    <ul class="related-domains-list" style="padding-left: 20px">
+                      <li class="related-domains-list-element">
+                        <label
+                          class="related-domains-label"
+                          v-if="bucket.key.length == '4'"
+                          :title="bucket.caption"
+                        >
+                          <input
+                            type="checkbox"
+                            class="related-domains-checkbox"
+                            @click="
+                              switch_facet(aggregation_key, bucket.query_value)
+                            "
+                          />
+                          {{ bucket.caption | truncate(30, "...") }}
+                        </label>
+                      </li>
+                    </ul>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+            <a
+              href="javascript:;"
+              v-if="aggregation_key != 'related_domains'"
+              :class="{
+                'hide-authors': aggregation_key == 'authors' && index > 5,
+              }"
+            >
+              <span
                 class="badge badge-margin"
                 :class="bucket_class(bucket)"
                 @click="switch_facet(aggregation_key, bucket.key)"
@@ -36,6 +100,15 @@
               >
             </a>
           </span>
+          <a
+            href="javascript:;"
+            id="show-more-authors"
+            class="clear-filters show-more"
+            v-if="aggregation_key == 'authors' && has_more(aggregation)"
+            @click="show_more_bucket()"
+          >
+            {{ config.labels.show_more_authors }}
+          </a>
         </div>
       </div>
       <div class="clear-filters" v-show="has_filters">
@@ -51,15 +124,6 @@
   </div>
 </template>
 <script>
-// Useful for aggregation display order
-const utils = {
-  truncate(text, length, suffix) {
-    suffix = suffix || "...";
-    if (text && text.length > length) return text.substring(0, length) + suffix;
-    else return text;
-  },
-};
-
 var aggregations_definitions = [
   {
     name: "related_domains",
@@ -69,6 +133,10 @@ var aggregations_definitions = [
   },
   {
     name: "level",
+    bucket_key_to_ui: (bucket_key, component) => component.$t(`${bucket_key}`),
+  },
+  {
+    name: "language",
     bucket_key_to_ui: (bucket_key, component) => component.$t(`${bucket_key}`),
   },
   "tags",
@@ -187,11 +255,6 @@ export default {
                       ((saved_bucket) => {
                         return (res) => {
                           saved_bucket.caption = res;
-                          saved_bucket.caption = utils.truncate(
-                            saved_bucket.caption,
-                            30,
-                            "..."
-                          );
                           saved_bucket.caption = `${saved_bucket.caption} (${saved_bucket.docCount})`;
                         };
                       })(state_bucket)
@@ -263,7 +326,7 @@ export default {
         for (var other_bucket_key in this.aggregations[aggregation_key]
           .buckets) {
           if (bucket_key != other_bucket_key) {
-            this.set_facet_selected(aggregation_key, other_bucket_key, false);
+            //this.set_facet_selected(aggregation_key, other_bucket_key, false);
           }
         }
       }
@@ -277,6 +340,12 @@ export default {
       return clazz;
     },
     clear_filters() {
+      // Uncheck all checkbox
+      var checkbox = document.getElementsByClassName(
+        "related-domains-checkbox"
+      );
+      for (var i = 0; i < checkbox.length; i++) checkbox[i].checked = false;
+
       // Unselect all buckets in all aggregations
       for (var aggregation_key in this.aggregations) {
         for (var bucket_key in this.aggregations[aggregation_key].buckets) {
@@ -288,6 +357,29 @@ export default {
     switch_aggregation_visibility(aggregation) {
       aggregation.visible = !aggregation.visible;
       this.aggregations = Object.assign({}, this.aggregations);
+    },
+    has_more(aggregation) {
+      if (Object.keys(aggregation["buckets"]).length > 5) {
+        return true;
+      } else {
+        return false;
+      }
+    },
+    show_more_bucket() {
+      var hide_button = document.getElementsByClassName("hide-authors");
+      var is_visible = hide_button[0].style.display == "inline";
+
+      for (var i = 0; i < hide_button.length; i++) {
+        if (is_visible) {
+          hide_button[i].style.display = "none";
+          document.getElementById("show-more-authors").innerHTML =
+            this.config.labels.show_more_authors;
+        } else {
+          hide_button[i].style.display = "inline";
+          document.getElementById("show-more-authors").innerHTML =
+            this.config.labels.hide_authors;
+        }
+      }
     },
     // Synchronize navigation with UI selection
     get_extra_params() {
