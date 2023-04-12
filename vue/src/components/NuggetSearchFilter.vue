@@ -220,8 +220,8 @@ export default {
     async handle_aggregations(network_aggregations) {
       if (network_aggregations) {
         var aggregations = Object.assign({});
+        let aggregations_to_sort = new Array();
         var j = 1;
-        var promises = [];
         for (var i in aggregations_definitions) {
           // going through expected aggregations
           var aggregation_definition = aggregations_definitions[i];
@@ -242,6 +242,7 @@ export default {
               };
               aggregations[name].id = j;
               j = j + 1;
+              let aggregation_array = new Array();
               // Convert all buckets into data structures adapted to the UI
               for (var item_key in state_buckets) {
                 var state_bucket = state_buckets[item_key];
@@ -254,36 +255,18 @@ export default {
                   // Bucket is not selected by default
                   state_bucket.selected = false;
                   // Convert key to UI readable string and add document count
-                  promises.push(
-                    Promise.resolve(
-                      aggregation_definition.bucket_key_to_ui(
-                        state_bucket.key,
-                        this
-                      )
-                    ).then(
-                      ((saved_bucket) => {
-                        return (res) => {
-                          saved_bucket.caption = res;
-                          saved_bucket.caption = `${saved_bucket.caption} (${saved_bucket.docCount})`;
-                        };
-                      })(state_bucket)
-                    )
-                  );
-
+                  state_bucket.caption =
+                    await aggregation_definition.bucket_key_to_ui(
+                      state_bucket.key,
+                      this
+                    );
+                  state_bucket.caption = `${state_bucket.caption} (${state_bucket.docCount})`;
                   // Convert key to a help text
-                  promises.push(
-                    Promise.resolve(
-                      aggregation_definition.bucket_key_to_ui_help(
-                        state_bucket.key,
-                        this
-                      )
-                    ).then(
-                      ((saved_bucket) => {
-                        return (res) => (saved_bucket.help = res);
-                      })(state_bucket)
-                    )
-                  );
-
+                  state_bucket.help =
+                    await aggregation_definition.bucket_key_to_ui_help(
+                      state_bucket.key,
+                      this
+                    );
                   // Convert key to query key (for actual search)
                   state_bucket.query_value =
                     aggregation_definition.bucket_key_to_query(
@@ -291,14 +274,33 @@ export default {
                       this
                     );
 
-                  aggregations[name].buckets[state_bucket.query_value] =
-                    state_bucket;
+                  // Do not sort related domains otherwise it's will break the tree
+                  if (name == "related_domains")
+                    aggregations[name].buckets[state_bucket.query_value] =
+                      state_bucket;
+                  else aggregation_array.push(state_bucket);
                 }
               }
+              aggregations_to_sort[name] = aggregation_array;
             }
           }
         }
-        await Promise.all(promises);
+
+        for (var aggregation_title in aggregations_to_sort) {
+          let sorted_aggregation = aggregations_to_sort[aggregation_title].sort(
+            (a, b) => {
+              if (a.caption < b.caption) return -1;
+              if (a.caption > b.caption) return 1;
+              return 0;
+            }
+          );
+
+          for (var index in sorted_aggregation)
+            aggregations[aggregation_title].buckets[
+              sorted_aggregation[index].key
+            ] = sorted_aggregation[index];
+        }
+
         this.aggregations = aggregations;
       }
     },
@@ -330,16 +332,32 @@ export default {
         bucket_key,
         !this.get_facet_selected(aggregation_key, bucket_key)
       );
+      /*
       // Unselect all other bucket of this aggregation
       if (this.aggregations[aggregation_key]) {
         for (var other_bucket_key in this.aggregations[aggregation_key]
           .buckets) {
           if (bucket_key != other_bucket_key) {
-            //this.set_facet_selected(aggregation_key, other_bucket_key, false);
+            // this.set_facet_selected(aggregation_key, other_bucket_key, false);
           }
         }
       }
+      */
       this.$emit("filters", this.get_extra_params());
+    },
+    // Synchronize navigation with UI selection
+    get_extra_params() {
+      var query = {};
+      for (var aggregation_key in this.aggregations) {
+        for (var item_key in this.aggregations[aggregation_key].buckets) {
+          var item = this.aggregations[aggregation_key].buckets[item_key];
+          if (item.selected) {
+            query[aggregation_key] = query[aggregation_key] || [];
+            query[aggregation_key].push(item.key);
+          }
+        }
+      }
+      return query;
     },
     bucket_class(bucket) {
       var mode = bucket.selected ? "primary" : "default";
@@ -389,20 +407,6 @@ export default {
             this.config.labels.hide_authors;
         }
       }
-    },
-    // Synchronize navigation with UI selection
-    get_extra_params() {
-      var query = {};
-      for (var aggregation_key in this.aggregations) {
-        for (var item_key in this.aggregations[aggregation_key].buckets) {
-          var item = this.aggregations[aggregation_key].buckets[item_key];
-          if (item.selected) {
-            query[aggregation_key] = query[aggregation_key] || [];
-            query[aggregation_key].push(item.key);
-          }
-        }
-      }
-      return query;
     },
   },
   computed: {
