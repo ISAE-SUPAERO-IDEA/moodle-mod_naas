@@ -70,7 +70,7 @@ $string['hide_authors'] = 'Cacher';
 
 $string['see_nugget_details'] = 'Voir les infos du nugget';
 $string['back_to_course'] = 'Retour au cours';
-$string['show_more_button'] = 'Afficher plus ...';
+$string['show_more_nugget_button'] = 'Afficher plus ...';
 
 $string['preview_button'] = 'Aperçu';
 $string['details_button'] = 'Infos';

@@ -42,7 +42,7 @@ function naas_widget_html($nugget_id, $component) {
             "no_nugget" => get_string('no_nugget','naas'),
             "see_nugget_details" => get_string('see_nugget_details','naas'),
             "back_to_course" => get_string('back_to_course','naas'),
-            "show_more_button" => get_string('show_more_button','naas'),
+            "show_more_nugget_button" => get_string('show_more_nugget_button','naas'),
             "preview_button" => get_string('preview_button','naas'),
             "details_button" => get_string('details_button','naas'),
             "loading" => get_string('loading','naas'),

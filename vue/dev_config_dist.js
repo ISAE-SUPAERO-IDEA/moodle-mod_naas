@@ -13,7 +13,7 @@ module.exports = {
     no_nugget: "no_nugget",
     see_nugget_details: "see_nugget_details",
     back_to_course: "back_to_course",
-    show_more_button: "show_more_button",
+    show_more_nugget_button: "show_more_nugget_button",
     preview_button: "preview_button",
     details_button: "details_button",
     loading: "loading",

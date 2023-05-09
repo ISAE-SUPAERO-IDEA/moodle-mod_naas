@@ -26,74 +26,20 @@
         </a>
 
         <div :id="$id(aggregation_key)" v-show="aggregation.visible">
+          <div v-if="aggregation_key == 'related_domains'" id="related_domains">
+            <span v-for="bucket in related_domains" :key="bucket.key">
+              <RelatedDomain
+                :bucket="bucket"
+                :truncate_mobile_mode="truncate_mobile_mode"
+                :bucket_class="bucket_class"
+                @bucket-click="bucket_click"
+              ></RelatedDomain>
+            </span>
+          </div>
           <span
             v-for="(bucket, id, index) in aggregation.buckets"
             :key="bucket.key"
           >
-            <ul
-              class="related-domains-list"
-              v-if="aggregation_key == 'related_domains'"
-            >
-              <li class="related-domains-list-element">
-                <a href="javascript:;" class="badge badge-margin">
-                  <label
-                    class="related-domains-label"
-                    v-if="bucket.key.length == '2'"
-                    :title="bucket.caption"
-                  >
-                    <input
-                      type="checkbox"
-                      class="related-domains-checkbox"
-                      @click="switch_facet(aggregation_key, bucket.query_value)"
-                    />
-                    {{ bucket.caption | truncate(33, "...") }}
-                  </label>
-                </a>
-                <ul class="related-domains-list" style="padding-left: 20px">
-                  <li class="related-domains-list-element">
-                    <a href="javascript:;" class="badge badge-margin">
-                      <label
-                        class="related-domains-label"
-                        v-if="bucket.key.length == '3'"
-                        :title="bucket.caption"
-                      >
-                        <input
-                          type="checkbox"
-                          class="related-domains-checkbox"
-                          @click="
-                            switch_facet(aggregation_key, bucket.query_value)
-                          "
-                        />
-                        {{ bucket.caption | truncate(30, "...") }}
-                      </label>
-                    </a>
-                    <ul class="related-domains-list" style="padding-left: 20px">
-                      <li class="related-domains-list-element">
-                        <a href="javascript:;" class="badge badge-margin">
-                          <label
-                            class="related-domains-label"
-                            v-if="bucket.key.length == '4'"
-                            :title="bucket.caption"
-                          >
-                            <input
-                              type="checkbox"
-                              class="related-domains-checkbox"
-                              @click="
-                                switch_facet(
-                                  aggregation_key,
-                                  bucket.query_value
-                                )
-                              "
-                            />
-                            {{ bucket.caption | truncate(27, "...") }}
-                          </label>
-                        </a>
-                      </li>
-                    </ul>
-                  </li>
-                </ul>
-              </li>
-            </ul>
             <a
               href="javascript:;"
               v-if="aggregation_key != 'related_domains'"
@@ -102,10 +48,11 @@
               }"
             >
               <span
-                class="badge badge-margin"
+                class="badge badge-pill badge-margin"
                 :class="bucket_class(bucket)"
-                @click="switch_facet(aggregation_key, bucket.key)"
-                >{{ bucket.caption }}</span
+                :title="bucket.help"
+                @click="switch_facet(aggregation_key, bucket.query_value)"
+                >{{ truncate_mobile_mode(bucket.caption, 25) }}</span
               >
             </a>
           </span>
@@ -133,6 +80,11 @@
   </div>
 </template>
 <script>
+// import Loading from "./Loading";
+import RelatedDomain from "./RelatedDomain";
+
+import utils from "@/utils";
+// Useful for aggregation display order
 var aggregations_definitions = [
   {
     name: "related_domains",
@@ -182,15 +134,18 @@ for (var i in aggregations_definitions) {
   aggregations_definitions[i] = def;
 }
 
-import Loading from "./Loading";
 export default {
   name: "NuggetSearchFilter",
   props: ["query"],
-  component: { Loading },
+  components: {
+    // Loading,
+    RelatedDomain,
+  },
   data() {
     return {
       state: {},
       aggregations: {},
+      related_domains: {},
       nuggets: undefined,
       filters_collapse: true,
       loading: false,
@@ -205,6 +160,9 @@ export default {
     this.load();
   },
   methods: {
+    truncate_mobile_mode(text, size) {
+      return utils.truncate(text, size, "...");
+    },
     async load() {
       if (this.query) {
         this.proxy(this.query).then(async (payload) => {
@@ -222,6 +180,7 @@ export default {
         var aggregations = Object.assign({});
         let aggregations_to_sort = new Array();
         var j = 1;
+        let related_domains_list = Object.assign({});
         for (var i in aggregations_definitions) {
           // going through expected aggregations
           var aggregation_definition = aggregations_definitions[i];
@@ -273,12 +232,11 @@ export default {
                       state_bucket.key,
                       this
                     );
-
-                  // Do not sort related domains otherwise it's will break the tree
+                  // Sort with children for the tree view
                   if (name == "related_domains")
-                    aggregations[name].buckets[state_bucket.query_value] =
-                      state_bucket;
-                  else aggregation_array.push(state_bucket);
+                    this.create_children(related_domains_list, state_bucket, 2);
+
+                  aggregation_array.push(state_bucket);
                 }
               }
               aggregations_to_sort[name] = aggregation_array;
@@ -286,6 +244,7 @@ export default {
           }
         }
 
+        // Sort the aggregations alphabetically
         for (var aggregation_title in aggregations_to_sort) {
           let sorted_aggregation = aggregations_to_sort[aggregation_title].sort(
             (a, b) => {
@@ -294,15 +253,43 @@ export default {
               return 0;
             }
           );
-
           for (var index in sorted_aggregation)
             aggregations[aggregation_title].buckets[
               sorted_aggregation[index].key
             ] = sorted_aggregation[index];
         }
 
+        // Sort the field of study alphabetically
+        this.related_domains = Object.values(related_domains_list).sort(
+          (a, b) => {
+            if (a.caption < b.caption) return -1;
+            else if (a.caption > b.caption) return 1;
+            else return 0;
+          }
+        );
+
         this.aggregations = aggregations;
       }
+    },
+    create_children(related_domains_list, state_bucket, index) {
+      if (
+        typeof related_domains_list[state_bucket.key.slice(0, index)] ===
+        "undefined"
+      ) {
+        // key not exist
+        related_domains_list[state_bucket.key] = state_bucket;
+        related_domains_list[state_bucket.key]["children"] = {};
+      } else {
+        // key exist so can create children inside this key
+        this.create_children(
+          related_domains_list[state_bucket.key.slice(0, index)]["children"],
+          state_bucket,
+          index + 1
+        );
+      }
+    },
+    bucket_click(bucket_key) {
+      this.switch_facet("related_domains", bucket_key);
     },
     facet_exists(aggregation_key, bucket_key) {
       return (
@@ -367,11 +354,16 @@ export default {
       return clazz;
     },
     clear_filters() {
-      // Uncheck all checkbox
-      var checkbox = document.getElementsByClassName(
-        "related-domains-checkbox"
+      // Hide the Tree-View children
+      var hide_related_domains_child = document.getElementsByClassName(
+        "related-domains-child"
       );
-      for (var i = 0; i < checkbox.length; i++) checkbox[i].checked = false;
+      for (var i = 0; i < hide_related_domains_child.length; i++)
+        hide_related_domains_child[i].style.display = "none";
+      // Toggle the caret / arrow of the Tree-View
+      var caret_down = document.getElementsByClassName("tree-view-caret-down");
+      for (var j = 0; j < caret_down.length; j++)
+        caret_down[j].classList.toggle("tree-view-caret-down");
 
       // Unselect all buckets in all aggregations
       for (var aggregation_key in this.aggregations) {
