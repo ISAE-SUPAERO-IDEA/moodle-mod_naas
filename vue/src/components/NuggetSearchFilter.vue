@@ -29,6 +29,7 @@
           <div v-if="aggregation_key == 'related_domains'" id="related_domains">
             <span v-for="bucket in related_domains" :key="bucket.key">
               <RelatedDomain
+                ref="relatedDomain"
                 :bucket="bucket"
                 :truncate_mobile_mode="truncate_mobile_mode"
                 :bucket_class="bucket_class"
@@ -354,16 +355,18 @@ export default {
       return clazz;
     },
     clear_filters() {
-      // Hide the Tree-View children
-      var hide_related_domains_child = document.getElementsByClassName(
-        "related-domains-child"
-      );
-      for (var i = 0; i < hide_related_domains_child.length; i++)
-        hide_related_domains_child[i].style.display = "none";
-      // Toggle the caret / arrow of the Tree-View
-      var caret_down = document.getElementsByClassName("tree-view-caret-down");
-      for (var j = 0; j < caret_down.length; j++)
-        caret_down[j].classList.toggle("tree-view-caret-down");
+      // Helper function to recursively collapse children
+      const collapseChildren = (relatedDomains) => {
+        relatedDomains.forEach((relatedDomain) => {
+          relatedDomain.showChildren = false;
+          if (relatedDomain.$children.length > 0) {
+            collapseChildren(relatedDomain.$children);
+          }
+        });
+      };
+      // Find the root level RelatedDomain components and collapse their children
+      const rootRelatedDomains = this.$refs.relatedDomain;
+      collapseChildren(rootRelatedDomains);
 
       // Unselect all buckets in all aggregations
       for (var aggregation_key in this.aggregations) {
