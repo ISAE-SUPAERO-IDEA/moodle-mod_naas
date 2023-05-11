@@ -1,6 +1,6 @@
 <?php
 /**
- * MOD Naas: Settings
+ * Moodle Nugget Plugin : Settings
  *
  * @package    mod_naas
  * @copyright  2019 onwards ISAE-SUPAERO
@@ -8,15 +8,15 @@
  */
 
 defined('MOODLE_INTERNAL') || die();
+require_once('privacy/provider.php');
 
 if ($hassiteconfig) {
     // -------------------- NaaS settings --------------------.
     $settings->add(new admin_setting_heading(
         'naas',
         get_string('naas_settings', 'naas'),
-        get_string('naas_settings_help', 'naas') 
+        get_string('naas_settings_information', 'naas') 
     ));
-
     // Endpoint
     $settings->add(new admin_setting_configtext(
         'naas/naas_endpoint',
@@ -25,7 +25,6 @@ if ($hassiteconfig) {
         'https://api.naas-edu.eu/api',
         PARAM_URL
     ));
-
     // User
     $settings->add(new admin_setting_configtext(
         'naas/naas_username',
@@ -42,7 +41,6 @@ if ($hassiteconfig) {
         '06d37c13-6ffe-4c4a-a9e3-ac227652f98c',
          PARAM_TEXT
      ));
-
     // Password
     $settings->add(new admin_setting_configpasswordunmask(
         'naas/naas_password',
@@ -76,6 +74,12 @@ if ($hassiteconfig) {
         PARAM_TEXT
     ));
 
+    // -------------------- NaaS Privacy --------------------.
+    $settings->add(new admin_setting_heading(
+        'naas/privacy',
+        get_string('naas_settings_privacy', 'naas'),
+        (new provider())->get_reason()
+    ));
     // Privacy mail
     $settings->add(new admin_setting_configcheckbox(
         'naas/naas_privacy_learner_mail',
@@ -83,7 +87,6 @@ if ($hassiteconfig) {
         new lang_string('naas_settings_privacy_learner_mail_help', 'naas'),
         1
     ));
-
     // Privacy name
     $settings->add(new admin_setting_configcheckbox(
         'naas/naas_privacy_learner_name',
@@ -92,4 +95,3 @@ if ($hassiteconfig) {
         1
     ));    
 }
-

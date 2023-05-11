@@ -1,16 +1,7 @@
-.path-mod-url .resourcecontent {
-    text-align: center;
-}
-
-.nugget-display {
-  width: 100%;
-}
-
-.course-button {
-  margin: 7px 0px !important;
-}
-
-.nugget-post-selected {
+/******************************
+Nugget Post
+******************************/
+.nugget-selected {
   margin-bottom: 75px !important;
 }
 .nugget-post-selection {
@@ -18,6 +9,9 @@
 }
 .nugget-post-select {
   cursor: pointer;
+}
+.nugget-post-selected {
+  background: #A6C3FE;
 }
 .nugget-post {
   border-radius: 5px;
@@ -36,60 +30,20 @@
 .nugget-button {
   margin-right: 5px !important;
 }
-.show_more {
+/* Load more nugget */
+.show_more_nugget {
   margin-left: 25px;
   margin-bottom: 20px;
 }
-.show_more_button:focus {
+.show_more_nugget_button:focus {
   outline: none !important;
   box-shadow: none !important;
 }
 
-.card-selected {
-  background: #A6C3FE;
-}
 
-.search_center {
-  display: block;
-  margin-top: auto;
-  margin-bottom: auto;
-  margin-left:10px;
-  border: 1px solid;
-}
-div.filters {
-    float: left;
-    width: 200 px;
-    margin-left: 40 px;
-  }
-div.filters-inner {
-  background-color: white;
-  display: table-cell;
-  padding: 10 px;
-  margin-bottom: 10 px;
-}
-div.separator {
-  height: 15 px;
-}
-
-.clear-filters {
-  font-size: 13 px;
-  margin-top: 15 px;
-}
-
-.md-layout {
-  margin-left: 0 px;
-  margin-right: 0 px;
-}
-a.aggregation-title {
-  color: #000000;
-  font-weight: 400;
-}
-a.aggregation-title:hover {
-  text-decoration: none;
-}
-
-
-/* Detail and Preview Modal */
+/******************************
+Modal style
+******************************/
 .modal-fade-enter,
 .modal-fade-leave-to {
   opacity: 0;
@@ -131,34 +85,28 @@ a.aggregation-title:hover {
   }
 }
 .nugget-modal-header {
-  padding: 15px 15px 0 15px;
   display: flex;
-  border-bottom: 1px solid #eeeeee;
   justify-content: space-between;
   position: relative;
+  padding: 15px 15px 0 15px;
+  border-bottom: 1px solid #eeeeee;
 }
 .btn-close {
   position: absolute;
   top: 0;
   right: 0;
-  border: none;
   font-size: 20px;
   padding: 10px;
   cursor: pointer;
   font-weight: bold;
   color: #999999;
+  border: none;
   background: transparent;
 }
 .nugget-modal-body {
   overflow-y: auto;
   position: relative;
   padding: 0;
-}
-.h-100 {
-  height: 100%;
-}
-.w-100 {
-  width: 100%;
 }
 .metadata_field {
   margin: 0 15px !important;
@@ -189,4 +137,112 @@ a.aggregation-title:hover {
 }
 .DetailModal {
   display: none;
+}
+
+
+/******************************
+Aggregations
+******************************/
+div.filters {
+    float: left;
+    width: 200px;
+    margin-left: 40px;
+  }
+div.filters-inner {
+  background-color: white;
+  display: table-cell;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+div.separator {
+  height: 15px;
+}
+.filters-title {
+  margin-top: 10px;
+  margin-bottom: 0px;
+  padding-top: 0px
+}
+a.aggregation-title {
+  color: #000000;
+  font-weight: 400;
+}
+a.aggregation-title:hover {
+  text-decoration: none;
+}
+
+.hide-authors {
+  display: none;
+}
+.show-more {
+  margin-left: 10px;
+}
+.clear-filters {
+  font-size: 13px;
+  margin-top: 15px;
+}
+
+/******************************
+facets badge
+******************************/
+.badge-margin {
+  margin: 1px;
+}
+
+
+/******************************
+facets tree-view
+******************************/
+.related-domains-list {
+  margin: 0;
+  padding: 0;
+}
+.related-domains-list-element {
+  list-style-type: none;
+}
+
+/* Style the caret */
+.tree-view-caret {
+  cursor: pointer;
+  user-select: none;
+}
+.tree-view-caret::after {
+  content: "\25BC";
+  color: black;
+  display: inline-block;
+  margin-right: 6px;
+  transform: rotate(-90deg);
+}
+.tree-view-caret-down::after {
+  transform: rotate(0deg);
+}
+
+
+/******************************
+Other style
+******************************/
+.course-button {
+  margin: 7px 0px !important;
+}
+.search_center {
+  display: block;
+  margin-top: auto;
+  margin-bottom: auto;
+  margin-left:10px;
+  border: 1px solid;
+}
+.md-layout {
+  margin: 0;
+}
+.btn-modify {
+  margin-left: 10px;
+}
+.nugget-display {
+  width: 100%;
+}
+
+.h-100 {
+  height: 100%;
+}
+.w-100 {
+  width: 100%;
 }

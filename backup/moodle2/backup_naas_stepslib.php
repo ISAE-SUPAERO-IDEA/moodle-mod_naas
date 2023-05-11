@@ -1,14 +1,11 @@
 <?php
- 
 /**
  * Define all the backup steps that will be used by the backup_naas_activity_task
  */
 
-
 class backup_naas_activity_structure_step extends backup_activity_structure_step {
  
     protected function define_structure() {
- 
         // To know if we are including userinfo
         $userinfo = $this->get_setting_value('userinfo');
  
@@ -30,8 +27,5 @@ class backup_naas_activity_structure_step extends backup_activity_structure_step
  
         // Return the root element (naas), wrapped into standard activity structure
         return $this->prepare_activity_structure($naas);
-
     }
 }
-
-

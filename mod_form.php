@@ -1,6 +1,6 @@
 <?php
 
-use Phpml\Helper\Optimizer\div;
+#use Phpml\Helper\Optimizer\div;
 
 // This file is part of Moodle - http://moodle.org/
 //
@@ -18,7 +18,7 @@ use Phpml\Helper\Optimizer\div;
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * NaaS configuration form
+ * Moodle Nugget Plugin : NaaS configuration form
  *
  * @package    mod_naas
  * @copyright  2019 Bruno Ilponse
@@ -29,8 +29,7 @@ defined('MOODLE_INTERNAL') || die;
 
 require_once ($CFG->dirroot.'/course/moodleform_mod.php');
 require_once('classes/NaasClient.php');
-
-
+require_once('locallib.php');
 
 class mod_naas_mod_form extends moodleform_mod {
     function definition() {
@@ -41,84 +40,32 @@ class mod_naas_mod_form extends moodleform_mod {
         $naas = new NaasClient($config);
 
         // API info is not ready yet on production servers
-        //$info = $naas->get_api_info();
+        // $info = $naas->get_api_info();
         $info = $naas->get_connected_user();
-        if ($info == null) {
-            $mform->addElement('html', '<div class="alert alert-danger">Impossible de contacter le serveur NaaS</div>');
-        }
+        if ($info == null) $mform->addElement('html', '<div class="alert alert-danger">'.get_string("naas_unable_connect", "naas").'</div>');
 
         //-------------------------------------------------------
         $mform->addElement('header', 'general', get_string('general', 'form'));
 
-        $labels = json_encode([
-            "mount_point"=> "#naas_search_widget",
-            "proxy_url"=> "$CFG->wwwroot/mod/naas/proxy.php",
-            "labels" => [
-                "search_here" => get_string('nugget_search_here','naas'),
-                "search" => get_string('nugget_search','naas'),
-                "click_to_modify" => get_string('click_to_modify','naas'),
-                "clear_filters" => get_string('clear_filters','naas'),
-                "no_nugget" => get_string('no_nugget','naas'),
-                "see_nugget_details" => get_string('see_nugget_details','naas'),
-                "back_to_course" => get_string('back_to_course','naas'),
-                "preview_button" => get_string('preview_button','naas'),
-                "details_button" => get_string('details_button','naas'),
-                "metadata" => [
-                    "preview" => get_string('preview','naas'),
-                    "details" => get_string('details','naas'),
-                    "resume" => get_string('resume','naas'),
-                    "in_brief" => get_string('in_brief','naas'),
-                    "about_author" => get_string('about_author','naas'),
-                    "learning_outcomes" => get_string('learning_outcomes','naas'),
-                    "prerequisites" => get_string('prerequisites','naas'),
-                    "references" => get_string('references','naas'),
-                    "field_of_study" => get_string('field_of_study','naas'),
-                    "language" => get_string('language','naas'),
-                    "duration" => get_string('duration','naas'),
-                    "level" => get_string('level','naas'),
-                    "structure_id" => get_string('structure_id','naas'),
-                    "advanced" => get_string('advanced','naas'),
-                    "intermediate" => get_string('intermediate','naas'),
-                    "beginner" => get_string('beginner','naas'),
-                    "tags" => get_string('tags','naas'),
-                    "en" => get_string('en','naas'),
-                    "english" => get_string('english','naas'),
-                    "fr" => get_string('fr','naas'),
-                    "french" => get_string('french','naas'),
-                ]
-            ]
-        ]);
-        $html = "";
-        $html .= "<div id='naas_search_widget'></div>"; 
-        $html .= "<script>NAAS=$labels</script>"; 
-        // TODO: use $PAGE->require->js
-        $search_widget_url = new moodle_url('/mod/naas/assets/vue/search_widget.js');
-        $html .= "<script src='$search_widget_url' ></script>";
-
-
-        $mform->addElement('html', $html );
+        $nugget_id = $mform->getCleanedValue("nugget_id", PARAM_TEXT);
+        $mform->addElement('html',  naas_widget_html($nugget_id, "NuggetSearchWidget"));
 
         $mform->addElement('text', 'name', get_string('name_display','naas'), array('size'=>'48'));
         $mform->setType('name', PARAM_TEXT);
         $mform->addElement('hidden', 'nugget_id', 'nugget_id', array('size'=>'48'));
         $mform->setType('nugget_id', PARAM_TEXT);
 
-
-        // Description du cours
+        // Course description
         $this->standard_intro_elements();
         
         $this->standard_coursemodule_elements();
         $this->add_action_buttons();
     }
 
-    function data_preprocessing(&$default_values) {
-    }
+    function data_preprocessing(&$default_values) { }
 
     function validation($data, $files) {
         $errors = parent::validation($data, $files);
         return $errors;
     }
-
 }
-
-
