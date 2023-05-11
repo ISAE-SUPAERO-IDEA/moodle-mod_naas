@@ -57,14 +57,14 @@
           </div>
         </div>
         <div class="row">
-          <div class="show_more">
+          <div class="show_more_nugget">
             <a
               href="javascript:;"
-              v-if="show_more_button"
-              v-on:click="show_more()"
-              class="btn btn-primary nugget-button show_more_button"
+              v-if="show_more_nugget_button"
+              v-on:click="show_more_nugget()"
+              class="btn btn-primary nugget-button show_more_nugget_button"
             >
-              {{ config.labels.show_more_button }}
+              {{ config.labels.show_more_nugget_button }}
             </a>
           </div>
         </div>
@@ -112,7 +112,7 @@ export default {
       default_nugget_list: [],
       filters: {},
       selected_id: null,
-      show_more_button: false,
+      show_more_nugget_button: false,
       default_page_size: 6,
       add_page_item: 6,
       loading: 0,
@@ -171,12 +171,12 @@ export default {
         this.selected_nugget_loading--;
       }
     },
-    show_more() {
+    show_more_nugget() {
       this.default_page_size = this.default_page_size + this.add_page_item;
       this.search();
     },
     search() {
-      this.show_more_button = false;
+      this.show_more_nugget_button = false;
       if (this.search_query) {
         this.loading++;
         this.proxy(this.search_query)
@@ -191,7 +191,7 @@ export default {
               await Promise.all(promises);
               this.nuggets = [...nuggets];
               if (payload.results_count > this.default_page_size)
-                this.show_more_button = true;
+                this.show_more_nugget_button = true;
             } else {
               this.nuggets = [];
             }
