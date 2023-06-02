@@ -4,28 +4,28 @@
       <a
         href="javascript:;"
         class="btn btn-primary"
-        v-on:click="showNuggetDetailModal()"
+        v-on:click="showNuggetAboutModal()"
       >
-        {{ config.labels.see_nugget_details }}
+        {{ config.labels.about }}
       </a>
     </div>
-    <NuggetDetailModal
-      :visible="isNuggetDetailModalVisible"
+    <NuggetAboutModal
+      :visible="isNuggetAboutModalVisible"
       :nugget="nugget"
-      @close="closeNuggetDetailModal()"
+      @close="closeNuggetAboutModal()"
     />
   </div>
 </template>
 <script>
-import NuggetDetailModal from "./NuggetDetailModal.vue";
+import NuggetAboutModal from "./NuggetAboutModal.vue";
 export default {
   name: "NuggetPost",
   components: {
-    NuggetDetailModal,
+    NuggetAboutModal,
   },
   data() {
     return {
-      isNuggetDetailModalVisible: false,
+      isNuggetAboutModalVisible: false,
       nugget_id: undefined,
       nugget: {},
     };
@@ -34,11 +34,11 @@ export default {
     this.nugget = await this.get_nugget_default_version(this.config.nugget_id);
   },
   methods: {
-    showNuggetDetailModal() {
-      this.isNuggetDetailModalVisible = true;
+    showNuggetAboutModal() {
+      this.isNuggetAboutModalVisible = true;
     },
-    closeNuggetDetailModal() {
-      this.isNuggetDetailModalVisible = false;
+    closeNuggetAboutModal() {
+      this.isNuggetAboutModalVisible = false;
     },
   },
 };

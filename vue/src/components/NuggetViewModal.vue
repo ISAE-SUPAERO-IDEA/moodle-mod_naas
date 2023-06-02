@@ -4,7 +4,7 @@
       <div class="nugget-modal-backdrop">
         <div class="nugget-modal">
           <header class="nugget-modal-header">
-            <h3>{{ config.labels.metadata.preview }}{{ nugget.name }}</h3>
+            <h3>{{ config.labels.metadata.preview_title }}{{ nugget.name }}</h3>
             <button type="button" class="btn-close" @click="closeNuggetModal()">
               x
             </button>
