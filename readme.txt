@@ -12,6 +12,9 @@ Developer notes
 
 This module uses a VueJS component to handle the search and selection of a nugget. The sources for this component are located in the vue directory. To develop this component, you will need Node.js (https://nodejs.org/en/).
 
+Create a symbolic link:
+`ln -s /home/idea/moodle_plugins/mod/naas /var/www/html/moodle/mod/naas`
+
 In the vue directory:
 - Install the dependencies with `yarn install`
 - To build the component, run `yarn build`
