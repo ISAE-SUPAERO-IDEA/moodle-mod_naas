@@ -58,6 +58,16 @@ class mod_naas_mod_form extends moodleform_mod {
         // Course description
         $this->standard_intro_elements();
         
+
+
+        // Add a custom checkbox field for completion
+        $mform->addElement('header', 'completionheader', "NaaS LTI");
+        $mform->addElement('advcheckbox', 'completioncheckbox', "Envoyer des traces vers le serveur NaaS.", null, array('group' => 1));
+        $mform->setDefault('completioncheckbox', 0);
+        $mform->setType('completioncheckbox', PARAM_INT);
+
+        
+
         $this->standard_coursemodule_elements();
         $this->add_action_buttons();
     }
