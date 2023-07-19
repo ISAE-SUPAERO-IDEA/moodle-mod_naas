@@ -52,14 +52,13 @@ $PAGE->set_heading($course->fullname);
 
 // Print the page header.
 echo $OUTPUT->header();
-echo $OUTPUT->heading($naas_instance->name);
 
 echo naas_widget_html($naas_instance->nugget_id, "NuggetInfoWidget");
 // Request the launch content with an iframe tag.
 $iframeresizer_url = new moodle_url('/mod/naas/assets/iframeResizer.min.js');
 echo "<script src='$iframeresizer_url' ></script>";
-echo "<script>window.setTimeout(() => { iFrameResize({ log: true, checkOrigin:false }, '#naascontentframe') }, 100);</script>";
-echo "<iframe id='naascontentframe' height='600px' width='100%' src='launch.php?id=".$cm->id.
+echo "<script>window.setTimeout(() => { iFrameResize({ log: true, checkOrigin:false, heightCalculationMethod: 'lowestElement' }, '#naascontentframe') }, 100);</script>";
+echo "<iframe id='naascontentframe' height='600px' width='100%' style='border:none' src='launch.php?id=".$cm->id.
         "&triggerview=0\' webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>";
 
 // Back to course button
