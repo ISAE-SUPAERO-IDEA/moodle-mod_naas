@@ -13,10 +13,6 @@ require_once($CFG->dirroot.'/mod/lti/locallib.php');
 require_once('classes/NaasClient.php');
 require_once('locallib.php');
 
-
-echo $_SERVER['DOCUMENT_ROOT']."/config.php";
-
-
 $id        = optional_param('id', 0, PARAM_INT);        // Course module ID
 $u         = optional_param('u', 0, PARAM_INT);         // NaaS instance id
 $redirect  = optional_param('redirect', 0, PARAM_BOOL);
@@ -57,7 +53,7 @@ echo naas_widget_html($naas_instance->nugget_id, "NuggetInfoWidget");
 // Request the launch content with an iframe tag.
 $iframeresizer_url = new moodle_url('/mod/naas/assets/iframeResizer.min.js');
 echo "<script src='$iframeresizer_url' ></script>";
-echo "<script>window.setTimeout(() => { iFrameResize({ log: true, checkOrigin:false, heightCalculationMethod: 'lowestElement' }, '#naascontentframe') }, 100);</script>";
+echo "<script>window.setTimeout(() => { iFrameResize({ log: false, checkOrigin:false, heightCalculationMethod: 'lowestElement' }, '#naascontentframe') }, 100);</script>";
 echo "<iframe id='naascontentframe' height='600px' width='100%' style='border:none' src='launch.php?id=".$cm->id.
         "&triggerview=0\' webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>";
 

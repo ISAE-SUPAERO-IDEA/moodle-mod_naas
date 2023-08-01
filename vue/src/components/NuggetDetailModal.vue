@@ -15,7 +15,7 @@
                 <!-- Resume -->
                 <div v-show="is_shown(nugget.resume)">
                   <h3>{{ config.labels.metadata.resume }}</h3>
-                  <p class="p-position">{{ nugget.resume }}</p>
+                  <p class="p-position" v-html="nugget.resume"></p>
                 </div>
                 <!-- About author -->
                 <div v-show="is_shown(nugget.authors_data)">
