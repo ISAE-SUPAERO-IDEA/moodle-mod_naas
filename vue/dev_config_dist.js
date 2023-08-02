@@ -20,7 +20,7 @@ module.exports = {
     metadata: {
       preview: "preview",
       details: "details",
-      resume: "resume",
+      description: "description",
       in_brief: "in_brief",
       about_author: "about_author",
       learning_outcomes: "learning_outcomes",
@@ -46,6 +46,7 @@ module.exports = {
       english: "english",
       fr: "fr",
       french: "french",
+      publication_date: "publication_date"
     },
   },
   nugget_id: "",

@@ -12,9 +12,9 @@
           <section class="nugget-modal-body">
             <div class="row metadata_field">
               <div class="left_element">
-                <!-- Resume -->
+                <!-- Description -->
                 <div v-show="is_shown(nugget.resume)">
-                  <h3>{{ config.labels.metadata.resume }}</h3>
+                  <h3>{{ config.labels.metadata.description }}</h3>
                   <p class="p-position" v-html="nugget.resume"></p>
                 </div>
                 <!-- About author -->
@@ -97,6 +97,13 @@
                         }}</span>
                         <br />
                       </span>
+                    </li>
+                    <li v-show="is_shown(nugget.publication_date)">
+                      <i class="icon fa fa-calendar"></i>
+                      {{ config.labels.metadata.publication_date }}:
+                      <strong>
+                        {{ nugget.publication_date }}
+                      </strong>
                     </li>
                   </ul>
                 </div>

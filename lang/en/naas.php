@@ -77,7 +77,7 @@ $string['details_button'] = 'Details';
 
 $string["preview"] = "Preview: ";
 $string["details"] = "Details: ";
-$string["resume"] = "Resume";
+$string["description"] = "Description";
 $string["in_brief"] = "In Brief";
 $string["about_author"] = "About the author";
 $string["learning_outcomes"] = "Learning outcomes";
@@ -106,3 +106,5 @@ $string["en"] = "English";
 $string["english"] = "English";
 $string["fr"] = "French";
 $string["french"] = "French";
+
+$string["publication_date"] = "Publication date";
