@@ -102,7 +102,7 @@
                       <i class="icon fa fa-calendar"></i>
                       {{ config.labels.metadata.publication_date }}:
                       <strong>
-                        {{ nugget.publication_date }}
+                        {{ nugget.publication_date | formatDate }}
                       </strong>
                     </li>
                   </ul>
