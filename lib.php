@@ -274,3 +274,14 @@ function naas_check_updates_since(cm_info $cm, $from, $filter = array()) {
     return $updates;
 }
 
+/**
+ * Adds link(s) to secondary navigation inside activity
+ *
+ * @param settings_navigation $settings The settings navigation object
+ * @param navigation_node $chatnode The node to add module settings to
+ */
+function naas_extend_settings_navigation(settings_navigation $settings, navigation_node $naasnode) {
+    $naasnode->add(get_string('details_button', 'naas'),
+        new moodle_url('#'),
+        navigation_node::TYPE_SETTING, null, 'details');
+}

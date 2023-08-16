@@ -73,7 +73,7 @@ $string['back_to_course'] = 'Retour au cours';
 $string['show_more_nugget_button'] = 'Afficher plus ...';
 
 $string['preview_button'] = 'Aperçu';
-$string['details_button'] = 'Infos';
+$string['details_button'] = 'À Propos';
 
 $string["preview"] = "Aperçu : ";
 $string["details"] = "Infos : ";
