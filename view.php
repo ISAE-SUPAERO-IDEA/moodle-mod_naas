@@ -71,6 +71,9 @@ echo "<script>window.setTimeout(() => { iFrameResize({ log: false, checkOrigin:f
 echo "<iframe id='naascontentframe' height='600px' width='100%' style='border:none' src='launch.php?id=".$cm->id.
         "&triggerview=0\' webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>";
 
+// Completion activity
+echo naas_widget_html($naas_instance->nugget_id, "NuggetCompletionModal");
+
 echo $back_course_button;
 
 // Finish the page.

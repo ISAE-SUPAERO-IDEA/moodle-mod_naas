@@ -212,6 +212,44 @@ facets tree-view
 
 
 /******************************
+Completion modal
+******************************/
+#completion-modal-button button {
+  padding: 10px 30px;
+  margin-bottom: 5em;
+}
+.rating {
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: center;
+}
+.star {
+  color: lightgrey;
+  font-size: 2em;
+  padding: 1px;
+}
+.star:hover {
+  animation: 2s linear infinite selected;
+}
+.star:hover,
+.star:hover ~ .star {
+  transform: scale(1.2);
+  padding: 2px;
+  color: orange;
+}
+.star.checked,
+.star.checked ~ span {
+  transform: scale(1.2);
+  padding: 2px;
+  color: orange;
+}
+.description {
+  margin-top: 0px !important;
+}
+
+
+
+/******************************
 Other style
 ******************************/
 .course-button {
