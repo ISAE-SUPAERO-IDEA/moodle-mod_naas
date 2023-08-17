@@ -4,14 +4,14 @@
       <div class="nugget-modal-backdrop" @click="closeNuggetModal()">
         <div class="nugget-modal" @click.stop.prevent>
           <header class="nugget-modal-header">
-            <h3>{{ config.labels.metadata.details }}{{ nugget.name }}</h3>
+            <h2>{{ config.labels.metadata.details }}{{ nugget.name }}</h2>
             <button type="button" class="btn-close" @click="closeNuggetModal()">
-              x
+              ✕
             </button>
           </header>
-          <section class="nugget-modal-body">
+            <div class="container nugget-modal-body">
             <div class="row metadata_field">
-              <div class="left_element">
+              <div class="left_element col-lg">
                 <!-- Description -->
                 <div v-show="is_shown(nugget.resume)">
                   <h3>{{ config.labels.metadata.description }}</h3>
@@ -29,9 +29,7 @@
                   </div>
                 </div>
               </div>
-              <div class="center_element"></div>
-              <!-- In brief -->
-              <div v-show="in_brief_shown" class="right_element">
+              <div v-show="in_brief_shown" class="col-sm">
                 <h3>{{ config.labels.metadata.in_brief }}</h3>
                 <div>
                   <ul class="metadata_list">
@@ -109,6 +107,7 @@
                 </div>
               </div>
             </div>
+          </div>
             <!-- Prerequisites -->
             <div
               v-show="is_shown(nugget.prerequisites)"
@@ -151,7 +150,6 @@
                 </ul>
               </div>
             </div>
-          </section>
         </div>
       </div>
     </transition>

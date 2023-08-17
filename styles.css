@@ -66,11 +66,12 @@ Modal style
 }
 .nugget-modal {
   font-family: "Open Sans";
+  padding: 20px;
   overflow-x: auto;
   display: flex;
   height: auto;
   max-height: 90%;
-  max-width: 75%;
+  width: 70%;
   position: absolute;
   left: 50%;
   top: 50%;
@@ -80,7 +81,7 @@ Modal style
   flex-direction: column;
   transform: translate(-50%, -50%);
 }
-.nugget-modal h3 {
+.nugget-modal h2, .nugget-modal h3 {
   font-family: "Open Sans Condensed";
 }
 @media (max-width: 1250px) {
@@ -97,14 +98,11 @@ Modal style
   border-bottom: 1px solid #eeeeee;
 }
 .btn-close {
-  position: absolute;
-  top: 0;
-  right: 0;
-  font-size: 20px;
-  padding: 10px;
-  cursor: pointer;
+  position: relative;
+  top: -15px;
+  color: #999;
+  font-size: 24px;
   font-weight: bold;
-  color: #999999;
   border: none;
   background: transparent;
 }
@@ -127,26 +125,12 @@ Modal style
   white-space: normal;
   max-width: 90%;
 }
-.left_element {
-  float: left;
-  width: 69%;
-}
-.center_element {
-  width: 2%;
-}
-.right_element {
-  float: right;
-  width: 29%;
-}
 .nugget_view {
   margin: 0 !important;
   padding: 0 !important;
 }
 .preview-iframe {
   border: none !important;
-}
-.DetailModal {
-  display: none;
 }
 
 

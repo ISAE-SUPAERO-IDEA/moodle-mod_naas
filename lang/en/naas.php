@@ -69,7 +69,7 @@ $string['show_more_authors'] = 'Show more';
 $string['hide_authors'] = 'Hide';
 
 $string['see_nugget_details'] = 'See nugget details';
-$string['back_to_course'] = 'Back to course';
+$string['back_to_course'] = 'Back to course index';
 $string['show_more_nugget_button'] = 'Show more ...';
 
 $string['preview_button'] = 'Preview';

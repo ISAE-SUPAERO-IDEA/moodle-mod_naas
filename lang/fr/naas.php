@@ -69,7 +69,7 @@ $string['show_more_authors'] = 'Afficher plus';
 $string['hide_authors'] = 'Cacher';
 
 $string['see_nugget_details'] = 'Voir les infos du nugget';
-$string['back_to_course'] = 'Retour au cours';
+$string['back_to_course'] = 'Retour à l\'index du cours';
 $string['show_more_nugget_button'] = 'Afficher plus ...';
 
 $string['preview_button'] = 'Aperçu';
