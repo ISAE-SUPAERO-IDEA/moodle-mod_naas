@@ -49,13 +49,13 @@ $PAGE->set_heading($course->fullname);
 // Print the page header.
 echo $OUTPUT->header();
 
+// Back to course button
+$back_course_button = "<a class='btn btn-outline-secondary btn-sm course-button' 
+    href=".$CFG->wwwroot."/course/view.php?id=".$COURSE->id.">".get_string('back_to_course', 'naas')."</a>";
+
+echo $back_course_button;
+
 echo naas_widget_html($naas_instance->nugget_id, "NuggetInfoWidget");
-// Request the launch content with an iframe tag.
-$iframeresizer_url = new moodle_url('/mod/naas/assets/iframeResizer.min.js');
-echo "<script src='$iframeresizer_url' ></script>";
-echo "<script>window.setTimeout(() => { iFrameResize({ log: false, checkOrigin:false, heightCalculationMethod: 'lowestElement' }, '#naascontentframe') }, 100);</script>";
-echo "<iframe id='naascontentframe' height='600px' width='100%' style='border:none' src='launch.php?id=".$cm->id.
-        "&triggerview=0\' webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>";
 
 // Toggles the Nugget 'Details' Modal
 echo "<script>
@@ -64,8 +64,14 @@ let widget = document.querySelector('#nugget-info-button div a');
 details_button.onclick = function() { widget.click(); };
 </script>";
 
-// Back to course button
-echo "<a class='btn btn-primary course-button' href=".$CFG->wwwroot."/course/view.php?id=".$COURSE->id.">".get_string('back_to_course', 'naas')."</a>";
+// Request the launch content with an iframe tag.
+$iframeresizer_url = new moodle_url('/mod/naas/assets/iframeResizer.min.js');
+echo "<script src='$iframeresizer_url' ></script>";
+echo "<script>window.setTimeout(() => { iFrameResize({ log: false, checkOrigin:false, heightCalculationMethod: 'lowestElement' }, '#naascontentframe') }, 100);</script>";
+echo "<iframe id='naascontentframe' height='600px' width='100%' style='border:none' src='launch.php?id=".$cm->id.
+        "&triggerview=0\' webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>";
+
+echo $back_course_button;
 
 // Finish the page.
 echo $OUTPUT->footer();

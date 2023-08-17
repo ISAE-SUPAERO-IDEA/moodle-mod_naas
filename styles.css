@@ -231,7 +231,8 @@ facets tree-view
 Other style
 ******************************/
 .course-button {
-  margin: 7px 0px !important;
+  margin: 0px 18px !important;
+  float: right;
 }
 .search_center {
   display: block;
