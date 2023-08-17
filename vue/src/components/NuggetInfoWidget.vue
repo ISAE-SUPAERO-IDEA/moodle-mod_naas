@@ -1,9 +1,9 @@
 <template>
-  <div>
+  <div id="nugget-info-button">
     <div>
       <a
         href="javascript:;"
-        class="btn btn-primary"
+        class="btn btn-primary hidden"
         v-on:click="showNuggetDetailModal()"
       >
         {{ config.labels.see_nugget_details }}

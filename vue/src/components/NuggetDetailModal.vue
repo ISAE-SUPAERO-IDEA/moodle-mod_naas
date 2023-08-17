@@ -1,8 +1,8 @@
 <template>
   <div v-show="visible">
     <transition name="modal-fade">
-      <div class="nugget-modal-backdrop">
-        <div class="nugget-modal">
+      <div class="nugget-modal-backdrop" @click="closeNuggetModal()">
+        <div class="nugget-modal" @click.stop.prevent>
           <header class="nugget-modal-header">
             <h3>{{ config.labels.metadata.details }}{{ nugget.name }}</h3>
             <button type="button" class="btn-close" @click="closeNuggetModal()">

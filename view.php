@@ -57,6 +57,13 @@ echo "<script>window.setTimeout(() => { iFrameResize({ log: false, checkOrigin:f
 echo "<iframe id='naascontentframe' height='600px' width='100%' style='border:none' src='launch.php?id=".$cm->id.
         "&triggerview=0\' webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>";
 
+// Toggles the Nugget 'Details' Modal
+echo "<script>
+let details_button = document.querySelector('.secondary-navigation nav ul li[data-key=details]');
+let widget = document.querySelector('#nugget-info-button div a');
+details_button.onclick = function() { widget.click(); };
+</script>";
+
 // Back to course button
 echo "<a class='btn btn-primary course-button' href=".$CFG->wwwroot."/course/view.php?id=".$COURSE->id.">".get_string('back_to_course', 'naas')."</a>";
 
