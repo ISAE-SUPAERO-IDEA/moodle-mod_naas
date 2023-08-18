@@ -107,7 +107,6 @@
                 </div>
               </div>
             </div>
-          </div>
             <!-- Prerequisites -->
             <div
               v-show="is_shown(nugget.prerequisites)"
@@ -150,6 +149,7 @@
                 </ul>
               </div>
             </div>
+          </div>
         </div>
       </div>
     </transition>

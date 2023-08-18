@@ -66,10 +66,6 @@ Modal style
 }
 .nugget-modal {
   font-family: "Open Sans";
-  padding: 20px;
-  overflow-x: auto;
-  display: flex;
-  height: auto;
   max-height: 90%;
   width: 70%;
   position: absolute;
@@ -90,26 +86,21 @@ Modal style
     width: 75%;
   }
 }
-.nugget-modal-header {
-  display: flex;
-  justify-content: space-between;
-  position: relative;
-  padding: 15px 15px 0 15px;
-  border-bottom: 1px solid #eeeeee;
+.nugget-modal-header h2 {
+  padding: 0px 15px;
+}
+.nugget-modal-footer {
+  padding: 10px;
 }
 .btn-close {
   position: relative;
-  top: -15px;
+  padding: 15px;
+  top: -10px;
   color: #999;
   font-size: 24px;
   font-weight: bold;
   border: none;
   background: transparent;
-}
-.nugget-modal-body {
-  overflow-y: auto;
-  position: relative;
-  padding: 10px 0px;
 }
 .metadata_field {
   margin: 0 15px !important;
@@ -225,21 +216,20 @@ Completion modal
 }
 .star {
   color: lightgrey;
-  font-size: 2em;
   padding: 1px;
 }
-.star:hover {
-  animation: 2s linear infinite selected;
+.star i {
+  font-size: 32px;
 }
 .star:hover,
 .star:hover ~ .star {
-  transform: scale(1.2);
+  transform: scale(1.1);
   padding: 2px;
   color: orange;
 }
 .star.checked,
 .star.checked ~ span {
-  transform: scale(1.2);
+  transform: scale(1.1);
   padding: 2px;
   color: orange;
 }
