@@ -22,6 +22,18 @@ Nugget Post
 .nugget-post:hover {
   box-shadow: 0 10px 20px 0 rgba(0,0,0,0.2);
 }
+.nugget-post .description {
+  max-height: 190px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-color: #ddd white;
+  margin-bottom: 25px;
+}
+.nugget-post .description::-webkit-scrollbar-thumb {
+  background-color: none;    /* color of the scroll thumb */
+  border: none;  /* creates padding around scroll thumb */
+}
+
 .nugget-buttons {
   position: absolute;
   right: 30px;
@@ -31,11 +43,11 @@ Nugget Post
   margin-right: 5px !important;
 }
 /* Load more nugget */
-.show_more_nugget {
+.show-more-nugget {
   margin-left: 25px;
   margin-bottom: 20px;
 }
-.show_more_nugget_button:focus {
+.show-more-nugget-button:focus {
   outline: none !important;
   box-shadow: none !important;
 }
@@ -87,13 +99,17 @@ Modal style
   }
 }
 .nugget-modal-header h2 {
-  padding: 0px 15px;
+  padding: 20px 0px 15px 30px;
+}
+.nugget-modal-body {
+  padding-bottom: 15px;
 }
 .nugget-modal-footer {
   padding: 10px;
 }
 .btn-close {
   position: relative;
+  float: right;
   padding: 15px;
   top: -10px;
   color: #999;
@@ -102,23 +118,29 @@ Modal style
   border: none;
   background: transparent;
 }
-.metadata_field {
+.metadata-field {
   margin: 0 15px !important;
 }
-.metadata_list {
+.metadata-list {
   list-style: none;
   padding-left: 5px;
 }
-.metadata_list_item {
+.metadata-list-item {
   margin-left: 30px;
 }
-.metadata_list_item .badge {
+.metadata-list-item .badge {
   white-space: normal;
   max-width: 90%;
 }
-.nugget_view {
+.nugget-view {
   margin: 0 !important;
   padding: 0 !important;
+}
+#nugget-preview-modal {
+  height: 85%;
+}
+#nugget-preview-modal .nugget-modal-body {
+  height: 85%;
 }
 .preview-iframe {
   border: none !important;
@@ -233,9 +255,6 @@ Completion modal
   padding: 2px;
   color: orange;
 }
-.description {
-  margin-top: 0px !important;
-}
 
 
 
@@ -246,7 +265,7 @@ Other style
   margin: 0px 18px !important;
   float: right;
 }
-.search_center {
+.search-center {
   display: block;
   margin-top: auto;
   margin-bottom: auto;

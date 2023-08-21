@@ -76,7 +76,7 @@ $string['preview_button'] = 'Aperçu';
 $string['details_button'] = 'À Propos';
 
 $string["preview"] = "Aperçu : ";
-$string["details"] = "Infos : ";
+$string["details"] = "À propos : ";
 $string["description"] = "Description";
 $string["in_brief"] = "En Bref";
 $string["about_author"] = "À propos de l'auteur";

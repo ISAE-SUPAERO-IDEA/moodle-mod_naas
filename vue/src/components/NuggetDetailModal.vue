@@ -1,17 +1,19 @@
 <template>
-  <div v-show="visible">
+  <div id="detail-modal" v-show="visible">
     <transition name="modal-fade">
       <div class="nugget-modal-backdrop" @click="closeNuggetModal()">
         <div class="nugget-modal" @click.stop.prevent>
-          <header class="nugget-modal-header">
-            <h2>{{ config.labels.metadata.details }}{{ nugget.name }}</h2>
-            <button type="button" class="btn-close" @click="closeNuggetModal()">
-              ✕
-            </button>
-          </header>
-            <div class="container nugget-modal-body">
-            <div class="row metadata_field">
-              <div class="left_element col-lg">
+          <div class="container">
+            <div class="nugget-modal-header row justify-content-between align-items-start">
+              <h2>{{ config.labels.metadata.details }}{{ nugget.name }}</h2>
+              <button type="button" class="btn-close" @click="closeNuggetModal()">
+                ✕
+              </button>
+            </div>
+          </div>
+          <div class="container nugget-modal-body">
+            <div class="row metadata-field">
+              <div class="col">
                 <!-- Description -->
                 <div v-show="is_shown(nugget.resume)">
                   <h3>{{ config.labels.metadata.description }}</h3>
@@ -29,10 +31,10 @@
                   </div>
                 </div>
               </div>
-              <div v-show="in_brief_shown" class="col-sm">
+              <div v-show="in_brief_shown" class="col-4">
                 <h3>{{ config.labels.metadata.in_brief }}</h3>
                 <div>
-                  <ul class="metadata_list">
+                  <ul class="metadata-list">
                     <li v-show="is_shown(nugget.duration)">
                       <i class="icon fa fa-clock-o"></i>
                       {{ config.labels.metadata.duration }}:
@@ -60,7 +62,7 @@
                       <span
                         v-for="item in nugget.domainsData"
                         :key="item.id"
-                        class="metadata_list_item"
+                        class="metadata-list-item"
                       >
                         <span class="badge badge-pill badge-primary">{{
                           item.label
@@ -74,7 +76,7 @@
                       <span
                         v-for="item in nugget.tags"
                         :key="item"
-                        class="metadata_list_item"
+                        class="metadata-list-item"
                       >
                         <span class="badge badge-pill badge-primary">{{
                           item
@@ -88,7 +90,7 @@
                       <span
                         v-for="domain in nugget.domains_data"
                         :key="domain.id"
-                        class="metadata_list_item"
+                        class="metadata-list-item"
                       >
                         <span class="badge badge-pill badge-primary">{{
                           domain.label
@@ -110,7 +112,7 @@
             <!-- Prerequisites -->
             <div
               v-show="is_shown(nugget.prerequisites)"
-              class="row metadata_field"
+              class="row metadata-field"
             >
               <div class="w-100">
                 <h3>{{ config.labels.metadata.prerequisites }}</h3>
@@ -124,7 +126,7 @@
             <!-- Learning outcomes -->
             <div
               v-show="is_shown(nugget.learning_outcomes)"
-              class="row metadata_field"
+              class="row metadata-field"
             >
               <div class="w-100">
                 <h3>{{ config.labels.metadata.learning_outcomes }}</h3>
@@ -138,7 +140,7 @@
             <!-- References -->
             <div
               v-show="is_shown(nugget.references)"
-              class="row metadata_field"
+              class="row metadata-field"
             >
               <div class="w-100">
                 <h3>{{ config.labels.metadata.references }}</h3>
