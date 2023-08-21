@@ -55,7 +55,8 @@ $back_course_button = "<a class='btn btn-outline-secondary btn-sm course-button'
 
 echo $back_course_button;
 
-echo naas_widget_html($naas_instance->nugget_id, "NuggetView");
+// Displays Nugget
+echo naas_widget_html($naas_instance->nugget_id, $cm->id, "NuggetView");
 
 // Toggles the Nugget 'Details' Modal
 echo "<script>
@@ -63,16 +64,6 @@ let details_button = document.querySelector('.secondary-navigation nav ul li[dat
 let widget = document.querySelector('#nugget-info-button div a');
 details_button.onclick = function() { widget.click(); };
 </script>";
-
-// Request the launch content with an iframe tag.
-$iframeresizer_url = new moodle_url('/mod/naas/assets/iframeResizer.min.js');
-echo "<script src='$iframeresizer_url' ></script>";
-echo "<script>window.setTimeout(() => { iFrameResize({ log: false, checkOrigin:false, heightCalculationMethod: 'lowestElement' }, '#naascontentframe') }, 100);</script>";
-echo "<iframe id='naascontentframe' height='600px' width='100%' style='border:none' src='launch.php?id=".$cm->id.
-        "&triggerview=0\' webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>";
-
-// Completion activity
-echo naas_widget_html($naas_instance->nugget_id, "NuggetCompletionModal");
 
 echo $back_course_button;
 

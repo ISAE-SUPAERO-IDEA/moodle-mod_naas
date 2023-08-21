@@ -1,51 +1,36 @@
 <template>
-<div>
-  <div class="container">
-    <div class="row">
-      <div id="completion-modal-button" class="col text-center">
-        <button
-          href="javascript:;"
-          class="btn btn-primary"
-          @click="toggleModal()"
-        >
-          I Finished My Learning With This Nugget
-        </button>
-      </div>
-    </div>
-  </div>
-  <div ref="completionModal" class="hidden">
-    <div class="nugget-modal-backdrop" @click="toggleModal()">
-      <div class="nugget-modal" @click.stop.prevent>
-        <div class="container">
-          <div class="nugget-modal-header row justify-content-end">
-            <button type="button" class="btn-close" @click="toggleModal()">
-              ✕
-            </button>
+<div ref="completionModal" v-show="visible">
+  <div class="nugget-modal-backdrop" @click="closeModal()">
+    <div class="nugget-modal" @click.stop.prevent>
+      <div class="container">
+        <div class="nugget-modal-header row justify-content-end">
+          <button type="button" class="btn-close" @click="closeModal()">
+            ✕
+          </button>
+        </div>
+        <div class="nugget-modal-body row">
+          <!-- Rating -->
+          <div class="text-center col">
+            <h2>Rate this nugget</h2>
+            <p class="rating saved">
+              <span
+                v-for="i in max"
+                v-bind:key="i"
+                @click="rate(max + 1 - i)"
+                class="star"
+                :class="{ checked: saved_rating === max + 1 - i }"
+              >
+                <i class="icon fa fa-star"></i>
+              </span>
+            </p>
+            <p class="description">Your rating will be used to improve the quality of our content</p>
           </div>
-          <div class="nugget-modal-body row">
-            <!-- Rating -->
-            <div class="text-center col">
-              <h2>Rate this nugget</h2>
-              <p class="rating saved">
-                <span
-                  v-for="i in max"
-                  v-bind:key="i"
-                  @click="rate(max + 1 - i)"
-                  class="star"
-                  :class="{ checked: saved_rating === max + 1 - i }"
-                >
-                  <i class="icon fa fa-star"></i>
-                </span>
-              </p>
-              <p class="description">Your rating will be used to improve the quality of our content</p>
-            </div>
-          </div>
-            <!-- Learning Outcomes -->
+        </div>
+          <!-- Learning Outcomes -->
 
-          <div class="nugget-modal-footer row justify-content-between">
-            <a :href="backLink" class="btn btn-link">◀︎ Back to Course Index</a>
-            <a :href="nextUnitLink" class="btn btn-link">Next Unit ▶︎</a>
-          </div>
+        <div class="nugget-modal-footer row justify-content-between">
+          <a :href="backLink" class="btn btn-link">◀︎ Back to Course Index</a>
+          <a :href="nextUnitLink" class="btn btn-link">Next Unit ▶︎</a>
         </div>
       </div>
     </div>
@@ -58,7 +43,7 @@
 const MaxScore = 5;
 
 export default {
-  props: ["nugget"],
+  props: ["nugget", "visible"],
   name: "NuggetCompletionModal",
   data() {
     return {
@@ -70,16 +55,14 @@ export default {
     };
   },
   methods: {
-    toggleModal() {
-      this.showModal = !this.showModal;
-      this.$refs.completionModal.classList.toggle('hidden');
+    closeModal() {
+      this.$emit("close");
     },
     rate(score) {
       this.saved_rating = score;
     }
   },
   mounted() {
-    console.log("hfueriwoh");
     console.log(this.config.nugget_id);
     console.log(document.querySelector("a.course-button"));
   }

@@ -25,13 +25,14 @@
 
 defined('MOODLE_INTERNAL') || die;
 
-function naas_widget_html($nugget_id, $component) {
+function naas_widget_html($nugget_id, $cm_id, $component) {
     global $CFG;
     $widget_config = json_encode([
-        "mount_point"=> "#naas_search_widget",
+        "mount_point"=> "#naas_widget",
         "proxy_url"=> "$CFG->wwwroot/mod/naas/proxy.php",
         "component" => $component,
         "nugget_id" => $nugget_id,
+        "cm_id" => $cm_id, // Course module ID
         "labels" => [
             "search_here" => get_string('nugget_search_here','naas'),
             "search" => get_string('nugget_search','naas'),
@@ -79,7 +80,7 @@ function naas_widget_html($nugget_id, $component) {
             ]
         ]
     ]);
-    $html = "<div id='naas_search_widget'></div>"; 
+    $html = "<div id='naas_widget'></div>"; 
     $html .= "<script>NAAS=$widget_config</script>"; 
     // TODO: use $PAGE->require->js
     $search_widget_url = new moodle_url('/mod/naas/assets/vue/search_widget.js');
