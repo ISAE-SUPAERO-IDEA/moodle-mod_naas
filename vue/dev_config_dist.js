@@ -1,6 +1,6 @@
 module.exports = {
   mount_point: "#app",
-  component: "NuggetInfoWidget",
+  component: "NuggetView",
   //"component": "NuggetSearchWidget",
   proxy_url: "http://moodle.local.isae.fr/mod/naas/proxy.php",
   labels: {

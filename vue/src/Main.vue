@@ -5,11 +5,10 @@
 </template>
 <script>
 import NuggetSearchWidget from "@/components/NuggetSearchWidget";
-import NuggetInfoWidget from "@/components/NuggetInfoWidget";
-import NuggetCompletionModal from "@/components/NuggetCompletionModal";
+import NuggetView from "@/components/NuggetView";
 export default {
   name: "Main",
   props: ["post", "visible"],
-  components: { NuggetSearchWidget, NuggetInfoWidget, NuggetCompletionModal },
+  components: { NuggetSearchWidget, NuggetView },
 };
 </script>

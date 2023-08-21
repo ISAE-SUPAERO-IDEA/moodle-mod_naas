@@ -55,7 +55,7 @@ $back_course_button = "<a class='btn btn-outline-secondary btn-sm course-button'
 
 echo $back_course_button;
 
-echo naas_widget_html($naas_instance->nugget_id, "NuggetInfoWidget");
+echo naas_widget_html($naas_instance->nugget_id, "NuggetView");
 
 // Toggles the Nugget 'Details' Modal
 echo "<script>
