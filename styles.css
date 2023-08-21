@@ -94,7 +94,7 @@ Modal style
 }
 @media (max-width: 1250px) {
   .nugget-modal {
-    height: 75%;
+    max-height: 75%;
     width: 75%;
   }
 }
@@ -235,27 +235,29 @@ Completion modal
   display: flex;
   flex-direction: row-reverse;
   justify-content: center;
+  height: 40px;
+  margin-bottom: 0px;
 }
 .star {
   color: lightgrey;
-  padding: 1px;
+  padding: 0px 4px;
 }
 .star i {
   font-size: 32px;
 }
 .star:hover,
 .star:hover ~ .star {
-  transform: scale(1.1);
-  padding: 2px;
   color: orange;
 }
 .star.checked,
 .star.checked ~ span {
-  transform: scale(1.1);
-  padding: 2px;
   color: orange;
 }
-
+.rating-description {
+  color: #999; 
+  font-size: 14px;
+  margin: 0 0 10px;
+}
 
 
 /******************************

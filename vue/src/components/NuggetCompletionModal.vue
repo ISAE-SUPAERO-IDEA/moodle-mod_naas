@@ -16,18 +16,27 @@
               <span
                 v-for="i in max"
                 v-bind:key="i"
-                @click="rate(max + 1 - i)"
+                @click="saved_rating=max+1-i"
                 class="star"
                 :class="{ checked: saved_rating === max + 1 - i }"
               >
                 <i class="icon fa fa-star"></i>
               </span>
             </p>
-            <p class="description">Your rating will be used to improve the quality of our content</p>
+            <button id="send-rating" type="button" class="btn btn-sm btn-outline-secondary" 
+              :disabled='ratingSent' @click="rate(saved_rating, $event)">Send</button>
+            <p class="rating-description">Your rating will be used to improve the quality of our content</p>
           </div>
         </div>
-          <!-- Learning Outcomes -->
-
+        <!-- Learning Outcomes -->
+        <div v-if="nugget.learning_outcomes.length" class="row" >
+            <h5>You have completed this nugget. The learning objectives were:</h5>
+            <ul>
+              <li class="align-self-start" v-for="item in nugget.learning_outcomes" :key="item">
+                {{ item }}
+              </li>
+            </ul>
+        </div>
         <div class="nugget-modal-footer row justify-content-between">
           <a :href="backLink" class="btn btn-link">◀︎ Back to Course Index</a>
           <a :href="nextUnitLink" class="btn btn-link">Next Unit ▶︎</a>
@@ -48,7 +57,7 @@ export default {
   data() {
     return {
       max: MaxScore,
-      rating_sent: false,
+      ratingSent: false,
       saved_rating: null,
       backLink: "#",
       nextUnitLink: "#"
@@ -58,8 +67,11 @@ export default {
     closeModal() {
       this.$emit("close");
     },
-    rate(score) {
-      this.saved_rating = score;
+    rate(score, event) {
+      event.target.innerHTML = 'Sent ✔';
+      console.log("rating sauvé :");
+      console.log(score);
+      this.ratingSent = true;
     }
   },
   mounted() {
