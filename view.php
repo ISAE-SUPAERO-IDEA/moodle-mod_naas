@@ -50,8 +50,8 @@ $PAGE->set_heading($course->fullname);
 echo $OUTPUT->header();
 
 // Back to course button
-$back_course_button = "<a class='btn btn-outline-secondary btn-sm course-button' 
-    href=".$CFG->wwwroot."/course/view.php?id=".$COURSE->id.">".get_string('back_to_course', 'naas')."</a>";
+$back_course_button = "<div class='course-button'><a class='btn btn-outline-secondary btn-sm' 
+    href=".$CFG->wwwroot."/course/view.php?id=".$COURSE->id.">".get_string('back_to_course', 'naas')."</a></div>";
 
 echo $back_course_button;
 

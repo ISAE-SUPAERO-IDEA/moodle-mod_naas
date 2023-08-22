@@ -229,7 +229,7 @@ Completion modal
 ******************************/
 #completion-modal-button button {
   padding: 10px 30px;
-  margin-bottom: 5em;
+  margin: 30px;
 }
 .rating {
   display: flex;
@@ -265,6 +265,9 @@ Other style
 ******************************/
 .course-button {
   margin: 0px 18px !important;
+  height: 40px;
+}
+.course-button a {
   float: right;
 }
 .search-center {

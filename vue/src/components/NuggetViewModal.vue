@@ -43,7 +43,7 @@ export default {
   methods: {
     initialize() {
       if (!this.initialized) {
-        this.proxy(`/versions/` + this.nugget.version_id + `/preview_url`).then(
+        this.proxy(`/versions/${this.nugget.version_id}/preview_url`).then(
           (payload) => {
             this.NuggetView = payload;
           }

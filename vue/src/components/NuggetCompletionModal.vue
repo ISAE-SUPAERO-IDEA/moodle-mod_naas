@@ -18,7 +18,7 @@
                 v-bind:key="i"
                 @click="saved_rating=max+1-i"
                 class="star"
-                :class="{ checked: saved_rating === max + 1 - i }"
+                :class="{ checked: saved_rating === max+1-i }"
               >
                 <i class="icon fa fa-star"></i>
               </span>
@@ -30,14 +30,14 @@
         </div>
         <!-- Learning Outcomes -->
         <div v-if="nugget.learning_outcomes.length" class="row" >
-            <h5>You have completed this nugget. The learning objectives were:</h5>
+            <p>You have completed this nugget. The learning objectives were:</p>
             <ul>
               <li class="align-self-start" v-for="item in nugget.learning_outcomes" :key="item">
                 {{ item }}
               </li>
             </ul>
         </div>
-        <div class="nugget-modal-footer row justify-content-between">
+        <div class="nugget-modal-footer row justify-content-between"> 
           <a :href="backLink" class="btn btn-link">◀︎ Back to Course Index</a>
           <a :href="nextUnitLink" class="btn btn-link">Next Unit ▶︎</a>
         </div>
@@ -69,8 +69,8 @@ export default {
     },
     rate(score, event) {
       event.target.innerHTML = 'Sent ✔';
-      console.log("rating sauvé :");
-      console.log(score);
+      console.log("rating sauvé :"+score);
+      // send request to lrs
       this.ratingSent = true;
     }
   },
