@@ -141,4 +141,13 @@ class NaasClient  {
         $result = $this->request($protocol, $service);
         return $this->handle_result($result); 
     }
+    // xAPI statements
+    function post_xapi_statement($verb, $version_id, $data) {
+        $this->debug("Send xAPI statement to LRS");
+        $protocol = "POST";
+        $service = "/versions/${version_id}/records/${verb}";
+
+        $result = $this->request($protocol, $service, $data);
+        return $this->handle_result($result); 
+    }
 }

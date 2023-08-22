@@ -85,7 +85,9 @@ export default {
       this.completionModal = true;
       if (!this.nuggetCompleted) {
         // send lrs request
-
+        let params = { 'id': this.config.cm_id, 'verb': 'completed', 'version_id': this.nugget.version_id }
+        let response = this.xapi(params);
+        console.log(response);
         this.nuggetCompleted = true;
       }
     },
