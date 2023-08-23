@@ -16,20 +16,20 @@
               <span
                 v-for="i in max"
                 v-bind:key="i"
-                @click="saved_rating=max+1-i"
+                @click="savedRating=max+1-i"
                 class="star"
-                :class="{ checked: saved_rating === max+1-i }"
+                :class="{ checked: savedRating === max+1-i }"
               >
                 <i class="icon fa fa-star"></i>
               </span>
             </p>
             <button id="send-rating" type="button" class="btn btn-sm btn-outline-secondary" 
-              :disabled='ratingSent' @click="rate(saved_rating, $event)">Send</button>
+              :disabled='ratingSent' @click="rate(savedRating, $event)">Send</button>
             <p class="rating-description">Your rating will be used to improve the quality of our content</p>
           </div>
         </div>
         <!-- Learning Outcomes -->
-        <div v-if="nugget && nugget.learning_outcomes.length" class="row" >
+        <div v-if="nugget.learning_outcomes && nugget.learning_outcomes.length" class="row" >
             <p>You have completed this nugget. The learning objectives were:</p>
             <ul>
               <li class="align-self-start" v-for="item in nugget.learning_outcomes" :key="item">
@@ -58,7 +58,7 @@ export default {
     return {
       max: MaxScore,
       ratingSent: false,
-      saved_rating: null,
+      savedRating: null,
       backLink: "#",
       nextUnitLink: "#"
     };
@@ -84,10 +84,6 @@ export default {
         });
       this.ratingSent = true;
     }
-  },
-  mounted() {
-    console.log(this.config.nugget_id);
-    console.log(document.querySelector("a.course-button"));
   }
 };
 </script>

@@ -68,6 +68,9 @@ class NaasClient  {
         if (property_exists($this->config, "naas_impersonate")) {
             $headers[] = "X-NaaS-Impersonate:" .$this->config->naas_impersonate;
         } 
+        if (property_exists($this->config, "wwwroot")) {
+            $headers[] = "X-Host:" .$this->config->wwwroot;
+        }
         if ($protocol=="FILE") {
             curl_setopt($ch, CURLOPT_POST, true);
             curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
