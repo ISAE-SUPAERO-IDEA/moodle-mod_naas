@@ -1,7 +1,7 @@
 <template>
 <div ref="completionModal" v-show="visible">
-  <div class="nugget-modal-backdrop" @click="closeModal()">
-    <div class="nugget-modal" @click.stop.prevent>
+  <div class="nugget-modal-backdrop">
+    <div class="nugget-modal">
       <div class="container">
         <div class="nugget-modal-header row justify-content-end">
           <button type="button" class="btn-close" @click="closeModal()">
@@ -29,17 +29,15 @@
           </div>
         </div>
         <!-- Learning Outcomes -->
-        <div v-if="nugget.learning_outcomes && nugget.learning_outcomes.length" class="row" >
-            <p>{{ config.labels.learning_outcomes_desc }}</p>
-            <ul>
-              <li class="align-self-start" v-for="item in nugget.learning_outcomes" :key="item">
-                {{ item }}
-              </li>
-            </ul>
+        <div v-if="nugget.learning_outcomes && nugget.learning_outcomes.length" class="finish-learning-outcomes row" >
+          <div class="col text-center">
+            {{ config.labels.learning_outcomes_desc }}
+            <span v-for="item in nugget.learning_outcomes" :key="item">• {{ item }} </span>
+          </div>
         </div>
         <div class="nugget-modal-footer row justify-content-between"> 
           <a :href="backLink" class="btn btn-link">◀︎ {{ config.labels.back_to_course }}</a>
-          <a :href="nextUnitLink" class="btn btn-link">{{ config.labels.next_unit }} ▶︎</a>
+          <a v-if="nextUnitLink" :href="nextUnitLink" class="btn btn-link">{{ config.labels.next_unit }} ▶︎</a>
         </div>
       </div>
     </div>
@@ -60,8 +58,16 @@ export default {
       ratingSent: false,
       savedRating: null,
       backLink: "#",
-      nextUnitLink: "#"
+      nextUnitLink: null
     };
+  },
+  mounted() {
+    // We steal the 'back to course' and 'next actvity' links from other elements of the DOM
+    this.backLink = document.querySelector(".course-button a").href;
+
+    if (document.querySelector(".next-activity a, #next-activity-link")) {
+      this.nextUnitLink = document.querySelector(".next-activity a, #next-activity-link").href;
+    }
   },
   methods: {
     closeModal() {

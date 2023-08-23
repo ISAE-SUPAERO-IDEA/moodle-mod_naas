@@ -80,6 +80,7 @@ Modal style
   font-family: "Open Sans";
   max-height: 90%;
   width: 70%;
+  max-width: 1140px;
   position: absolute;
   left: 50%;
   top: 50%;
@@ -256,7 +257,13 @@ Completion modal
 .rating-description {
   color: #999; 
   font-size: 14px;
-  margin: 0 0 10px;
+  margin: 10px 0px;
+}
+.finish-learning-outcomes {
+  margin: 50px 0px;
+}
+.finish-learning-outcomes span {
+  display: block;
 }
 
 

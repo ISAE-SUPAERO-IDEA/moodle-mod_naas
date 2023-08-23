@@ -49,11 +49,19 @@ $PAGE->set_heading($course->fullname);
 // Print the page header.
 echo $OUTPUT->header();
 
+$course_url = new moodle_url('/course/view.php', array('id' => $COURSE->id));
 // Back to course button
 $back_course_button = "<div class='course-button'><a class='btn btn-outline-secondary btn-sm' 
-    href=".$CFG->wwwroot."/course/view.php?id=".$COURSE->id.">".get_string('back_to_course', 'naas')."</a></div>";
+    href=".$course_url.">".get_string('back_to_course', 'naas')."</a></div>";
 
 echo $back_course_button;
+
+// (Hidden) Next activity button
+$next_activity_url = get_next_activity_url();
+if ($next_activity_url) {
+    echo "<div class='next-activity hidden'><a class='btn btn-outline-secondary btn-sm' 
+    href=".get_next_activity_url()->link."&forceview=1>".get_next_activity_url()->name."</a></div>";
+}
 
 // Displays Nugget
 echo naas_widget_html($naas_instance->nugget_id, $cm->id, "NuggetView");
