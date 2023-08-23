@@ -78,16 +78,25 @@ export default {
         },
         "#lti-frame"
       );
+      // Sends 'experienced' xAPI statement
+      this.xapi({ 
+        'id': this.config.cm_id,
+        'verb': 'experienced',
+        'version_id': this.nugget.version_id
+      });
     }, 100);
+
   },
   methods: {
     async complete() {
       this.completionModal = true;
       if (!this.nuggetCompleted) {
-        // send lrs request
-        let params = { 'id': this.config.cm_id, 'verb': 'completed', 'version_id': this.nugget.version_id }
-        let response = this.xapi(params);
-        console.log(response);
+        // Sends 'completed' xAPI statement
+        this.xapi({ 
+          'id': this.config.cm_id,
+          'verb': 'completed',
+          'version_id': this.nugget.version_id
+        });
         this.nuggetCompleted = true;
       }
     },

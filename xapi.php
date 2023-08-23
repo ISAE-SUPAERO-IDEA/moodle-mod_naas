@@ -11,6 +11,7 @@ require_once('classes/NaasClient.php');
 
 $verb = required_param('verb', PARAM_TEXT);
 $version_id = required_param('version_id', PARAM_TEXT);
+$body = optional_param('body', null, PARAM_TEXT);
 
 // Get data from DB
 $id = required_param('id', PARAM_INT); // Course Module ID.
@@ -22,21 +23,23 @@ $course = $DB->get_record('course', array('id'=>$cm->course), '*', MUST_EXIST);
 require_login($course, true, $cm);
 require_capability('mod/naas:view', $context);
 
+// Get NaaS Client
 $config = (object) array_merge((array) get_config('naas'), (array) $CFG);
 $naas = new NaasClient($config);
 
-$user = [
-    "name" => $USER->firstname.' '.$USER->lastname,
-    "email" => $USER->email,
-];
+// Get user info from Moodle
+$user = new stdClass();
+$user->name = $USER->firstname.' '.$USER->lastname;
+$user->email = $USER->email;
 
-$body = [];
-
-$data = [
-   "user"=> $user,
-   "body"=> $body
-];
+// Request post data
+$data = new stdClass();
+$data->user = $user;
+if (!$body) {
+    $data->body = new stdClass();
+} else {
+    $data->body = (array)json_decode($body);
+}
 
 $response = $naas->post_xapi_statement($verb, $version_id, $data);
-var_dump($response);
-
+echo json_encode($response);

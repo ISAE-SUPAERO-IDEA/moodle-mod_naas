@@ -147,7 +147,7 @@ class NaasClient  {
         $protocol = "POST";
         $service = "/versions/${version_id}/records/${verb}";
 
-        $result = $this->request($protocol, $service, $data);
+        $result = $this->request($protocol, $service, ((array)$data));
         return $this->handle_result($result); 
     }
 }

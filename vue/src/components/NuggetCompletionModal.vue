@@ -29,7 +29,7 @@
           </div>
         </div>
         <!-- Learning Outcomes -->
-        <div v-if="nugget.learning_outcomes.length" class="row" >
+        <div v-if="nugget && nugget.learning_outcomes.length" class="row" >
             <p>You have completed this nugget. The learning objectives were:</p>
             <ul>
               <li class="align-self-start" v-for="item in nugget.learning_outcomes" :key="item">
@@ -48,7 +48,7 @@
 </template>
 <script>
 // Maximum and minimum score
-//const MinScore = 1;
+const MinScore = 1;
 const MaxScore = 5;
 
 export default {
@@ -69,8 +69,19 @@ export default {
     },
     rate(score, event) {
       event.target.innerHTML = 'Sent ✔';
-      console.log("rating sauvé :"+score);
-      // send request to lrs
+      let body = {
+        // Score
+        raw: score,
+        min: MinScore,
+        max: MaxScore
+      };
+      // Sends 'rated' xAPI statement
+      this.xapi({ 
+          'id': this.config.cm_id,
+          'verb': 'rated',
+          'version_id': this.nugget.version_id,
+          'body': JSON.stringify(body)
+        });
       this.ratingSent = true;
     }
   },
