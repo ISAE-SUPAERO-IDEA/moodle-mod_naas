@@ -43,6 +43,7 @@ function naas_widget_html($nugget_id, $cm_id, $component) {
             "no_nugget" => get_string('no_nugget','naas'),
             "see_nugget_details" => get_string('see_nugget_details','naas'),
             "back_to_course" => get_string('back_to_course','naas'),
+            "next_unit" => get_string('next_unit','naas'),
             "show_more_nugget_button" => get_string('show_more_nugget_button','naas'),
             "preview_button" => get_string('preview_button','naas'),
             "details_button" => get_string('details_button','naas'),
@@ -77,14 +78,22 @@ function naas_widget_html($nugget_id, $cm_id, $component) {
                 "fr" => get_string('fr','naas'),
                 "french" => get_string('french','naas'),
                 "publication_date" => get_string('publication_date','naas'),
-            ]
+            ],
+            "rating" => [
+                "title" => get_string('rating_title','naas'),
+                "description" => get_string('rating_description','naas'),
+                "send" => get_string('rating_send','naas'),
+                "sent" => get_string('rating_sent','naas'),
+            ],
+            "learning_outcomes_desc" => get_string('learning_outcomes_desc','naas'),
+            "complete_nugget" => get_string('complete_nugget','naas'),
         ]
     ]);
     $html = "<div id='naas_widget'></div>"; 
     $html .= "<script>NAAS=$widget_config</script>"; 
     // TODO: use $PAGE->require->js
-    $search_widget_url = new moodle_url('/mod/naas/assets/vue/search_widget.js');
-    $html .= "<script src='$search_widget_url' ></script>";
+    $widget_js_url = new moodle_url('/mod/naas/assets/vue/naas_widget.js');
+    $html .= "<script src='$widget_js_url' ></script>";
 
     return $html;
 }

@@ -36,7 +36,7 @@
           class="btn btn-primary"
           @click="complete()"
         >
-          I Finished My Learning With This Nugget
+          {{ config.labels.complete_nugget }}
         </button>
       </div>
     </div>

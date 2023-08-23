@@ -11,7 +11,7 @@
         <div class="nugget-modal-body row">
           <!-- Rating -->
           <div class="text-center col">
-            <h2>Rate this nugget</h2>
+            <h2>{{ config.labels.rating.title }} </h2>
             <p class="rating saved">
               <span
                 v-for="i in max"
@@ -24,13 +24,13 @@
               </span>
             </p>
             <button id="send-rating" type="button" class="btn btn-sm btn-outline-secondary" 
-              :disabled='ratingSent' @click="rate(savedRating, $event)">Send</button>
-            <p class="rating-description">Your rating will be used to improve the quality of our content</p>
+              :disabled='ratingSent' @click="rate(savedRating, $event)">{{ config.labels.rating.send }}</button>
+            <p class="rating-description">{{ config.labels.rating.description }}</p>
           </div>
         </div>
         <!-- Learning Outcomes -->
         <div v-if="nugget.learning_outcomes && nugget.learning_outcomes.length" class="row" >
-            <p>You have completed this nugget. The learning objectives were:</p>
+            <p>{{ config.labels.learning_outcomes_desc }}</p>
             <ul>
               <li class="align-self-start" v-for="item in nugget.learning_outcomes" :key="item">
                 {{ item }}
@@ -38,8 +38,8 @@
             </ul>
         </div>
         <div class="nugget-modal-footer row justify-content-between"> 
-          <a :href="backLink" class="btn btn-link">◀︎ Back to Course Index</a>
-          <a :href="nextUnitLink" class="btn btn-link">Next Unit ▶︎</a>
+          <a :href="backLink" class="btn btn-link">◀︎ {{ config.labels.back_to_course }}</a>
+          <a :href="nextUnitLink" class="btn btn-link">{{ config.labels.next_unit }} ▶︎</a>
         </div>
       </div>
     </div>
@@ -68,7 +68,7 @@ export default {
       this.$emit("close");
     },
     rate(score, event) {
-      event.target.innerHTML = 'Sent ✔';
+      event.target.innerHTML = this.config.labels.rating.sent ;
       let body = {
         // Score
         raw: score,

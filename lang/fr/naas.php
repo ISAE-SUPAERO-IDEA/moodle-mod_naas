@@ -70,11 +70,14 @@ $string['hide_authors'] = 'Cacher';
 
 $string['see_nugget_details'] = 'Voir les infos du nugget';
 $string['back_to_course'] = 'Retour à l\'index du cours';
+$string['next_unit'] = 'Unité suivante';
 $string['show_more_nugget_button'] = 'Afficher plus ...';
 
 $string['preview_button'] = 'Aperçu';
 $string['details_button'] = 'À Propos';
+$string["loading"] = "Chargement...";
 
+/* Metadata */
 $string["preview"] = "Aperçu : ";
 $string["details"] = "À propos : ";
 $string["description"] = "Description";
@@ -94,17 +97,21 @@ $string["advanced"] = "Avancé";
 $string["intermediate"] = "Intermédiaire";
 $string["beginner"] = "Débutant";
 $string["tags"] = "Mots clés";
-
 $string["type"] = "Type";
 $string["lesson"] = "Lesson";
 $string["tutorial"] = "Tutorial";
 $string["demo"] = "Démo";
-
-$string["loading"] = "Chargement...";
-
 $string["en"] = "Anglais";
 $string["english"] = "Anglais";
 $string["fr"] = "Français";
 $string["french"] = "Français";
+$string["publication_date"] = "Date de publication";
 
-$string["puublication_date"] = "Date de publication";
+/* Rating */
+$string["rating_title"] = "Évaluez ce nugget";
+$string["rating_description"] = "Votre note servira à améliorer notre contenu";
+$string["rating_send"] = "Envoyer";
+$string["rating_sent"] = "Envoyé ✔";
+
+$string["learning_outcomes_desc"] = "Vous avez terminé ce nugget dont les objectifs étaient :";
+$string["complete_nugget"] = "J'ai terminé ma consultation du Nugget";
