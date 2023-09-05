@@ -4,7 +4,8 @@
       <div>
         <a
           href="javascript:;"
-          class="btn btn-primary hidden"
+          class="btn btn-primary"
+          :class="{hidden: !detailButton}"
           v-on:click="detailModal = true"
         >
           {{ config.labels.see_nugget_details }}
@@ -61,11 +62,17 @@ export default {
   },
   data() {
     return {
+      detailButton: true,
       detailModal: false,
       completionModal: false,
       nugget: {},
       nuggetCompleted: false,
     };
+  },
+  created() {
+    // Only exists in Moodle >= 4.0
+    let navDetailsButton = document.querySelector('.secondary-navigation nav ul li[data-key=details]');
+    this.detailButton = !navDetailsButton;
   },
   async mounted() {
     this.nugget = await this.get_nugget_default_version(this.config.nugget_id);
