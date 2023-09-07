@@ -55,11 +55,14 @@ $string['naas_settings_privacy_learner_mail_help'] = 'Send the learner email whe
 $string['naas_settings_privacy_learner_name'] = 'Collect nugget learners names';
 $string['naas_settings_privacy_learner_name_help'] = 'Send the learner name when connecting the user to the NaaS to improve their experience';
 
+// Moodle Form
 $string['naas_unable_connect'] = 'Unable to contact the NaaS server';
 
 $string['name_help'] = 'Name of the nugget that will appear in the course section';
 $string['name_display'] = 'Name to display';
+$string['cgu_agreement'] = 'I have read and agree to the <a target="_blank" href="https://doc.clickup.com/2594656/p/h/2f5v0-11842/d9ec550a374d2ba">Terms and Conditions of the NaaS platform</a>';
 
+// Vue Form
 $string['nugget_search'] = 'Search Nuggets';
 $string['nugget_search_here'] = 'Search here';
 $string['click_to_modify'] = 'Modify the selected nugget';

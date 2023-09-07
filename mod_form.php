@@ -54,7 +54,8 @@ class mod_naas_mod_form extends moodleform_mod {
         $mform->setType('nugget_id', PARAM_TEXT);
 
         // CGU
-        $mform->addElement('checkbox', 'ratingtime', get_string('ratingtime', 'forum'));
+        $mform->addElement('checkbox', 'cgu_agreement', get_string('cgu_agreement','naas'));
+        $mform->addRule('cgu_agreement', null, 'required');
 
         // Course description
         $this->standard_intro_elements();
