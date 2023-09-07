@@ -25,7 +25,7 @@
         />
         <img
           v-bind:src="'../mod/naas/assets/search_icon.png'"
-          class="search_center"
+          class="search-center"
           width="35"
           height="35"
         /><br />
@@ -57,12 +57,12 @@
           </div>
         </div>
         <div class="row">
-          <div class="show_more_nugget">
+          <div class="show-more-nugget">
             <a
               href="javascript:;"
               v-if="show_more_nugget_button"
               v-on:click="show_more_nugget()"
-              class="btn btn-primary nugget-button show_more_nugget_button"
+              class="btn btn-primary nugget-button show-more-nugget-button"
             >
               {{ config.labels.show_more_nugget_button }}
             </a>

@@ -25,13 +25,14 @@
 
 defined('MOODLE_INTERNAL') || die;
 
-function naas_widget_html($nugget_id, $component) {
+function naas_widget_html($nugget_id, $cm_id, $component) {
     global $CFG;
     $widget_config = json_encode([
-        "mount_point"=> "#naas_search_widget",
+        "mount_point"=> "#naas_widget",
         "proxy_url"=> "$CFG->wwwroot/mod/naas/proxy.php",
         "component" => $component,
         "nugget_id" => $nugget_id,
+        "cm_id" => $cm_id, // Course module ID
         "labels" => [
             "search_here" => get_string('nugget_search_here','naas'),
             "search" => get_string('nugget_search','naas'),
@@ -42,6 +43,7 @@ function naas_widget_html($nugget_id, $component) {
             "no_nugget" => get_string('no_nugget','naas'),
             "see_nugget_details" => get_string('see_nugget_details','naas'),
             "back_to_course" => get_string('back_to_course','naas'),
+            "next_unit" => get_string('next_unit','naas'),
             "show_more_nugget_button" => get_string('show_more_nugget_button','naas'),
             "preview_button" => get_string('preview_button','naas'),
             "details_button" => get_string('details_button','naas'),
@@ -49,7 +51,7 @@ function naas_widget_html($nugget_id, $component) {
             "metadata" => [
                 "preview" => get_string('preview','naas'),
                 "details" => get_string('details','naas'),
-                "resume" => get_string('resume','naas'),
+                "description" => get_string('description','naas'),
                 "in_brief" => get_string('in_brief','naas'),
                 "about_author" => get_string('about_author','naas'),
                 "learning_outcomes" => get_string('learning_outcomes','naas'),
@@ -75,14 +77,113 @@ function naas_widget_html($nugget_id, $component) {
                 "english" => get_string('english','naas'),
                 "fr" => get_string('fr','naas'),
                 "french" => get_string('french','naas'),
-            ]
+                "publication_date" => get_string('publication_date','naas'),
+            ],
+            "rating" => [
+                "title" => get_string('rating_title','naas'),
+                "description" => get_string('rating_description','naas'),
+                "send" => get_string('rating_send','naas'),
+                "sent" => get_string('rating_sent','naas'),
+            ],
+            "learning_outcomes_desc" => get_string('learning_outcomes_desc','naas'),
+            "complete_nugget" => get_string('complete_nugget','naas'),
         ]
     ]);
-    $html = "<div id='naas_search_widget'></div>"; 
+    $html = "<div id='naas_widget'></div>"; 
     $html .= "<script>NAAS=$widget_config</script>"; 
     // TODO: use $PAGE->require->js
-    $search_widget_url = new moodle_url('/mod/naas/assets/vue/search_widget.js');
-    $html .= "<script src='$search_widget_url' ></script>";
+    $widget_js_url = new moodle_url('/mod/naas/assets/vue/naas_widget.js');
+    $html .= "<script src='$widget_js_url' ></script>";
 
     return $html;
+}
+
+function get_next_activity_url() {
+    /* Gets the link to the next activity of the course */
+    /* Adapted from https://gist.github.com/frumbert/b4fbb8e6f9a23c7233128a1f51df02b7 */
+
+    global $PAGE, $CFG, $COURSE, $DB;
+    
+    require_once($CFG->libdir . '/modinfolib.php');
+
+    $cmid = $PAGE->cm->id;
+    $modinfo = get_fast_modinfo($COURSE);
+    $context = context_course::instance($COURSE->id);
+    $sections = $DB->get_records('course_sections', array('course' => $COURSE->id), 'section', 'section,visible,summary');
+
+    $next = null;
+    $prev = null;
+    $firstcourse = null;
+    $firstsection = null;
+    $lastcourse = null;
+    $lastsection = null;
+
+    $sectionnum = -1;
+    $thissection = null;
+    $firstthissection = null;
+    $flag = false;
+    $sectionflag = false;
+    $previousmod = null;
+
+    foreach ($modinfo->cms as $mod) {
+        if ($mod->modname == 'label') {
+            continue;
+        }
+        $format = course_get_format($COURSE);
+        if (method_exists($format, 'get_last_section_number')) {
+            $numsections = $format->get_last_section_number();
+        } else {
+            $opts = course_get_format($COURSE)->get_format_options();
+            $numsections = isset($opts['numsections']) ? $opts['numsections'] : 0;
+        }
+        if ($numsections && $mod->sectionnum > $numsections) {
+            break;
+        }
+        if (!$mod->uservisible) {
+            continue;
+        }
+        if ($mod->sectionnum > 0 && $sectionnum != $mod->sectionnum) {
+            $thissection = $sections[$mod->sectionnum];
+            if ($thissection->visible || !$COURSE->hiddensections ||
+                has_capability('moodle/course:viewhiddensections', $context)
+            ) {
+                $sectionnum = $mod->sectionnum;
+                $firstthissection = false;
+                if ($sectionflag) {
+                    if ($flag) { // Flag means selected mod was the last in the section.
+                        $lastsection = 'none';
+                    } else {
+                        $lastsection = $previousmod;
+                    }
+                    $sectionflag = false;
+                }
+            } else {
+                continue;
+            }
+        }
+        $thismod = (object)[
+            'link' => new moodle_url('/mod/'.$mod->modname.'/view.php', array('id' => $mod->id)),
+            'name' => strip_tags(format_string($mod->name, true))
+        ];
+        if ($flag) { // Current mod is the 'next' mod.
+            $next = $thismod;
+            $flag = false;
+        }
+        if ($cmid == $mod->id) {
+            $flag = true;
+            $sectionflag = true;
+            $prev = $previousmod;
+            $firstsection = $firstthissection;
+        }
+        if (!$firstthissection) {
+            $firstthissection = $thismod;
+        }
+        if (!$firstcourse) {
+            $firstcourse = $thismod;
+        }
+        $previousmod = $thismod;
+    }
+
+    return $next;
+
 }

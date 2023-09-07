@@ -48,7 +48,7 @@ class mod_naas_mod_form extends moodleform_mod {
         $mform->addElement('header', 'general', get_string('general', 'form'));
 
         $nugget_id = $mform->getCleanedValue("nugget_id", PARAM_TEXT);
-        $mform->addElement('html',  naas_widget_html($nugget_id, "NuggetSearchWidget"));
+        $mform->addElement('html',  naas_widget_html($nugget_id, null, "NuggetSearchWidget"));
 
         $mform->addElement('text', 'name', get_string('name_display','naas'), array('size'=>'48'));
         $mform->setType('name', PARAM_TEXT);
