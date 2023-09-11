@@ -13,10 +13,6 @@ require_once($CFG->dirroot.'/mod/lti/locallib.php');
 require_once('classes/NaasClient.php');
 require_once('locallib.php');
 
-
-echo $_SERVER['DOCUMENT_ROOT']."/config.php";
-
-
 $id        = optional_param('id', 0, PARAM_INT);        // Course module ID
 $u         = optional_param('u', 0, PARAM_INT);         // NaaS instance id
 $redirect  = optional_param('redirect', 0, PARAM_BOOL);
@@ -52,25 +48,32 @@ $PAGE->set_heading($course->fullname);
 
 // Print the page header.
 echo $OUTPUT->header();
-echo $OUTPUT->heading($naas_instance->name);
 
-echo naas_widget_html($naas_instance->nugget_id, "NuggetInfoWidget");
-// Request the launch content with an iframe tag.
-$iframeresizer_url = new moodle_url('/mod/naas/assets/iframeResizer.min.js');
-echo "<script src='$iframeresizer_url' ></script>";
-echo "<script>window.setTimeout(() => { iFrameResize({ log: true, checkOrigin: false, heightCalculationMethod: 'lowestElement' }, '#naascontentframe') }, 100);</script>";
-echo "<iframe id='naascontentframe' height='600px' width='100%' src='launch.php?id=".$cm->id.
-        "&triggerview=0\' webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>";
-
+$course_url = new moodle_url('/course/view.php', array('id' => $COURSE->id));
 // Back to course button
-echo "<a class='btn btn-primary course-button' href=".$CFG->wwwroot."/course/view.php?id=".$COURSE->id.">".get_string('back_to_course', 'naas')."</a>";
+$back_course_button = "<div class='course-button'><a class='btn btn-outline-secondary btn-sm' 
+    href=".$course_url.">".get_string('back_to_course', 'naas')."</a></div>";
 
+echo $back_course_button;
 
+// (Hidden) Next activity button
+$next_activity_url = get_next_activity_url();
+if ($next_activity_url) {
+    echo "<div class='next-activity hidden'><a class='btn btn-outline-secondary btn-sm' 
+    href=".get_next_activity_url()->link."&forceview=1>".get_next_activity_url()->name."</a></div>";
+}
 
+// Displays Nugget
+echo naas_widget_html($naas_instance->nugget_id, $cm->id, "NuggetView");
 
-echo "test";
+// Toggles the Nugget 'Details' Modal
+echo "<script>
+let details_button = document.querySelector('.secondary-navigation nav ul li[data-key=details]');
+let widget = document.querySelector('#nugget-info-button div a');
+details_button.onclick = function() { widget.click(); };
+</script>";
 
-
+echo $back_course_button;
 
 // Finish the page.
 echo $OUTPUT->footer();

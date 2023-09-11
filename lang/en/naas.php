@@ -69,15 +69,18 @@ $string['show_more_authors'] = 'Show more';
 $string['hide_authors'] = 'Hide';
 
 $string['see_nugget_details'] = 'See nugget details';
-$string['back_to_course'] = 'Back to course';
+$string['back_to_course'] = 'Back to Course Index';
+$string["next_unit"] = "Next Unit";
 $string['show_more_nugget_button'] = 'Show more ...';
 
 $string['preview_button'] = 'Preview';
-$string['details_button'] = 'Details';
+$string['details_button'] = 'About';
+$string["loading"] = "Loading...";
 
+/* Metadata */
 $string["preview"] = "Preview: ";
-$string["details"] = "Details: ";
-$string["resume"] = "Resume";
+$string["details"] = "About: ";
+$string["description"] = "Description";
 $string["in_brief"] = "In Brief";
 $string["about_author"] = "About the author";
 $string["learning_outcomes"] = "Learning outcomes";
@@ -94,15 +97,21 @@ $string["advanced"] = "Advanced";
 $string["intermediate"] = "Intermediate";
 $string["beginner"] = "Beginner";
 $string["tags"] = "Tags";
-
 $string["type"] = "Type";
 $string["lesson"] = "Lesson";
 $string["tutorial"] = "Tutorial";
 $string["demo"] = "Demo";
-
-$string["loading"] = "Loading...";
-
 $string["en"] = "English";
 $string["english"] = "English";
 $string["fr"] = "French";
 $string["french"] = "French";
+$string["publication_date"] = "Publication date";
+
+/* Rating */
+$string["rating_title"] = "Rate this nugget";
+$string["rating_description"] = "Your rating will be used to improve the quality of our content";
+$string["rating_send"] = "Send";
+$string["rating_sent"] = "Sent ✔";
+
+$string["learning_outcomes_desc"] = "You have completed this nugget. The learning objectives were:";
+$string["complete_nugget"] = "I Finished My Learning With This Nugget";

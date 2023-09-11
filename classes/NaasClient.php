@@ -68,6 +68,9 @@ class NaasClient  {
         if (property_exists($this->config, "naas_impersonate")) {
             $headers[] = "X-NaaS-Impersonate:" .$this->config->naas_impersonate;
         } 
+        if (property_exists($this->config, "wwwroot")) {
+            $headers[] = "X-Host:" .$this->config->wwwroot;
+        }
         if ($protocol=="FILE") {
             curl_setopt($ch, CURLOPT_POST, true);
             curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
@@ -139,6 +142,15 @@ class NaasClient  {
         $protocol = "GET";
         $service = "/auth";
         $result = $this->request($protocol, $service);
+        return $this->handle_result($result); 
+    }
+    // xAPI statements
+    function post_xapi_statement($verb, $version_id, $data) {
+        $this->debug("Send xAPI statement to LRS");
+        $protocol = "POST";
+        $service = "/versions/${version_id}/records/${verb}";
+
+        $result = $this->request($protocol, $service, ((array)$data));
         return $this->handle_result($result); 
     }
 }

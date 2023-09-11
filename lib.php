@@ -25,6 +25,30 @@
 
 defined('MOODLE_INTERNAL') || die;
 
+
+
+/**
+ * Return the mapping for standard message parameters to JWT claim.
+ *
+ * @return array
+ */
+function lti_get_jwt_claim_mapping_test() {
+    return array(
+        'launch_presentation_return_url' => [
+            'suffix' => '',
+            'group' => 'launch_presentation',
+            'claim' => 'return_url',
+            'isarray' => false
+        ],
+    );
+}
+
+
+
+
+
+
+
 /**
  * List of features supported in NaaS module
  * @param string $feature FEATURE_xx constant for requested feature
@@ -36,6 +60,7 @@ function naas_supports($feature) {
         case FEATURE_GROUPS:                  return false;
         case FEATURE_GROUPINGS:               return false;
         case FEATURE_MOD_INTRO:               return true;
+        // case FEATURE_MOD_PURPOSE:             return MOD_PURPOSE_CONTENT; // Defines the background color of icon
         case FEATURE_COMPLETION_TRACKS_VIEWS: return true;
         case FEATURE_GRADE_HAS_GRADE:         return false;
         case FEATURE_GRADE_OUTCOMES:          return false;
@@ -273,3 +298,15 @@ function naas_check_updates_since(cm_info $cm, $from, $filter = array()) {
     return $updates;
 }
 
+/**
+ * Adds link(s) to secondary navigation inside activity
+ *
+ * @param settings_navigation $settings The settings navigation object
+ * @param navigation_node $chatnode The node to add module settings to
+ * @since Moodle 4.0
+ */
+function naas_extend_settings_navigation(settings_navigation $settings, navigation_node $naasnode) {
+    $naasnode->add(get_string('details_button', 'naas'),
+        new moodle_url('#'),
+        navigation_node::TYPE_SETTING, null, 'details');
+}

@@ -48,7 +48,7 @@ class mod_naas_mod_form extends moodleform_mod {
         $mform->addElement('header', 'general', get_string('general', 'form'));
 
         $nugget_id = $mform->getCleanedValue("nugget_id", PARAM_TEXT);
-        $mform->addElement('html',  naas_widget_html($nugget_id, "NuggetSearchWidget"));
+        $mform->addElement('html',  naas_widget_html($nugget_id, null, "NuggetSearchWidget"));
 
         $mform->addElement('text', 'name', get_string('name_display','naas'), array('size'=>'48'));
         $mform->setType('name', PARAM_TEXT);
@@ -57,16 +57,6 @@ class mod_naas_mod_form extends moodleform_mod {
 
         // Course description
         $this->standard_intro_elements();
-        
-
-
-        // Add a custom checkbox field for completion
-        $mform->addElement('header', 'completionheader', "NaaS LTI");
-        $mform->addElement('advcheckbox', 'completioncheckbox', "Envoyer des traces vers le serveur NaaS.", null, array('group' => 1));
-        $mform->setDefault('completioncheckbox', 0);
-        $mform->setType('completioncheckbox', PARAM_INT);
-
-        
 
         $this->standard_coursemodule_elements();
         $this->add_action_buttons();
