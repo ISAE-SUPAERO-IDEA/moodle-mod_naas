@@ -45,8 +45,9 @@
 defined('MOODLE_INTERNAL') || die;
 
 function xmldb_naas_upgrade($oldversion) {
-    global $CFG;
+    global $CFG, $DB;
 
+    $dbman = $DB->get_manager();
     // Automatically generated Moodle v3.3.0 release upgrade line.
     // Put any upgrade step following this.
 
@@ -61,6 +62,24 @@ function xmldb_naas_upgrade($oldversion) {
 
     // Automatically generated Moodle v3.7.0 release upgrade line.
     // Put any upgrade step following this.
+    error_log("a");
+    if ($oldversion < 2023090704) {
+        error_log("b");
+
+        // Define field cgu_agreement to be added to naas.
+        $table = new xmldb_table('naas');
+        $field = new xmldb_field('cgu_agreement', XMLDB_TYPE_INTEGER, '1', null, null, null, null, 'nugget_id');
+
+        // Conditionally launch add field id.
+        if (!$dbman->field_exists($table, $field)) {
+            error_log("c");
+            $dbman->add_field($table, $field);
+        }
+
+        // Naas savepoint reached.
+        upgrade_mod_savepoint(true, 2023090704, 'naas');
+    }
+
 
     return true;
 }
