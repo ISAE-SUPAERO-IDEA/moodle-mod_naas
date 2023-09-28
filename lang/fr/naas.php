@@ -60,7 +60,7 @@ $string['naas_unable_connect'] = 'Impossible de contacter le serveur NaaS';
 
 $string['name_help'] = 'Nom de la nugget qui apparaitra dans l\'espace de cours ';
 $string['name_display'] = 'Nom à afficher';
-$string['cgu_agreement'] = "J'ai lu et accepte les <a target='_blank' href='https://doc.clickup.com/2594656/p/h/2f5v0-11842/d9ec550a374d2ba'>Conditions Générales d'Utilisation de la platforme NaaS</a>";
+$string['cgu_agreement'] = "J'ai lu et accepte les <a target='_blank' href='https://doc.clickup.com/2594656/p/h/2f5v0-13342/fff6a689cd78033'>Conditions Générales d'Utilisation de la platforme NaaS</a>";
 
 // Vue Form
 $string['nugget_search'] = 'Rechercher des nuggets';
