@@ -60,7 +60,7 @@ $string['naas_unable_connect'] = 'Unable to contact the NaaS server';
 
 $string['name_help'] = 'Name of the nugget that will appear in the course section';
 $string['name_display'] = 'Name to display';
-$string['cgu_agreement'] = 'I have read and agree to the <a target="_blank" href="https://doc.clickup.com/2594656/p/h/2f5v0-11842/d9ec550a374d2ba">Terms and Conditions of the NaaS platform</a>';
+$string['cgu_agreement'] = 'I have read and agree to the <a target="_blank" href="https://doc.clickup.com/2594656/p/h/2f5v0-13342/fff6a689cd78033">Terms and Conditions of the NaaS platform</a>';
 
 // Vue Form
 $string['nugget_search'] = 'Search Nuggets';
