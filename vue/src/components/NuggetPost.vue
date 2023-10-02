@@ -8,7 +8,7 @@
       />
       <h4>{{ nugget.name | truncate(50, "...") }}</h4>
       <h5>{{ authors_names }}</h5>
-      <span>{{ nugget.resume | truncate(190, "...") }}</span>
+      <div class="description" v-html="nugget.resume"></div>
       <h5>{{ nugget.displayinfo }}</h5>
     </div>
     <div class="nugget-buttons">

@@ -1,6 +1,6 @@
 module.exports = {
   mount_point: "#app",
-  component: "NuggetInfoWidget",
+  component: "NuggetView",
   //"component": "NuggetSearchWidget",
   proxy_url: "http://moodle.local.isae.fr/mod/naas/proxy.php",
   labels: {
@@ -18,9 +18,9 @@ module.exports = {
     about_button: "about_button",
     loading: "loading",
     metadata: {
-      preview_title: "preview_title",
-      about_title: "about_title",
-      resume: "resume",
+      preview: "preview",
+      details: "details",
+      description: "description",
       in_brief: "in_brief",
       about_author: "about_author",
       learning_outcomes: "learning_outcomes",
@@ -46,6 +46,7 @@ module.exports = {
       english: "english",
       fr: "fr",
       french: "french",
+      publication_date: "publication_date"
     },
   },
   nugget_id: "",
