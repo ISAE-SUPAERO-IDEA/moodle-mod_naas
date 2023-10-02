@@ -77,7 +77,7 @@ $string['next_unit'] = 'Unité suivante';
 $string['show_more_nugget_button'] = 'Afficher plus ...';
 
 $string['preview_button'] = 'Aperçu';
-$string['details_button'] = 'À Propos';
+$string['about_button'] = 'À Propos';
 $string["loading"] = "Chargement...";
 
 /* Metadata */
