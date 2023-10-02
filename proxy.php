@@ -9,23 +9,39 @@
 require_once($_SERVER['DOCUMENT_ROOT']."/config.php");
 require_once('classes/NaasClient.php');
 
-if (!is_siteadmin()) {
-	// Only managers and teachers can use the proxy
-	$roleid = $DB->get_field('role', 'id', ['shortname' => 'manager']);
-	$isManager = $DB->record_exists('role_assignments', ['userid' => $USER->id, 'roleid' => $roleid]);
+$path  = $_GET['path'];
 
-	if (!$isManager) {
-		$roleid = $DB->get_field('role', 'id', ['shortname' => 'editingteacher']);
-		$isTeacher = $DB->record_exists('role_assignments', ['userid' => $USER->id, 'roleid' => $roleid]);
-		if (!$isTeacher) die;
+// We allow requests to these specific URIs
+$WHITELIST = [
+	'/^\/nuggets\/([\w]+-?)+\/default_version$/',
+	'/^\/persons\/[\w]+\/?$/',
+	'/^\/vocabularies\/nugget_domains_vocabulary\/[\d]+\/?$/'];
+
+$match = false;
+foreach($WHITELIST as $pexp) {
+	if (preg_match($pexp, $path) == 1 ){
+		$match = true;
+		break;
+	}
+}
+
+if (!$match) {
+	if (!is_siteadmin()) {
+		// Only managers and teachers can use the proxy
+		$roleid = $DB->get_field('role', 'id', ['shortname' => 'manager']);
+		$isManager = $DB->record_exists('role_assignments', ['userid' => $USER->id, 'roleid' => $roleid]);
+
+		if (!$isManager) {
+			$roleid = $DB->get_field('role', 'id', ['shortname' => 'editingteacher']);
+			$isTeacher = $DB->record_exists('role_assignments', ['userid' => $USER->id, 'roleid' => $roleid]);
+			if (!$isTeacher) die;
+		}
 	}
 }
 
 $config = (object) array_merge((array) get_config('naas'), (array) $CFG);
 $naas = new NaasClient($config);
 
-// Maybe we should add a filter there
-$path  = $_GET['path'];
 // Add nql filter
 $nql = $config->naas_filter;
 if ($nql) {
