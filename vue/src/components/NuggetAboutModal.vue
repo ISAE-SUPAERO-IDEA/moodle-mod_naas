@@ -159,7 +159,7 @@
 </template>
 <script>
 export default {
-  name: "NuggetDetailModal",
+  name: "NuggetAboutModal",
   props: ["nugget", "visible"],
   methods: {
     closeNuggetModal() {

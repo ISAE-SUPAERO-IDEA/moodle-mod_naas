@@ -11,11 +11,11 @@ module.exports = {
     show_more_authors: "show_more_authors",
     hide_authors: "hide_authors",
     no_nugget: "no_nugget",
-    see_nugget_details: "see_nugget_details",
+    about: "about",
     back_to_course: "back_to_course",
     show_more_nugget_button: "show_more_nugget_button",
     preview_button: "preview_button",
-    details_button: "details_button",
+    about_button: "about_button",
     loading: "loading",
     metadata: {
       preview: "preview",

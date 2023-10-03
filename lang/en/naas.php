@@ -23,7 +23,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string['pluginname'] = 'NaaS';
+$string['pluginname'] = 'Nugget';
 $string['modulename'] = 'Nugget';
 $string['modulename_help'] = 'The Moodle Nugget Plugin enables to integrate a micro-content from the NaaS Server.';
 $string['modulename_link'] = 'mod/naas/view';
@@ -77,7 +77,7 @@ $string["next_unit"] = "Next Unit";
 $string['show_more_nugget_button'] = 'Show more ...';
 
 $string['preview_button'] = 'Preview';
-$string['details_button'] = 'About';
+$string['about_button'] = 'About';
 $string["loading"] = "Loading...";
 
 /* Metadata */
