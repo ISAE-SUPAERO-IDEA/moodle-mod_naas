@@ -103,7 +103,7 @@ function get_next_activity_url() {
     /* Adapted from https://gist.github.com/frumbert/b4fbb8e6f9a23c7233128a1f51df02b7 */
 
     global $PAGE, $CFG, $COURSE, $DB;
-    
+
     require_once($CFG->libdir . '/modinfolib.php');
 
     $cmid = $PAGE->cm->id;
@@ -185,5 +185,23 @@ function get_next_activity_url() {
     }
 
     return $next;
+}
 
+
+
+
+
+
+
+/**
+ * @return array int => lang string the options for calculating the quiz grade
+ *      from the individual attempt grades.
+ */
+function naas_get_grading_options() {
+    return array(
+        QUIZ_GRADEHIGHEST => get_string('gradehighest', 'quiz'),
+        QUIZ_GRADEAVERAGE => get_string('gradeaverage', 'quiz'),
+        QUIZ_ATTEMPTFIRST => get_string('attemptfirst', 'quiz'),
+        QUIZ_ATTEMPTLAST  => get_string('attemptlast', 'quiz')
+    );
 }

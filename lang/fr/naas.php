@@ -118,3 +118,22 @@ $string["rating_sent"] = "Envoyé ✔";
 
 $string["learning_outcomes_desc"] = "Vous avez terminé ce nugget dont les objectifs étaient :";
 $string["complete_nugget"] = "J'ai terminé ma consultation du Nugget";
+
+
+/* LTI */
+/* Grade section */
+$string["grade_pass"] = "Note de passage";
+$string["grade_method"] = "Méthode de passage";
+$string["gradehighest"] = "Note la plus élevée";
+$string["gradeaverage"] = "Note moyenne";
+$string["attemptfirst"] = "Première tentative";
+$string["attemptlast"] = "Dernière tentative";
+$string["grade_method_help"] = "Lorsque plusieurs tentatives sont autorisées, les méthodes suivantes sont disponibles pour calculer la note finale du quiz :
+
+* Note la plus élevée de toutes les tentatives
+* Note moyenne de toutes les tentatives
+* Première tentative (toutes les autres tentatives sont ignorées)
+* Dernière tentative (toutes les autres tentatives sont ignorées)";
+
+/* Activity Completion section */
+$string['completionpass'] = 'Require passing grade';

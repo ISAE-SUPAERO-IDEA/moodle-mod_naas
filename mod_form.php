@@ -32,6 +32,18 @@ require_once('classes/NaasClient.php');
 require_once('locallib.php');
 
 class mod_naas_mod_form extends moodleform_mod {
+
+    ///////         TEST
+
+    
+
+
+
+
+
+
+    ////////////////////////////////:
+
     function definition() {
         global $CFG, $DB;
         $mform = $this->_form;
@@ -60,14 +72,112 @@ class mod_naas_mod_form extends moodleform_mod {
         // Course description
         $this->standard_intro_elements();
 
+        // -------------------------------------------------------------------------------
+        // Grade settings.
+        // $this->standard_grading_coursemodule_elements();
+
+        /*
+        $mform->removeElement('grade');
+        if (property_exists($this->current, 'grade')) {
+            $currentgrade = $this->current->grade;
+        } else {
+            $currentgrade = 5;
+        }
+        */
+        $mform->addElement('header', 'grade', 'Grade');
+        
+
+        $mform->addElement('text', 'grade_pass_field', get_string('grade_pass', 'naas'));
+        $mform->setType('grade_pass_field', PARAM_FLOAT);
+
+
+        // Grading method.
+        $mform->addElement('select', 'grade_method_field', get_string('grade_method', 'naas'), naas_get_grading_options());
+        $mform->addHelpButton('grade_method_field', 'grade_method', 'naas');
+       
+
+
+
+
         $this->standard_coursemodule_elements();
         $this->add_action_buttons();
     }
 
-    function data_preprocessing(&$default_values) { }
+    function data_preprocessing(&$toform) {
+
+        if (isset($toform['grade'])) {
+            // Convert to a real number, so we don't get 0.0000.
+            $toform['grade'] = $toform['grade'] + 0;
+        }
+
+
+    }
+
+    function data_postprocessing($data) {
+
+    }
+
+
 
     function validation($data, $files) {
         $errors = parent::validation($data, $files);
+
+
+
+
+        if (array_key_exists('completion', $data) && $data['completion'] == COMPLETION_TRACKING_AUTOMATIC) {
+            $completionpass = isset($data['completionpass']) ? $data['completionpass'] : $this->current->completionpass;
+
+            // Show an error if require passing grade was selected and the grade to pass was set to 0.
+            if ($completionpass && (empty($data['gradepass']) || grade_floatval($data['gradepass']) == 0)) {
+                if (isset($data['completionpass'])) {
+                    $errors['completionpassgroup'] = get_string('gradetopassnotset', 'quiz');
+                } else {
+                    $errors['gradepass'] = get_string('gradetopassmustbeset', 'quiz');
+                }
+            }
+        }
+
+
+
+
+
+
         return $errors;
+    }
+
+
+
+
+
+
+    public function add_completion_rules() {
+        $mform = $this->_form;
+        $items = array();
+
+        $group = array();
+        $group[] = $mform->createElement('advcheckbox', 'completionpass', null, get_string('completionpass', 'quiz'),
+                array('group' => 'cpass'));
+        $mform->disabledIf('completionpass', 'completionusegrade', 'notchecked');
+        $group[] = $mform->createElement('advcheckbox', 'completionattemptsexhausted', null,
+                get_string('completionattemptsexhausted', 'quiz'),
+                array('group' => 'cattempts'));
+        $mform->disabledIf('completionattemptsexhausted', 'completionpass', 'notchecked');
+        
+        $mform->addGroup($group, 'completionpassgroup', get_string('completionpass', 'quiz'), ' &nbsp; ', false);
+        // $mform->addHelpButton('completionpassgroup', 'completionpass', 'quiz');
+        // $items[] = 'completionpassgroup';
+
+        $group = array();
+        $group[] = $mform->createElement('checkbox', 'completionminattemptsenabled', '',
+            get_string('completionminattempts', 'quiz'));
+        $group[] = $mform->createElement('text', 'completionminattempts', '', array('size' => 3));
+        $mform->setType('completionminattempts', PARAM_INT);
+        $mform->addGroup($group, 'completionminattemptsgroup', get_string('completionminattemptsgroup', 'quiz'), array(' '), false);
+        $mform->disabledIf('completionminattempts', 'completionminattemptsenabled', 'notchecked');
+
+        $items[] = 'completionminattemptsgroup';
+
+        return $items;
     }
 }

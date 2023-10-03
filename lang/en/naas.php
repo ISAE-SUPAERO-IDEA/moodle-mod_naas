@@ -118,3 +118,22 @@ $string["rating_sent"] = "Sent ✔";
 
 $string["learning_outcomes_desc"] = "You have completed this nugget. The learning objectives were:";
 $string["complete_nugget"] = "I Finished My Learning With This Nugget";
+
+
+/* LTI */
+/* Grade section */
+$string["grade_pass"] = "Grade to pass";
+$string["grade_method"] = "Grading method";
+$string["gradehighest"] = "Highest grade";
+$string["gradeaverage"] = "Average grade";
+$string["attemptfirst"] = "First attempt";
+$string["attemptlast"] = "Last attempt";
+$string["grade_method_help"] = "When multiple attempts are allowed, the following methods are available for calculating the final quiz grade:
+
+* Highest grade of all attempts
+* Average (mean) grade of all attempts
+* First attempt (all other attempts are ignored)
+* Last attempt (all other attempts are ignored)";
+
+/* Activity Completion section */
+$string['completionpass'] = 'Require passing grade';
