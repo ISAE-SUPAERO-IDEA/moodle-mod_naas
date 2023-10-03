@@ -60,7 +60,7 @@ function naas_supports($feature) {
         case FEATURE_GROUPS:                  return false;
         case FEATURE_GROUPINGS:               return false;
         case FEATURE_MOD_INTRO:               return true;
-        // case FEATURE_MOD_PURPOSE:             return MOD_PURPOSE_CONTENT; // Defines the background color of icon
+        case FEATURE_MOD_PURPOSE:             return MOD_PURPOSE_CONTENT ? MOD_PURPOSE_CONTENT : false; // Defines the background color of icon
         case FEATURE_COMPLETION_TRACKS_VIEWS: return true;
         case FEATURE_GRADE_HAS_GRADE:         return false;
         case FEATURE_GRADE_OUTCOMES:          return false;
@@ -139,7 +139,7 @@ function naas_add_instance($data, $mform) {
  */
 function naas_update_instance($data, $mform) {
     global $CFG, $DB;
-
+    error_log(print_r($data, 1));
     $data->timemodified = time();
 
     $data->id = $data->instance;

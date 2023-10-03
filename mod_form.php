@@ -39,9 +39,7 @@ class mod_naas_mod_form extends moodleform_mod {
         $config = (object) array_merge((array) get_config('naas'), (array) $CFG);
         $naas = new NaasClient($config);
 
-        // API info is not ready yet on production servers
-        // $info = $naas->get_api_info();
-        $info = $naas->get_connected_user();
+        $info = $naas->get_api_info();
         if ($info == null) $mform->addElement('html', '<div class="alert alert-danger">'.get_string("naas_unable_connect", "naas").'</div>');
 
         //-------------------------------------------------------
@@ -54,6 +52,10 @@ class mod_naas_mod_form extends moodleform_mod {
         $mform->setType('name', PARAM_TEXT);
         $mform->addElement('hidden', 'nugget_id', 'nugget_id', array('size'=>'48'));
         $mform->setType('nugget_id', PARAM_TEXT);
+
+        // CGU
+        $mform->addElement('checkbox', 'cgu_agreement', get_string('cgu_agreement','naas'));
+        $mform->addRule('cgu_agreement', null, 'required');
 
         // Course description
         $this->standard_intro_elements();

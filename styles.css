@@ -305,3 +305,8 @@ Other style
 :root {
   --activityother: #399be2;
 }
+
+/* Fix for Boost theme (Moodle 3) */
+#nav-drawer {
+  z-index: inherit !important;
+}
