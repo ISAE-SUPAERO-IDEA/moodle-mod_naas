@@ -8,7 +8,7 @@
           :class="{hidden: !aboutButton}"
           v-on:click="aboutModal = true"
         >
-          {{ config.labels.see_nugget_details }}
+          {{ config.labels.about }}
         </a>
       </div>
       <NuggetAboutModal
@@ -71,7 +71,7 @@ export default {
   },
   created() {
     // Only exists in Moodle >= 4.0
-    let navAboutButton = document.querySelector('.secondary-navigation nav ul li[data-key=details]');
+    let navAboutButton = document.querySelector('.secondary-navigation nav ul li[data-key=about]');
     this.aboutButton = !navAboutButton;
   },
   async mounted() {

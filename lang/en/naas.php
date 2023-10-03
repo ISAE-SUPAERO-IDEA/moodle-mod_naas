@@ -71,18 +71,16 @@ $string['clear_filters'] = 'Clear filters';
 $string['show_more_authors'] = 'Show more';
 $string['hide_authors'] = 'Hide';
 
-$string['see_nugget_details'] = 'See nugget details';
+$string['about'] = 'About';
 $string['back_to_course'] = 'Back to Course Index';
 $string["next_unit"] = "Next Unit";
 $string['show_more_nugget_button'] = 'Show more ...';
 
 $string['preview_button'] = 'Preview';
-$string['about_button'] = 'About';
 $string["loading"] = "Loading...";
 
 /* Metadata */
 $string["preview"] = "Preview: ";
-$string["details"] = "About: ";
 $string["description"] = "Description";
 $string["in_brief"] = "In Brief";
 $string["about_author"] = "About the author";

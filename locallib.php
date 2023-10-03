@@ -46,11 +46,9 @@ function naas_widget_html($nugget_id, $cm_id, $component) {
             "next_unit" => get_string('next_unit','naas'),
             "show_more_nugget_button" => get_string('show_more_nugget_button','naas'),
             "preview_button" => get_string('preview_button','naas'),
-            "about_button" => get_string('about_button','naas'),
             "loading" => get_string('loading','naas'),
             "metadata" => [
                 "preview" => get_string('preview','naas'),
-                "details" => get_string('details','naas'),
                 "description" => get_string('description','naas'),
                 "in_brief" => get_string('in_brief','naas'),
                 "about_author" => get_string('about_author','naas'),

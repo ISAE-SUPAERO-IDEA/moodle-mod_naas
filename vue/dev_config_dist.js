@@ -15,11 +15,9 @@ module.exports = {
     back_to_course: "back_to_course",
     show_more_nugget_button: "show_more_nugget_button",
     preview_button: "preview_button",
-    about_button: "about_button",
     loading: "loading",
     metadata: {
       preview: "preview",
-      details: "details",
       description: "description",
       in_brief: "in_brief",
       about_author: "about_author",

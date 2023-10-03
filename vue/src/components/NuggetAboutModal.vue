@@ -5,7 +5,7 @@
         <div class="nugget-modal" @click.stop.prevent>
           <div class="container">
             <div class="nugget-modal-header row justify-content-between align-items-start">
-              <h2>{{ config.labels.metadata.details }}{{ nugget.name }}</h2>
+              <h2>{{ config.labels.about }} : {{ nugget.name }}</h2>
               <button type="button" class="btn-close" @click="closeNuggetModal()">
                 ✕
               </button>
