@@ -8,7 +8,7 @@
           :class="{hidden: !aboutButton}"
           v-on:click="aboutModal = true"
         >
-          {{ config.labels.see_nugget_details }}
+          {{ config.labels.about }}
         </a>
       </div>
       <NuggetAboutModal

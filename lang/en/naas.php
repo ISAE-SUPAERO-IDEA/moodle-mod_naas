@@ -71,7 +71,7 @@ $string['clear_filters'] = 'Clear filters';
 $string['show_more_authors'] = 'Show more';
 $string['hide_authors'] = 'Hide';
 
-$string['see_nugget_details'] = 'See nugget details';
+$string['about'] = 'See nugget details';
 $string['back_to_course'] = 'Back to Course Index';
 $string["next_unit"] = "Next Unit";
 $string['show_more_nugget_button'] = 'Show more ...';
