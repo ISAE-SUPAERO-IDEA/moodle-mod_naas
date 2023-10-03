@@ -71,7 +71,7 @@ export default {
   },
   created() {
     // Only exists in Moodle >= 4.0
-    let navAboutButton = document.querySelector('.secondary-navigation nav ul li[data-key=details]');
+    let navAboutButton = document.querySelector('.secondary-navigation nav ul li[data-key=about]');
     this.aboutButton = !navAboutButton;
   },
   async mounted() {

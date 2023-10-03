@@ -282,7 +282,7 @@ function naas_check_updates_since(cm_info $cm, $from, $filter = array()) {
  * @since Moodle 4.0
  */
 function naas_extend_settings_navigation(settings_navigation $settings, navigation_node $naasnode) {
-    $naasnode->add(get_string('details_button', 'naas'),
+    $naasnode->add(get_string('about', 'naas'),
         new moodle_url('#'),
-        navigation_node::TYPE_SETTING, null, 'details');
+        navigation_node::TYPE_SETTING, null, 'about');
 }
