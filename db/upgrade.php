@@ -76,9 +76,23 @@ function xmldb_naas_upgrade($oldversion) {
             $dbman->add_field($table, $field);
         }
 
+        
+
+
+
+        // test
+        $test_field = new xmldb_field('grade_pass_field', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'nugget_id');
+        $dbman->add_field($table, $test_field);
+        
+
+
         // Naas savepoint reached.
-        upgrade_mod_savepoint(true, 2023090704, 'naas');
+        upgrade_mod_savepoint(true, 2023100149, 'naas');
+
     }
+
+
+
 
 
     return true;

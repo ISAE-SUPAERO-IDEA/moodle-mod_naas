@@ -23,7 +23,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string['pluginname'] = 'NaaS';
+$string['pluginname'] = 'Nugget';
 $string['modulename'] = 'Nugget';
 $string['modulename_help'] = 'The Moodle Nugget Plugin enables to integrate a micro-content from the NaaS Server.';
 $string['modulename_link'] = 'mod/naas/view';
@@ -71,69 +71,81 @@ $string['clear_filters'] = 'Clear filters';
 $string['show_more_authors'] = 'Show more';
 $string['hide_authors'] = 'Hide';
 
-$string['see_nugget_details'] = 'See nugget details';
+$string['about'] = 'About';
 $string['back_to_course'] = 'Back to Course Index';
-$string["next_unit"] = "Next Unit";
+$string['next_unit'] = 'Next Unit';
 $string['show_more_nugget_button'] = 'Show more ...';
 
 $string['preview_button'] = 'Preview';
-$string['details_button'] = 'About';
-$string["loading"] = "Loading...";
+$string['loading'] = 'Loading...';
 
 /* Metadata */
-$string["preview"] = "Preview: ";
-$string["details"] = "About: ";
-$string["description"] = "Description";
-$string["in_brief"] = "In Brief";
-$string["about_author"] = "About the author";
-$string["learning_outcomes"] = "Learning outcomes";
-$string["prerequisites"] = "Prerequisites";
-$string["references"] = "References";
-$string["field_of_study"] = "Field of study";
-$string["authors"] = "Authors";
-$string["producers"] = "Producers";
-$string["language"] = "Language";
-$string["duration"] = "Duration";
-$string["level"] = "Level";
-$string["structure_id"] = "Structure";
-$string["advanced"] = "Advanced";
-$string["intermediate"] = "Intermediate";
-$string["beginner"] = "Beginner";
-$string["tags"] = "Tags";
-$string["type"] = "Type";
-$string["lesson"] = "Lesson";
-$string["tutorial"] = "Tutorial";
-$string["demo"] = "Demo";
-$string["en"] = "English";
-$string["english"] = "English";
-$string["fr"] = "French";
-$string["french"] = "French";
-$string["publication_date"] = "Publication date";
+$string['preview'] = 'Preview: ';
+$string['description'] = 'Description';
+$string['in_brief'] = 'In Brief';
+$string['about_author'] = 'About the author';
+$string['learning_outcomes'] = 'Learning outcomes';
+$string['prerequisites'] = 'Prerequisites';
+$string['references'] = 'References';
+$string['field_of_study'] = 'Field of study';
+$string['authors'] = 'Authors';
+$string['producers'] = 'Producers';
+$string['language'] = 'Language';
+$string['duration'] = 'Duration';
+$string['level'] = 'Level';
+$string['structure_id'] = 'Structure';
+$string['advanced'] = 'Advanced';
+$string['intermediate'] = 'Intermediate';
+$string['beginner'] = 'Beginner';
+$string['tags'] = 'Tags';
+$string['type'] = 'Type';
+$string['lesson'] = 'Lesson';
+$string['tutorial'] = 'Tutorial';
+$string['demo'] = 'Demo';
+$string['en'] = 'English';
+$string['english'] = 'English';
+$string['fr'] = 'French';
+$string['french'] = 'French';
+$string['publication_date'] = 'Publication date';
 
 /* Rating */
-$string["rating_title"] = "Rate this nugget";
-$string["rating_description"] = "Your rating will be used to improve the quality of our content";
-$string["rating_send"] = "Send";
-$string["rating_sent"] = "Sent ✔";
+$string['rating_title'] = 'Rate this nugget';
+$string['rating_description'] = 'Your rating will be used to improve the quality of our content';
+$string['rating_send'] = 'Send';
+$string['rating_sent'] = 'Sent ✔';
 
-$string["learning_outcomes_desc"] = "You have completed this nugget. The learning objectives were:";
-$string["complete_nugget"] = "I Finished My Learning With This Nugget";
+$string['learning_outcomes_desc'] = 'You have completed this nugget. The learning objectives were:';
+$string['complete_nugget'] = 'I Finished My Learning With This Nugget';
 
 
 /* LTI */
 /* Grade section */
-$string["grade_pass"] = "Grade to pass";
-$string["grade_method"] = "Grading method";
-$string["gradehighest"] = "Highest grade";
-$string["gradeaverage"] = "Average grade";
-$string["attemptfirst"] = "First attempt";
-$string["attemptlast"] = "Last attempt";
-$string["grade_method_help"] = "When multiple attempts are allowed, the following methods are available for calculating the final quiz grade:
+$string['grade_pass'] = 'Grade to pass';
+$string['grade_method'] = 'Grading method';
+$string['gradehighest'] = 'Highest grade';
+$string['gradeaverage'] = 'Average grade';
+$string['attemptfirst'] = 'First attempt';
+$string['attemptlast'] = 'Last attempt';
+$string['grade_method_help'] = 'When multiple attempts are allowed, the following methods are available for calculating the final nugget grade:
 
 * Highest grade of all attempts
 * Average (mean) grade of all attempts
 * First attempt (all other attempts are ignored)
-* Last attempt (all other attempts are ignored)";
+* Last attempt (all other attempts are ignored)';
 
 /* Activity Completion section */
-$string['completionpass'] = 'Require passing grade';
+$string['completion_pass'] = 'Require passing grade';
+$string['completion_pass_desc'] = 'Student must achieve a passing grade to complete this activity';
+$string['completion_pass_help'] = 'If enabled, this activity is considered complete when the student receives a pass grade (as specified in the Grade section of the nugget settings) or higher.';
+
+$string['completion_attempts_exhausted'] = 'Or all available attempts completed';
+$string['completion_attempts_exhausted_help'] = 'Mark nugget complete when the student has exhausted the maximum number of attempts.';
+
+$string['completion_min_attempts'] = 'Minimum number of attempts:';
+$string['completion_min_attempts_desc'] = 'Minimum number of attempts required: {$a}';
+$string['completion_min_attempts_group'] = 'Require attempts';
+$string['completion_min_attempts_error'] = 'Minimum number of attempts must be lower or equal to attempts allowed.';
+
+/* Activity Completion section error messages */
+$string['grade_to_pass_not_set'] = 'This nugget does not yet have a grade to pass set. It may be set in the Grade section of the nugget settings.';
+$string['grade_to_pass_must_be_set'] = 'Grade to pass cannot be zero as this nugget has its completion method set to require passing grade. Please set a non-zero value.';

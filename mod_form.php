@@ -88,15 +88,18 @@ class mod_naas_mod_form extends moodleform_mod {
         
 
         $mform->addElement('text', 'grade_pass_field', get_string('grade_pass', 'naas'));
-        $mform->setType('grade_pass_field', PARAM_FLOAT);
+        $mform->setType('grade_pass_field', PARAM_INT);
 
+
+      
 
         // Grading method.
         $mform->addElement('select', 'grade_method_field', get_string('grade_method', 'naas'), naas_get_grading_options());
         $mform->addHelpButton('grade_method_field', 'grade_method', 'naas');
        
 
-
+        echo "<br><br><br>";
+        echo json_encode($this->current);
 
 
         $this->standard_coursemodule_elements();
@@ -105,9 +108,9 @@ class mod_naas_mod_form extends moodleform_mod {
 
     function data_preprocessing(&$toform) {
 
-        if (isset($toform['grade'])) {
+        if (isset($toform['grade_pass_field'])) {
             // Convert to a real number, so we don't get 0.0000.
-            $toform['grade'] = $toform['grade'] + 0;
+            $toform['grade_pass_field'] = $toform['grade_pass_field'] + 0;
         }
 
 
@@ -123,24 +126,18 @@ class mod_naas_mod_form extends moodleform_mod {
         $errors = parent::validation($data, $files);
 
 
-
-
         if (array_key_exists('completion', $data) && $data['completion'] == COMPLETION_TRACKING_AUTOMATIC) {
             $completionpass = isset($data['completionpass']) ? $data['completionpass'] : $this->current->completionpass;
 
             // Show an error if require passing grade was selected and the grade to pass was set to 0.
-            if ($completionpass && (empty($data['gradepass']) || grade_floatval($data['gradepass']) == 0)) {
+            if ($completionpass && (empty($data['grade_pass_field']) || grade_floatval($data['grade_pass_field']) == 0)) {
                 if (isset($data['completionpass'])) {
-                    $errors['completionpassgroup'] = get_string('gradetopassnotset', 'quiz');
+                    $errors['completionpassgroup'] = get_string('grade_to_pass_not_set', 'naas');
                 } else {
-                    $errors['gradepass'] = get_string('gradetopassmustbeset', 'quiz');
+                    $errors['grade_pass_field'] = get_string('grade_to_pass_must_be_set', 'naas');
                 }
             }
         }
-
-
-
-
 
 
         return $errors;
@@ -156,24 +153,24 @@ class mod_naas_mod_form extends moodleform_mod {
         $items = array();
 
         $group = array();
-        $group[] = $mform->createElement('advcheckbox', 'completionpass', null, get_string('completionpass', 'quiz'),
+        $group[] = $mform->createElement('advcheckbox', 'completionpass', null, get_string('completion_pass', 'naas'),
                 array('group' => 'cpass'));
         $mform->disabledIf('completionpass', 'completionusegrade', 'notchecked');
         $group[] = $mform->createElement('advcheckbox', 'completionattemptsexhausted', null,
-                get_string('completionattemptsexhausted', 'quiz'),
+                get_string('completion_attempts_exhausted', 'naas'),
                 array('group' => 'cattempts'));
         $mform->disabledIf('completionattemptsexhausted', 'completionpass', 'notchecked');
         
-        $mform->addGroup($group, 'completionpassgroup', get_string('completionpass', 'quiz'), ' &nbsp; ', false);
-        // $mform->addHelpButton('completionpassgroup', 'completionpass', 'quiz');
+        $mform->addGroup($group, 'completionpassgroup', get_string('completion_pass', 'naas'), ' &nbsp; ', false);
+        $mform->addHelpButton('completionpassgroup', 'completion_pass', 'naas');
         // $items[] = 'completionpassgroup';
 
         $group = array();
         $group[] = $mform->createElement('checkbox', 'completionminattemptsenabled', '',
-            get_string('completionminattempts', 'quiz'));
+            get_string('completion_min_attempts', 'naas'));
         $group[] = $mform->createElement('text', 'completionminattempts', '', array('size' => 3));
         $mform->setType('completionminattempts', PARAM_INT);
-        $mform->addGroup($group, 'completionminattemptsgroup', get_string('completionminattemptsgroup', 'quiz'), array(' '), false);
+        $mform->addGroup($group, 'completionminattemptsgroup', get_string('completion_min_attempts_group', 'naas'), array(' '), false);
         $mform->disabledIf('completionminattempts', 'completionminattemptsenabled', 'notchecked');
 
         $items[] = 'completionminattemptsgroup';

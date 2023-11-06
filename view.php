@@ -66,11 +66,13 @@ if ($next_activity_url) {
 // Displays Nugget
 echo naas_widget_html($naas_instance->nugget_id, $cm->id, "NuggetView");
 
-// Toggles the Nugget 'Details' Modal
+// Toggles the Nugget 'About' Modal
 echo "<script>
-let details_button = document.querySelector('.secondary-navigation nav ul li[data-key=details]');
-let widget = document.querySelector('#nugget-info-button div a');
-details_button.onclick = function() { widget.click(); };
+let about_button = document.querySelector('.secondary-navigation nav ul li[data-key=about]');
+if (about_button){
+    let widget = document.querySelector('#nugget-info-button div a');
+    about_button.onclick = function() { widget.click(); };
+}
 </script>";
 
 echo $back_course_button;

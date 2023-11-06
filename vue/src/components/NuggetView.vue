@@ -5,16 +5,16 @@
         <a
           href="javascript:;"
           class="btn btn-primary"
-          :class="{ hidden: !detailButton }"
-          v-on:click="detailModal = true"
+          :class="{hidden: !aboutButton}"
+          v-on:click="aboutModal = true"
         >
-          {{ config.labels.see_nugget_details }}
+          {{ config.labels.about }}
         </a>
       </div>
-      <NuggetDetailModal
-        :visible="detailModal"
+      <NuggetAboutModal
+        :visible="aboutModal"
         :nugget="nugget"
-        @close="detailModal = false"
+        @close="aboutModal = false"
       />
     </div>
 
@@ -46,20 +46,20 @@
   </div>
 </template>
 <script>
-import NuggetDetailModal from "./NuggetDetailModal.vue";
+import NuggetAboutModal from "./NuggetAboutModal.vue";
 import NuggetCompletionModal from "./NuggetCompletionModal.vue";
 import iframeResize from "iframe-resizer/js/iframeResizer";
 
 export default {
   name: "NuggetView",
   components: {
-    NuggetDetailModal,
+    NuggetAboutModal,
     NuggetCompletionModal,
   },
   data() {
     return {
-      detailButton: true,
-      detailModal: false,
+      aboutButton: true,
+      aboutModal: false,
       completionModal: false,
       nugget: {},
       nuggetCompleted: false,
@@ -67,10 +67,8 @@ export default {
   },
   created() {
     // Only exists in Moodle >= 4.0
-    let navDetailsButton = document.querySelector(
-      ".secondary-navigation nav ul li[data-key=details]"
-    );
-    this.detailButton = !navDetailsButton;
+    let navAboutButton = document.querySelector('.secondary-navigation nav ul li[data-key=about]');
+    this.aboutButton = !navAboutButton;
   },
   async mounted() {
     this.nugget = await this.get_nugget_default_version(this.config.nugget_id);
