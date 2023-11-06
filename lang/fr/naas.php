@@ -23,7 +23,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string['pluginname'] = 'NaaS';
+$string['pluginname'] = 'Nugget';
 $string['modulename'] = 'Nugget';
 $string['modulename_help'] = 'Le Plugin Moodle Nugget permet d\'intégrer un micro-contenu depuis le serveur NaaS.';
 $string['modulename_link'] = 'mod/naas/view';
@@ -55,11 +55,14 @@ $string['naas_settings_privacy_learner_mail_help'] = 'Envoyer l`email des appren
 $string['naas_settings_privacy_learner_name'] = 'Collecter le nom des apprenants';
 $string['naas_settings_privacy_learner_name_help'] = 'Envoyer le nom des apprenants au server NaaS afin d\'améliorer l\'expérience utilisateur';
 
+// Moodle Form
 $string['naas_unable_connect'] = 'Impossible de contacter le serveur NaaS';
 
 $string['name_help'] = 'Nom de la nugget qui apparaitra dans l\'espace de cours ';
 $string['name_display'] = 'Nom à afficher';
+$string['cgu_agreement'] = "J'ai lu et accepte les <a target='_blank' href='https://doc.clickup.com/2594656/p/h/2f5v0-13342/fff6a689cd78033'>Conditions Générales d'Utilisation de la platforme NaaS</a>";
 
+// Vue Form
 $string['nugget_search'] = 'Rechercher des nuggets';
 $string['nugget_search_here'] = 'Rechercher ici';
 $string['click_to_modify'] = 'Modifier la nugget selectionnée';
@@ -68,16 +71,17 @@ $string['clear_filters'] = 'Effacer les filtres';
 $string['show_more_authors'] = 'Afficher plus';
 $string['hide_authors'] = 'Cacher';
 
-$string['see_nugget_details'] = 'Voir les infos du nugget';
-$string['back_to_course'] = 'Retour au cours';
+$string['about'] = 'À Propos';
+$string['back_to_course'] = 'Retour à l\'index du cours';
+$string['next_unit'] = 'Unité suivante';
 $string['show_more_nugget_button'] = 'Afficher plus ...';
 
 $string['preview_button'] = 'Aperçu';
-$string['details_button'] = 'Infos';
+$string["loading"] = "Chargement...";
 
+/* Metadata */
 $string["preview"] = "Aperçu : ";
-$string["details"] = "Infos : ";
-$string["resume"] = "Résumé";
+$string["description"] = "Description";
 $string["in_brief"] = "En Bref";
 $string["about_author"] = "À propos de l'auteur";
 $string["learning_outcomes"] = "Objectifs d'apprentissage";
@@ -94,15 +98,21 @@ $string["advanced"] = "Avancé";
 $string["intermediate"] = "Intermédiaire";
 $string["beginner"] = "Débutant";
 $string["tags"] = "Mots clés";
-
 $string["type"] = "Type";
 $string["lesson"] = "Lesson";
 $string["tutorial"] = "Tutorial";
 $string["demo"] = "Démo";
-
-$string["loading"] = "Chargement...";
-
 $string["en"] = "Anglais";
 $string["english"] = "Anglais";
 $string["fr"] = "Français";
 $string["french"] = "Français";
+$string["publication_date"] = "Date de publication";
+
+/* Rating */
+$string["rating_title"] = "Évaluez ce nugget";
+$string["rating_description"] = "Votre note servira à améliorer notre contenu";
+$string["rating_send"] = "Envoyer";
+$string["rating_sent"] = "Envoyé ✔";
+
+$string["learning_outcomes_desc"] = "Vous avez terminé ce nugget dont les objectifs étaient :";
+$string["complete_nugget"] = "J'ai terminé ma consultation du Nugget";

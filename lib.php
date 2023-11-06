@@ -36,6 +36,7 @@ function naas_supports($feature) {
         case FEATURE_GROUPS:                  return false;
         case FEATURE_GROUPINGS:               return false;
         case FEATURE_MOD_INTRO:               return true;
+        case FEATURE_MOD_PURPOSE:             return MOD_PURPOSE_CONTENT ? MOD_PURPOSE_CONTENT : false; // Defines the background color of icon
         case FEATURE_COMPLETION_TRACKS_VIEWS: return true;
         case FEATURE_GRADE_HAS_GRADE:         return false;
         case FEATURE_GRADE_OUTCOMES:          return false;
@@ -114,7 +115,7 @@ function naas_add_instance($data, $mform) {
  */
 function naas_update_instance($data, $mform) {
     global $CFG, $DB;
-
+    error_log(print_r($data, 1));
     $data->timemodified = time();
 
     $data->id = $data->instance;
@@ -273,3 +274,15 @@ function naas_check_updates_since(cm_info $cm, $from, $filter = array()) {
     return $updates;
 }
 
+/**
+ * Adds link(s) to secondary navigation inside activity
+ *
+ * @param settings_navigation $settings The settings navigation object
+ * @param navigation_node $chatnode The node to add module settings to
+ * @since Moodle 4.0
+ */
+function naas_extend_settings_navigation(settings_navigation $settings, navigation_node $naasnode) {
+    $naasnode->add(get_string('about', 'naas'),
+        new moodle_url('#'),
+        navigation_node::TYPE_SETTING, null, 'about');
+}
