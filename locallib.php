@@ -142,7 +142,8 @@ function get_next_activity_url() {
         }
         if ($mod->sectionnum > 0 && $sectionnum != $mod->sectionnum) {
             $thissection = $sections[$mod->sectionnum];
-            if ($thissection->visible || !$COURSE->hiddensections ||
+            if ($thissection->visible || 
+                // !$COURSE->hiddensections ||
                 has_capability('moodle/course:viewhiddensections', $context)
             ) {
                 $sectionnum = $mod->sectionnum;
