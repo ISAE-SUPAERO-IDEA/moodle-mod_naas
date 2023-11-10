@@ -108,6 +108,12 @@ Modal style
 .nugget-modal-footer {
   padding: 10px;
 }
+.nugget-modal-description {
+  overflow-y: auto;
+  display: block;
+  max-height: 200px;
+  margin-bottom: 20px;
+}
 .btn-close {
   position: relative;
   float: right;

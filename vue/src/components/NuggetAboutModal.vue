@@ -17,7 +17,7 @@
                 <!-- Description -->
                 <div v-show="is_shown(nugget.resume)">
                   <h3>{{ config.labels.metadata.description }}</h3>
-                  <p class="p-position" v-html="nugget.resume"></p>
+                  <span v-html="nugget.resume" class="nugget-modal-description"></span>
                 </div>
                 <!-- About author -->
                 <div v-show="is_shown(nugget.authors_data)">
@@ -27,7 +27,7 @@
                     :key="author.email"
                   >
                     <h5>{{ author.firstname }} {{ author.lastname }}</h5>
-                    <span v-html="author.bio"></span>
+                    <span v-html="author.bio" class="nugget-modal-description"></span>
                   </div>
                 </div>
               </div>
