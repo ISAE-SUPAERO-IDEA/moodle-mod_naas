@@ -64,7 +64,8 @@ $string['cgu_agreement'] = "J'ai lu et accepte les <a target='_blank' href='http
 
 // Vue Form
 $string['nugget_search'] = 'Rechercher des nuggets';
-$string['nugget_search_here'] = 'Rechercher ici';
+$string['nugget_search_here'] = 'Pour commencer, entrez un mot-clé';
+$string['nugget_search_no_result'] = 'La recherche n\'a donné aucun résultat, veuillez utiliser un autre mot-clé.';
 $string['click_to_modify'] = 'Modifier la nugget selectionnée';
 $string['no_nugget'] = 'Aucun nugget trouvé';
 $string['clear_filters'] = 'Effacer les filtres';
@@ -76,6 +77,7 @@ $string['back_to_course'] = 'Retour à l\'index du cours';
 $string['next_unit'] = 'Unité suivante';
 $string['show_more_nugget_button'] = 'Afficher plus ...';
 
+$string['select_button'] = 'Selectionner';
 $string['preview_button'] = 'Aperçu';
 $string["loading"] = "Chargement...";
 

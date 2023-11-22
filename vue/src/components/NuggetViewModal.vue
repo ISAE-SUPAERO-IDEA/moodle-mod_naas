@@ -4,9 +4,15 @@
       <div class="nugget-modal-backdrop" @click="closeNuggetModal()">
         <div id="nugget-preview-modal" class="nugget-modal" @click.stop.prevent>
           <div class="container h-100">
-            <div class="nugget-modal-header row justify-content-between align-items-start">
+            <div
+              class="nugget-modal-header row justify-content-between align-items-start"
+            >
               <h2>{{ config.labels.metadata.preview }}{{ nugget.name }}</h2>
-              <button type="button" class="btn-close" @click="closeNuggetModal()">
+              <button
+                type="button"
+                class="btn-close"
+                @click="closeNuggetModal()"
+              >
                 ✕
               </button>
             </div>
