@@ -4,7 +4,8 @@ module.exports = {
   //"component": "NuggetSearchWidget",
   proxy_url: "http://moodle.local.isae.fr/mod/naas/proxy.php",
   labels: {
-    search_here: "search_here",
+    nugget_search_here: "nugget_search_here",
+    nugget_search_no_result: "nugget_search_no_result",
     search: "search",
     click_to_modify: "click_to_modify",
     clear_filters: "clear_filters",
@@ -14,6 +15,7 @@ module.exports = {
     about: "about",
     back_to_course: "back_to_course",
     show_more_nugget_button: "show_more_nugget_button",
+    select_button: "select_button",
     preview_button: "preview_button",
     loading: "loading",
     metadata: {

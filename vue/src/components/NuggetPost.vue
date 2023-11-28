@@ -1,6 +1,6 @@
 <template>
   <div class="nugget-post h-100">
-    <div @click="SelectClickHandler(nugget)" class="nugget-post-select h-100">
+    <div class="h-100">
       <img
         class="w-100"
         :src="nugget.nugget_thumbnail_url.concat('?width=700&height=394')"
@@ -14,7 +14,16 @@
     <div class="nugget-buttons">
       <a
         href="javascript:;"
+        class="btn btn-primary nugget-button nugget-button-selection"
+        v-on:click="SelectClickHandler(nugget)"
+        v-show="selection"
+      >
+        {{ config.labels.select_button }}
+      </a>
+      <a
+        href="javascript:;"
         class="btn btn-primary nugget-button"
+        :class="{ 'nugget-button-selection': selection }"
         v-on:click="showNuggetViewModal()"
       >
         {{ config.labels.preview_button }}
@@ -22,6 +31,7 @@
       <a
         href="javascript:;"
         class="btn btn-primary nugget-button"
+        :class="{ 'nugget-button-selection': selection }"
         v-on:click="showNuggetAboutModal()"
       >
         {{ config.labels.about }}
@@ -44,7 +54,7 @@ import NuggetAboutModal from "./NuggetAboutModal.vue";
 import NuggetViewModal from "./NuggetViewModal.vue";
 export default {
   name: "NuggetPost",
-  props: ["nugget"],
+  props: ["nugget", "selection"],
   components: {
     NuggetAboutModal,
     NuggetViewModal,

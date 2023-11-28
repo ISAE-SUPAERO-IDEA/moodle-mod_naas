@@ -34,7 +34,8 @@ function naas_widget_html($nugget_id, $cm_id, $component) {
         "nugget_id" => $nugget_id,
         "cm_id" => $cm_id, // Course module ID
         "labels" => [
-            "search_here" => get_string('nugget_search_here','naas'),
+            "nugget_search_here" => get_string('nugget_search_here','naas'),
+            "nugget_search_no_result" => get_string('nugget_search_no_result','naas'),
             "search" => get_string('nugget_search','naas'),
             "click_to_modify" => get_string('click_to_modify','naas'),
             "clear_filters" => get_string('clear_filters','naas'),
@@ -45,6 +46,7 @@ function naas_widget_html($nugget_id, $cm_id, $component) {
             "back_to_course" => get_string('back_to_course','naas'),
             "next_unit" => get_string('next_unit','naas'),
             "show_more_nugget_button" => get_string('show_more_nugget_button','naas'),
+            "select_button" => get_string('select_button','naas'),
             "preview_button" => get_string('preview_button','naas'),
             "loading" => get_string('loading','naas'),
             "metadata" => [
