@@ -4,9 +4,15 @@
       <div class="nugget-modal-backdrop" @click="closeNuggetModal()">
         <div class="nugget-modal" @click.stop.prevent>
           <div class="container">
-            <div class="nugget-modal-header row justify-content-between align-items-start">
+            <div
+              class="nugget-modal-header row justify-content-between align-items-start"
+            >
               <h2>{{ config.labels.about }} : {{ nugget.name }}</h2>
-              <button type="button" class="btn-close" @click="closeNuggetModal()">
+              <button
+                type="button"
+                class="btn-close"
+                @click="closeNuggetModal()"
+              >
                 ✕
               </button>
             </div>
@@ -17,7 +23,10 @@
                 <!-- Description -->
                 <div v-show="is_shown(nugget.resume)">
                   <h3>{{ config.labels.metadata.description }}</h3>
-                  <span v-html="nugget.resume" class="nugget-modal-description"></span>
+                  <span
+                    v-html="nugget.resume"
+                    class="nugget-modal-description"
+                  ></span>
                 </div>
                 <!-- About author -->
                 <div v-show="is_shown(nugget.authors_data)">
@@ -27,7 +36,10 @@
                     :key="author.email"
                   >
                     <h5>{{ author.firstname }} {{ author.lastname }}</h5>
-                    <span v-html="author.bio" class="nugget-modal-description"></span>
+                    <span
+                      v-html="author.bio"
+                      class="nugget-modal-description"
+                    ></span>
                   </div>
                 </div>
               </div>

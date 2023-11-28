@@ -102,10 +102,15 @@ $string["type"] = "Type";
 $string["lesson"] = "Lesson";
 $string["tutorial"] = "Tutorial";
 $string["demo"] = "Demo";
-$string["en"] = "English";
 $string["english"] = "English";
-$string["fr"] = "French";
 $string["french"] = "French";
+$string["deutsch"] = "German";
+$string["en"] = "English";
+$string["espanol"] = "Spanish";
+$string["fr"] = "French";
+$string["italiano"] = "Italian";
+$string["polski"] = "Polish";
+$string["svenska"] = "Swedish";
 $string["publication_date"] = "Publication date";
 
 /* Rating */

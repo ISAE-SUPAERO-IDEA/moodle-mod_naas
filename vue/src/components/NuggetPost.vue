@@ -24,7 +24,7 @@
         class="btn btn-primary nugget-button"
         v-on:click="showNuggetAboutModal()"
       >
-        {{ config.labels.about}}
+        {{ config.labels.about }}
       </a>
     </div>
     <NuggetAboutModal
