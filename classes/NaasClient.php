@@ -136,6 +136,15 @@ class NaasClient  {
         $config = $this->request($protocol, $service, null, $params);
         return $this->handle_result($config);
     }
+    // Retrieve data of a nugget from the NaaS
+    function get_nugget_data($nugget_id) {
+        $this->debug("Get nugget data: ".$nugget_id);
+        $protocol = "GET";
+        $params = [ "nugget_id" => $nugget_id ];
+        $service = "/nuggets/".$nugget_id."/default_version";
+        $config = $this->request($protocol, $service, null, $params);
+        return $this->handle_result($config);
+    }
     // Authentication
     function get_connected_user() {
         $this->debug("Getting user information");

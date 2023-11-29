@@ -10,6 +10,18 @@
         >
           {{ config.labels.about }}
         </a>
+        <select class="language-select" @change="changeLanguage">
+          <option selected :value="this.nugget.language">
+            {{ config.labels.metadata[nugget.language] }}
+          </option>
+          <option
+            v-for="item in this.nugget.multilanguages"
+            :key="item.language"
+            :value="item.language"
+          >
+            {{ config.labels.metadata[item.language] }}
+          </option>
+        </select>
       </div>
       <NuggetAboutModal
         :visible="aboutModal"
@@ -24,7 +36,7 @@
         height="600px"
         width="100%"
         style="border: none"
-        :src="`launch.php?id=${this.config.cm_id}&triggerview=0`"
+        :src="`launch.php?id=${this.config.cm_id}&triggerview=0&language=${this.nugget.language}`"
         webkitallowfullscreen
         mozallowfullscreen
         allowfullscreen
@@ -103,6 +115,11 @@ export default {
         });
         this.nuggetCompleted = true;
       }
+    },
+    changeLanguage(event) {
+      const iframe = document.getElementById("lti-frame");
+      if (iframe)
+        iframe.src = `launch.php?id=${this.config.cm_id}&triggerview=0&language=${event.target.value}`;
     },
   },
 };

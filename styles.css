@@ -281,6 +281,11 @@ Other style
 .course-button a {
   float: right;
 }
+.language-select {
+  margin-left: 5px;
+  padding: 0.3rem 1rem 0.5rem 1rem;
+  cursor: pointer;
+}
 .search-center {
   display: block;
   margin-top: auto;
