@@ -34,7 +34,8 @@ function naas_widget_html($nugget_id, $cm_id, $component) {
         "nugget_id" => $nugget_id,
         "cm_id" => $cm_id, // Course module ID
         "labels" => [
-            "search_here" => get_string('nugget_search_here','naas'),
+            "nugget_search_here" => get_string('nugget_search_here','naas'),
+            "nugget_search_no_result" => get_string('nugget_search_no_result','naas'),
             "search" => get_string('nugget_search','naas'),
             "click_to_modify" => get_string('click_to_modify','naas'),
             "clear_filters" => get_string('clear_filters','naas'),
@@ -45,6 +46,7 @@ function naas_widget_html($nugget_id, $cm_id, $component) {
             "back_to_course" => get_string('back_to_course','naas'),
             "next_unit" => get_string('next_unit','naas'),
             "show_more_nugget_button" => get_string('show_more_nugget_button','naas'),
+            "select_button" => get_string('select_button','naas'),
             "preview_button" => get_string('preview_button','naas'),
             "loading" => get_string('loading','naas'),
             "metadata" => [
@@ -71,10 +73,15 @@ function naas_widget_html($nugget_id, $cm_id, $component) {
                 "lesson" => get_string('lesson','naas'),
                 "demo" => get_string('demo','naas'),
                 "tutorial" => get_string('tutorial','naas'),
-                "en" => get_string('en','naas'),
                 "english" => get_string('english','naas'),
-                "fr" => get_string('fr','naas'),
                 "french" => get_string('french','naas'),
+                "deutsch" => get_string('deutsch','naas'),
+                "en" => get_string('en','naas'),
+                "espanol" => get_string('espanol','naas'),
+                "fr" => get_string('fr','naas'),
+                "italiano" => get_string('italiano','naas'),
+                "polski" => get_string('polski','naas'),
+                "svenska" => get_string('svenska','naas'),
                 "publication_date" => get_string('publication_date','naas'),
             ],
             "rating" => [
@@ -142,7 +149,8 @@ function get_next_activity_url() {
         }
         if ($mod->sectionnum > 0 && $sectionnum != $mod->sectionnum) {
             $thissection = $sections[$mod->sectionnum];
-            if ($thissection->visible || !$COURSE->hiddensections ||
+            if ($thissection->visible || 
+                // !$COURSE->hiddensections ||
                 has_capability('moodle/course:viewhiddensections', $context)
             ) {
                 $sectionnum = $mod->sectionnum;

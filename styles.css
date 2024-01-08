@@ -7,9 +7,6 @@ Nugget Post
 .nugget-post-selection {
   margin-bottom: 20px !important;
 }
-.nugget-post-select {
-  cursor: pointer;
-}
 .nugget-post-selected {
   background: #A6C3FE;
 }
@@ -42,16 +39,18 @@ Nugget Post
 .nugget-button {
   margin-right: 5px !important;
 }
+.nugget-button-selection {
+  padding: 0 5px 0 5px !important;
+}
+.nugget-button:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
 /* Load more nugget */
 .show-more-nugget {
   margin-left: 25px;
   margin-bottom: 20px;
 }
-.show-more-nugget-button:focus {
-  outline: none !important;
-  box-shadow: none !important;
-}
-
 
 /******************************
 Modal style
@@ -107,6 +106,12 @@ Modal style
 }
 .nugget-modal-footer {
   padding: 10px;
+}
+.nugget-modal-description {
+  overflow-y: auto;
+  display: block;
+  max-height: 200px;
+  margin-bottom: 20px;
 }
 .btn-close {
   position: relative;
@@ -275,6 +280,11 @@ Other style
 }
 .course-button a {
   float: right;
+}
+.language-select {
+  margin-left: 5px;
+  padding: 0.3rem 1rem 0.5rem 1rem;
+  cursor: pointer;
 }
 .search-center {
   display: block;

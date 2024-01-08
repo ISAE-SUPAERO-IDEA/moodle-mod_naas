@@ -88,7 +88,7 @@ class NaasMoodle  {
     }
 
     // Launch LTI content
-    function lti_launch($naas_instance_id) {
+    function lti_launch($naas_instance_id, $language="") {
         global $PAGE;
         global $DB;
         global $CFG;
@@ -100,7 +100,19 @@ class NaasMoodle  {
         // Retrieve LTI config from NaaS server
         $config = (object) array_merge((array) \get_config('naas'), (array) $CFG);
         $naas = new \NaasClient($config);
+        $nugget_data = $naas->get_nugget_data($naas_instance->nugget_id);
         $nugget_config = $naas->get_nugget_lti_config($naas_instance->nugget_id);
+        if ($language != "" && $language != $nugget_data->language) {
+            $matchingNugget = null;
+            foreach ($nugget_data->multilanguages as $item) {
+                if ($item->language === $language) {
+                    $matchingNugget = $item;
+                    break;
+                }
+            }
+            if ($matchingNugget != null) $nugget_config = $naas->get_nugget_lti_config($matchingNugget->nugget_id);
+        }
+
         if ($nugget_config==null || isset($nugget_config->error)) {
             error_log(" Cannot get nugget information from NaaS server. ");
             echo(" Cannot get nugget information from NaaS server. ");

@@ -64,7 +64,8 @@ $string['cgu_agreement'] = 'J\'ai lu et accepte les <a target="_blank" href="htt
 
 // Vue Form
 $string['nugget_search'] = 'Rechercher des nuggets';
-$string['nugget_search_here'] = 'Rechercher ici';
+$string['nugget_search_here'] = 'Pour commencer, entrez un mot-clé';
+$string['nugget_search_no_result'] = 'La recherche n\'a donné aucun résultat, veuillez utiliser un autre mot-clé.';
 $string['click_to_modify'] = 'Modifier la nugget selectionnée';
 $string['no_nugget'] = 'Aucun nugget trouvé';
 $string['clear_filters'] = 'Effacer les filtres';
@@ -76,37 +77,43 @@ $string['back_to_course'] = 'Retour à l\'index du cours';
 $string['next_unit'] = 'Unité suivante';
 $string['show_more_nugget_button'] = 'Afficher plus ...';
 
+$string['select_button'] = 'Selectionner';
 $string['preview_button'] = 'Aperçu';
 $string['loading'] = 'Chargement...';
 
 /* Metadata */
-$string['preview'] = 'Aperçu : ';
-$string['description'] = 'Description';
-$string['in_brief'] = 'En Bref';
-$string['about_author'] = 'À propos de l\'auteur';
-$string['learning_outcomes'] = 'Objectifs d\'apprentissage';
-$string['prerequisites'] = 'Prérequis';
-$string['references'] = 'Réferences';
-$string['field_of_study'] = 'Domaine';
-$string['authors'] = 'Auteurs';
-$string['producers'] = 'Producteurs';
-$string['language'] = 'Langue';
-$string['duration'] = 'Durée';
-$string['level'] = 'Niveau';
-$string['structure_id'] = 'Structure';
-$string['advanced'] = 'Avancé';
-$string['intermediate'] = 'Intermédiaire';
-$string['beginner'] = 'Débutant';
-$string['tags'] = 'Mots clés';
-$string['type'] = 'Type';
-$string['lesson'] = 'Lesson';
-$string['tutorial'] = 'Tutorial';
-$string['demo'] = 'Démo';
-$string['en'] = 'Anglais';
-$string['english'] = 'Anglais';
-$string['fr'] = 'Français';
-$string['french'] = 'Français';
-$string['publication_date'] = 'Date de publication';
+$string["preview"] = "Aperçu : ";
+$string["description"] = "Description";
+$string["in_brief"] = "En Bref";
+$string["about_author"] = "À propos de l'auteur";
+$string["learning_outcomes"] = "Objectifs d'apprentissage";
+$string["prerequisites"] = "Prérequis";
+$string["references"] = "Réferences";
+$string["field_of_study"] = "Domaine";
+$string["authors"] = "Auteurs";
+$string["producers"] = "Producteurs";
+$string["language"] = "Langue";
+$string["duration"] = "Durée";
+$string["level"] = "Niveau";
+$string["structure_id"] = "Structure";
+$string["advanced"] = "Avancé";
+$string["intermediate"] = "Intermédiaire";
+$string["beginner"] = "Débutant";
+$string["tags"] = "Mots clés";
+$string["type"] = "Type";
+$string["lesson"] = "Lesson";
+$string["tutorial"] = "Tutorial";
+$string["demo"] = "Démo";
+$string["english"] = "Anglais";
+$string["french"] = "Français";
+$string["deutsch"] = "Allemand";
+$string["en"] = "Anglais";
+$string["espanol"] = "Espagnol";
+$string["fr"] = "Français";
+$string["italiano"] = "Italien";
+$string["polski"] = "Polonais";
+$string["svenska"] = "Suedois";
+$string["publication_date"] = "Date de publication";
 
 /* Rating */
 $string['rating_title'] = 'Évaluez ce nugget';

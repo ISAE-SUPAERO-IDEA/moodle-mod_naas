@@ -17,6 +17,7 @@ require_once('classes/NaasMoodle.php');
 $id = required_param('id', PARAM_INT); // Course Module ID.
 $cm = get_coursemodule_from_id('naas', $id, 0, false, MUST_EXIST);
 $context = context_module::instance($cm->id);
+$language = optional_param('language', null, PARAM_TEXT); // multilanguage change
 $course = $DB->get_record('course', array('id'=>$cm->course), '*', MUST_EXIST);
 
 // Check credentials
@@ -25,4 +26,4 @@ require_capability('mod/naas:view', $context);
 
 # Launch LTI
 $naas_moodle = new \mod_naas\NaasMoodle();
-$naas_moodle->lti_launch($id);
+$naas_moodle->lti_launch($id, $language);

@@ -64,7 +64,8 @@ $string['cgu_agreement'] = 'I have read and agree to the <a target="_blank" href
 
 // Vue Form
 $string['nugget_search'] = 'Search Nuggets';
-$string['nugget_search_here'] = 'Search here';
+$string['nugget_search_here'] = 'To get started, enter a keyword';
+$string['nugget_search_no_result'] = 'The search returned no results, please use another keyword.';
 $string['click_to_modify'] = 'Modify the selected nugget';
 $string['no_nugget'] = 'No nugget found';
 $string['clear_filters'] = 'Clear filters';
@@ -76,37 +77,43 @@ $string['back_to_course'] = 'Back to Course Index';
 $string['next_unit'] = 'Next Unit';
 $string['show_more_nugget_button'] = 'Show more ...';
 
+$string['select_button'] = 'Select';
 $string['preview_button'] = 'Preview';
 $string['loading'] = 'Loading...';
 
 /* Metadata */
-$string['preview'] = 'Preview: ';
-$string['description'] = 'Description';
-$string['in_brief'] = 'In Brief';
-$string['about_author'] = 'About the author';
-$string['learning_outcomes'] = 'Learning outcomes';
-$string['prerequisites'] = 'Prerequisites';
-$string['references'] = 'References';
-$string['field_of_study'] = 'Field of study';
-$string['authors'] = 'Authors';
-$string['producers'] = 'Producers';
-$string['language'] = 'Language';
-$string['duration'] = 'Duration';
-$string['level'] = 'Level';
-$string['structure_id'] = 'Structure';
-$string['advanced'] = 'Advanced';
-$string['intermediate'] = 'Intermediate';
-$string['beginner'] = 'Beginner';
-$string['tags'] = 'Tags';
-$string['type'] = 'Type';
-$string['lesson'] = 'Lesson';
-$string['tutorial'] = 'Tutorial';
-$string['demo'] = 'Demo';
-$string['en'] = 'English';
-$string['english'] = 'English';
-$string['fr'] = 'French';
-$string['french'] = 'French';
-$string['publication_date'] = 'Publication date';
+$string["preview"] = "Preview: ";
+$string["description"] = "Description";
+$string["in_brief"] = "In Brief";
+$string["about_author"] = "About the author";
+$string["learning_outcomes"] = "Learning outcomes";
+$string["prerequisites"] = "Prerequisites";
+$string["references"] = "References";
+$string["field_of_study"] = "Field of study";
+$string["authors"] = "Authors";
+$string["producers"] = "Producers";
+$string["language"] = "Language";
+$string["duration"] = "Duration";
+$string["level"] = "Level";
+$string["structure_id"] = "Structure";
+$string["advanced"] = "Advanced";
+$string["intermediate"] = "Intermediate";
+$string["beginner"] = "Beginner";
+$string["tags"] = "Tags";
+$string["type"] = "Type";
+$string["lesson"] = "Lesson";
+$string["tutorial"] = "Tutorial";
+$string["demo"] = "Demo";
+$string["english"] = "English";
+$string["french"] = "French";
+$string["deutsch"] = "German";
+$string["en"] = "English";
+$string["espanol"] = "Spanish";
+$string["fr"] = "French";
+$string["italiano"] = "Italian";
+$string["polski"] = "Polish";
+$string["svenska"] = "Swedish";
+$string["publication_date"] = "Publication date";
 
 /* Rating */
 $string['rating_title'] = 'Rate this nugget';
