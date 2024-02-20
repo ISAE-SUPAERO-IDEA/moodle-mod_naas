@@ -73,6 +73,13 @@ if ($hassiteconfig) {
         '',
         PARAM_TEXT
     ));
+    // Feedback
+    $settings->add(new admin_setting_configcheckbox(
+        'naas/naas_feedback',
+        new lang_string('naas_settings_feedback', 'naas'),
+        new lang_string('naas_settings_feedback_help', 'naas'),
+        1
+    ));
 
     // -------------------- NaaS Privacy --------------------.
     $settings->add(new admin_setting_heading(
