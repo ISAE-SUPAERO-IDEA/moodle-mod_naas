@@ -130,7 +130,9 @@ class NaasMoodle  {
         $naas_instance->debuglaunch = 0;
         $custom = [
             "hostname" => $CFG->wwwroot,
-            "css" => $config->naas_css
+            "is_authenticated" => true, # lti_launch requires login
+            "css" => $config->naas_css,
+            "feedback" => ($config->naas_feedback === "1") ? "on" : "off"
         ];
         $naas_instance->instructorcustomparameters = "naas=". json_encode($custom);
 
