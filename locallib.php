@@ -193,21 +193,25 @@ function get_next_activity_url() {
     return $next;
 }
 
-
-
-
-
-
-
 /**
- * @return array int => lang string the options for calculating the quiz grade
+ * @return array int => lang string the options for calculating the NaaS grade
  *      from the individual attempt grades.
  */
 function naas_get_grading_options() {
     return array(
-        QUIZ_GRADEHIGHEST => get_string('gradehighest', 'quiz'),
-        QUIZ_GRADEAVERAGE => get_string('gradeaverage', 'quiz'),
-        QUIZ_ATTEMPTFIRST => get_string('attemptfirst', 'quiz'),
-        QUIZ_ATTEMPTLAST  => get_string('attemptlast', 'quiz')
+        NAAS_GRADEHIGHEST => get_string('gradehighest', 'naas'),
+        // NAAS_GRADEAVERAGE => get_string('gradeaverage', 'naas'),
+        NAAS_ATTEMPTFIRST => get_string('attemptfirst', 'naas'),
+        NAAS_ATTEMPTLAST  => get_string('attemptlast', 'naas')
     );
+}
+
+/**
+ * @param int $option one of the values NAAS_GRADEHIGHEST, NAAS_GRADEAVERAGE,
+ *      NAAS_ATTEMPTFIRST or NAAS_ATTEMPTLAST.
+ * @return the lang string for that option.
+ */
+function naas_get_grading_option_name($option) {
+    $strings = naas_get_grading_options();
+    return $strings[$option];
 }

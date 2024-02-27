@@ -30,6 +30,10 @@ if ($u) {  // Two ways to specify the module
 $course = $DB->get_record('course', array('id'=>$cm->course), '*', MUST_EXIST);
 $context = context_module::instance($cm->id);
 
+echo "<br><br><br>";
+echo print_r($course);
+
+
 // Check credentials
 require_course_login($course, true, $cm);
 require_capability('mod/naas:view', $context);

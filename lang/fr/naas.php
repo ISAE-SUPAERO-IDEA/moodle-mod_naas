@@ -25,7 +25,18 @@
 
 $string['pluginname'] = 'Nugget';
 $string['modulename'] = 'Nugget';
-$string['modulename_help'] = 'Le Plugin Moodle Nugget permet d\'intégrer un micro-contenu depuis le serveur NaaS.';
+$string['modulename_help'] = 'Le Plugin Moodle Nugget permet à un enseignant d\'intégrer un micro-contenu provenant du serveur NaaS.
+
+L\'enseignant peut autoriser l\'exercice Nugget à être tenté plusieurs fois. Une limite de temps peut être fixée.
+
+Chaque tentative est notée automatiquement et la note est enregistrée dans le carnet de notes.
+
+Les Nuggets peuvent être utilisées
+
+* En tant qu\'examens de cours
+* En tant que mini-tests de relecture à la fin d\'un sujet
+* En tant qu\'entraînement à l\'examen en utilisant des questions d\'examens antérieurs
+* En tant qu\'auto-évaluation';
 $string['modulename_link'] = 'mod/naas/view';
 $string['modulenameplural'] = 'Nuggets';
 $string['pluginadministration'] = '';
@@ -127,7 +138,8 @@ $string['complete_nugget'] = 'J\'ai terminé ma consultation du Nugget';
 
 /* LTI */
 /* Grade section */
-$string['grade_pass'] = 'Note de passage';
+$string['grade_type'] = 'Type de note';
+$string['attempts_allowed'] = 'Tentatives autorisées';
 $string['grade_method'] = 'Méthode de passage';
 $string['gradehighest'] = 'Note la plus élevée';
 $string['gradeaverage'] = 'Note moyenne';
@@ -141,18 +153,18 @@ $string['grade_method_help'] = 'Lorsque plusieurs tentatives sont autorisées, l
 * Dernière tentative (toutes les autres tentatives sont ignorées)';
 
 /* Activity Completion section */
-$string['completion_pass'] = 'Nécessité d\'une note de passage';
-$string['completion_pass_desc'] = 'L\'élève doit obtenir la note de passage pour réaliser cette activité.';
-$string['completion_pass_help'] = 'Si cette option est activée, cette activité est considérée comme terminée lorsque l\'étudiant obtient une note de passage (telle que spécifiée dans la section Grade des paramètres du nugget) ou une note supérieure.';
+$string['completionpass'] = 'Nécessité d\'une note de passage';
+$string['completionpassdesc'] = 'L\'élève doit obtenir la note de passage pour réaliser cette activité.';
+$string['completionpasshelp'] = 'Si cette option est activée, cette activité est considérée comme terminée lorsque l\'étudiant obtient une note de passage (telle que spécifiée dans la section Grade des paramètres du nugget) ou une note supérieure.';
 
-$string['completion_attempts_exhausted'] = 'Ou toutes les tentatives disponibles ont été complété';
-$string['completion_attempts_exhausted_help'] = 'Marquer le nugget comme terminé lorsque l\'étudiant a épuisé le nombre maximum de tentatives.';
+$string['completionattemptsexhausted'] = 'Ou toutes les tentatives disponibles ont été complété';
+$string['completionattemptsexhaustedhelp'] = 'Marquer le nugget comme terminé lorsque l\'étudiant a épuisé le nombre maximum de tentatives.';
 
-$string['completion_min_attempts'] = 'Nombre minimum de tentatives :';
-$string['completion_min_attempts_desc'] = 'Nombre minimum de tentatives requises : {$a}';
-$string['completion_min_attempts_group'] = 'Tentatives requises';
-$string['completion_min_attempts_error'] = 'Le nombre minimum de tentatives doit être inférieur ou égal au nombre de tentatives autorisées.';
+$string['completionminattempts'] = 'Nombre minimum de tentatives :';
+$string['completionminattemptsdesc'] = 'Nombre minimum de tentatives requises : {$a}';
+$string['completionminattemptsgroup'] = 'Tentatives requises';
+$string['completionminattemptserror'] = 'Le nombre minimum de tentatives doit être inférieur ou égal au nombre de tentatives autorisées.';
 
 /* Activity Completion section error messages */
-$string['grade_to_pass_not_set'] = 'Ce nugget n\'a pas encore de note de passage définie. Elle peut être définie dans la section Grade des paramètres du nugget.';
-$string['grade_to_pass_must_be_set'] = 'La note à obtenir ne peut pas être zéro, car la méthode d\'achèvement de ce nugget est réglée pour exiger la note de passage. Veuillez indiquer une valeur différente de zéro.';
+$string['gradetopassnotset'] = 'Ce nugget n\'a pas encore de note de passage définie. Elle peut être définie dans la section Grade des paramètres du nugget.';
+$string['gradetopassmustbeset'] = 'La note à obtenir ne peut pas être zéro, car la méthode d\'achèvement de ce nugget est réglée pour exiger la note de passage. Veuillez indiquer une valeur différente de zéro.';

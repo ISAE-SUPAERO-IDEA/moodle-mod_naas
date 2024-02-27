@@ -92,11 +92,21 @@ class NaasMoodle  {
         global $PAGE;
         global $DB;
         global $CFG;
+        global $USER;
         $cm = get_coursemodule_from_id('naas', $naas_instance_id, 0, false, MUST_EXIST);
         $naas_instance = $DB->get_record('naas', array('id' => $cm->instance), '*', MUST_EXIST);
         $context = \context_module::instance($cm->id);
         $course = $DB->get_record('course', array('id'=>$cm->course), '*', MUST_EXIST);
 
+        echo print_r($cm);
+        echo "<br><br>";
+        echo print_r($naas_instance);
+        echo "<br><br>";
+        echo print_r($context);
+        echo "<br><br>";
+        echo print_r($course);
+        echo "<br><br>";
+        
         // Retrieve LTI config from NaaS server
         $config = (object) array_merge((array) \get_config('naas'), (array) $CFG);
         $naas = new \NaasClient($config);
@@ -113,34 +123,114 @@ class NaasMoodle  {
             if ($matchingNugget != null) $nugget_config = $naas->get_nugget_lti_config($matchingNugget->nugget_id);
         }
 
-        if ($nugget_config==null || isset($nugget_config->error)) {
+        if ($nugget_config == null || isset($nugget_config->error)) {
             error_log(" Cannot get nugget information from NaaS server. ");
             echo(" Cannot get nugget information from NaaS server. ");
             return;
         }
-
-        // Configure LTI module
         $PAGE->set_course($course);
-        $naas_instance->cmid = $cm->id;
-        $naas_instance->course = $course->id;
-        $naas_instance->toolurl = $nugget_config->url;
-        $naas_instance->securetoolurl = $nugget_config->url;
-        $naas_instance->password = $nugget_config->secret;
-        $naas_instance->resourcekey = $nugget_config->key;
-        $naas_instance->debuglaunch = 0;
-        $custom = [
-            "hostname" => $CFG->wwwroot,
-            "css" => $config->naas_css
+        // Configure LTI module
+        $now = new \DateTime();
+
+        // See: https://moodle.org/mod/forum/discuss.php?d=335734
+        // Configure launch data
+        $launch_url = $nugget_config->url;
+        $key = $nugget_config->key;
+        $secret = $nugget_config->secret;
+
+        // To store in database: user id, activity id, secret
+        $userId = $USER->id;
+        $activityId = $cm->id;
+        $sourcedId = bin2hex(random_bytes(16)); // 16 bytes to obtain a 32-character hexadecimal string
+
+        // Insert a record in the database
+        $newRecord = new \stdClass();
+        $newRecord->user_id = $userId;
+        $newRecord->activity_id = $activityId;
+        $newRecord->sourced_id = $sourcedId;
+        $newRecord->date_added = time(); // UNIX timestamp format
+        $DB->insert_record('naas_activity_outcome', $newRecord);
+
+
+        // Display records for logs
+        $conditions = array('user_id' => $userId);
+        $records = $DB->get_records('naas_activity_outcome', $conditions);
+        if ($records) {
+            foreach ($records as $record) {
+                $formattedDate = date('Y-m-d H:i:s', $record->date_added);
+                echo "User ID: " . $record->user_id . "<br>";
+                echo "Activity ID: " . $record->activity_id . "<br>";
+                echo "Sourced ID: " . $record->sourced_id . "<br>";
+                echo "Date Added: " . $formattedDate . "<br><br>";
+            }
+        }
+        else {
+            echo "No records found for this user.<br><br>";
+        }
+
+
+        // Delete records longer than 45 minutes
+        $timestampLimit = time() - (45 * 60);
+        $sql = "date_added < " . $timestampLimit;
+        $params = array('timestampLimit' => $timestampLimit);
+        $DB->delete_records_select('naas_activity_outcome', $sql, $params);
+
+        $launch_data = [
+            // LTI version
+            "lti_version" => "LTI-1p0",
+            "lti_message_type" => "basic-lti-launch-request",
+            // OAuth parameters
+            "oauth_callback" => "about:blank",
+            "oauth_consumer_key"=> $key,
+            "oauth_version" => "1.0",
+            "oauth_nonce" => uniqid('', true),
+            "oauth_timestamp" => $now->getTimestamp(),
+            "oauth_signature_method" => "HMAC-SHA1",
+
+            // Context info
+            "context_id" => $cm->id,
+            // Return grade parameters
+            "lis_result_sourcedid" => $sourcedId,
+            "lis_outcome_service_url" => $CFG->wwwroot. "/mod/naas/outcome.php?id=" . $cm->id
         ];
-        $naas_instance->instructorcustomparameters = "naas=". json_encode($custom);
+        // private information
+        if ($config->naas_privacy_learner_name) {
+            $launch_data["lis_person_name_full"] = $USER->firstname. " ".$USER->lastname; 
+        }
+        if ($config->naas_privacy_learner_mail) {
+            $launch_data["lis_person_contact_email_primary"] = $USER->email; 
+        }
 
-        # TODO: permettre de configurer ces paramètes de sécurité
-        $naas_instance->instructorchoicesendname = $config->naas_privacy_learner_name;
-        $naas_instance->instructorchoicesendemailaddr = $config->naas_privacy_learner_mail;
-        $naas_instance->instructorchoiceacceptgrades = 1;
-        $naas_instance->instructorchoiceallowroster = null;
+        // LTI 
+        # Basic LTI uses OAuth to sign requests
+        # OAuth Core 1.0 spec: http://oauth.net/core/1.0/
 
-        // Launch the LTI module
-        lti_launch_tool($naas_instance);
+        # In OAuth, request parameters must be sorted by name
+        $launch_data_keys = array_keys($launch_data);
+        sort($launch_data_keys);
+
+        // Compute launch parameters
+        $launch_params = array();
+        foreach ($launch_data_keys as $key) {
+            array_push($launch_params, $key . "=" . rawurlencode($launch_data[$key]));
+        }
+        $base_string = "POST&" . urlencode($launch_url) . "&" . rawurlencode(implode("&", $launch_params));
+        $secret = urlencode($secret) . "&";
+        $signature = base64_encode(hash_hmac("sha1", $base_string, $secret, true));
+
+        // Generate HTML & javascript code to POST request
+        ?>
+        <form id="ltiLaunchForm" name="ltiLaunchForm" method="POST" action="<?php printf($launch_url); ?>">
+            <?php foreach ($launch_data as $k => $v ) { ?>
+                <input type="hidden" name="<?php echo $k ?>" value="<?php echo $v ?>">
+            <?php } ?>
+                <input type="hidden" name="oauth_signature" value="<?php echo $signature ?>">
+        </form>
+        <script>
+            window.addEventListener("load", (event) => {
+                document.getElementById("ltiLaunchForm").submit();
+            });
+        </script>
+        <?php
     }
 }

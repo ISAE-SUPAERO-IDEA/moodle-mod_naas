@@ -27,6 +27,31 @@ defined('MOODLE_INTERNAL') || die;
 
 
 
+
+
+/**#@+
+ * Option controlling what options are offered on the NaaS settings form.
+ */
+define('NAAS_MAX_ATTEMPT_OPTION', 10);
+define('NAAS_MAX_QPP_OPTION', 50);
+define('NAAS_MAX_DECIMAL_OPTION', 5);
+define('NAAS_MAX_Q_DECIMAL_OPTION', 7);
+/**#@-*/
+
+/**#@+
+ * Options determining how the grades from individual attempts are combined to give
+ * the overall grade for a user
+ */
+define('NAAS_GRADEHIGHEST', '1');
+// define('NAAS_GRADEAVERAGE', '2');
+define('NAAS_ATTEMPTFIRST', '3');
+define('NAAS_ATTEMPTLAST',  '4');
+/**#@-*/
+
+
+
+
+
 /**
  * Return the mapping for standard message parameters to JWT claim.
  *
@@ -57,15 +82,19 @@ function lti_get_jwt_claim_mapping_test() {
 function naas_supports($feature) {
     switch($feature) {
         case FEATURE_MOD_ARCHETYPE:           return MOD_ARCHETYPE_RESOURCE;
-        case FEATURE_GROUPS:                  return false;
-        case FEATURE_GROUPINGS:               return false;
+        case FEATURE_GROUPS:                  return true;
+        case FEATURE_GROUPINGS:               return true;
         case FEATURE_MOD_INTRO:               return true;
         // case FEATURE_MOD_PURPOSE:             return MOD_PURPOSE_CONTENT ? MOD_PURPOSE_CONTENT : false; // Defines the background color of icon
         case FEATURE_COMPLETION_TRACKS_VIEWS: return true;
-        case FEATURE_GRADE_HAS_GRADE:         return false;
-        case FEATURE_GRADE_OUTCOMES:          return false;
+        case FEATURE_COMPLETION_HAS_RULES:    return true;
+        case FEATURE_GRADE_HAS_GRADE:         return true;
+        case FEATURE_GRADE_OUTCOMES:          return true;
         case FEATURE_BACKUP_MOODLE2:          return true;
         case FEATURE_SHOW_DESCRIPTION:        return true;
+        case FEATURE_CONTROLS_GRADE_VISIBILITY: return true;
+        case FEATURE_USES_QUESTIONS:          return true;
+        case FEATURE_PLAGIARISM:              return true;
 
         default: return null;
     }
@@ -113,13 +142,17 @@ function naas_get_post_actions() {
 }
 
 /**
- * Add nugget instance.
- * @param object $data
- * @param object $mform
- * @return int new naas instance id
+ * Given an object containing all the necessary data,
+ * (defined by the form in mod_form.php) this function
+ * will create a new instance and return the id number
+ * of the new instance.
+ *
+ * @param object $data the data that came from the form.
+ * @return mixed the id of the new instance on success,
+ *          false or a string error message on failure.
  */
-function naas_add_instance($data, $mform) {
-    global $CFG, $DB;
+function naas_add_instance($data) {
+    global $DB;
 
     $data->timecreated = time();
     $data->timemodified = $data->timecreated;
@@ -132,10 +165,12 @@ function naas_add_instance($data, $mform) {
 }
 
 /**
- * Update NaaS instance.
- * @param object $data
- * @param object $mform
- * @return bool true
+ * Given an object containing all the necessary data,
+ * (defined by the form in mod_form.php) this function
+ * will update an existing instance with new data.
+ *
+ * @param object $data the data that came from the form.
+ * @return mixed true on success, false or a string error message on failure.
  */
 function naas_update_instance($data, $mform) {
     global $CFG, $DB;
@@ -147,14 +182,6 @@ function naas_update_instance($data, $mform) {
 
 
 
-    echo json_encode($data);
-
-    echo "<br><br>";
-
-
-
-
-
 
     $completiontimeexpected = !empty($data->completionexpected) ? $data->completionexpected : null;
     \core_completion\api::update_completion_date_event($data->coursemodule, 'naas', $data->id, $completiontimeexpected);
@@ -163,54 +190,87 @@ function naas_update_instance($data, $mform) {
 }
 
 /**
- * Delete url instance.
- * @param int $id
- * @return bool true
+ * Given an ID of an instance of this module,
+ * this function will permanently delete the instance
+ * and any data that depends on it.
+ *
+ * @param int $id the id of the naas to delete.
+ * @return bool success or failure.
  */
 function naas_delete_instance($id) {
     global $DB;
 
-    if (!$naas = $DB->get_record('naas', array('id'=>$id))) {
-        return false;
-    }
+    $naas = $DB->get_record('naas', array('id' => $id), '*', MUST_EXIST);
+
 
     $cm = get_coursemodule_from_instance('naas', $id);
     \core_completion\api::update_completion_date_event($cm->id, 'naas', $id, null);
 
-    // note: all context files are deleted automatically
+    
+    /*
+    ...
+    */
 
+    $events = $DB->get_records('event', array('modulename' => 'naas', 'instance' => $naas->id));
+    foreach ($events as $event) {
+        $event = calendar_event::load($event);
+        $event->delete();
+    }
+
+    // We must delete the module record after we delete the grade item.
     $DB->delete_records('naas', array('id'=>$naas->id));
 
     return true;
 }
 
 /**
- * Given a course_module object, this function returns any
- * "extra" information that may be needed when printing
- * this activity in a course listing.
+ * Add a get_coursemodule_info function in case any NaaS type wants to add 'extra' information
+ * for the course (see resource).
  *
- * See {@link get_array_of_activities()} in course/lib.php
+ * Given a course_module object, this function returns any "extra" information that may be needed
+ * when printing this activity in a course listing.  See get_array_of_activities() in course/lib.php.
  *
- * @param object $coursemodule
- * @return cached_cm_info info
+ * @param stdClass $coursemodule The coursemodule object (record).
+ * @return cached_cm_info An object on information that the courses
+ *                        will know about (most noticeably, an icon).
  */
 function naas_get_coursemodule_info($coursemodule) {
     global $CFG, $DB;
 
-    if (!$naas = $DB->get_record('naas', array('id'=>$coursemodule->instance),
-            'id, name, intro, introformat, nugget_id')) {
+    $dbparams = ['id' => $coursemodule->instance];
+    $fields = 'id, name, intro, introformat, nugget_id, completionattemptsexhausted, completionpass, completionminattempts';
+    if (!$naas = $DB->get_record('naas', $dbparams, $fields)) {
         return NULL;
     }
 
-    $info = new cached_cm_info();
-    $info->name = $naas->name;
+    $result = new cached_cm_info();
+    $result->name = $naas->name;
 
     if ($coursemodule->showdescription) {
         // Convert intro to html. Do not filter cached version, filters run at display time.
-        $info->content = format_module_intro('naas', $naas, $coursemodule->id, false);
+        $result->content = format_module_intro('naas', $naas, $coursemodule->id, false);
     }
 
-    return $info;
+
+    // Populate the custom completion rules as key => value pairs, but only if the completion mode is 'automatic'.
+    if ($coursemodule->completion == COMPLETION_TRACKING_AUTOMATIC) {
+        if ($naas->completionpass || $naas->completionattemptsexhausted) {
+            $result->customdata['customcompletionrules']['completionpassorattemptsexhausted'] = [
+                'completionpass' => $naas->completionpass,
+                // 'completionattemptsexhausted' => $naas->completionattemptsexhausted,
+            ];
+        } else {
+            $result->customdata['customcompletionrules']['completionpassorattemptsexhausted'] = [];
+        }
+
+        $result->customdata['customcompletionrules']['completionminattempts'] = $naas->completionminattempts;
+    }
+
+
+
+
+
+    return $result;
 }
 
 /**
@@ -321,3 +381,8 @@ function naas_extend_settings_navigation(settings_navigation $settings, navigati
         new moodle_url('#'),
         navigation_node::TYPE_SETTING, null, 'about');
 }
+
+
+
+
+

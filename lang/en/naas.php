@@ -25,7 +25,18 @@
 
 $string['pluginname'] = 'Nugget';
 $string['modulename'] = 'Nugget';
-$string['modulename_help'] = 'The Moodle Nugget Plugin enables to integrate a micro-content from the NaaS Server.';
+$string['modulename_help'] = 'The Moodle Nugget Plugin enables a teacher to integrate a micro-content from the NaaS Server.
+
+The teacher can allow the Nugget exercice to be attempted multiple times. A time limit may be set.
+
+Each attempt is marked automatically and the grade is recorded in the gradebook.
+
+Nuggets may be used
+
+* As course exams
+* As mini tests for reading assignments or at the end of a topic
+* As exam practice using questions from past exams
+* For self-assessment';
 $string['modulename_link'] = 'mod/naas/view';
 $string['modulenameplural'] = 'Nuggets';
 $string['pluginadministration'] = '';
@@ -127,7 +138,8 @@ $string['complete_nugget'] = 'I Finished My Learning With This Nugget';
 
 /* LTI */
 /* Grade section */
-$string['grade_pass'] = 'Grade to pass';
+$string['grade_type'] = 'Type of grading';
+$string['attempts_allowed'] = 'Attempts allowed';
 $string['grade_method'] = 'Grading method';
 $string['gradehighest'] = 'Highest grade';
 $string['gradeaverage'] = 'Average grade';
@@ -141,18 +153,20 @@ $string['grade_method_help'] = 'When multiple attempts are allowed, the followin
 * Last attempt (all other attempts are ignored)';
 
 /* Activity Completion section */
-$string['completion_pass'] = 'Require passing grade';
-$string['completion_pass_desc'] = 'Student must achieve a passing grade to complete this activity';
-$string['completion_pass_help'] = 'If enabled, this activity is considered complete when the student receives a pass grade (as specified in the Grade section of the nugget settings) or higher.';
+$string['completionpass'] = 'Require passing grade';
+$string['completionpass_desc'] = 'Student must achieve a passing grade to complete this activity';
+$string['completionpass_help'] = 'If enabled, this activity is considered complete when the student receives a pass grade (as specified in the Grade section of the nugget settings) or higher.';
 
-$string['completion_attempts_exhausted'] = 'Or all available attempts completed';
-$string['completion_attempts_exhausted_help'] = 'Mark nugget complete when the student has exhausted the maximum number of attempts.';
+$string['completiondetail:passgrade'] = 'Receive a pass grade';
 
-$string['completion_min_attempts'] = 'Minimum number of attempts:';
-$string['completion_min_attempts_desc'] = 'Minimum number of attempts required: {$a}';
-$string['completion_min_attempts_group'] = 'Require attempts';
-$string['completion_min_attempts_error'] = 'Minimum number of attempts must be lower or equal to attempts allowed.';
+$string['completionattemptsexhausted'] = 'Or all available attempts completed';
+$string['completionattemptsexhaustedhelp'] = 'Mark nugget complete when the student has exhausted the maximum number of attempts.';
+
+$string['completionminattempts'] = 'Minimum number of attempts:';
+$string['completionminattemptsdesc'] = 'Minimum number of attempts required: {$a}';
+$string['completionminattemptsgroup'] = 'Require attempts';
+$string['completionminattemptserror'] = 'Minimum number of attempts must be lower or equal to attempts allowed.';
 
 /* Activity Completion section error messages */
-$string['grade_to_pass_not_set'] = 'This nugget does not yet have a grade to pass set. It may be set in the Grade section of the nugget settings.';
-$string['grade_to_pass_must_be_set'] = 'Grade to pass cannot be zero as this nugget has its completion method set to require passing grade. Please set a non-zero value.';
+$string['gradetopassnotset'] = 'This nugget does not yet have a grade to pass set. It may be set in the Grade section of the nugget settings.';
+$string['gradetopassmustbeset'] = 'Grade to pass cannot be zero as this nugget has its completion method set to require passing grade. Please set a non-zero value.';
