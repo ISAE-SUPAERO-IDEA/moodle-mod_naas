@@ -106,15 +106,13 @@ $string["type"] = "Type";
 $string["lesson"] = "Lesson";
 $string["tutorial"] = "Tutorial";
 $string["demo"] = "Demo";
-$string["english"] = "English";
-$string["french"] = "French";
-$string["deutsch"] = "German";
 $string["en"] = "English";
-$string["espanol"] = "Spanish";
 $string["fr"] = "French";
-$string["italiano"] = "Italian";
-$string["polski"] = "Polish";
-$string["svenska"] = "Swedish";
+$string["de"] = "German";
+$string["es"] = "Spanish";
+$string["it"] = "Italian";
+$string["pl"] = "Polish";
+$string["sv"] = "Swedish";
 $string["publication_date"] = "Publication date";
 
 /* Rating */
