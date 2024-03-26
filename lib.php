@@ -85,7 +85,7 @@ function naas_supports($feature) {
         case FEATURE_GROUPS:                  return true;
         case FEATURE_GROUPINGS:               return true;
         case FEATURE_MOD_INTRO:               return true;
-        // case FEATURE_MOD_PURPOSE:             return MOD_PURPOSE_CONTENT ? MOD_PURPOSE_CONTENT : false; // Defines the background color of icon
+        // case FEATURE_MOD_PURPOSE:             return MOD_PURPOSE_CONTENT; // Defines the background color of icon
         case FEATURE_COMPLETION_TRACKS_VIEWS: return true;
         case FEATURE_COMPLETION_HAS_RULES:    return true;
         case FEATURE_GRADE_HAS_GRADE:         return true;

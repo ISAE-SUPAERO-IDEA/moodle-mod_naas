@@ -58,6 +58,8 @@ $string['naas_settings_css'] = 'NaaS CSS';
 $string['naas_settings_css_help'] = 'Extra CSS to be applied to NaaS ressources)';
 $string['naas_settings_filter'] = 'NaaS search filter';
 $string['naas_settings_filter_help'] = 'A query to filter search results';
+$string['naas_settings_feedback'] = 'NaaS feedback';
+$string['naas_settings_feedback_help'] = 'Enable the option to give learners the ability to provide feedback on Nugget activities.';
 
 $string['naas_settings_privacy'] = 'NaaS Privacy';
 $string['naas_settings_privacy_information'] = 'The Moodle Nugget Plugin requires the collection and storage of personal data such as a user\'s name and email address in order to improve the user experience by improving anonymous statistical data analysis. The  collected data is stored on the NaaS server and will not be shared with any third parties.';

@@ -112,15 +112,15 @@ class NaasMoodle  {
         $naas = new \NaasClient($config);
         $nugget_data = $naas->get_nugget_data($naas_instance->nugget_id);
         $nugget_config = $naas->get_nugget_lti_config($naas_instance->nugget_id);
-        if ($language != "" && $language != $nugget_data->language) {
+        if ($language != "" && isset($nugget_data) && is_object($nugget_data) && property_exists($nugget_data, 'multilanguages')) {
             $matchingNugget = null;
             foreach ($nugget_data->multilanguages as $item) {
-                if ($item->language === $language) {
+                if (isset($item->language) && $item->language === $language) {
                     $matchingNugget = $item;
                     break;
                 }
             }
-            if ($matchingNugget != null) $nugget_config = $naas->get_nugget_lti_config($matchingNugget->nugget_id);
+            if ($matchingNugget != null && isset($matchingNugget->nugget_id)) $nugget_config = $naas->get_nugget_lti_config($matchingNugget->nugget_id);
         }
 
         if ($nugget_config == null || isset($nugget_config->error)) {
@@ -128,9 +128,9 @@ class NaasMoodle  {
             echo(" Cannot get nugget information from NaaS server. ");
             return;
         }
-        $PAGE->set_course($course);
+
         // Configure LTI module
-        $now = new \DateTime();
+        $PAGE->set_course($course);
 
         // See: https://moodle.org/mod/forum/discuss.php?d=335734
         // Configure launch data
@@ -151,29 +151,32 @@ class NaasMoodle  {
         $newRecord->date_added = time(); // UNIX timestamp format
         $DB->insert_record('naas_activity_outcome', $newRecord);
 
-
-        // Display records for logs
+        /* // Display records for logs
         $conditions = array('user_id' => $userId);
         $records = $DB->get_records('naas_activity_outcome', $conditions);
         if ($records) {
             foreach ($records as $record) {
-                $formattedDate = date('Y-m-d H:i:s', $record->date_added);
-                echo "User ID: " . $record->user_id . "<br>";
-                echo "Activity ID: " . $record->activity_id . "<br>";
-                echo "Sourced ID: " . $record->sourced_id . "<br>";
-                echo "Date Added: " . $formattedDate . "<br><br>";
+                $recordData = array(
+                    "user_id" => $record->user_id,
+                    "activity_id" => $record->activity_id,
+                    "sourced_id" => $record->sourced_id,
+                    "date_added" => date('Y-m-d H:i:s', $record->date_added)
+                );
+                echo json_encode($recordData, JSON_PRETTY_PRINT)."<br>";
             }
         }
         else {
             echo "No records found for this user.<br><br>";
         }
+        */
 
-
-        // Delete records longer than 45 minutes
+        // Delete records longer than 45 minutes car un nugget est sensé durer 30 minutes max
         $timestampLimit = time() - (45 * 60);
         $sql = "date_added < " . $timestampLimit;
         $params = array('timestampLimit' => $timestampLimit);
         $DB->delete_records_select('naas_activity_outcome', $sql, $params);
+
+        $now = new \DateTime();
 
         $launch_data = [
             // LTI version

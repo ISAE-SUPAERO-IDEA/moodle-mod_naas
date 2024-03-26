@@ -79,13 +79,67 @@ $gradeinfo = array(
 );
 
 
-error_log(serialize($cm));
-// error_log(serialize($naas_instance));
-// error_log(serialize($course));
-// error_log(serialize($context));
+// error_log(json_encode($cm));
+// error_log(json_encode($naas_instance));
+// error_log(json_encode($course));
+// error_log(json_encode($context));
 
 
-grade_update('mod/naas', $course->id, 'mod', 'naas', $cm->instance, $itemnumber, $grade, $gradeinfo);
+// Grading method
+$grade_method = $naas_instance->grade_method;
+
+
+// Highest Grade
+if ($grade_method == "1") {
+    error_log("highest_grade");
+
+    // Récupérer les données de grade pour cet utilisateur sur ce module
+    $existing_grades = grade_get_grades($course->id, 'mod', 'naas', $cm->instance, $user_id);
+    $existing_grades_data = $existing_grades->items[0]->grades;
+
+    $current_highest_grade = 0;
+
+    // Parcourir les données de grade pour cet utilisateur
+    foreach ($existing_grades_data as $data) {
+        // Vérifier si la note est plus élevée que la note actuellement stockée
+        if ($data->grade > $current_highest_grade) $current_highest_grade = $data->grade;
+    }
+
+    if ($score * 100 > $current_highest_grade) {
+        grade_update('mod/naas', $course->id, 'mod', 'naas', $cm->instance, $itemnumber, $grade, $gradeinfo);
+    }
+}
+// Grade Average
+else if ($grade_method == "2") {
+    error_log("grade_average");
+}
+// Grade First Attemp
+else if ($grade_method == "3") {
+    error_log("first_attempt");
+
+    // Récupérer les données de grade pour cet utilisateur sur ce module
+    $existing_grades = grade_get_grades($course->id, 'mod', 'naas', $cm->instance, $user_id);
+    $existing_grades_data = $existing_grades->items[0]->grades;
+
+    // si il n'y a pas de note enregistré
+    if (count($existing_grades_data) == 0) {
+        grade_update('mod/naas', $course->id, 'mod', 'naas', $cm->instance, $itemnumber, $grade, $gradeinfo);
+    }
+}
+// Grade Last Attemp
+else if ($grade_method == "4") {
+    error_log("last_attemp");
+    grade_update('mod/naas', $course->id, 'mod', 'naas', $cm->instance, $itemnumber, $grade, $gradeinfo);
+}
+// Grade Method unknown
+else {
+    error_log("Grading method error");
+}
+
+
+
+
+
 
 
 // Set up completion object and check it is enabled.
@@ -104,17 +158,5 @@ if ($cm->completion != COMPLETION_TRACKING_MANUAL) {
 $targetstate = COMPLETION_COMPLETE;
 $completion->update_state($cm, $targetstate);
 error_log("completion_complete");
-
-
-
-
-// Highest grade
-
-// First attempt
-
-// Last attempt
-
-
-
 
 
