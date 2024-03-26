@@ -5,11 +5,23 @@
         <a
           href="javascript:;"
           class="btn btn-primary"
-          :class="{hidden: !aboutButton}"
+          :class="{ hidden: !aboutButton }"
           v-on:click="aboutModal = true"
         >
           {{ config.labels.about }}
         </a>
+        <select class="language-select" @change="changeLanguage">
+          <option selected :value="this.nugget.language">
+            {{ config.labels.metadata[nugget.language] }}
+          </option>
+          <option
+            v-for="item in this.nugget.multilanguages"
+            :key="item.language"
+            :value="item.language"
+          >
+            {{ config.labels.metadata[item.language] }}
+          </option>
+        </select>
       </div>
       <NuggetAboutModal
         :visible="aboutModal"
@@ -24,7 +36,7 @@
         height="600px"
         width="100%"
         style="border: none"
-        :src="`launch.php?id=${this.config.cm_id}&triggerview=0`"
+        :src="`launch.php?id=${this.config.cm_id}&triggerview=0&language=${this.nugget.language}`"
         webkitallowfullscreen
         mozallowfullscreen
         allowfullscreen
@@ -32,11 +44,7 @@
     </div>
     <div class="row">
       <div id="completion-modal-button" class="col text-center">
-        <button
-          href="javascript:;"
-          class="btn btn-primary"
-          @click="complete()"
-        >
+        <button href="javascript:;" class="btn btn-primary" @click="complete()">
           {{ config.labels.complete_nugget }}
         </button>
       </div>
@@ -71,7 +79,9 @@ export default {
   },
   created() {
     // Only exists in Moodle >= 4.0
-    let navAboutButton = document.querySelector('.secondary-navigation nav ul li[data-key=about]');
+    let navAboutButton = document.querySelector(
+      ".secondary-navigation nav ul li[data-key=about]"
+    );
     this.aboutButton = !navAboutButton;
   },
   async mounted() {
@@ -86,27 +96,31 @@ export default {
         "#lti-frame"
       );
       // Sends 'experienced' xAPI statement
-      this.xapi({ 
-        'id': this.config.cm_id,
-        'verb': 'experienced',
-        'version_id': this.nugget.version_id
+      this.xapi({
+        id: this.config.cm_id,
+        verb: "experienced",
+        version_id: this.nugget.version_id,
       });
     }, 100);
-
   },
   methods: {
     async complete() {
       this.completionModal = true;
       if (!this.nuggetCompleted) {
         // Sends 'completed' xAPI statement
-        this.xapi({ 
-          'id': this.config.cm_id,
-          'verb': 'completed',
-          'version_id': this.nugget.version_id
+        this.xapi({
+          id: this.config.cm_id,
+          verb: "completed",
+          version_id: this.nugget.version_id,
         });
         this.nuggetCompleted = true;
       }
     },
-  }
+    changeLanguage(event) {
+      const iframe = document.getElementById("lti-frame");
+      if (iframe)
+        iframe.src = `launch.php?id=${this.config.cm_id}&triggerview=0&language=${event.target.value}`;
+    },
+  },
 };
 </script>

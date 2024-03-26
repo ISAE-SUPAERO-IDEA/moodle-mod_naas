@@ -33,10 +33,11 @@ export default {
       return cache[path];
     },
     xapi(params) {
-      let info = axios.get("/mod/naas/xapi.php", { params })
+      let info = axios
+        .get("/mod/naas/xapi.php", { params })
         .then((response) => {
-          info = response.data.payload 
-        } );
+          info = response.data.payload;
+        });
       return info;
     },
     // Make promises for an array of keys

@@ -47,6 +47,8 @@ $string['naas_settings_css'] = 'NaaS CSS';
 $string['naas_settings_css_help'] = 'Extra CSS to be applied to NaaS ressources)';
 $string['naas_settings_filter'] = 'NaaS search filter';
 $string['naas_settings_filter_help'] = 'A query to filter search results';
+$string['naas_settings_feedback'] = 'NaaS feedback';
+$string['naas_settings_feedback_help'] = 'Enable the option to give learners the ability to provide feedback on Nugget activities.';
 
 $string['naas_settings_privacy'] = 'NaaS Privacy';
 $string['naas_settings_privacy_information'] = 'The Moodle Nugget Plugin requires the collection and storage of personal data such as a user\'s name and email address in order to improve the user experience by improving anonymous statistical data analysis. The  collected data is stored on the NaaS server and will not be shared with any third parties.';
@@ -64,7 +66,8 @@ $string['cgu_agreement'] = 'I have read and agree to the <a target="_blank" href
 
 // Vue Form
 $string['nugget_search'] = 'Search Nuggets';
-$string['nugget_search_here'] = 'Search here';
+$string['nugget_search_here'] = 'To get started, enter a keyword';
+$string['nugget_search_no_result'] = 'The search returned no results, please use another keyword.';
 $string['click_to_modify'] = 'Modify the selected nugget';
 $string['no_nugget'] = 'No nugget found';
 $string['clear_filters'] = 'Clear filters';
@@ -76,6 +79,7 @@ $string['back_to_course'] = 'Back to Course Index';
 $string["next_unit"] = "Next Unit";
 $string['show_more_nugget_button'] = 'Show more ...';
 
+$string['select_button'] = 'Select';
 $string['preview_button'] = 'Preview';
 $string["loading"] = "Loading...";
 
@@ -103,9 +107,12 @@ $string["lesson"] = "Lesson";
 $string["tutorial"] = "Tutorial";
 $string["demo"] = "Demo";
 $string["en"] = "English";
-$string["english"] = "English";
 $string["fr"] = "French";
-$string["french"] = "French";
+$string["de"] = "German";
+$string["es"] = "Spanish";
+$string["it"] = "Italian";
+$string["pl"] = "Polish";
+$string["sv"] = "Swedish";
 $string["publication_date"] = "Publication date";
 
 /* Rating */
