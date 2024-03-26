@@ -42,15 +42,13 @@ module.exports = {
       lesson: "lesson",
       demo: "demo",
       tutorial: "tutorial",
-      english: "english",
-      french: "french",
-      deutsch: "deutsch",
-      en: "en",
-      espanol: "espanol",
-      fr: "fr",
-      italiano: "italiano",
-      polski: "polski",
-      svenska: "svenska",
+      en: "en";
+      fr: "fr";
+      de: "de";
+      es: "es";
+      it: "it";
+      pl: "pl";
+      sv: "sw";
       publication_date: "publication_date",
     },
   },
