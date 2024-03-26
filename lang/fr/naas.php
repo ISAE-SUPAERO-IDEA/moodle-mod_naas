@@ -117,15 +117,13 @@ $string["type"] = "Type";
 $string["lesson"] = "Lesson";
 $string["tutorial"] = "Tutorial";
 $string["demo"] = "Démo";
-$string["english"] = "Anglais";
-$string["french"] = "Français";
-$string["deutsch"] = "Allemand";
 $string["en"] = "Anglais";
-$string["espanol"] = "Espagnol";
 $string["fr"] = "Français";
-$string["italiano"] = "Italien";
-$string["polski"] = "Polonais";
-$string["svenska"] = "Suedois";
+$string["de"] = "Allemand";
+$string["es"] = "Espagnol";
+$string["it"] = "Italien";
+$string["pl"] = "Polonais";
+$string["sv"] = "Suedois";
 $string["publication_date"] = "Date de publication";
 
 /* Rating */
