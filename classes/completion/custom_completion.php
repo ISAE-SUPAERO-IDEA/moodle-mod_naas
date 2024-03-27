@@ -120,9 +120,11 @@ class custom_completion extends activity_custom_completion {
             case 'completionpassorattemptsexhausted':
                 $status = static::check_passing_grade_or_all_attempts();
                 break;
+            /*
             case 'completionminattempts':
                 $status = static::check_min_attempts();
                 break;
+                */
         }
 
         return empty($status) ? COMPLETION_INCOMPLETE : COMPLETION_COMPLETE;
@@ -169,7 +171,7 @@ class custom_completion extends activity_custom_completion {
     public function get_sort_order(): array {       
         return [
             'completionview',
-            'completionminattempts',
+            // 'completionminattempts',
             'completionusegrade',
             'completionpassorattemptsexhausted',
         ];

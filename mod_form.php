@@ -86,8 +86,8 @@ class mod_naas_mod_form extends moodleform_mod {
         for ($i = 1; $i <= NAAS_MAX_ATTEMPT_OPTION; $i++) {
             $attemptoptions[$i] = $i;
         }
-        $mform->addElement('select', 'attempts', get_string('attempts_allowed', 'naas'),
-                $attemptoptions);
+        // $mform->addElement('select', 'attempts', get_string('attempts_allowed', 'naas'),
+                // $attemptoptions);
 
         // Grading method
         $mform->addElement('select', 'grade_method', get_string('grade_method', 'naas'), naas_get_grading_options());
@@ -95,9 +95,10 @@ class mod_naas_mod_form extends moodleform_mod {
         
         // -------------------------------------------------------------------------------
 
+        /*
         echo "<br><br><br>";
         echo json_encode($this->current);
-
+        */
 
         $this->standard_coursemodule_elements();
         $this->add_action_buttons();
@@ -195,8 +196,8 @@ class mod_naas_mod_form extends moodleform_mod {
             $mform->hideIf($gradepassfieldname, "{$gradefieldname}[modgrade_type]", 'eq', 'none');
         }
 
-        echo "<br><br>";
-        echo print_r($this->_features);
+        // echo "<br><br>";
+        // echo print_r($this->_features);
     }
 
 
@@ -247,11 +248,13 @@ class mod_naas_mod_form extends moodleform_mod {
             }
         }
 
+        /*
         if (!empty($data['completionminattempts'])) {
             if ($data['attempts'] > 0 && $data['completionminattempts'] > $data['attempts']) {
                 $errors['completionminattemptsgroup'] = get_string('completionminattemptserror', 'naas');
             }
         }
+        */
 
         return $errors;
     }
@@ -269,13 +272,14 @@ class mod_naas_mod_form extends moodleform_mod {
         $group = array();
         $group[] = $mform->createElement('advcheckbox', 'completionpass', null, get_string('completionpass', 'naas'), array('group' => 'cpass'));
         $mform->disabledIf('completionpass', 'completionusegrade', 'notchecked');
-        $group[] = $mform->createElement('advcheckbox', 'completionattemptsexhausted', null, get_string('completionattemptsexhausted', 'naas'), array('group' => 'cattempts'));
-        $mform->disabledIf('completionattemptsexhausted', 'completionpass', 'notchecked');
+        // $group[] = $mform->createElement('advcheckbox', 'completionattemptsexhausted', null, get_string('completionattemptsexhausted', 'naas'), array('group' => 'cattempts'));
+        // $mform->disabledIf('completionattemptsexhausted', 'completionpass', 'notchecked');
         $mform->addGroup($group, 'completionpassgroup', get_string('completionpass', 'naas'), ' &nbsp; ', false);
         $mform->addHelpButton('completionpassgroup', 'completionpass', 'naas');
         $items[] = 'completionpassgroup';
 
         // Require attempts
+        /*
         $group = array();
         $group[] = $mform->createElement('checkbox', 'completionminattemptsenabled', '', get_string('completionminattempts', 'naas'));
         $group[] = $mform->createElement('text', 'completionminattempts', '', array('size' => 3));
@@ -283,6 +287,7 @@ class mod_naas_mod_form extends moodleform_mod {
         $mform->addGroup($group, 'completionminattemptsgroup', get_string('completionminattemptsgroup', 'naas'), array(' '), false);
         $mform->disabledIf('completionminattempts', 'completionminattemptsenabled', 'notchecked');
         $items[] = 'completionminattemptsgroup';
+        */
 
         return $items;
     }
@@ -294,8 +299,11 @@ class mod_naas_mod_form extends moodleform_mod {
      * @return bool True if one or more rules is enabled, false if none are.
      */
     public function completion_rule_enabled($data) {
+        return  !empty($data['completionpass']);
+        /*
         return  !empty($data['completionattemptsexhausted']) ||
                 !empty($data['completionpass']) ||
                 !empty($data['completionminattemptsenabled']);
+                */
     }
 }

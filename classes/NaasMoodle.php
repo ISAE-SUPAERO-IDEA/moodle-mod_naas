@@ -98,6 +98,7 @@ class NaasMoodle  {
         $context = \context_module::instance($cm->id);
         $course = $DB->get_record('course', array('id'=>$cm->course), '*', MUST_EXIST);
 
+        /*
         echo print_r($cm);
         echo "<br><br>";
         echo print_r($naas_instance);
@@ -106,7 +107,8 @@ class NaasMoodle  {
         echo "<br><br>";
         echo print_r($course);
         echo "<br><br>";
-        
+        */
+
         // Retrieve LTI config from NaaS server
         $config = (object) array_merge((array) \get_config('naas'), (array) $CFG);
         $naas = new \NaasClient($config);
