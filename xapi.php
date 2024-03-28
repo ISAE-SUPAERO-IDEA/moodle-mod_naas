@@ -42,4 +42,4 @@ if (!$body) {
 }
 
 $response = $naas->post_xapi_statement($verb, $version_id, $data);
-echo json_encode($response);
+// echo json_encode($response);
