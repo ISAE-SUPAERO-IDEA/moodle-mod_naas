@@ -1,0 +1,53 @@
+/* Modal styling */
+.modal-gd-wrapper {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: rgba(0, 0, 0, 0.3);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2;
+}
+
+.modal-wrapper {
+    overflow-x: auto;
+    display: flex;
+    height: 50%;
+    width: 50%;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    background: #FFFFFF;
+    box-shadow: 2px 2px 20px 1px;
+    border-radius: 5px;
+    flex-direction: column;
+    transform: translate(-50%, -50%);
+}
+
+.modal-wrapper header {
+    padding: 15px 15px 0 15px;
+    display: flex;
+    border-bottom: 1px solid #eeeeee;
+    justify-content: space-between;
+    position: relative;
+}
+
+.modal-wrapper header h3 {
+    color: red;
+}
+
+.modal-wrapper header button {
+    position: absolute;
+    top: 0;
+    right: 0;
+    border: none;
+    font-size: 20px;
+    padding: 10px;
+    cursor: pointer;
+    font-weight: bold;
+    color: #999999;
+    background: transparent;
+}
