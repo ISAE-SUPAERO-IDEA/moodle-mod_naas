@@ -79,7 +79,7 @@ $string['cgu_agreement'] = 'I have read and agree to the <a target="_blank" href
 $string['nugget_search'] = 'Search Nuggets';
 $string['nugget_search_here'] = 'To get started, enter a keyword';
 $string['nugget_search_no_result'] = 'The search returned no results, please use another keyword.';
-$string['click_to_modify'] = 'Modify the selected nugget';
+$string['click_to_replace'] = 'Replace the selected nugget';
 $string['no_nugget'] = 'No nugget found';
 $string['clear_filters'] = 'Clear filters';
 $string['show_more_authors'] = 'Show more';

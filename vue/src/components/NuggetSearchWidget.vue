@@ -93,9 +93,9 @@
               selected_nugget = null;
               search();
             "
-            class="btn btn-primary btn-modify"
+            class="btn btn-primary btn-replace"
           >
-            {{ config.labels.click_to_modify }}
+            {{ config.labels.click_to_replace }}
           </a>
         </div>
       </div>
