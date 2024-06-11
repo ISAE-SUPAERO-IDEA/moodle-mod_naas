@@ -98,17 +98,6 @@ class NaasMoodle  {
         $context = \context_module::instance($cm->id);
         $course = $DB->get_record('course', array('id'=>$cm->course), '*', MUST_EXIST);
 
-        /*
-        echo print_r($cm);
-        echo "<br><br>";
-        echo print_r($naas_instance);
-        echo "<br><br>";
-        echo print_r($context);
-        echo "<br><br>";
-        echo print_r($course);
-        echo "<br><br>";
-        */
-
         // Retrieve LTI config from NaaS server
         $config = (object) array_merge((array) \get_config('naas'), (array) $CFG);
         $naas = new \NaasClient($config);
@@ -180,6 +169,9 @@ class NaasMoodle  {
 
         $now = new \DateTime();
 
+        $secret = urlencode($secret) . "&";
+        $resource_link_id = base64_encode(hash_hmac("sha1", $_SERVER['SERVER_NAME'].$USER->email.$nugget_data->version_id, $secret, false));
+
         $launch_data = [
             // LTI version
             "lti_version" => "LTI-1p0",
@@ -196,7 +188,8 @@ class NaasMoodle  {
             "context_id" => $cm->id,
             // Return grade parameters
             "lis_result_sourcedid" => $sourcedId,
-            "lis_outcome_service_url" => $CFG->wwwroot. "/mod/naas/outcome.php?id=" . $cm->id
+            "lis_outcome_service_url" => $CFG->wwwroot. "/mod/naas/outcome.php?id=" . $cm->id,
+            "resource_link_id" => $resource_link_id
         ];
         // private information
         if ($config->naas_privacy_learner_name) {
@@ -220,9 +213,12 @@ class NaasMoodle  {
             array_push($launch_params, $key . "=" . rawurlencode($launch_data[$key]));
         }
         $base_string = "POST&" . urlencode($launch_url) . "&" . rawurlencode(implode("&", $launch_params));
-        $secret = urlencode($secret) . "&";
+
         $signature = base64_encode(hash_hmac("sha1", $base_string, $secret, true));
 
+        // session php variable avec le resource_link_id
+        $_SESSION["resource_link_id"] = $resource_link_id;
+        
         // Generate HTML & javascript code to POST request
         ?>
         <form id="ltiLaunchForm" name="ltiLaunchForm" method="POST" action="<?php printf($launch_url); ?>">
