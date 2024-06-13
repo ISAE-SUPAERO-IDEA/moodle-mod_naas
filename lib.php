@@ -25,10 +25,6 @@
 
 defined('MOODLE_INTERNAL') || die;
 
-
-
-
-
 /**#@+
  * Option controlling what options are offered on the NaaS settings form.
  */
@@ -49,9 +45,6 @@ define('NAAS_ATTEMPTLAST',  '4');
 /**#@-*/
 
 
-
-
-
 /**
  * Return the mapping for standard message parameters to JWT claim.
  *
@@ -68,12 +61,6 @@ function lti_get_jwt_claim_mapping_test() {
     );
 }
 
-
-
-
-
-
-
 /**
  * List of features supported in NaaS module
  * @param string $feature FEATURE_xx constant for requested feature
@@ -85,7 +72,7 @@ function naas_supports($feature) {
         case FEATURE_GROUPS:                  return true;
         case FEATURE_GROUPINGS:               return true;
         case FEATURE_MOD_INTRO:               return true;
-        // case FEATURE_MOD_PURPOSE:             return MOD_PURPOSE_CONTENT; // Defines the background color of icon
+        case FEATURE_MOD_PURPOSE:             return MOD_PURPOSE_CONTENT; // Defines the background color of icon
         case FEATURE_COMPLETION_TRACKS_VIEWS: return true;
         case FEATURE_COMPLETION_HAS_RULES:    return true;
         case FEATURE_GRADE_HAS_GRADE:         return true;
@@ -181,8 +168,6 @@ function naas_update_instance($data, $mform) {
     $DB->update_record('naas', $data);
 
 
-
-
     $completiontimeexpected = !empty($data->completionexpected) ? $data->completionexpected : null;
     \core_completion\api::update_completion_date_event($data->coursemodule, 'naas', $data->id, $completiontimeexpected);
 
@@ -254,10 +239,9 @@ function naas_get_coursemodule_info($coursemodule) {
 
     // Populate the custom completion rules as key => value pairs, but only if the completion mode is 'automatic'.
     if ($coursemodule->completion == COMPLETION_TRACKING_AUTOMATIC) {
-        if ($naas->completionpass || $naas->completionattemptsexhausted) {
+        if ($naas->completionpass) {
             $result->customdata['customcompletionrules']['completionpassorattemptsexhausted'] = [
-                'completionpass' => $naas->completionpass,
-                // 'completionattemptsexhausted' => $naas->completionattemptsexhausted,
+                'completionpass' => $naas->completionpass
             ];
         } else {
             $result->customdata['customcompletionrules']['completionpassorattemptsexhausted'] = [];
@@ -265,10 +249,6 @@ function naas_get_coursemodule_info($coursemodule) {
 
         $result->customdata['customcompletionrules']['completionminattempts'] = $naas->completionminattempts;
     }
-
-
-
-
 
     return $result;
 }
@@ -381,8 +361,3 @@ function naas_extend_settings_navigation(settings_navigation $settings, navigati
         new moodle_url('#'),
         navigation_node::TYPE_SETTING, null, 'about');
 }
-
-
-
-
-

@@ -17,7 +17,7 @@
         <FIELD NAME="cgu_agreement" TYPE="int" LENGTH="1" NOTNULL="false" SEQUENCE="false"/>
 
         <FIELD NAME="attempts" TYPE="int" LENGTH="6" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="The maximum number of attempts a student is allowed."/>
-        <FIELD NAME="grade_method" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="One of the values NAAS_GRADEHIGHEST, NAAS_GRADEAVERAGE, NAAS_ATTEMPTFIRST or NAAS_ATTEMPTLAST."/>
+        <FIELD NAME="grade_method" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="One of the values NAAS_GRADEHIGHEST, NAAS_ATTEMPTFIRST or NAAS_ATTEMPTLAST."/>
 
         <FIELD NAME="completionattemptsexhausted" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="completionpass" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>

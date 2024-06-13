@@ -60,6 +60,7 @@ class NaasClient  {
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); 
         if (property_exists($this->config, "proxyhost") && !empty($this->config->proxyhost)) {
             curl_setopt($ch, CURLOPT_PROXY, $this->config->proxyhost);
+            curl_setopt($ch, CURLOPT_NOPROXY, $this->config->proxybypass);
             curl_setopt($ch, CURLOPT_PROXYPORT, $this->config->proxyport);
         }
         if (property_exists($this->config, "naas_timeout")) {

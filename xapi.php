@@ -43,7 +43,4 @@ if (!$body) {
 
 $data->resource_link_id = $_SESSION["resource_link_id"];
 
-// error_log(json_encode($data));
-
 $response = $naas->post_xapi_statement($verb, $version_id, $data);
-// echo json_encode($response);

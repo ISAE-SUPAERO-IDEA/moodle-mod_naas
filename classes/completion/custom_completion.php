@@ -66,45 +66,7 @@ class custom_completion extends activity_custom_completion {
             }
         }
 
-        /*
-        // Check if all attempts are used up.
-        $attempts = quiz_get_user_attempts($this->cm->instance, $this->userid, 'finished', true);
-        if (!$attempts) {
-            return false;
-        }
-        $lastfinishedattempt = end($attempts);
-        $context = context_module::instance($this->cm->id);
-        $quizobj = quiz::create($this->cm->instance, $this->userid);
-        $accessmanager = new quiz_access_manager(
-            $quizobj,
-            time(),
-            has_capability('mod/quiz:ignoretimelimits', $context, $this->userid, false)
-        );
-
-        return $accessmanager->is_finished(count($attempts), $lastfinishedattempt);
-        */
-
         return false;
-    }
-
-    /**
-     * Check minimum attempts requirement for completion.
-     *
-     * @return bool True if minimum attempts requirement is disabled or met.
-     */
-    protected function check_min_attempts() {
-        $minattempts = $this->cm->customdata['customcompletionrules']['completionminattempts'];
-        if (!$minattempts) {
-            return true;
-        }
-
-        /*
-        // Check if the user has done enough attempts.
-        $attempts = quiz_get_user_attempts($this->cm->instance, $this->userid, 'finished', true);
-        return $minattempts <= count($attempts);
-        */
-
-        return true;
     }
 
     /**
@@ -120,11 +82,6 @@ class custom_completion extends activity_custom_completion {
             case 'completionpassorattemptsexhausted':
                 $status = static::check_passing_grade_or_all_attempts();
                 break;
-            /*
-            case 'completionminattempts':
-                $status = static::check_min_attempts();
-                break;
-                */
         }
 
         return empty($status) ? COMPLETION_INCOMPLETE : COMPLETION_COMPLETE;
@@ -137,8 +94,7 @@ class custom_completion extends activity_custom_completion {
      */
     public static function get_defined_custom_rules(): array {
         return [
-            'completionpassorattemptsexhausted',
-            // 'completionminattempts',
+            'completionpassorattemptsexhausted'
         ];
     }
 
@@ -148,8 +104,6 @@ class custom_completion extends activity_custom_completion {
      * @return array
      */
     public function get_custom_rule_descriptions(): array {
-        // $minattempts = $this->cm->customdata['customcompletionrules']['completionminattempts'] ?? 0;
-
         $completionpassorattempts = $this->cm->customdata['customcompletionrules']['completionpassorattemptsexhausted'] ?? [];
         if (!empty($completionpassorattempts['completionattemptsexhausted'])) {
             $passorallattemptslabel = get_string('completiondetail:passorexhaust', 'naas');
@@ -158,8 +112,7 @@ class custom_completion extends activity_custom_completion {
         }
 
         return [
-            'completionpassorattemptsexhausted' => $passorallattemptslabel,
-            // 'completionminattempts' => get_string('completiondetail:minattempts', 'naas', $minattempts),
+            'completionpassorattemptsexhausted' => $passorallattemptslabel
         ];
     }
 
@@ -171,7 +124,6 @@ class custom_completion extends activity_custom_completion {
     public function get_sort_order(): array {       
         return [
             'completionview',
-            // 'completionminattempts',
             'completionusegrade',
             'completionpassorattemptsexhausted',
         ];

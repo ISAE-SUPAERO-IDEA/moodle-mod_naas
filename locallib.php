@@ -198,14 +198,13 @@ function get_next_activity_url() {
 function naas_get_grading_options() {
     return array(
         NAAS_GRADEHIGHEST => get_string('gradehighest', 'naas'),
-        // NAAS_GRADEAVERAGE => get_string('gradeaverage', 'naas'),
         NAAS_ATTEMPTFIRST => get_string('attemptfirst', 'naas'),
         NAAS_ATTEMPTLAST  => get_string('attemptlast', 'naas')
     );
 }
 
 /**
- * @param int $option one of the values NAAS_GRADEHIGHEST, NAAS_GRADEAVERAGE,
+ * @param int $option one of the values NAAS_GRADEHIGHEST,
  *      NAAS_ATTEMPTFIRST or NAAS_ATTEMPTLAST.
  * @return the lang string for that option.
  */
