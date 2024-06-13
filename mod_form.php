@@ -30,11 +30,8 @@ defined('MOODLE_INTERNAL') || die;
 require_once ($CFG->dirroot.'/course/moodleform_mod.php');
 require_once('classes/NaasClient.php');
 require_once('locallib.php');
-
 require_once('classes/completion/custom_completion.php');
-
 use core_grades\component_gradeitems;
-
 
 class mod_naas_mod_form extends moodleform_mod {
 
@@ -95,11 +92,6 @@ class mod_naas_mod_form extends moodleform_mod {
         
         // -------------------------------------------------------------------------------
 
-        /*
-        echo "<br><br><br>";
-        echo json_encode($this->current);
-        */
-
         $this->standard_coursemodule_elements();
         $this->add_action_buttons();
     }
@@ -130,8 +122,7 @@ class mod_naas_mod_form extends moodleform_mod {
         $gradepassfieldname = component_gradeitems::get_field_name_for_itemnumber($component, $itemnumber, 'gradepass');
 
         if ($this->_features->hasgrades) {
-
-            //if supports grades and grades aren't being handled via ratings
+            // if supports grades and grades aren't being handled via ratings
             if ($isupdate) {
                 $gradeitem = grade_item::fetch(array('itemtype' => 'mod',
                     'itemmodule' => $this->_cm->modname,
@@ -196,20 +187,14 @@ class mod_naas_mod_form extends moodleform_mod {
             $mform->hideIf($gradepassfieldname, "{$gradefieldname}[modgrade_type]", 'eq', 'none');
         }
 
-        // echo "<br><br>";
-        // echo print_r($this->_features);
     }
 
-
-
     function data_preprocessing(&$data) {
-
         if (empty($data['completionminattempts'])) {
             $data['completionminattempts'] = 1;
         } else {
             $data['completionminattempts'] = $data['completionminattempts'] > 0;
         }
-
     }
 
     /**
@@ -248,14 +233,6 @@ class mod_naas_mod_form extends moodleform_mod {
             }
         }
 
-        /*
-        if (!empty($data['completionminattempts'])) {
-            if ($data['attempts'] > 0 && $data['completionminattempts'] > $data['attempts']) {
-                $errors['completionminattemptsgroup'] = get_string('completionminattemptserror', 'naas');
-            }
-        }
-        */
-
         return $errors;
     }
 
@@ -272,22 +249,9 @@ class mod_naas_mod_form extends moodleform_mod {
         $group = array();
         $group[] = $mform->createElement('advcheckbox', 'completionpass', null, get_string('completionpass', 'naas'), array('group' => 'cpass'));
         $mform->disabledIf('completionpass', 'completionusegrade', 'notchecked');
-        // $group[] = $mform->createElement('advcheckbox', 'completionattemptsexhausted', null, get_string('completionattemptsexhausted', 'naas'), array('group' => 'cattempts'));
-        // $mform->disabledIf('completionattemptsexhausted', 'completionpass', 'notchecked');
         $mform->addGroup($group, 'completionpassgroup', get_string('completionpass', 'naas'), ' &nbsp; ', false);
         $mform->addHelpButton('completionpassgroup', 'completionpass', 'naas');
         $items[] = 'completionpassgroup';
-
-        // Require attempts
-        /*
-        $group = array();
-        $group[] = $mform->createElement('checkbox', 'completionminattemptsenabled', '', get_string('completionminattempts', 'naas'));
-        $group[] = $mform->createElement('text', 'completionminattempts', '', array('size' => 3));
-        $mform->setType('completionminattempts', PARAM_INT);
-        $mform->addGroup($group, 'completionminattemptsgroup', get_string('completionminattemptsgroup', 'naas'), array(' '), false);
-        $mform->disabledIf('completionminattempts', 'completionminattemptsenabled', 'notchecked');
-        $items[] = 'completionminattemptsgroup';
-        */
 
         return $items;
     }
@@ -300,10 +264,5 @@ class mod_naas_mod_form extends moodleform_mod {
      */
     public function completion_rule_enabled($data) {
         return  !empty($data['completionpass']);
-        /*
-        return  !empty($data['completionattemptsexhausted']) ||
-                !empty($data['completionpass']) ||
-                !empty($data['completionminattemptsenabled']);
-                */
     }
 }
