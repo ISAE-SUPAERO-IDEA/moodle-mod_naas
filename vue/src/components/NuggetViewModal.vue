@@ -19,6 +19,7 @@
             <div class="nugget-modal-body row">
               <div class="nugget-view w-100">
                 <iframe
+                  v-if="iframeVisible"
                   id="lti-frame"
                   :src="NuggetView"
                   class="preview-iframe h-100 w-100"
@@ -31,6 +32,7 @@
     </transition>
   </div>
 </template>
+
 <script>
 export default {
   name: "NuggetViewModal",
@@ -38,12 +40,16 @@ export default {
   data() {
     return {
       NuggetView: "",
+      iframeVisible: true,
       initialized: false,
     };
   },
   watch: {
     visible(val) {
-      if (val) this.initialize();
+      if (val) {
+        this.initialize();
+        this.iframeVisible = true;
+      }
     },
   },
   methods: {
@@ -52,13 +58,15 @@ export default {
         this.proxy(`/versions/${this.nugget.version_id}/preview_url`).then(
           (payload) => {
             this.NuggetView = payload;
+            this.initialized = true;
           }
         );
       }
     },
     closeNuggetModal() {
-      this.$emit("close");
-    },
-  },
+        this.iframeVisible = false;
+        this.$emit("close");
+    }
+  }
 };
 </script>
