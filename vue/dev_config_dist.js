@@ -7,7 +7,7 @@ module.exports = {
     nugget_search_here: "nugget_search_here",
     nugget_search_no_result: "nugget_search_no_result",
     search: "search",
-    click_to_modify: "click_to_modify",
+    click_to_replace: "click_to_replace",
     clear_filters: "clear_filters",
     show_more_authors: "show_more_authors",
     hide_authors: "hide_authors",

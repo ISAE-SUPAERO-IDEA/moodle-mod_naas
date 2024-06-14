@@ -37,7 +37,7 @@ function naas_widget_html($nugget_id, $cm_id, $component) {
             "nugget_search_here" => get_string('nugget_search_here','naas'),
             "nugget_search_no_result" => get_string('nugget_search_no_result','naas'),
             "search" => get_string('nugget_search','naas'),
-            "click_to_modify" => get_string('click_to_modify','naas'),
+            "click_to_replace" => get_string('click_to_replace','naas'),
             "clear_filters" => get_string('clear_filters','naas'),
             "show_more_authors" => get_string('show_more_authors','naas'),
             "hide_authors" => get_string('hide_authors','naas'),
@@ -106,7 +106,7 @@ function get_next_activity_url() {
     /* Adapted from https://gist.github.com/frumbert/b4fbb8e6f9a23c7233128a1f51df02b7 */
 
     global $PAGE, $CFG, $COURSE, $DB;
-    
+
     require_once($CFG->libdir . '/modinfolib.php');
 
     $cmid = $PAGE->cm->id;
@@ -189,5 +189,26 @@ function get_next_activity_url() {
     }
 
     return $next;
+}
 
+/**
+ * @return array int => lang string the options for calculating the NaaS grade
+ *      from the individual attempt grades.
+ */
+function naas_get_grading_options() {
+    return array(
+        NAAS_GRADEHIGHEST => get_string('gradehighest', 'naas'),
+        NAAS_ATTEMPTFIRST => get_string('attemptfirst', 'naas'),
+        NAAS_ATTEMPTLAST  => get_string('attemptlast', 'naas')
+    );
+}
+
+/**
+ * @param int $option one of the values NAAS_GRADEHIGHEST,
+ *      NAAS_ATTEMPTFIRST or NAAS_ATTEMPTLAST.
+ * @return the lang string for that option.
+ */
+function naas_get_grading_option_name($option) {
+    $strings = naas_get_grading_options();
+    return $strings[$option];
 }
