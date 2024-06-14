@@ -62,9 +62,9 @@ function xmldb_naas_upgrade($oldversion) {
 
     // Automatically generated Moodle v3.7.0 release upgrade line.
     // Put any upgrade step following this.
-    error_log("a");
+    error_log("upgrade");
     if ($oldversion < 2023090704) {
-        error_log("b");
+        error_log("cgu");
 
         // Define field cgu_agreement to be added to naas.
         $table = new xmldb_table('naas');
@@ -77,9 +77,68 @@ function xmldb_naas_upgrade($oldversion) {
         }
 
         // Naas savepoint reached.
-        upgrade_mod_savepoint(true, 2023090704, 'naas');
+        upgrade_mod_savepoint(true, 2023100149, 'naas');
     }
 
+
+    if ($oldversion < 2024010110) {
+        error_log("retour lti");
+
+        // Création de la table
+        $table = new xmldb_table('naas_activity_outcome');
+
+        // Ajout des colonnes
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('user_id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('activity_id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('sourced_id', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('date_added', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+
+        // Clés primaires
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+
+        // Création de la table
+        $dbman->create_table($table);
+
+        /*
+        // supprimer la table
+        $table = new xmldb_table('naas_activity_outcome');
+        $dbman = $DB->get_manager();
+        $dbman->drop_table($table);
+        */
+
+        // Mise à jour du numéro de version
+        upgrade_mod_savepoint(true, 2024010110, 'naas');
+    }
+
+    $table = new xmldb_table('naas');
+    
+    // supprimer un ancien champs
+    /*
+    $oldfield = new xmldb_field('grade_pass', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'nugget_id');
+    $dbman->drop_field($table, $oldfield);
+    */
+
+    $completionpass = new xmldb_field('completionpass', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'nugget_id');
+    // Conditionally launch add field id.
+    if (!$dbman->field_exists($table, $completionpass)) {
+        $dbman->add_field($table, $completionpass);
+    }
+    $completionattemptsexhausted = new xmldb_field('completionattemptsexhausted', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'nugget_id');
+    // Conditionally launch add field id.
+    if (!$dbman->field_exists($table, $completionattemptsexhausted)) {
+        $dbman->add_field($table, $completionattemptsexhausted);
+    }
+    $completionminattempts = new xmldb_field('completionminattempts', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'nugget_id');
+    // Conditionally launch add field id.
+    if (!$dbman->field_exists($table, $completionminattempts)) {
+        $dbman->add_field($table, $completionminattempts);
+    }
+    $grade_method = new xmldb_field('grade_method', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'nugget_id');
+    // Conditionally launch add field id.
+    if (!$dbman->field_exists($table, $grade_method)) {
+        $dbman->add_field($table, $grade_method);
+    }
 
     return true;
 }
