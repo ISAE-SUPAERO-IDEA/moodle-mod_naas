@@ -34,9 +34,10 @@ function naas_widget_html($nugget_id, $cm_id, $component) {
         "nugget_id" => $nugget_id,
         "cm_id" => $cm_id, // Course module ID
         "labels" => [
-            "search_here" => get_string('nugget_search_here','naas'),
+            "nugget_search_here" => get_string('nugget_search_here','naas'),
+            "nugget_search_no_result" => get_string('nugget_search_no_result','naas'),
             "search" => get_string('nugget_search','naas'),
-            "click_to_modify" => get_string('click_to_modify','naas'),
+            "click_to_replace" => get_string('click_to_replace','naas'),
             "clear_filters" => get_string('clear_filters','naas'),
             "show_more_authors" => get_string('show_more_authors','naas'),
             "hide_authors" => get_string('hide_authors','naas'),
@@ -45,6 +46,7 @@ function naas_widget_html($nugget_id, $cm_id, $component) {
             "back_to_course" => get_string('back_to_course','naas'),
             "next_unit" => get_string('next_unit','naas'),
             "show_more_nugget_button" => get_string('show_more_nugget_button','naas'),
+            "select_button" => get_string('select_button','naas'),
             "preview_button" => get_string('preview_button','naas'),
             "loading" => get_string('loading','naas'),
             "metadata" => [
@@ -72,9 +74,12 @@ function naas_widget_html($nugget_id, $cm_id, $component) {
                 "demo" => get_string('demo','naas'),
                 "tutorial" => get_string('tutorial','naas'),
                 "en" => get_string('en','naas'),
-                "english" => get_string('english','naas'),
                 "fr" => get_string('fr','naas'),
-                "french" => get_string('french','naas'),
+                "de" => get_string('de','naas'),
+                "es" => get_string('es','naas'),
+                "it" => get_string('it','naas'),
+                "pl" => get_string('pl','naas'),
+                "sv" => get_string('sv','naas'),
                 "publication_date" => get_string('publication_date','naas'),
             ],
             "rating" => [
@@ -101,7 +106,7 @@ function get_next_activity_url() {
     /* Adapted from https://gist.github.com/frumbert/b4fbb8e6f9a23c7233128a1f51df02b7 */
 
     global $PAGE, $CFG, $COURSE, $DB;
-    
+
     require_once($CFG->libdir . '/modinfolib.php');
 
     $cmid = $PAGE->cm->id;
@@ -184,5 +189,26 @@ function get_next_activity_url() {
     }
 
     return $next;
+}
 
+/**
+ * @return array int => lang string the options for calculating the NaaS grade
+ *      from the individual attempt grades.
+ */
+function naas_get_grading_options() {
+    return array(
+        NAAS_GRADEHIGHEST => get_string('gradehighest', 'naas'),
+        NAAS_ATTEMPTFIRST => get_string('attemptfirst', 'naas'),
+        NAAS_ATTEMPTLAST  => get_string('attemptlast', 'naas')
+    );
+}
+
+/**
+ * @param int $option one of the values NAAS_GRADEHIGHEST,
+ *      NAAS_ATTEMPTFIRST or NAAS_ATTEMPTLAST.
+ * @return the lang string for that option.
+ */
+function naas_get_grading_option_name($option) {
+    $strings = naas_get_grading_options();
+    return $strings[$option];
 }

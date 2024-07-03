@@ -21,7 +21,7 @@
           @keydown="$event.keyCode === 13 ? $event.preventDefault() : false"
           size="43"
           class="form-control"
-          :placeholder="config.search_here"
+          :placeholder="config.labels.nugget_search_here"
         />
         <img
           v-bind:src="'../mod/naas/assets/search_icon.png'"
@@ -49,11 +49,18 @@
             <nugget-post
               v-bind:key="index"
               v-bind:nugget="nugget"
+              :selection="true"
               v-bind:class="{
                 'nugget-post-selected': nugget.nugget_id == selected_id,
               }"
               @SelectButton="clickOnNugget"
             ></nugget-post>
+          </div>
+          <div
+            class="col-md-9 form-inline align-items-start felement"
+            v-if="nuggets.length == 0"
+          >
+            {{ config.labels.nugget_search_no_result }}
           </div>
         </div>
         <div class="row">
@@ -62,7 +69,7 @@
               href="javascript:;"
               v-if="show_more_nugget_button"
               v-on:click="show_more_nugget()"
-              class="btn btn-primary nugget-button show-more-nugget-button"
+              class="btn btn-primary nugget-button"
             >
               {{ config.labels.show_more_nugget_button }}
             </a>
@@ -86,9 +93,9 @@
               selected_nugget = null;
               search();
             "
-            class="btn btn-primary btn-modify"
+            class="btn btn-primary btn-replace"
           >
-            {{ config.labels.click_to_modify }}
+            {{ config.labels.click_to_replace }}
           </a>
         </div>
       </div>

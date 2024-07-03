@@ -4,15 +4,22 @@
       <div class="nugget-modal-backdrop" @click="closeNuggetModal()">
         <div id="nugget-preview-modal" class="nugget-modal" @click.stop.prevent>
           <div class="container h-100">
-            <div class="nugget-modal-header row justify-content-between align-items-start">
+            <div
+              class="nugget-modal-header row justify-content-between align-items-start"
+            >
               <h2>{{ config.labels.metadata.preview }}{{ nugget.name }}</h2>
-              <button type="button" class="btn-close" @click="closeNuggetModal()">
+              <button
+                type="button"
+                class="btn-close"
+                @click="closeNuggetModal()"
+              >
                 ✕
               </button>
             </div>
             <div class="nugget-modal-body row">
               <div class="nugget-view w-100">
                 <iframe
+                  v-if="iframeVisible"
                   id="lti-frame"
                   :src="NuggetView"
                   class="preview-iframe h-100 w-100"
@@ -25,6 +32,7 @@
     </transition>
   </div>
 </template>
+
 <script>
 export default {
   name: "NuggetViewModal",
@@ -32,12 +40,16 @@ export default {
   data() {
     return {
       NuggetView: "",
+      iframeVisible: true,
       initialized: false,
     };
   },
   watch: {
     visible(val) {
-      if (val) this.initialize();
+      if (val) {
+        this.initialize();
+        this.iframeVisible = true;
+      }
     },
   },
   methods: {
@@ -46,13 +58,15 @@ export default {
         this.proxy(`/versions/${this.nugget.version_id}/preview_url`).then(
           (payload) => {
             this.NuggetView = payload;
+            this.initialized = true;
           }
         );
       }
     },
     closeNuggetModal() {
-      this.$emit("close");
-    },
-  },
+        this.iframeVisible = false;
+        this.$emit("close");
+    }
+  }
 };
 </script>

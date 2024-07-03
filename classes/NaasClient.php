@@ -60,6 +60,7 @@ class NaasClient  {
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); 
         if (property_exists($this->config, "proxyhost") && !empty($this->config->proxyhost)) {
             curl_setopt($ch, CURLOPT_PROXY, $this->config->proxyhost);
+            curl_setopt($ch, CURLOPT_NOPROXY, $this->config->proxybypass);
             curl_setopt($ch, CURLOPT_PROXYPORT, $this->config->proxyport);
         }
         if (property_exists($this->config, "naas_timeout")) {
@@ -133,6 +134,15 @@ class NaasClient  {
         $protocol = "GET";
         $params = [ "structure_id" => $structure_id ];
         $service = "/nuggets/".$nugget_id."/lti";
+        $config = $this->request($protocol, $service, null, $params);
+        return $this->handle_result($config);
+    }
+    // Retrieve data of a nugget from the NaaS
+    function get_nugget_data($nugget_id) {
+        $this->debug("Get nugget data: ".$nugget_id);
+        $protocol = "GET";
+        $params = [ "nugget_id" => $nugget_id ];
+        $service = "/nuggets/".$nugget_id."/default_version";
         $config = $this->request($protocol, $service, null, $params);
         return $this->handle_result($config);
     }
