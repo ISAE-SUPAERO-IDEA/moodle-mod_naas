@@ -81,7 +81,7 @@ function xmldb_naas_upgrade($oldversion) {
     }
 
 
-    if ($oldversion < 2024010110) {
+    if ($oldversion < 2024061402) {
         error_log("retour lti");
 
         // Création de la table
@@ -108,7 +108,7 @@ function xmldb_naas_upgrade($oldversion) {
         */
 
         // Mise à jour du numéro de version
-        upgrade_mod_savepoint(true, 2024010110, 'naas');
+        upgrade_mod_savepoint(true, 2024061402, 'naas');
     }
 
     $table = new xmldb_table('naas');
