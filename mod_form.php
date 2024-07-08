@@ -70,6 +70,7 @@ class mod_naas_mod_form extends moodleform_mod {
 
         $this->standard_grading_coursemodule_elements();
 
+        /*
         if (property_exists($this->current, 'grade')) {
             $currentgrade = $this->current->grade;
         } else {
@@ -77,6 +78,7 @@ class mod_naas_mod_form extends moodleform_mod {
         }
         $mform->addElement('hidden', 'grade', $currentgrade);
         $mform->setType('grade', PARAM_FLOAT);
+        */
 
         // Number of attempts
         $attemptoptions = array('0' => get_string('unlimited'));
