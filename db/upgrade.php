@@ -81,24 +81,26 @@ function xmldb_naas_upgrade($oldversion) {
     }
 
 
-    if ($oldversion < 2024061402) {
+    if ($oldversion < 2024061403) {
         error_log("retour lti");
 
         // Création de la table
         $table = new xmldb_table('naas_activity_outcome');
 
-        // Ajout des colonnes
-        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
-        $table->add_field('user_id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
-        $table->add_field('activity_id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
-        $table->add_field('sourced_id', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
-        $table->add_field('date_added', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        if (!$dbman->table_exists($table)) {
+            // Ajout des colonnes
+            $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+            $table->add_field('user_id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+            $table->add_field('activity_id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+            $table->add_field('sourced_id', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
+            $table->add_field('date_added', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
 
-        // Clés primaires
-        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+            // Clés primaires
+            $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
 
-        // Création de la table
-        $dbman->create_table($table);
+            // Création de la table
+            $dbman->create_table($table);
+        }
 
         /*
         // supprimer la table
@@ -108,7 +110,7 @@ function xmldb_naas_upgrade($oldversion) {
         */
 
         // Mise à jour du numéro de version
-        upgrade_mod_savepoint(true, 2024061402, 'naas');
+        upgrade_mod_savepoint(true, 2024061403, 'naas');
     }
 
     $table = new xmldb_table('naas');
