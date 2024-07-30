@@ -46,6 +46,23 @@ define('NAAS_ATTEMPTLAST',  '4');
 
 
 /**
+ * Return the major moodle version
+ *
+ * @return array
+ */
+function get_moodle_major_version() {
+    global $CFG;
+
+    include($CFG->dirroot . '/version.php');
+    
+    // Extraire la version majeure
+    if (isset($release) && preg_match('/^\d+(\.\d+)?/', $release, $matches)) {
+        return (int)$matches[0];
+    }
+    return null;
+}
+
+/**
  * Return the mapping for standard message parameters to JWT claim.
  *
  * @return array
