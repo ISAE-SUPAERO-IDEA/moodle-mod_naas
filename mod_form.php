@@ -257,9 +257,6 @@ class mod_naas_mod_form extends moodleform_mod {
                 $items[] = 'completionpassgroup';
             } elseif ($moodle_major_version === 4) {
                 // Require passing grade est par default, donc on ajoute un champ caché.
-                $mform->addElement('hidden', 'completionpass', 1);
-                $mform->setType('completionpass', PARAM_INT);
-                $items[] = 'completionpass';
             } else {
                 // plus ancienne que 3 ou plus récente que 4
             }
