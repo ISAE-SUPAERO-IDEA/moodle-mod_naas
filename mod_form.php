@@ -35,7 +35,6 @@ use core_grades\component_gradeitems;
 
 class mod_naas_mod_form extends moodleform_mod {
 
-
     function definition() {
         global $CFG, $DB;
         $mform = $this->_form;
@@ -247,14 +246,26 @@ class mod_naas_mod_form extends moodleform_mod {
         $mform = $this->_form;
         $items = array();
 
-        // Require passing grade
-        $group = array();
-        $group[] = $mform->createElement('advcheckbox', 'completionpass', null, get_string('completionpass', 'naas'), array('group' => 'cpass'));
-        $mform->disabledIf('completionpass', 'completionusegrade', 'notchecked');
-        $mform->addGroup($group, 'completionpassgroup', get_string('completionpass', 'naas'), ' &nbsp; ', false);
-        $mform->addHelpButton('completionpassgroup', 'completionpass', 'naas');
-        $items[] = 'completionpassgroup';
-
+        $moodle_major_version = get_moodle_major_version();
+        if ($moodle_major_version !== null) {
+            if ($moodle_major_version === 3) {
+                $group = array();
+                $group[] = $mform->createElement('advcheckbox', 'completionpass', null, get_string('completionpass', 'naas'), array('group' => 'cpass'));
+                $mform->disabledIf('completionpass', 'completionusegrade', 'notchecked');
+                $mform->addGroup($group, 'completionpassgroup', get_string('completionpass', 'naas'), ' &nbsp; ', false);
+                $mform->addHelpButton('completionpassgroup', 'completionpass', 'naas');
+                $items[] = 'completionpassgroup';
+            } elseif ($moodle_major_version === 4) {
+                // Require passing grade est par default, donc on ajoute un champ caché.
+                $mform->addElement('hidden', 'completionpass', 1);
+                $mform->setType('completionpass', PARAM_INT);
+                $items[] = 'completionpass';
+            } else {
+                // plus ancienne que 3 ou plus récente que 4
+            }
+        } else {
+            // Impossible de déterminer la version de Moodle installée
+        }
         return $items;
     }
 
@@ -265,6 +276,6 @@ class mod_naas_mod_form extends moodleform_mod {
      * @return bool True if one or more rules is enabled, false if none are.
      */
     public function completion_rule_enabled($data) {
-        return  !empty($data['completionpass']);
+        return !empty($data['completionpass']);
     }
 }
