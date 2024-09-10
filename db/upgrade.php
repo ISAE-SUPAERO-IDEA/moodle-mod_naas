@@ -80,7 +80,6 @@ function xmldb_naas_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2023100149, 'naas');
     }
 
-
     if ($oldversion < 2024061403) {
         error_log("retour lti");
 
@@ -96,7 +95,7 @@ function xmldb_naas_upgrade($oldversion) {
             $table->add_field('date_added', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
 
             // Clés primaires
-            $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+            $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
 
             // Création de la table
             $dbman->create_table($table);
@@ -114,7 +113,7 @@ function xmldb_naas_upgrade($oldversion) {
     }
 
     $table = new xmldb_table('naas');
-    
+
     // supprimer un ancien champs
     /*
     $oldfield = new xmldb_field('grade_pass', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'nugget_id');
@@ -136,10 +135,10 @@ function xmldb_naas_upgrade($oldversion) {
     if (!$dbman->field_exists($table, $completionminattempts)) {
         $dbman->add_field($table, $completionminattempts);
     }
-    $grade_method = new xmldb_field('grade_method', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'nugget_id');
+    $grademethod = new xmldb_field('grade_method', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'nugget_id');
     // Conditionally launch add field id.
-    if (!$dbman->field_exists($table, $grade_method)) {
-        $dbman->add_field($table, $grade_method);
+    if (!$dbman->field_exists($table, $grademethod)) {
+        $dbman->add_field($table, $grademethod);
     }
 
     return true;

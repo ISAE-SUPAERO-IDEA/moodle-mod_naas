@@ -57,7 +57,7 @@ class custom_completion extends activity_custom_completion {
             'itemtype' => 'mod',
             'itemmodule' => 'naas',
             'iteminstance' => $this->cm->instance,
-            'outcomeid' => null
+            'outcomeid' => null,
         ]);
         if ($item) {
             $grades = grade_grade::fetch_users_grades($item, [$this->userid], false);
@@ -94,7 +94,7 @@ class custom_completion extends activity_custom_completion {
      */
     public static function get_defined_custom_rules(): array {
         return [
-            'completionpassorattemptsexhausted'
+            'completionpassorattemptsexhausted',
         ];
     }
 
@@ -112,7 +112,7 @@ class custom_completion extends activity_custom_completion {
         }
 
         return [
-            'completionpassorattemptsexhausted' => $passorallattemptslabel
+            'completionpassorattemptsexhausted' => $passorallattemptslabel,
         ];
     }
 
@@ -121,11 +121,11 @@ class custom_completion extends activity_custom_completion {
      *
      * @return array
      */
-    public function get_sort_order(): array {       
+    public function get_sort_order(): array {
         return [
             'completionview',
             'completionusegrade',
-            'completionpassorattemptsexhausted'
+            'completionpassorattemptsexhausted',
         ];
     }
 }

@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -26,7 +25,7 @@
 require_once($_SERVER['DOCUMENT_ROOT']."/config.php");
 
 $id = required_param('id', PARAM_INT); // course id
-$course = $DB->get_record('course', array('id'=>$id), '*', MUST_EXIST);
+$course = $DB->get_record('course', ['id' => $id], '*', MUST_EXIST);
 require_course_login($course, true);
 
 $PAGE->set_pagelayout('incourse');
@@ -36,7 +35,7 @@ $strname         = get_string('name');
 $strintro        = get_string('moduleintro');
 $strlastmodified = get_string('lastmodified');
 
-$PAGE->set_url('/mod/url/index.php', array('id' => $course->id));
+$PAGE->set_url('/mod/url/index.php', ['id' => $course->id]);
 $PAGE->set_title($course->shortname.': '.$strurls);
 $PAGE->set_heading($course->fullname);
 $PAGE->navbar->add($strurls);
@@ -54,11 +53,11 @@ $table->attributes['class'] = 'generaltable mod_index';
 
 if ($usesections) {
     $strsectionname = get_string('sectionname', 'format_'.$course->format);
-    $table->head  = array ($strsectionname, $strname, $strintro);
-    $table->align = array ('center', 'left', 'left');
+    $table->head  = [$strsectionname, $strname, $strintro];
+    $table->align = ['center', 'left', 'left'];
 } else {
-    $table->head  = array ($strlastmodified, $strname, $strintro);
-    $table->align = array ('left', 'left', 'left');
+    $table->head  = [$strlastmodified, $strname, $strintro];
+    $table->align = ['left', 'left', 'left'];
 }
 
 $modinfo = get_fast_modinfo($course);
@@ -88,10 +87,10 @@ foreach ($urls as $url) {
     }
 
     $class = $url->visible ? '' : 'class="dimmed"'; // hidden modules are dimmed
-    $table->data[] = array (
+    $table->data[] = [
         $printsection,
         "<a $class $extra href=\"view.php?id=$cm->id\">".$icon.format_string($url->name)."</a>",
-        format_module_intro('url', $url, $cm->id));
+        format_module_intro('url', $url, $cm->id)];
 }
 
 echo html_writer::table($table);

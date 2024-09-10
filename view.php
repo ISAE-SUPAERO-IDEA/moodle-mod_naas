@@ -1,4 +1,18 @@
 <?php
+// This file is part of Moodle - https://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 /**
  * Moodle Nugget Plugin : view
@@ -19,15 +33,15 @@ $redirect  = optional_param('redirect', 0, PARAM_BOOL);
 $forceview = optional_param('forceview', 0, PARAM_BOOL);
 
 if ($u) {  // Two ways to specify the module
-    $naas_instance = $DB->get_record('naas', array('id'=>$u), '*', MUST_EXIST);
+    $naasinstance = $DB->get_record('naas', ['id' => $u], '*', MUST_EXIST);
     $cm = get_coursemodule_from_instance('naas', $naas->id, $naas->course, false, MUST_EXIST);
 
 } else {
     $cm = get_coursemodule_from_id('naas', $id, 0, false, MUST_EXIST);
-    $naas_instance = $DB->get_record('naas', array('id'=>$cm->instance), '*', MUST_EXIST);
+    $naasinstance = $DB->get_record('naas', ['id' => $cm->instance], '*', MUST_EXIST);
 }
 
-$course = $DB->get_record('course', array('id'=>$cm->course), '*', MUST_EXIST);
+$course = $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST);
 $context = context_module::instance($cm->id);
 
 // Check credentials
@@ -40,31 +54,31 @@ naas_view($course, $cm, $context);
 // Set page stuff
 $PAGE->set_cm($cm, $course); // Set's up global $COURSE.
 $PAGE->set_context($context);
-$url = new moodle_url('/mod/naas/view.php', array('id' => $cm->id));
+$url = new moodle_url('/mod/naas/view.php', ['id' => $cm->id]);
 $PAGE->set_url($url);
-$pagetitle = strip_tags($course->shortname.': '.format_string($naas_instance->name));
+$pagetitle = strip_tags($course->shortname.': '.format_string($naasinstance->name));
 $PAGE->set_title($pagetitle);
 $PAGE->set_heading($course->fullname);
 
 // Print the page header.
 echo $OUTPUT->header();
 
-$course_url = new moodle_url('/course/view.php', array('id' => $COURSE->id));
+$courseurl = new moodle_url('/course/view.php', ['id' => $COURSE->id]);
 // Back to course button
-$back_course_button = "<div class='course-button'><a class='btn btn-outline-secondary btn-sm' 
-    href=".$course_url.">".get_string('back_to_course', 'naas')."</a></div>";
+$backcoursebutton = "<div class='course-button'><a class='btn btn-outline-secondary btn-sm' 
+    href=".$courseurl.">".get_string('back_to_course', 'naas')."</a></div>";
 
-echo $back_course_button;
+echo $backcoursebutton;
 
 // (Hidden) Next activity button
-$next_activity_url = get_next_activity_url();
-if ($next_activity_url) {
+$nextactivityurl = get_next_activity_url();
+if ($nextactivityurl) {
     echo "<div class='next-activity hidden'><a class='btn btn-outline-secondary btn-sm' 
     href=".get_next_activity_url()->link."&forceview=1>".get_next_activity_url()->name."</a></div>";
 }
 
 // Displays Nugget
-echo naas_widget_html($naas_instance->nugget_id, $cm->id, "NuggetView");
+echo naas_widget_html($naasinstance->nugget_id, $cm->id, "NuggetView");
 
 // Toggles the Nugget 'About' Modal
 echo "<script>
@@ -75,7 +89,7 @@ if (about_button){
 }
 </script>";
 
-echo $back_course_button;
+echo $backcoursebutton;
 
 // Finish the page.
 echo $OUTPUT->footer();

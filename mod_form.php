@@ -1,6 +1,20 @@
 <?php
+// This file is part of Moodle - https://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
-#use Phpml\Helper\Optimizer\div;
+// use Phpml\Helper\Optimizer\div;
 
 // This file is part of Moodle - http://moodle.org/
 //
@@ -43,21 +57,22 @@ class mod_naas_mod_form extends moodleform_mod {
         $naas = new NaasClient($config);
 
         $info = $naas->get_api_info();
-        if ($info == null) $mform->addElement('html', '<div class="alert alert-danger">'.get_string("naas_unable_connect", "naas").'</div>');
+        if ($info == null) { $mform->addElement('html', '<div class="alert alert-danger">'.get_string("naas_unable_connect", "naas").'</div>');
+        }
 
-        //-------------------------------------------------------
+        // -------------------------------------------------------
         $mform->addElement('header', 'general', get_string('general', 'form'));
 
-        $nugget_id = $mform->getCleanedValue("nugget_id", PARAM_TEXT);
-        $mform->addElement('html',  naas_widget_html($nugget_id, null, "NuggetSearchWidget"));
+        $nuggetid = $mform->getCleanedValue("nugget_id", PARAM_TEXT);
+        $mform->addElement('html',  naas_widget_html($nuggetid, null, "NuggetSearchWidget"));
 
-        $mform->addElement('text', 'name', get_string('name_display','naas'), array('size'=>'48'));
+        $mform->addElement('text', 'name', get_string('name_display', 'naas'), ['size' => '48']);
         $mform->setType('name', PARAM_TEXT);
-        $mform->addElement('hidden', 'nugget_id', 'nugget_id', array('size'=>'48'));
+        $mform->addElement('hidden', 'nugget_id', 'nugget_id', ['size' => '48']);
         $mform->setType('nugget_id', PARAM_TEXT);
 
         // CGU
-        $mform->addElement('checkbox', 'cgu_agreement', get_string('cgu_agreement','naas'));
+        $mform->addElement('checkbox', 'cgu_agreement', get_string('cgu_agreement', 'naas'));
         $mform->addRule('cgu_agreement', null, 'required');
 
         // Course description
@@ -80,7 +95,7 @@ class mod_naas_mod_form extends moodleform_mod {
         */
 
         // Number of attempts
-        $attemptoptions = array('0' => get_string('unlimited'));
+        $attemptoptions = ['0' => get_string('unlimited')];
         for ($i = 1; $i <= NAAS_MAX_ATTEMPT_OPTION; $i++) {
             $attemptoptions[$i] = $i;
         }
@@ -90,7 +105,7 @@ class mod_naas_mod_form extends moodleform_mod {
         // Grading method
         $mform->addElement('select', 'grade_method', get_string('grade_method', 'naas'), naas_get_grading_options());
         $mform->addHelpButton('grade_method', 'grade_method', 'naas');
-        
+
         // -------------------------------------------------------------------------------
 
         $this->standard_coursemodule_elements();
@@ -110,11 +125,11 @@ class mod_naas_mod_form extends moodleform_mod {
         global $COURSE, $CFG;
         $mform =& $this->_form;
         $isupdate = !empty($this->_cm);
-        $gradeoptions = array('isupdate' => $isupdate,
+        $gradeoptions = ['isupdate' => $isupdate,
             'currentgrade' => false,
             'hasgrades' => false,
             'canrescale' => $this->_features->canrescale,
-            'useratings' => $this->_features->rating);
+            'useratings' => $this->_features->rating];
 
         $itemnumber = 0;
         $component = "mod_{$this->_modname}";
@@ -125,11 +140,11 @@ class mod_naas_mod_form extends moodleform_mod {
         if ($this->_features->hasgrades) {
             // if supports grades and grades aren't being handled via ratings
             if ($isupdate) {
-                $gradeitem = grade_item::fetch(array('itemtype' => 'mod',
+                $gradeitem = grade_item::fetch(['itemtype' => 'mod',
                     'itemmodule' => $this->_cm->modname,
                     'iteminstance' => $this->_cm->instance,
                     'itemnumber' => 0,
-                    'courseid' => $COURSE->id));
+                    'courseid' => $COURSE->id]);
                 if ($gradeitem) {
                     $gradeoptions['currentgrade'] = $gradeitem->grademax;
                     $gradeoptions['currentgradetype'] = $gradeitem->gradetype;
@@ -161,14 +176,14 @@ class mod_naas_mod_form extends moodleform_mod {
                 } else {
                     // the module defines multiple gradable areas, display a selector
                     // for each of them together with a name of the area
-                    $areasgroup = array();
+                    $areasgroup = [];
                     foreach ($this->current->_advancedgradingdata['areas'] as $areaname => $areadata) {
                         $areasgroup[] = $mform->createElement('select', 'advancedgradingmethod_'.$areaname,
                             $areadata['title'], $this->current->_advancedgradingdata['methods']);
                         $areasgroup[] = $mform->createElement('static', 'advancedgradingareaname_'.$areaname, '', $areadata['title']);
                     }
                     $mform->addGroup($areasgroup, 'advancedgradingmethodsgroup', get_string('gradingmethods', 'core_grading'),
-                        array(' ', '<br />'), false);
+                        [' ', '<br />'], false);
                 }
             }
 
@@ -219,7 +234,7 @@ class mod_naas_mod_form extends moodleform_mod {
 
     function validation($data, $files) {
         $errors = parent::validation($data, $files);
-        
+
         if (array_key_exists('completion', $data) && $data['completion'] == COMPLETION_TRACKING_AUTOMATIC) {
             // Check if completionpass exists in $data, otherwise use $this->current->completionpass
             $completionpass = isset($data['completionpass']) ? $data['completionpass'] : (isset($this->current->completionpass) ? $this->current->completionpass : null);
@@ -244,18 +259,18 @@ class mod_naas_mod_form extends moodleform_mod {
      */
     public function add_completion_rules() {
         $mform = $this->_form;
-        $items = array();
+        $items = [];
 
-        $moodle_major_version = get_moodle_major_version();
-        if ($moodle_major_version !== null) {
-            if ($moodle_major_version === 3) {
-                $group = array();
-                $group[] = $mform->createElement('advcheckbox', 'completionpass', null, get_string('completionpass', 'naas'), array('group' => 'cpass'));
+        $moodlemajorversion = get_moodle_major_version();
+        if ($moodlemajorversion !== null) {
+            if ($moodlemajorversion === 3) {
+                $group = [];
+                $group[] = $mform->createElement('advcheckbox', 'completionpass', null, get_string('completionpass', 'naas'), ['group' => 'cpass']);
                 $mform->disabledIf('completionpass', 'completionusegrade', 'notchecked');
                 $mform->addGroup($group, 'completionpassgroup', get_string('completionpass', 'naas'), ' &nbsp; ', false);
                 $mform->addHelpButton('completionpassgroup', 'completionpass', 'naas');
                 $items[] = 'completionpassgroup';
-            } elseif ($moodle_major_version === 4) {
+            } else if ($moodlemajorversion === 4) {
                 // Require passing grade est par default, donc on ajoute un champ caché.
             } else {
                 // plus ancienne que 3 ou plus récente que 4

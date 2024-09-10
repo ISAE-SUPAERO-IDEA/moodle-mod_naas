@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -26,9 +25,9 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$logs = array(
-    array('module'=>'naas', 'action'=>'add', 'mtable'=>'naas', 'field'=>'name'),
-    array('module'=>'naas', 'action'=>'update', 'mtable'=>'naas', 'field'=>'name'),
-    array('module'=>'naas', 'action'=>'view', 'mtable'=>'naas', 'field'=>'name'),
-    array('module'=>'naas', 'action'=>'view all', 'mtable'=>'naas', 'field'=>'name'),
-);
+$logs = [
+    ['module' => 'naas', 'action' => 'add', 'mtable' => 'naas', 'field' => 'name'],
+    ['module' => 'naas', 'action' => 'update', 'mtable' => 'naas', 'field' => 'name'],
+    ['module' => 'naas', 'action' => 'view', 'mtable' => 'naas', 'field' => 'name'],
+    ['module' => 'naas', 'action' => 'view all', 'mtable' => 'naas', 'field' => 'name'],
+];

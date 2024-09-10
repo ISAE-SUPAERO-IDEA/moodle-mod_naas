@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -54,7 +53,7 @@ function get_moodle_major_version() {
     global $CFG;
 
     include($CFG->dirroot . '/version.php');
-    
+
     // Extraire la version majeure
     if (isset($release) && preg_match('/^\d+(\.\d+)?/', $release, $matches)) {
         return (int)$matches[0];
@@ -68,14 +67,14 @@ function get_moodle_major_version() {
  * @return array
  */
 function lti_get_jwt_claim_mapping_test() {
-    return array(
+    return [
         'launch_presentation_return_url' => [
             'suffix' => '',
             'group' => 'launch_presentation',
             'claim' => 'return_url',
-            'isarray' => false
+            'isarray' => false,
         ],
-    );
+    ];
 }
 
 /**
@@ -85,22 +84,37 @@ function lti_get_jwt_claim_mapping_test() {
  */
 function naas_supports($feature) {
     switch($feature) {
-        case FEATURE_MOD_ARCHETYPE:           return MOD_ARCHETYPE_RESOURCE;
-        case FEATURE_GROUPS:                  return true;
-        case FEATURE_GROUPINGS:               return true;
-        case FEATURE_MOD_INTRO:               return true;
-        case FEATURE_MOD_PURPOSE:             return MOD_PURPOSE_CONTENT; // Defines the background color of icon
-        case FEATURE_COMPLETION_TRACKS_VIEWS: return true;
-        case FEATURE_COMPLETION_HAS_RULES:    return true;
-        case FEATURE_GRADE_HAS_GRADE:         return true;
-        case FEATURE_GRADE_OUTCOMES:          return true;
-        case FEATURE_BACKUP_MOODLE2:          return true;
-        case FEATURE_SHOW_DESCRIPTION:        return true;
-        case FEATURE_CONTROLS_GRADE_VISIBILITY: return true;
-        case FEATURE_USES_QUESTIONS:          return true;
-        case FEATURE_PLAGIARISM:              return true;
+        case FEATURE_MOD_ARCHETYPE:
+return MOD_ARCHETYPE_RESOURCE;
+        case FEATURE_GROUPS:
+return true;
+        case FEATURE_GROUPINGS:
+return true;
+        case FEATURE_MOD_INTRO:
+return true;
+        case FEATURE_MOD_PURPOSE:
+return MOD_PURPOSE_CONTENT; // Defines the background color of icon
+        case FEATURE_COMPLETION_TRACKS_VIEWS:
+return true;
+        case FEATURE_COMPLETION_HAS_RULES:
+return true;
+        case FEATURE_GRADE_HAS_GRADE:
+return true;
+        case FEATURE_GRADE_OUTCOMES:
+return true;
+        case FEATURE_BACKUP_MOODLE2:
+return true;
+        case FEATURE_SHOW_DESCRIPTION:
+return true;
+        case FEATURE_CONTROLS_GRADE_VISIBILITY:
+return true;
+        case FEATURE_USES_QUESTIONS:
+return true;
+        case FEATURE_PLAGIARISM:
+return true;
 
-        default: return null;
+        default:
+return null;
     }
 }
 
@@ -114,7 +128,7 @@ function naas_reset_userdata($data) {
     // Any changes to the list of dates that needs to be rolled should be same during course restore and course reset.
     // See MDL-9367.
 
-    return array();
+    return [];
 }
 
 /**
@@ -128,7 +142,7 @@ function naas_reset_userdata($data) {
  * @return array
  */
 function naas_get_view_actions() {
-    return array('view', 'view all');
+    return ['view', 'view all'];
 }
 
 /**
@@ -142,7 +156,7 @@ function naas_get_view_actions() {
  * @return array
  */
 function naas_get_post_actions() {
-    return array('update', 'add');
+    return ['update', 'add'];
 }
 
 /**
@@ -184,7 +198,6 @@ function naas_update_instance($data, $mform) {
     $data->id = $data->instance;
     $DB->update_record('naas', $data);
 
-
     $completiontimeexpected = !empty($data->completionexpected) ? $data->completionexpected : null;
     \core_completion\api::update_completion_date_event($data->coursemodule, 'naas', $data->id, $completiontimeexpected);
 
@@ -202,25 +215,23 @@ function naas_update_instance($data, $mform) {
 function naas_delete_instance($id) {
     global $DB;
 
-    $naas = $DB->get_record('naas', array('id' => $id), '*', MUST_EXIST);
-
+    $naas = $DB->get_record('naas', ['id' => $id], '*', MUST_EXIST);
 
     $cm = get_coursemodule_from_instance('naas', $id);
     \core_completion\api::update_completion_date_event($cm->id, 'naas', $id, null);
 
-    
     /*
     ...
     */
 
-    $events = $DB->get_records('event', array('modulename' => 'naas', 'instance' => $naas->id));
+    $events = $DB->get_records('event', ['modulename' => 'naas', 'instance' => $naas->id]);
     foreach ($events as $event) {
         $event = calendar_event::load($event);
         $event->delete();
     }
 
     // We must delete the module record after we delete the grade item.
-    $DB->delete_records('naas', array('id'=>$naas->id));
+    $DB->delete_records('naas', ['id' => $naas->id]);
 
     return true;
 }
@@ -242,7 +253,7 @@ function naas_get_coursemodule_info($coursemodule) {
     $dbparams = ['id' => $coursemodule->instance];
     $fields = 'id, name, intro, introformat, nugget_id, completionattemptsexhausted, completionpass, completionminattempts';
     if (!$naas = $DB->get_record('naas', $dbparams, $fields)) {
-        return NULL;
+        return null;
     }
 
     $result = new cached_cm_info();
@@ -253,12 +264,11 @@ function naas_get_coursemodule_info($coursemodule) {
         $result->content = format_module_intro('naas', $naas, $coursemodule->id, false);
     }
 
-
     // Populate the custom completion rules as key => value pairs, but only if the completion mode is 'automatic'.
     if ($coursemodule->completion == COMPLETION_TRACKING_AUTOMATIC) {
         if ($naas->completionpass) {
             $result->customdata['customcompletionrules']['completionpassorattemptsexhausted'] = [
-                'completionpass' => $naas->completionpass
+                'completionpass' => $naas->completionpass,
             ];
         } else {
             $result->customdata['customcompletionrules']['completionpassorattemptsexhausted'] = [];
@@ -277,8 +287,8 @@ function naas_get_coursemodule_info($coursemodule) {
  * @param stdClass $currentcontext Current context of block
  */
 function naas_page_type_list($pagetype, $parentcontext, $currentcontext) {
-    $module_pagetype = array('mod-url-*'=>get_string('page-mod-url-x', 'url'));
-    return $module_pagetype;
+    $modulepagetype = ['mod-url-*' => get_string('page-mod-url-x', 'url')];
+    return $modulepagetype;
 }
 
 /**
@@ -289,11 +299,11 @@ function naas_page_type_list($pagetype, $parentcontext, $currentcontext) {
 function naas_export_contents($cm, $baseurl) {
     global $CFG, $DB;
     require_once("$CFG->dirroot/mod/url/locallib.php");
-    $contents = array();
+    $contents = [];
     $context = context_module::instance($cm->id);
 
-    $course = $DB->get_record('course', array('id'=>$cm->course), '*', MUST_EXIST);
-    $urlrecord = $DB->get_record('url', array('id'=>$cm->instance), '*', MUST_EXIST);
+    $course = $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST);
+    $urlrecord = $DB->get_record('url', ['id' => $cm->instance], '*', MUST_EXIST);
 
     $fullurl = str_replace('&amp;', '&', url_get_full_url($urlrecord, $cm, $course));
     $isurl = clean_param($fullurl, PARAM_URL);
@@ -301,7 +311,7 @@ function naas_export_contents($cm, $baseurl) {
         return null;
     }
 
-    $url = array();
+    $url = [];
     $url['type'] = 'url';
     $url['filename']     = clean_param(format_string($urlrecord->name), PARAM_FILE);
     $url['filepath']     = null;
@@ -323,9 +333,9 @@ function naas_export_contents($cm, $baseurl) {
  * @return array containing details of the files / types the mod can handle
  */
 function naas_dndupload_register() {
-    return array('types' => array(
-        array('identifier' => 'url', 'message' => get_string('createurl', 'url'))
-    ));
+    return ['types' => [
+        ['identifier' => 'url', 'message' => get_string('createurl', 'url')],
+    ]];
 }
 
 /**
@@ -339,10 +349,10 @@ function naas_dndupload_register() {
  */
 function naas_view($course, $cm, $context) {
     // Trigger view event
-    $event = \mod_naas\event\course_module_viewed::create(array(
+    $event = \mod_naas\event\course_module_viewed::create([
         'objectid' => $cm->instance,
         'context' => $context,
-    ));
+    ]);
     $event->add_record_snapshot('course_modules', $cm);
     $event->add_record_snapshot('course', $course);
     $event->trigger();
@@ -361,8 +371,8 @@ function naas_view($course, $cm, $context) {
  * @return stdClass an object with the different type of areas indicating if they were updated or not
  * @since Moodle 3.2
  */
-function naas_check_updates_since(cm_info $cm, $from, $filter = array()) {
-    $updates = course_check_module_updates_since($cm, $from, array('content'), $filter);
+function naas_check_updates_since(cm_info $cm, $from, $filter = []) {
+    $updates = course_check_module_updates_since($cm, $from, ['content'], $filter);
     return $updates;
 }
 

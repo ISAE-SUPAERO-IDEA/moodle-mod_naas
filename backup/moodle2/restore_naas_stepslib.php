@@ -31,9 +31,9 @@
 class restore_naas_activity_structure_step extends restore_activity_structure_step {
 
     protected function define_structure() {
-        $paths = array(); 
+        $paths = [];
         $paths[] = new restore_path_element('naas', '/activity/naas');
-    
+
         // Return the paths wrapped into standard activity structure
         return $this->prepare_activity_structure($paths);
     }
@@ -44,10 +44,10 @@ class restore_naas_activity_structure_step extends restore_activity_structure_st
         $data = (object)$data;
         $oldid = $data->id;
         $data->course = $this->get_courseid();
- 
+
         $data->timeopen = $this->apply_date_offset($data->timeopen);
         $data->timeclose = $this->apply_date_offset($data->timeclose);
- 
+
         // insert the naas record
         $newitemid = $DB->insert_record('naas', $data);
         // immediately after inserting "activity" record, call this

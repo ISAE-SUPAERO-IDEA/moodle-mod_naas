@@ -35,7 +35,8 @@ class backup_naas_activity_task extends backup_activity_task {
     /**
      * No specific settings for this activity
      */
-    protected function define_my_settings() { }
+    protected function define_my_settings() {
+    }
 
     /**
      * Defines a backup step to store the instance data in the naas.xml file
@@ -50,7 +51,7 @@ class backup_naas_activity_task extends backup_activity_task {
      * @param string $content some HTML text that eventually contains URLs to the activity instance scripts
      * @return string the content with the URLs encoded
      */
-    static public function encode_content_links($content) {
+    public static function encode_content_links($content) {
         return $content;
     }
 }
