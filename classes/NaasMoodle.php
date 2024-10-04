@@ -23,7 +23,6 @@
  */
 
 namespace mod_naas;
-// require_once($CFG->dirroot.'/mod/hvp/autoloader.php');
 
 class NaasMoodle {
     public function __construct() {
@@ -40,12 +39,10 @@ class NaasMoodle {
         global $DB;
         $activity = $DB->get_record('hvp', ['id' => $id]);
         $h5pinterface = \mod_hvp\framework::instance('interface');
-        // $h5pcore = \mod_hvp\framework::instance('core');
         $contentid = $activity->id;
         $content = $h5pinterface->loadContent($contentid);
         $slug = $activity->slug;
         $filename = "{$slug}-{$contentid}.h5p";
-        // $filepath = (!$args ? '/' : '/' .implode('/', $args) . '/');
         $filepath = "/";
         $itemid = 0;
         $filearea = "exports";

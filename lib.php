@@ -38,7 +38,6 @@ define('NAAS_MAX_Q_DECIMAL_OPTION', 7);
  * the overall grade for a user
  */
 define('NAAS_GRADEHIGHEST', '1');
-// define('NAAS_GRADEAVERAGE', '2');
 define('NAAS_ATTEMPTFIRST', '3');
 define('NAAS_ATTEMPTLAST',  '4');
 /**#@-*/

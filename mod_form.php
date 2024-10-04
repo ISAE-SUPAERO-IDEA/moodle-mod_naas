@@ -14,8 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
-// use Phpml\Helper\Optimizer\div;
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -85,23 +83,11 @@ class mod_naas_mod_form extends moodleform_mod {
 
         $this->standard_grading_coursemodule_elements();
 
-        /*
-        if (property_exists($this->current, 'grade')) {
-            $currentgrade = $this->current->grade;
-        } else {
-            $currentgrade = 100;
-        }
-        $mform->addElement('hidden', 'grade', $currentgrade);
-        $mform->setType('grade', PARAM_FLOAT);
-        */
-
         // Number of attempts
         $attemptoptions = ['0' => get_string('unlimited')];
         for ($i = 1; $i <= NAAS_MAX_ATTEMPT_OPTION; $i++) {
             $attemptoptions[$i] = $i;
         }
-        // $mform->addElement('select', 'attempts', get_string('attempts_allowed', 'naas'),
-                // $attemptoptions);
 
         // Grading method
         $mform->addElement('select', 'grade_method', get_string('grade_method', 'naas'), naas_get_grading_options());
@@ -114,9 +100,7 @@ class mod_naas_mod_form extends moodleform_mod {
     }
 
     function standard_grading_coursemodule_elements() {
-        // $this->_features->rating = false;
         $this->standard_naas_grading_coursemodule_elements();
-        // $this->_features->rating = true;
     }
 
     /**

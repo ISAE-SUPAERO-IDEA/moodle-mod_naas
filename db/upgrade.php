@@ -101,24 +101,11 @@ function xmldb_naas_upgrade($oldversion) {
             $dbman->create_table($table);
         }
 
-        /*
-        // supprimer la table
-        $table = new xmldb_table('naas_activity_outcome');
-        $dbman = $DB->get_manager();
-        $dbman->drop_table($table);
-        */
-
         // Mise à jour du numéro de version
         upgrade_mod_savepoint(true, 2024061403, 'naas');
     }
 
     $table = new xmldb_table('naas');
-
-    // supprimer un ancien champs
-    /*
-    $oldfield = new xmldb_field('grade_pass', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'nugget_id');
-    $dbman->drop_field($table, $oldfield);
-    */
 
     $completionpass = new xmldb_field('completionpass', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'nugget_id');
     // Conditionally launch add field id.

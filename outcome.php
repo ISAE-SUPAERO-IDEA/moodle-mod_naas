@@ -40,9 +40,6 @@ $score = (string) $xmloutput->imsx_POXBody->replaceResultRequest->resultRecord->
 error_log("Score: " . $score);  // compris en 0 et 1
 
 $sourcedid = (string) $xmloutput->imsx_POXBody->replaceResultRequest->resultRecord->sourcedGUID->sourcedId;
-// error_log("sourcedId: " . $sourcedId);
-
-
 
 // Check in the database if user_id and activity_id exist with the sourcedId
 $conditions = ['sourced_id' => $sourcedid];
@@ -66,14 +63,8 @@ $naasinstance = $DB->get_record('naas', ['id' => $cm->instance], '*', MUST_EXIST
 $course = $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST);
 $context = context_module::instance($cm->id);
 
-
-
-
 require_once($CFG->libdir . '/grade/grade_item.php');
-// require_once($CFG->libdir . '/grade/grade_consts.php');
 require_once($CFG->libdir . '/gradelib.php');
-
-
 
 $itemnumber = 0;    // is the item number (only change this if your activity needs to store more than one grade per user)
 
@@ -85,19 +76,7 @@ $activityname = $cm->name;
 
 $gradeinfo = [
     'itemname' => $activityname,
-    // 'idnumber' => $activity_id,
-    // 'gradetype' => GRADE_TYPE_VALUE,
-    // 'grademax' => 100,
-    // 'grademin' => 0,
-    // 'gradepass' => 75
 ];
-
-
-// error_log(json_encode($cm));
-// error_log(json_encode($naas_instance));
-// error_log(json_encode($course));
-// error_log(json_encode($context));
-
 
 // Grading method
 $grademethod = $naasinstance->grade_method;
@@ -144,24 +123,11 @@ if ($grademethod == "1") {
     error_log("Grading method error");
 }
 
-
-
-
-
-
-
 // Set up completion object and check it is enabled.
 $completion = new completion_info($course);
 if (!$completion->is_enabled()) {
     throw new moodle_exception('completionnotenabled', 'completion');
 }
-
-/*
-// Check completion state is manual.
-if ($cm->completion != COMPLETION_TRACKING_MANUAL) {
-    throw new moodle_exception('cannotmanualctrack', 'error');
-}
-*/
 
 $targetstate = COMPLETION_COMPLETE;
 $completion->update_state($cm, $targetstate);
