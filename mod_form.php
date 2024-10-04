@@ -181,7 +181,12 @@ class mod_naas_mod_form extends moodleform_mod {
                     foreach ($this->current->_advancedgradingdata['areas'] as $areaname => $areadata) {
                         $areasgroup[] = $mform->createElement('select', 'advancedgradingmethod_'.$areaname,
                             $areadata['title'], $this->current->_advancedgradingdata['methods']);
-                        $areasgroup[] = $mform->createElement('static', 'advancedgradingareaname_'.$areaname, '', $areadata['title']);
+                        $areasgroup[] = $mform->createElement(
+                            'static',
+                            'advancedgradingareaname_'.$areaname,
+                            '',
+                            $areadata['title']
+                        );
                     }
                     $mform->addGroup($areasgroup, 'advancedgradingmethodsgroup', get_string('gradingmethods', 'core_grading'),
                         [' ', '<br />'], false);
@@ -238,7 +243,9 @@ class mod_naas_mod_form extends moodleform_mod {
 
         if (array_key_exists('completion', $data) && $data['completion'] == COMPLETION_TRACKING_AUTOMATIC) {
             // Check if completionpass exists in $data, otherwise use $this->current->completionpass
-            $completionpass = isset($data['completionpass']) ? $data['completionpass'] : (isset($this->current->completionpass) ? $this->current->completionpass : null);
+            $completionpass = isset($data['completionpass']) ?
+                $data['completionpass'] :
+                (isset($this->current->completionpass) ? $this->current->completionpass : null);
 
             // Show an error if require passing grade was selected and the grade to pass was set to < 0.
             if ($completionpass && (empty($data['gradepass']) || grade_floatval($data['gradepass']) < 0)) {
