@@ -37,7 +37,8 @@ class NaasClient {
         error_log("[NaaS] ".print_r($thing, 1));
     }
     function debug($thing) {
-        if ($this->debug) { $this->log($thing);
+        if ($this->debug) {
+            $this->log($thing);
         }
     }
     // Makes a curl file from a moodle file
@@ -88,12 +89,12 @@ class NaasClient {
         $body = curl_exec($ch);
         $code = curl_getinfo ( $ch, CURLINFO_RESPONSE_CODE );
         $contenttype = curl_getinfo ($ch, CURLINFO_CONTENT_TYPE );
-        if(curl_errno($ch)) {
+        if (curl_errno($ch)) {
             echo 'Curl error: ' . curl_error($ch);
         }
         if ($code != 200) {
             $this->log("Request failed: ".$protocol." - ".$url." (".$code.")");
-            if(curl_errno($ch)) {
+            if (curl_errno($ch)) {
                 $this->log('=> Curl error: ' . curl_error($ch));
             }
             $this->debug($body);
@@ -111,13 +112,12 @@ class NaasClient {
             if (property_exists($res, "payload") && ($res->payload != null || is_array($res->payload))) {
                 $this->debug("Payload: ".print_r($res->payload, 1));
                 return $res->payload;
-            }
-            else if (property_exists($res, "error")) {
+            } else if (property_exists($res, "error")) {
                 $this->debug($res->error);
-            } else { $this->debug("Unexpected_error");
+            } else {
+                $this->debug("Unexpected_error");
             }
-        }
-        else {
+        } else {
             $this->debug("Unexpected_error");
         }
         return $res;
@@ -131,7 +131,8 @@ class NaasClient {
     }
     // Retrieve the LTI config of a nugget from the NaaS
     function get_nugget_lti_config($nuggetid, $structureid=null) {
-        if ($structureid == null) { $structureid = $this->config->naas_structure_id;
+        if ($structureid == null) {
+            $structureid = $this->config->naas_structure_id;
         }
         $this->debug("Get nugget LTI config: ".$nuggetid);
         $protocol = "GET";

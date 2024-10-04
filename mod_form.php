@@ -57,7 +57,8 @@ class mod_naas_mod_form extends moodleform_mod {
         $naas = new NaasClient($config);
 
         $info = $naas->get_api_info();
-        if ($info == null) { $mform->addElement('html', '<div class="alert alert-danger">'.get_string("naas_unable_connect", "naas").'</div>');
+        if ($info == null) {
+            $mform->addElement('html', '<div class="alert alert-danger">'.get_string("naas_unable_connect", "naas").'</div>');
         }
 
         // -------------------------------------------------------

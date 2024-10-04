@@ -33,7 +33,7 @@ $whitelist = [
 
 $match = false;
 foreach($whitelist as $pexp) {
-    if (preg_match($pexp, $path) == 1 ){
+    if (preg_match($pexp, $path) == 1 ) {
         $match = true;
         break;
     }
@@ -48,7 +48,8 @@ if (!$match) {
         if (!$ismanager) {
             $roleid = $DB->get_field('role', 'id', ['shortname' => 'editingteacher']);
             $isteacher = $DB->record_exists('role_assignments', ['userid' => $USER->id, 'roleid' => $roleid]);
-            if (!$isteacher) { die;
+            if (!$isteacher) {
+                die;
             }
         }
     }

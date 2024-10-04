@@ -52,8 +52,7 @@ if ($records) {
         $userid = $record->user_id;
         $activityid = $record->activity_id;
     }
-}
-else {
+} else {
     error_log("No records found for this user.");
 }
 
@@ -117,20 +116,17 @@ if ($grademethod == "1") {
     // Parcourir les données de grade pour cet utilisateur
     foreach ($existinggradesdata as $data) {
         // Vérifier si la note est plus élevée que la note actuellement stockée
-        if ($data->grade > $currenthighestgrade) { $currenthighestgrade = $data->grade;
+        if ($data->grade > $currenthighestgrade) {
+            $currenthighestgrade = $data->grade;
         }
     }
 
     if ($score * 100 > $currenthighestgrade) {
         grade_update('mod/naas', $course->id, 'mod', 'naas', $cm->instance, $itemnumber, $grade, $gradeinfo);
     }
-}
-// Grade Average
-else if ($grademethod == "2") {
+} else if ($grademethod == "2") { // Grade Average
     error_log("grade_average");
-}
-// Grade First Attemp
-else if ($grademethod == "3") {
+} else if ($grademethod == "3") { // Grade First Attemp
     error_log("first_attempt");
 
     // Récupérer les données de grade pour cet utilisateur sur ce module
@@ -141,14 +137,10 @@ else if ($grademethod == "3") {
     if (count($existinggradesdata) == 0) {
         grade_update('mod/naas', $course->id, 'mod', 'naas', $cm->instance, $itemnumber, $grade, $gradeinfo);
     }
-}
-// Grade Last Attemp
-else if ($grademethod == "4") {
+} else if ($grademethod == "4") { // Grade Last Attemp
     error_log("last_attemp");
     grade_update('mod/naas', $course->id, 'mod', 'naas', $cm->instance, $itemnumber, $grade, $gradeinfo);
-}
-// Grade Method unknown
-else {
+} else { // Grade Method unknown
     error_log("Grading method error");
 }
 

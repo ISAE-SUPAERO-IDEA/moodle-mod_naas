@@ -61,7 +61,8 @@ class NaasMoodle {
         $fs = get_file_storage();
         $files = $fs->get_area_files($contextid, 'course', "overviewfiles", 0);
         foreach ($files as $file) {
-            if ($file->get_filesize() > 0) { return $file;
+            if ($file->get_filesize() > 0) {
+                return $file;
             }
         }
     }
@@ -77,7 +78,8 @@ class NaasMoodle {
     function can_push($userid, $context) {
         $roles = get_user_roles($userid, $context);
         foreach($roles as $role) {
-            if (is_siteadmin() || $role->shortname == 'manager' || $role->shortname == 'editingteacher') { return true;
+            if (is_siteadmin() || $role->shortname == 'manager' || $role->shortname == 'editingteacher') {
+                return true;
             }
         }
         return false;
@@ -114,7 +116,8 @@ class NaasMoodle {
                     break;
                 }
             }
-            if ($matchingnugget != null && isset($matchingnugget->nugget_id)) { $nuggetconfig = $naas->get_nugget_lti_config($matchingnugget->nugget_id);
+            if ($matchingnugget != null && isset($matchingnugget->nugget_id)) {
+                $nuggetconfig = $naas->get_nugget_lti_config($matchingnugget->nugget_id);
             }
         }
 
@@ -145,25 +148,6 @@ class NaasMoodle {
         $newrecord->sourced_id = $sourcedid;
         $newrecord->date_added = time(); // UNIX timestamp format
         $DB->insert_record('naas_activity_outcome', $newrecord);
-
-        /* // Display records for logs
-        $conditions = array('user_id' => $userId);
-        $records = $DB->get_records('naas_activity_outcome', $conditions);
-        if ($records) {
-            foreach ($records as $record) {
-                $recordData = array(
-                    "user_id" => $record->user_id,
-                    "activity_id" => $record->activity_id,
-                    "sourced_id" => $record->sourced_id,
-                    "date_added" => date('Y-m-d H:i:s', $record->date_added)
-                );
-                echo json_encode($recordData, JSON_PRETTY_PRINT)."<br>";
-            }
-        }
-        else {
-            echo "No records found for this user.<br><br>";
-        }
-        */
 
         // Delete records longer than 45 minutes car un nugget est sensé durer 30 minutes max
         $timestamplimit = time() - (45 * 60);
