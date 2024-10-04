@@ -32,7 +32,7 @@ $whitelist = [
     '/^\/vocabularies\/nugget_domains_vocabulary\/[\d]+\/?$/'];
 
 $match = false;
-foreach($whitelist as $pexp) {
+foreach ($whitelist as $pexp) {
     if (preg_match($pexp, $path) == 1 ) {
         $match = true;
         break;

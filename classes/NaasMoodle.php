@@ -74,7 +74,7 @@ class NaasMoodle {
     // Returns True if the user is an editing teacher in the course context
     function can_push($userid, $context) {
         $roles = get_user_roles($userid, $context);
-        foreach($roles as $role) {
+        foreach ($roles as $role) {
             if (is_siteadmin() || $role->shortname == 'manager' || $role->shortname == 'editingteacher') {
                 return true;
             }
