@@ -47,7 +47,7 @@ use core_grades\component_gradeitems;
 
 class mod_naas_mod_form extends moodleform_mod {
 
-    function definition() {
+    public function definition() {
         global $CFG, $DB;
         $mform = $this->_form;
 
@@ -99,7 +99,7 @@ class mod_naas_mod_form extends moodleform_mod {
         $this->add_action_buttons();
     }
 
-    function standard_grading_coursemodule_elements() {
+    private function standard_grading_coursemodule_elements() {
         $this->standard_naas_grading_coursemodule_elements();
     }
 
@@ -195,7 +195,7 @@ class mod_naas_mod_form extends moodleform_mod {
 
     }
 
-    function data_preprocessing(&$data) {
+    public function data_preprocessing(&$data) {
         if (empty($data['completionminattempts'])) {
             $data['completionminattempts'] = 1;
         } else {
@@ -211,7 +211,7 @@ class mod_naas_mod_form extends moodleform_mod {
      *
      * @param stdClass $data the form data to be modified.
      */
-    function data_postprocessing($data) {
+    public function data_postprocessing($data) {
         parent::data_postprocessing($data);
         if (!empty($data->completionunlocked)) {
             // Turn off completion settings if the checkboxes aren't ticked.
@@ -222,7 +222,7 @@ class mod_naas_mod_form extends moodleform_mod {
         }
     }
 
-    function validation($data, $files) {
+    public function validation($data, $files) {
         $errors = parent::validation($data, $files);
 
         if (array_key_exists('completion', $data) && $data['completion'] == COMPLETION_TRACKING_AUTOMATIC) {
