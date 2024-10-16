@@ -192,7 +192,7 @@ function naas_add_instance($data) {
  */
 function naas_update_instance($data, $mform) {
     global $CFG, $DB;
-    error_log(print_r($data, 1));
+    debugging(print_r($data, 1));
     $data->timemodified = time();
 
     $data->id = $data->instance;

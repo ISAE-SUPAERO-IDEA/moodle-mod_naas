@@ -32,12 +32,12 @@ require_once('classes/completion/custom_completion.php');
 
 
 $entitybody = file_get_contents('php://input');
-error_log(print_r($entitybody, 1));
+debugging(print_r($entitybody, 1));
 
 $xmloutput = simplexml_load_string($entitybody);
 $score = (string) $xmloutput->imsx_POXBody->replaceResultRequest->resultRecord->result->resultScore->score;
 
-error_log("Score: " . $score);  // compris en 0 et 1
+debugging("Score: " . $score);  // compris en 0 et 1
 
 $sourcedid = (string) $xmloutput->imsx_POXBody->replaceResultRequest->resultRecord->sourcedGUID->sourcedId;
 
@@ -50,11 +50,11 @@ if ($records) {
         $activityid = $record->activity_id;
     }
 } else {
-    error_log("No records found for this user.");
+    debugging("No records found for this user.");
 }
 
-error_log("user_id: ".$userid);
-error_log("activity_id: ".$activityid);
+debugging("user_id: ".$userid);
+debugging("activity_id: ".$activityid);
 
 
 // info sur le cours
@@ -84,7 +84,7 @@ $grademethod = $naasinstance->grade_method;
 
 // Highest Grade
 if ($grademethod == "1") {
-    error_log("highest_grade");
+    debugging("highest_grade");
 
     // Récupérer les données de grade pour cet utilisateur sur ce module
     $existinggrades = grade_get_grades($course->id, 'mod', 'naas', $cm->instance, $userid);
@@ -104,9 +104,9 @@ if ($grademethod == "1") {
         grade_update('mod/naas', $course->id, 'mod', 'naas', $cm->instance, $itemnumber, $grade, $gradeinfo);
     }
 } else if ($grademethod == "2") { // Grade Average
-    error_log("grade_average");
+    debugging("grade_average");
 } else if ($grademethod == "3") { // Grade First Attemp
-    error_log("first_attempt");
+    debugging("first_attempt");
 
     // Récupérer les données de grade pour cet utilisateur sur ce module
     $existinggrades = grade_get_grades($course->id, 'mod', 'naas', $cm->instance, $userid);
@@ -117,10 +117,10 @@ if ($grademethod == "1") {
         grade_update('mod/naas', $course->id, 'mod', 'naas', $cm->instance, $itemnumber, $grade, $gradeinfo);
     }
 } else if ($grademethod == "4") { // Grade Last Attemp
-    error_log("last_attemp");
+    debugging("last_attemp");
     grade_update('mod/naas', $course->id, 'mod', 'naas', $cm->instance, $itemnumber, $grade, $gradeinfo);
 } else { // Grade Method unknown
-    error_log("Grading method error");
+    debugging("Grading method error");
 }
 
 // Set up completion object and check it is enabled.
@@ -131,6 +131,6 @@ if (!$completion->is_enabled()) {
 
 $targetstate = COMPLETION_COMPLETE;
 $completion->update_state($cm, $targetstate);
-error_log("completion_complete");
+debugging("completion_complete");
 
 

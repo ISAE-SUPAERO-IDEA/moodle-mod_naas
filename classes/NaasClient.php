@@ -34,7 +34,7 @@ class NaasClient {
         $this->debug = property_exists($config, "naas_debug") ? $this->config->naas_debug : false;
     }
     function log($thing) {
-        error_log("[NaaS] ".print_r($thing, 1));
+        debugging("[NaaS] ".print_r($thing, 1));
     }
     function debug($thing) {
         if ($this->debug) {
