@@ -85,7 +85,7 @@ class mod_naas_mod_form extends moodleform_mod {
         $this->add_action_buttons();
     }
 
-    private function standard_grading_coursemodule_elements() {
+    public function standard_grading_coursemodule_elements() {
         $this->standard_naas_grading_coursemodule_elements();
     }
 
