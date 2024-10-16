@@ -162,7 +162,7 @@ class NaasClient {
     function post_xapi_statement($verb, $versionid, $data) {
         $this->debug("Send xAPI statement to LRS");
         $protocol = "POST";
-        $service = "/versions/${version_id}/records/${verb}";
+        $service = "/versions/{$versionid}/records/{$verb}";
 
         $result = $this->request($protocol, $service, ((array)$data));
         return $this->handle_result($result);
