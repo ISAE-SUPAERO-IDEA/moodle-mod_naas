@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Moodle Nugget Plugin : Push to NaaS
+ * Enables interaction with a NaaS Server
  *
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @copyright (C) 2019  ISAE-SUPAERO (https://www.isae-supaero.fr/)
@@ -23,9 +23,7 @@
  */
 
 class NaasClient {
-     /**
-      * @var Class that enables interaction with a NaaS Server
-      */
+
     protected $config;
     protected $debug;
 
@@ -33,22 +31,22 @@ class NaasClient {
         $this->config = $config;
         $this->debug = property_exists($config, "naas_debug") ? $this->config->naas_debug : false;
     }
-    function log($thing) {
+    private function log($thing) {
         debugging("[NaaS] ".print_r($thing, 1));
     }
-    function debug($thing) {
+    private function debug($thing) {
         if ($this->debug) {
             $this->log($thing);
         }
     }
     // Makes a curl file from a moodle file.
-    function make_curl_file($file) {
+    function make_curl_file($file) { //todo remove dead code
         $mime = mime_content_type($file);
         $name = basename($file);
         return new \CURLFile($file, $mime, $name);
     }
     // Makes an HTTP request returns the json decoded body or null in case of http error.
-    function request_raw($protocol, $service, $data = null, $params = null) {
+    private function request_raw($protocol, $service, $data = null, $params = null) {
         $url = $this->config->naas_endpoint.$service;
         if ($params != null) {
             // Remove indices from query params.
@@ -103,11 +101,11 @@ class NaasClient {
 
         return $body;
     }
-    function request($protocol, $service, $data = null, $params = null) {
+    public function request($protocol, $service, $data = null, $params = null) {
         $result = $this->request_raw($protocol, $service, $data, $params);
         return json_decode($result);
     }
-    function handle_result($res) {
+    private function handle_result($res) {
         if ($res != null) {
             if (property_exists($res, "payload") && ($res->payload != null || is_array($res->payload))) {
                 $this->debug("Payload: ".print_r($res->payload, 1));
@@ -123,14 +121,14 @@ class NaasClient {
         return $res;
     }
     // Retrieve the NAAS API info.
-    function get_api_info() {
+    public function get_api_info() {
         $this->debug("Get API info");
         $protocol = "GET";
         $config = $this->request($protocol, "");
         return $this->handle_result($config);
     }
     // Retrieve the LTI config of a nugget from the NaaS.
-    function get_nugget_lti_config($nuggetid, $structureid=null) {
+    public function get_nugget_lti_config($nuggetid, $structureid=null) {
         if ($structureid == null) {
             $structureid = $this->config->naas_structure_id;
         }
@@ -142,7 +140,7 @@ class NaasClient {
         return $this->handle_result($config);
     }
     // Retrieve data of a nugget from the NaaS.
-    function get_nugget_data($nuggetid) {
+    public function get_nugget_data($nuggetid) {
         $this->debug("Get nugget data: ".$nuggetid);
         $protocol = "GET";
         $params = [ "nugget_id" => $nuggetid ];
@@ -151,7 +149,7 @@ class NaasClient {
         return $this->handle_result($config);
     }
     // Authentication.
-    function get_connected_user() {
+    public function get_connected_user() {
         $this->debug("Getting user information");
         $protocol = "GET";
         $service = "/auth";
@@ -159,7 +157,7 @@ class NaasClient {
         return $this->handle_result($result);
     }
     // The xAPI statements.
-    function post_xapi_statement($verb, $versionid, $data) {
+    public function post_xapi_statement($verb, $versionid, $data) {
         $this->debug("Send xAPI statement to LRS");
         $protocol = "POST";
         $service = "/versions/{$versionid}/records/{$verb}";
