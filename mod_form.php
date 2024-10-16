@@ -252,14 +252,9 @@ class mod_naas_mod_form extends moodleform_mod {
                 $mform->addGroup($group, 'completionpassgroup', get_string('completionpass', 'naas'), ' &nbsp; ', false);
                 $mform->addHelpButton('completionpassgroup', 'completionpass', 'naas');
                 $items[] = 'completionpassgroup';
-            } else if ($moodlemajorversion === 4) {
-                // Require passing grade est par default, donc on ajoute un champ caché.
-            } else {
-                // Plus ancienne que 3 ou plus récente que 4.
             }
-        } else {
-            // Impossible de déterminer la version de Moodle installée.
         }
+
         return $items;
     }
 
