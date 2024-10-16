@@ -34,7 +34,7 @@ class NaasMoodle {
     }
 
     // Launch LTI content.
-    function lti_launch($naasinstanceid, $language="") {
+    public function lti_launch($naasinstanceid, $language="") {
         global $PAGE;
         global $DB;
         global $CFG;
