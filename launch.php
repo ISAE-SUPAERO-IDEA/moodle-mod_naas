@@ -29,17 +29,17 @@ require_once('classes/NaasClient.php');
 require_once('classes/NaasMoodle.php');
 
 
-// Get data from DB
+// Get data from DB.
 $id = required_param('id', PARAM_INT); // Course Module ID.
 $cm = get_coursemodule_from_id('naas', $id, 0, false, MUST_EXIST);
 $context = context_module::instance($cm->id);
-$language = optional_param('language', null, PARAM_TEXT); // multilanguage change
+$language = optional_param('language', null, PARAM_TEXT); // Multilanguage change.
 $course = $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST);
 
-// Check credentials
+// Check credentials.
 require_login($course, true, $cm);
 require_capability('mod/naas:view', $context);
 
-// Launch LTI
+// Launch LTI.
 $naasmoodle = new \mod_naas\NaasMoodle();
 $naasmoodle->lti_launch($id, $language);

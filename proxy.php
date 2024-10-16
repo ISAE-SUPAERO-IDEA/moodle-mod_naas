@@ -15,21 +15,20 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Accepts two kinds of headers:
+ *  - ?fulltext=...&is_default_version=...&page_size=...
+ *  - ?nugget_id=...
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @copyright (C) 2019  ISAE-SUPAERO (https://www.isae-supaero.fr/)
  * @package mod_naas
  */
-
-// Accepts two kinds of headers:
-// 1- ?fulltext=...&is_default_version=...&page_size=...
-// 2- ?nugget_id=...
 
 require_once($_SERVER['DOCUMENT_ROOT']."/config.php");
 require_once('classes/NaasClient.php');
 
 $path  = $_GET['path'];
 
-// We allow requests to these specific URIs
+// We allow requests to these specific URIs.
 $whitelist = [
     '/^\/nuggets\/([\w]+-?)+\/default_version$/',
     '/^\/persons\/[\w]+\/?$/',
@@ -45,7 +44,7 @@ foreach ($whitelist as $pexp) {
 
 if (!$match) {
     if (!is_siteadmin()) {
-        // Only managers and teachers can use the proxy
+        // Only managers and teachers can use the proxy.
         $roleid = $DB->get_field('role', 'id', ['shortname' => 'manager']);
         $ismanager = $DB->record_exists('role_assignments', ['userid' => $USER->id, 'roleid' => $roleid]);
 
@@ -62,7 +61,7 @@ if (!$match) {
 $config = (object) array_merge((array) get_config('naas'), (array) $CFG);
 $naas = new NaasClient($config);
 
-// Add nql filter
+// Add nql filter.
 $nql = $config->naas_filter;
 if ($nql) {
     $nql = urlencode($nql);

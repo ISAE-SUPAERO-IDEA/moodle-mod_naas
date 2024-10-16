@@ -26,7 +26,7 @@ defined('MOODLE_INTERNAL') || die;
 
 $capabilities = [
 
-    // Ability to see that the Nugget exists, and the basic information
+    // Ability to see that the Nugget exists, and the basic information.
     'mod/naas:view' => [
         'captype' => 'read',
         'contextlevel' => CONTEXT_MODULE,

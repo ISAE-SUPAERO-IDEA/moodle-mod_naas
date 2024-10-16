@@ -56,26 +56,26 @@ class mod_naas_mod_form extends moodleform_mod {
         $mform->addElement('hidden', 'nugget_id', 'nugget_id', ['size' => '48']);
         $mform->setType('nugget_id', PARAM_TEXT);
 
-        // CGU
+        // CGU.
         $mform->addElement('checkbox', 'cgu_agreement', get_string('cgu_agreement', 'naas'));
         $mform->addRule('cgu_agreement', null, 'required');
 
-        // Course description
+        // Course description.
         $this->standard_intro_elements();
 
         // -------------------------------------------------------------------------------
-        // Grade settings
+        // Grade settings.
         $mform->addElement('header', 'grade', 'Grade');
 
         $this->standard_grading_coursemodule_elements();
 
-        // Number of attempts
+        // Number of attempts.
         $attemptoptions = ['0' => get_string('unlimited')];
         for ($i = 1; $i <= NAAS_MAX_ATTEMPT_OPTION; $i++) {
             $attemptoptions[$i] = $i;
         }
 
-        // Grading method
+        // Grading method.
         $mform->addElement('select', 'grade_method', get_string('grade_method', 'naas'), naas_get_grading_options());
         $mform->addHelpButton('grade_method', 'grade_method', 'naas');
 
@@ -109,7 +109,7 @@ class mod_naas_mod_form extends moodleform_mod {
         $gradepassfieldname = component_gradeitems::get_field_name_for_itemnumber($component, $itemnumber, 'gradepass');
 
         if ($this->_features->hasgrades) {
-            // if supports grades and grades aren't being handled via ratings
+            // If supports grades and grades aren't being handled via ratings.
             if ($isupdate) {
                 $gradeitem = grade_item::fetch(['itemtype' => 'mod',
                     'itemmodule' => $this->_cm->modname,
@@ -133,8 +133,7 @@ class mod_naas_mod_form extends moodleform_mod {
                 and !empty($this->current->_advancedgradingdata['areas'])) {
 
                 if (count($this->current->_advancedgradingdata['areas']) == 1) {
-                    // if there is just one gradable area (most cases), display just the selector
-                    // without its name to make UI simpler
+                    // If there is just one gradable area, display only the selector without its name.
                     $areadata = reset($this->current->_advancedgradingdata['areas']);
                     $areaname = key($this->current->_advancedgradingdata['areas']);
                     $mform->addElement('select', 'advancedgradingmethod_'.$areaname,
@@ -145,8 +144,7 @@ class mod_naas_mod_form extends moodleform_mod {
                     }
 
                 } else {
-                    // the module defines multiple gradable areas, display a selector
-                    // for each of them together with a name of the area
+                    // Display a selector for each of them together with a name of the area.
                     $areasgroup = [];
                     foreach ($this->current->_advancedgradingdata['areas'] as $areaname => $areadata) {
                         $areasgroup[] = $mform->createElement('select', 'advancedgradingmethod_'.$areaname,
@@ -212,7 +210,7 @@ class mod_naas_mod_form extends moodleform_mod {
         $errors = parent::validation($data, $files);
 
         if (array_key_exists('completion', $data) && $data['completion'] == COMPLETION_TRACKING_AUTOMATIC) {
-            // Check if completionpass exists in $data, otherwise use $this->current->completionpass
+            // Check if completionpass exists in $data, otherwise use $this->current->completionpass.
             $completionpass = isset($data['completionpass']) ?
                 $data['completionpass'] :
                 (isset($this->current->completionpass) ? $this->current->completionpass : null);
@@ -243,7 +241,13 @@ class mod_naas_mod_form extends moodleform_mod {
         if ($moodlemajorversion !== null) {
             if ($moodlemajorversion === 3) {
                 $group = [];
-                $group[] = $mform->createElement('advcheckbox', 'completionpass', null, get_string('completionpass', 'naas'), ['group' => 'cpass']);
+                $group[] = $mform->createElement(
+                    'advcheckbox',
+                    'completionpass',
+                    null,
+                    get_string('completionpass', 'naas'),
+                    ['group' => 'cpass']
+                );
                 $mform->disabledIf('completionpass', 'completionusegrade', 'notchecked');
                 $mform->addGroup($group, 'completionpassgroup', get_string('completionpass', 'naas'), ' &nbsp; ', false);
                 $mform->addHelpButton('completionpassgroup', 'completionpass', 'naas');
@@ -251,10 +255,10 @@ class mod_naas_mod_form extends moodleform_mod {
             } else if ($moodlemajorversion === 4) {
                 // Require passing grade est par default, donc on ajoute un champ caché.
             } else {
-                // plus ancienne que 3 ou plus récente que 4
+                // Plus ancienne que 3 ou plus récente que 4.
             }
         } else {
-            // Impossible de déterminer la version de Moodle installée
+            // Impossible de déterminer la version de Moodle installée.
         }
         return $items;
     }

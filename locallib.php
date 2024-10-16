@@ -32,7 +32,7 @@ function naas_widget_html($nuggetid, $cmid, $component) {
         "proxy_url" => "$CFG->wwwroot/mod/naas/proxy.php",
         "component" => $component,
         "nugget_id" => $nuggetid,
-        "cm_id" => $cmid, // Course module ID
+        "cm_id" => $cmid, // Course module ID.
         "labels" => [
             "nugget_search_here" => get_string('nugget_search_here', 'naas'),
             "nugget_search_no_result" => get_string('nugget_search_no_result', 'naas'),
@@ -94,7 +94,7 @@ function naas_widget_html($nuggetid, $cmid, $component) {
     ]);
     $html = "<div id='naas_widget'></div>";
     $html .= "<script>NAAS=$widgetconfig</script>";
-    // TODO: use $PAGE->require->js
+    // TODO: use $PAGE->require->js.
     $widgetjsurl = new moodle_url('/mod/naas/assets/vue/naas_widget.js');
     $html .= "<script src='$widgetjsurl' ></script>";
 

@@ -28,7 +28,7 @@ class NaasMoodle {
     public function __construct() {
     }
 
-    // Inspired from /mod/hvp/lib.php
+    // Inspired from /mod/hvp/lib.php.
     function get_hvp_file_for_course($courseid, $contextid) {
         global $DB;
         $activity = $DB->get_record('hvp', ['course' => $courseid]);
@@ -64,14 +64,14 @@ class NaasMoodle {
         }
     }
 
-    // Returns the value of the nugget_id field for a given course
+    // Returns the value of the nugget_id field for a given course.
     function get_nugget_id_from_course($courseid) {
         $handler = \core_course\customfield\course_handler::create();
         $customdata = $handler->export_instance_data_object($courseid);
         return $customdata->nugget_id;
     }
 
-    // Returns True if the user is an editing teacher in the course context
+    // Returns True if the user is an editing teacher in the course context.
     function can_push($userid, $context) {
         $roles = get_user_roles($userid, $context);
         foreach ($roles as $role) {
@@ -82,14 +82,14 @@ class NaasMoodle {
         return false;
     }
 
-    // Gets the physical path of a moodle file
+    // Gets the physical path of a moodle file.
     function get_stored_file_path($file) {
         $filehandle = $file->get_content_file_handle();
         $metadata = stream_get_meta_data($filehandle);
         return $metadata["uri"];
     }
 
-    // Launch LTI content
+    // Launch LTI content.
     function lti_launch($naasinstanceid, $language="") {
         global $PAGE;
         global $DB;
@@ -100,12 +100,15 @@ class NaasMoodle {
         $context = \context_module::instance($cm->id);
         $course = $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST);
 
-        // Retrieve LTI config from NaaS server
+        // Retrieve LTI config from NaaS server.
         $config = (object) array_merge((array) \get_config('naas'), (array) $CFG);
         $naas = new \NaasClient($config);
         $nuggetdata = $naas->get_nugget_data($naasinstance->nugget_id);
         $nuggetconfig = $naas->get_nugget_lti_config($naasinstance->nugget_id);
-        if ($language != "" && isset($nuggetdata) && is_object($nuggetdata) && property_exists($nuggetdata, 'multilanguages')) {
+        if ($language != ""
+            && isset($nuggetdata)
+            && is_object($nuggetdata)
+            && property_exists($nuggetdata, 'multilanguages')) {
             $matchingnugget = null;
             foreach ($nuggetdata->multilanguages as $item) {
                 if (isset($item->language) && $item->language === $language) {
@@ -124,29 +127,29 @@ class NaasMoodle {
             return;
         }
 
-        // Configure LTI module
+        // Configure LTI module.
         $PAGE->set_course($course);
 
-        // See: https://moodle.org/mod/forum/discuss.php?d=335734
-        // Configure launch data
+        // See: https://moodle.org/mod/forum/discuss.php?d=335734.
+        // Configure launch data.
         $launchurl = $nuggetconfig->url;
         $key = $nuggetconfig->key;
         $secret = $nuggetconfig->secret;
 
-        // To store in database: user id, activity id, secret
+        // To store in database: user id, activity id, secret.
         $userid = $USER->id;
         $activityid = $cm->id;
-        $sourcedid = bin2hex(random_bytes(16)); // 16 bytes to obtain a 32-character hexadecimal string
+        $sourcedid = bin2hex(random_bytes(16)); // 16 bytes to obtain a 32-character hexadecimal string.
 
-        // Insert a record in the database
+        // Insert a record in the database.
         $newrecord = new \stdClass();
         $newrecord->user_id = $userid;
         $newrecord->activity_id = $activityid;
         $newrecord->sourced_id = $sourcedid;
-        $newrecord->date_added = time(); // UNIX timestamp format
+        $newrecord->date_added = time(); // UNIX timestamp format.
         $DB->insert_record('naas_activity_outcome', $newrecord);
 
-        // Delete records longer than 45 minutes car un nugget est sensé durer 30 minutes max
+        // Delete records longer than 45 minutes car un nugget est sensé durer 30 minutes max.
         $timestamplimit = time() - (45 * 60);
         $sql = "date_added < " . $timestamplimit;
         $params = ['timestampLimit' => $timestamplimit];
@@ -155,13 +158,19 @@ class NaasMoodle {
         $now = new \DateTime();
 
         $secret = urlencode($secret) . "&";
-        $resourcelinkid = base64_encode(hash_hmac("sha1", $_SERVER['SERVER_NAME'].$USER->email.$nuggetdata->version_id, $secret, false));
+        $resourcelinkid = base64_encode(
+                hash_hmac(
+                        "sha1",
+                        $_SERVER['SERVER_NAME'].$USER->email.$nuggetdata->version_id,
+                        $secret,
+                        false
+                )
+        );
 
         $launchdata = [
-            // LTI version
             "lti_version" => "LTI-1p0",
             "lti_message_type" => "basic-lti-launch-request",
-            // OAuth parameters
+
             "oauth_callback" => "about:blank",
             "oauth_consumer_key" => $key,
             "oauth_version" => "1.0",
@@ -169,14 +178,13 @@ class NaasMoodle {
             "oauth_timestamp" => $now->getTimestamp(),
             "oauth_signature_method" => "HMAC-SHA1",
 
-            // Context info
             "context_id" => $cm->id,
-            // Return grade parameters
+
             "lis_result_sourcedid" => $sourcedid,
             "lis_outcome_service_url" => $CFG->wwwroot. "/mod/naas/outcome.php?id=" . $cm->id,
             "resource_link_id" => $resourcelinkid,
         ];
-        // private information
+
         if ($config->naas_privacy_learner_name) {
             $launchdata["lis_person_name_full"] = $USER->firstname. " ".$USER->lastname;
         }
@@ -184,15 +192,15 @@ class NaasMoodle {
             $launchdata["lis_person_contact_email_primary"] = $USER->email;
         }
 
-        // LTI
-        // Basic LTI uses OAuth to sign requests
-        // OAuth Core 1.0 spec: http://oauth.net/core/1.0/
+        // LTI.
+        // Basic LTI uses OAuth to sign requests.
+        // OAuth Core 1.0 spec: http://oauth.net/core/1.0/.
 
-        // In OAuth, request parameters must be sorted by name
+        // In OAuth, request parameters must be sorted by name.
         $launchdatakeys = array_keys($launchdata);
         sort($launchdatakeys);
 
-        // Compute launch parameters
+        // Compute launch parameters.
         $launchparams = [];
         foreach ($launchdatakeys as $key) {
             array_push($launchparams, $key . "=" . rawurlencode($launchdata[$key]));
@@ -201,10 +209,10 @@ class NaasMoodle {
 
         $signature = base64_encode(hash_hmac("sha1", $basestring, $secret, true));
 
-        // session php variable avec le resource_link_id
+        // Session php variable avec le resource_link_id.
         $_SESSION["resource_link_id"] = $resourcelinkid;
 
-        // Generate HTML & javascript code to POST request
+        // Generate HTML & javascript code to POST request.
         ?>
         <form id="ltiLaunchForm" name="ltiLaunchForm" method="POST" action="<?php printf($launchurl); ?>">
             <?php foreach ($launchdata as $k => $v) { ?>

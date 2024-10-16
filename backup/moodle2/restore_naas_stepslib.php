@@ -33,7 +33,7 @@ class restore_naas_activity_structure_step extends restore_activity_structure_st
         $paths = [];
         $paths[] = new restore_path_element('naas', '/activity/naas');
 
-        // Return the paths wrapped into standard activity structure
+        // Return the paths wrapped into standard activity structure.
         return $this->prepare_activity_structure($paths);
     }
 
@@ -47,14 +47,14 @@ class restore_naas_activity_structure_step extends restore_activity_structure_st
         $data->timeopen = $this->apply_date_offset($data->timeopen);
         $data->timeclose = $this->apply_date_offset($data->timeclose);
 
-        // insert the naas record
+        // Insert the naas record.
         $newitemid = $DB->insert_record('naas', $data);
-        // immediately after inserting "activity" record, call this
+        // Immediately after inserting "activity" record, call this.
         $this->apply_activity_instance($newitemid);
     }
 
     protected function after_execute() {
-        // Add naas related files, no need to match by itemname (just internally handled context)
+        // Add naas related files, no need to match by itemname (just internally handled context).
         $this->add_related_files('mod_naas', 'intro', null);
     }
 }

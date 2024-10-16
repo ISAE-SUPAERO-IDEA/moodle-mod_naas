@@ -54,7 +54,7 @@ function get_moodle_major_version() {
 
     include($CFG->dirroot . '/version.php');
 
-    // Extraire la version majeure
+    // Extraire la version majeure.
     if (isset($release) && preg_match('/^\d+(\.\d+)?/', $release, $matches)) {
         return (int)$matches[0];
     }
@@ -93,7 +93,7 @@ return true;
         case FEATURE_MOD_INTRO:
 return true;
         case FEATURE_MOD_PURPOSE:
-return MOD_PURPOSE_CONTENT; // Defines the background color of icon
+return MOD_PURPOSE_CONTENT; // Defines the background color of icon.
         case FEATURE_COMPLETION_TRACKS_VIEWS:
 return true;
         case FEATURE_COMPLETION_HAS_RULES:
@@ -348,7 +348,7 @@ function naas_dndupload_register() {
  * @since Moodle 3.0
  */
 function naas_view($course, $cm, $context) {
-    // Trigger view event
+    // Trigger view event.
     $event = \mod_naas\event\course_module_viewed::create([
         'objectid' => $cm->instance,
         'context' => $context,
@@ -357,7 +357,7 @@ function naas_view($course, $cm, $context) {
     $event->add_record_snapshot('course', $course);
     $event->trigger();
 
-    // Trigger activity completion on view
+    // Trigger activity completion on view.
     $completion = new completion_info($course);
     $completion->set_module_viewed($cm);
 }

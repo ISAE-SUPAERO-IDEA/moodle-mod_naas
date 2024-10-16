@@ -29,26 +29,26 @@ $verb = required_param('verb', PARAM_TEXT);
 $versionid = required_param('version_id', PARAM_TEXT);
 $body = optional_param('body', null, PARAM_TEXT);
 
-// Get data from DB
+// Get data from DB.
 $id = required_param('id', PARAM_INT); // Course Module ID.
 $cm = get_coursemodule_from_id('naas', $id, 0, false, MUST_EXIST);
 $context = context_module::instance($cm->id);
 $course = $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST);
 
-// Check credentials
+// Check credentials.
 require_login($course, true, $cm);
 require_capability('mod/naas:view', $context);
 
-// Get NaaS Client
+// Get NaaS Client.
 $config = (object) array_merge((array) get_config('naas'), (array) $CFG);
 $naas = new NaasClient($config);
 
-// Get user info from Moodle
+// Get user info from Moodle.
 $user = new stdClass();
 $user->name = $USER->firstname.' '.$USER->lastname;
 $user->email = $USER->email;
 
-// Request post data
+// Request post data.
 $data = new stdClass();
 $data->user = $user;
 if (!$body) {

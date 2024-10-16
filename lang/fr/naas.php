@@ -67,14 +67,12 @@ $string['naas_settings_privacy_learner_mail_help'] = 'Envoyer l`email des appren
 $string['naas_settings_privacy_learner_name'] = 'Collecter le nom des apprenants';
 $string['naas_settings_privacy_learner_name_help'] = 'Envoyer le nom des apprenants au server NaaS afin d\'améliorer l\'expérience utilisateur';
 
-// Moodle Form
 $string['naas_unable_connect'] = 'Impossible de contacter le serveur NaaS';
 
 $string['name_help'] = 'Nom de la nugget qui apparaitra dans l\'espace de cours ';
 $string['name_display'] = 'Nom à afficher';
 $string['cgu_agreement'] = 'J\'ai lu et accepte les <a target="_blank" href="https://doc.clickup.com/2594656/p/h/2f5v0-13342/fff6a689cd78033">Conditions Générales d\'Utilisation de la platforme NaaS</a>';
 
-// Vue Form
 $string['nugget_search'] = 'Rechercher des nuggets';
 $string['nugget_search_here'] = 'Pour commencer, entrez un mot-clé';
 $string['nugget_search_no_result'] = 'La recherche n\'a donné aucun résultat, veuillez utiliser un autre mot-clé.';
@@ -93,7 +91,6 @@ $string['select_button'] = 'Selectionner';
 $string['preview_button'] = 'Aperçu';
 $string['loading'] = 'Chargement...';
 
-/* Metadata */
 $string["preview"] = "Aperçu : ";
 $string["description"] = "Description";
 $string["in_brief"] = "En Bref";
@@ -125,7 +122,6 @@ $string["pl"] = "Polonais";
 $string["sv"] = "Suedois";
 $string["publication_date"] = "Date de publication";
 
-/* Rating */
 $string['rating_title'] = 'Évaluez ce nugget';
 $string['rating_description'] = 'Votre note servira à améliorer notre contenu';
 $string['rating_send'] = 'Envoyer';
@@ -134,9 +130,6 @@ $string['rating_sent'] = 'Envoyé ✔';
 $string['learning_outcomes_desc'] = 'Vous avez terminé ce nugget dont les objectifs étaient :';
 $string['complete_nugget'] = 'J\'ai terminé ma consultation du Nugget';
 
-
-/* LTI */
-/* Grade section */
 $string['grade_type'] = 'Type de note';
 $string['attempts_allowed'] = 'Tentatives autorisées';
 $string['grade_method'] = 'Méthode de passage';
@@ -151,7 +144,6 @@ $string['grade_method_help'] = 'Lorsque plusieurs tentatives sont autorisées, l
 * Première tentative (toutes les autres tentatives sont ignorées)
 * Dernière tentative (toutes les autres tentatives sont ignorées)';
 
-/* Activity Completion section */
 $string['completionpass'] = 'Nécessité d\'une note de passage';
 $string['completionpassdesc'] = 'L\'élève doit obtenir la note de passage pour réaliser cette activité.';
 $string['completionpasshelp'] = 'Si cette option est activée, cette activité est considérée comme terminée lorsque l\'étudiant obtient une note de passage (telle que spécifiée dans la section Grade des paramètres du nugget) ou une note supérieure.';
@@ -164,6 +156,5 @@ $string['completionminattemptsdesc'] = 'Nombre minimum de tentatives requises : 
 $string['completionminattemptsgroup'] = 'Tentatives requises';
 $string['completionminattemptserror'] = 'Le nombre minimum de tentatives doit être inférieur ou égal au nombre de tentatives autorisées.';
 
-/* Activity Completion section error messages */
 $string['gradetopassnotset'] = 'Ce nugget n\'a pas encore de note de passage définie. Elle peut être définie dans la section Grade des paramètres du nugget.';
 $string['gradetopassmustbeset'] = 'La note à obtenir ne peut pas être zéro, car la méthode d\'achèvement de ce nugget est réglée pour exiger la note de passage. Veuillez indiquer une valeur différente de zéro.';

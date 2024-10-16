@@ -24,7 +24,7 @@
 
 require_once($_SERVER['DOCUMENT_ROOT']."/config.php");
 
-$id = required_param('id', PARAM_INT); // course id
+$id = required_param('id', PARAM_INT); // Course id.
 $course = $DB->get_record('course', ['id' => $id], '*', MUST_EXIST);
 require_course_login($course, true);
 
@@ -82,11 +82,11 @@ foreach ($urls as $url) {
     $extra = empty($cm->extra) ? '' : $cm->extra;
     $icon = '';
     if (!empty($cm->icon)) {
-        // each url has an icon in 2.0
+        // Each url has an icon in 2.0.
         $icon = $OUTPUT->pix_icon($cm->icon, get_string('modulename', $cm->modname)) . ' ';
     }
 
-    $class = $url->visible ? '' : 'class="dimmed"'; // hidden modules are dimmed
+    $class = $url->visible ? '' : 'class="dimmed"'; // Hidden modules are dimmed.
     $table->data[] = [
         $printsection,
         "<a $class $extra href=\"view.php?id=$cm->id\">".$icon.format_string($url->name)."</a>",

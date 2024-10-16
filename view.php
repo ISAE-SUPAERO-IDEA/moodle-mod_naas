@@ -27,12 +27,12 @@ require_once($CFG->dirroot.'/mod/lti/locallib.php');
 require_once('classes/NaasClient.php');
 require_once('locallib.php');
 
-$id        = optional_param('id', 0, PARAM_INT);        // Course module ID
-$u         = optional_param('u', 0, PARAM_INT);         // NaaS instance id
+$id        = optional_param('id', 0, PARAM_INT);        // Course module ID.
+$u         = optional_param('u', 0, PARAM_INT);         // NaaS instance id.
 $redirect  = optional_param('redirect', 0, PARAM_BOOL);
 $forceview = optional_param('forceview', 0, PARAM_BOOL);
 
-if ($u) {  // Two ways to specify the module
+if ($u) {  // Two ways to specify the module.
     $naasinstance = $DB->get_record('naas', ['id' => $u], '*', MUST_EXIST);
     $cm = get_coursemodule_from_instance('naas', $naas->id, $naas->course, false, MUST_EXIST);
 
@@ -44,14 +44,14 @@ if ($u) {  // Two ways to specify the module
 $course = $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST);
 $context = context_module::instance($cm->id);
 
-// Check credentials
+// Check credentials.
 require_course_login($course, true, $cm);
 require_capability('mod/naas:view', $context);
 
 // Completion and trigger events.
 naas_view($course, $cm, $context);
 
-// Set page stuff
+// Set page stuff.
 $PAGE->set_cm($cm, $course); // Set's up global $COURSE.
 $PAGE->set_context($context);
 $url = new moodle_url('/mod/naas/view.php', ['id' => $cm->id]);
@@ -64,23 +64,23 @@ $PAGE->set_heading($course->fullname);
 echo $OUTPUT->header();
 
 $courseurl = new moodle_url('/course/view.php', ['id' => $COURSE->id]);
-// Back to course button
-$backcoursebutton = "<div class='course-button'><a class='btn btn-outline-secondary btn-sm' 
+// Back to course button.
+$backcoursebutton = "<div class='course-button'><a class='btn btn-outline-secondary btn-sm'
     href=".$courseurl.">".get_string('back_to_course', 'naas')."</a></div>";
 
 echo $backcoursebutton;
 
-// (Hidden) Next activity button
+// Hide Next activity button.
 $nextactivityurl = get_next_activity_url();
 if ($nextactivityurl) {
-    echo "<div class='next-activity hidden'><a class='btn btn-outline-secondary btn-sm' 
+    echo "<div class='next-activity hidden'><a class='btn btn-outline-secondary btn-sm'
     href=".get_next_activity_url()->link."&forceview=1>".get_next_activity_url()->name."</a></div>";
 }
 
-// Displays Nugget
+// Displays Nugget.
 echo naas_widget_html($naasinstance->nugget_id, $cm->id, "NuggetView");
 
-// Toggles the Nugget 'About' Modal
+// Toggles the Nugget 'About' Modal.
 echo "<script>
 let about_button = document.querySelector('.secondary-navigation nav ul li[data-key=about]');
 if (about_button){

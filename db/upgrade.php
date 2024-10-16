@@ -66,11 +66,9 @@ function xmldb_naas_upgrade($oldversion) {
     if ($oldversion < 2023090704) {
         debugging("cgu");
 
-        // Define field cgu_agreement to be added to naas.
         $table = new xmldb_table('naas');
         $field = new xmldb_field('cgu_agreement', XMLDB_TYPE_INTEGER, '1', null, null, null, null, 'nugget_id');
 
-        // Conditionally launch add field id.
         if (!$dbman->field_exists($table, $field)) {
             debugging("c");
             $dbman->add_field($table, $field);
@@ -83,47 +81,56 @@ function xmldb_naas_upgrade($oldversion) {
     if ($oldversion < 2024061403) {
         debugging("retour lti");
 
-        // Création de la table
         $table = new xmldb_table('naas_activity_outcome');
 
         if (!$dbman->table_exists($table)) {
-            // Ajout des colonnes
             $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
             $table->add_field('user_id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
             $table->add_field('activity_id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
             $table->add_field('sourced_id', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
             $table->add_field('date_added', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
 
-            // Clés primaires
             $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
 
-            // Création de la table
             $dbman->create_table($table);
         }
 
-        // Mise à jour du numéro de version
         upgrade_mod_savepoint(true, 2024061403, 'naas');
     }
 
     $table = new xmldb_table('naas');
 
     $completionpass = new xmldb_field('completionpass', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'nugget_id');
-    // Conditionally launch add field id.
     if (!$dbman->field_exists($table, $completionpass)) {
         $dbman->add_field($table, $completionpass);
     }
-    $completionattemptsexhausted = new xmldb_field('completionattemptsexhausted', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'nugget_id');
-    // Conditionally launch add field id.
+    $completionattemptsexhausted = new xmldb_field(
+        'completionattemptsexhausted',
+        XMLDB_TYPE_INTEGER,
+        '10',
+        null,
+        null,
+        null,
+        null,
+        'nugget_id'
+    );
     if (!$dbman->field_exists($table, $completionattemptsexhausted)) {
         $dbman->add_field($table, $completionattemptsexhausted);
     }
-    $completionminattempts = new xmldb_field('completionminattempts', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'nugget_id');
-    // Conditionally launch add field id.
+    $completionminattempts = new xmldb_field(
+        'completionminattempts',
+        XMLDB_TYPE_INTEGER,
+        '10',
+        null,
+        null,
+        null,
+        null,
+        'nugget_id'
+    );
     if (!$dbman->field_exists($table, $completionminattempts)) {
         $dbman->add_field($table, $completionminattempts);
     }
     $grademethod = new xmldb_field('grade_method', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'nugget_id');
-    // Conditionally launch add field id.
     if (!$dbman->field_exists($table, $grademethod)) {
         $dbman->add_field($table, $grademethod);
     }

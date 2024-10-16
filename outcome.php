@@ -37,11 +37,11 @@ debugging(print_r($entitybody, 1));
 $xmloutput = simplexml_load_string($entitybody);
 $score = (string) $xmloutput->imsx_POXBody->replaceResultRequest->resultRecord->result->resultScore->score;
 
-debugging("Score: " . $score);  // compris en 0 et 1
+debugging("Score: " . $score);  // Range from 0 to 1.
 
 $sourcedid = (string) $xmloutput->imsx_POXBody->replaceResultRequest->resultRecord->sourcedGUID->sourcedId;
 
-// Check in the database if user_id and activity_id exist with the sourcedId
+// Check in the database if user_id and activity_id exist with the sourcedId.
 $conditions = ['sourced_id' => $sourcedid];
 $records = $DB->get_records('naas_activity_outcome', $conditions);
 if ($records) {
@@ -57,7 +57,7 @@ debugging("user_id: ".$userid);
 debugging("activity_id: ".$activityid);
 
 
-// info sur le cours
+// Course data.
 $cm = get_coursemodule_from_id('naas', $activityid, 0, false, MUST_EXIST);
 $naasinstance = $DB->get_record('naas', ['id' => $cm->instance], '*', MUST_EXIST);
 $course = $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST);
@@ -66,11 +66,11 @@ $context = context_module::instance($cm->id);
 require_once($CFG->libdir . '/grade/grade_item.php');
 require_once($CFG->libdir . '/gradelib.php');
 
-$itemnumber = 0;    // is the item number (only change this if your activity needs to store more than one grade per user)
+$itemnumber = 0;    // Change this only if your activity needs to store more than one grade per user.
 
 $grade = new stdClass();
 $grade->userid = $userid;
-$grade->rawgrade = $score * 100;    // % de reussite
+$grade->rawgrade = $score * 100;    // Success percentage.
 
 $activityname = $cm->name;
 
@@ -78,23 +78,20 @@ $gradeinfo = [
     'itemname' => $activityname,
 ];
 
-// Grading method
+// Grading method.
 $grademethod = $naasinstance->grade_method;
 
 
-// Highest Grade
+// Highest Grade.
 if ($grademethod == "1") {
     debugging("highest_grade");
 
-    // Récupérer les données de grade pour cet utilisateur sur ce module
     $existinggrades = grade_get_grades($course->id, 'mod', 'naas', $cm->instance, $userid);
     $existinggradesdata = $existinggrades->items[0]->grades;
 
     $currenthighestgrade = 0;
 
-    // Parcourir les données de grade pour cet utilisateur
     foreach ($existinggradesdata as $data) {
-        // Vérifier si la note est plus élevée que la note actuellement stockée
         if ($data->grade > $currenthighestgrade) {
             $currenthighestgrade = $data->grade;
         }
@@ -103,23 +100,21 @@ if ($grademethod == "1") {
     if ($score * 100 > $currenthighestgrade) {
         grade_update('mod/naas', $course->id, 'mod', 'naas', $cm->instance, $itemnumber, $grade, $gradeinfo);
     }
-} else if ($grademethod == "2") { // Grade Average
+} else if ($grademethod == "2") { // Grade Average.
     debugging("grade_average");
-} else if ($grademethod == "3") { // Grade First Attemp
+} else if ($grademethod == "3") { // Grade First Attempt.
     debugging("first_attempt");
 
-    // Récupérer les données de grade pour cet utilisateur sur ce module
     $existinggrades = grade_get_grades($course->id, 'mod', 'naas', $cm->instance, $userid);
     $existinggradesdata = $existinggrades->items[0]->grades;
 
-    // si il n'y a pas de note enregistré
     if (count($existinggradesdata) == 0) {
         grade_update('mod/naas', $course->id, 'mod', 'naas', $cm->instance, $itemnumber, $grade, $gradeinfo);
     }
-} else if ($grademethod == "4") { // Grade Last Attemp
+} else if ($grademethod == "4") { // Grade Last Attempt.
     debugging("last_attemp");
     grade_update('mod/naas', $course->id, 'mod', 'naas', $cm->instance, $itemnumber, $grade, $gradeinfo);
-} else { // Grade Method unknown
+} else { // Grade Method unknown.
     debugging("Grading method error");
 }
 

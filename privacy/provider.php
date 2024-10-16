@@ -21,18 +21,16 @@
  * @copyright (C) 2019  ISAE-SUPAERO (https://www.isae-supaero.fr/)
  * @package mod_naas
  */
+class provider {
+    // This plugin export data to an external location.
 
-class provider
-	// This plugin export data to an external location
-	{
-
-	/**
+    /**
      * Get the language string identifier with the component's language
      * file to explains why the plugin needs to collect personal data and where it is stored.
      *
      * @return  string
      */
-	public static function get_reason() : string {
-		return get_string('naas_settings_privacy_information', 'naas');
-	}
+    public static function get_reason(): string {
+        return get_string('naas_settings_privacy_information', 'naas');
+    }
 }
