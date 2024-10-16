@@ -33,67 +33,6 @@ class NaasMoodle {
     public function __construct() {
     }
 
-    // Inspired from /mod/hvp/lib.php.
-    function get_hvp_file_for_course($courseid, $contextid) {
-        global $DB;
-        $activity = $DB->get_record('hvp', ['course' => $courseid]);
-        return $this->get_hvp_file_for_course($activity->id, $contextid);
-    }
-
-    function get_hvp_file($id, $contextid) {
-        global $DB;
-        $activity = $DB->get_record('hvp', ['id' => $id]);
-        $h5pinterface = \mod_hvp\framework::instance('interface');
-        $contentid = $activity->id;
-        $content = $h5pinterface->loadContent($contentid);
-        $slug = $activity->slug;
-        $filename = "{$slug}-{$contentid}.h5p";
-        $filepath = "/";
-        $itemid = 0;
-        $filearea = "exports";
-        $fs = get_file_storage();
-        $file = $fs->get_file($contextid, 'mod_hvp', "exports", $itemid, $filepath, $filename);
-        if (!$file) {
-            return false; // No such file.
-        }
-        return $file;
-    }
-
-    function get_course_img($contextid) {
-        $fs = get_file_storage();
-        $files = $fs->get_area_files($contextid, 'course', "overviewfiles", 0);
-        foreach ($files as $file) {
-            if ($file->get_filesize() > 0) {
-                return $file;
-            }
-        }
-    }
-
-    // Returns the value of the nugget_id field for a given course.
-    function get_nugget_id_from_course($courseid) {
-        $handler = \core_course\customfield\course_handler::create();
-        $customdata = $handler->export_instance_data_object($courseid);
-        return $customdata->nugget_id;
-    }
-
-    // Returns True if the user is an editing teacher in the course context.
-    function can_push($userid, $context) {
-        $roles = get_user_roles($userid, $context);
-        foreach ($roles as $role) {
-            if (is_siteadmin() || $role->shortname == 'manager' || $role->shortname == 'editingteacher') {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    // Gets the physical path of a moodle file.
-    function get_stored_file_path($file) {
-        $filehandle = $file->get_content_file_handle();
-        $metadata = stream_get_meta_data($filehandle);
-        return $metadata["uri"];
-    }
-
     // Launch LTI content.
     function lti_launch($naasinstanceid, $language="") {
         global $PAGE;

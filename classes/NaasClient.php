@@ -39,12 +39,7 @@ class NaasClient {
             $this->log($thing);
         }
     }
-    // Makes a curl file from a moodle file.
-    function make_curl_file($file) { //todo remove dead code
-        $mime = mime_content_type($file);
-        $name = basename($file);
-        return new \CURLFile($file, $mime, $name);
-    }
+
     // Makes an HTTP request returns the json decoded body or null in case of http error.
     private function request_raw($protocol, $service, $data = null, $params = null) {
         $url = $this->config->naas_endpoint.$service;
