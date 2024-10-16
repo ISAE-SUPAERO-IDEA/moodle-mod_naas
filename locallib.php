@@ -94,7 +94,6 @@ function naas_widget_html($nuggetid, $cmid, $component) {
     ]);
     $html = "<div id='naas_widget'></div>";
     $html .= "<script>NAAS=$widgetconfig</script>";
-    // TODO: use $PAGE->require->js.
     $widgetjsurl = new moodle_url('/mod/naas/assets/vue/naas_widget.js');
     $html .= "<script src='$widgetjsurl' ></script>";
 

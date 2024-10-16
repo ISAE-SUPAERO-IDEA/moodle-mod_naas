@@ -25,7 +25,7 @@
 
 defined('MOODLE_INTERNAL') || die;
 
-require_once ($CFG->dirroot.'/course/moodleform_mod.php');
+require_once($CFG->dirroot.'/course/moodleform_mod.php');
 require_once('classes/NaasClient.php');
 require_once('locallib.php');
 require_once('classes/completion/custom_completion.php');
