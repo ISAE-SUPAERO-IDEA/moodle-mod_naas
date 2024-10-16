@@ -32,12 +32,9 @@ require_once('classes/completion/custom_completion.php');
 
 
 $entitybody = file_get_contents('php://input');
-debugging(print_r($entitybody, 1));
 
 $xmloutput = simplexml_load_string($entitybody);
 $score = (string) $xmloutput->imsx_POXBody->replaceResultRequest->resultRecord->result->resultScore->score;
-
-debugging("Score: " . $score);  // Range from 0 to 1.
 
 $sourcedid = (string) $xmloutput->imsx_POXBody->replaceResultRequest->resultRecord->sourcedGUID->sourcedId;
 
@@ -49,12 +46,7 @@ if ($records) {
         $userid = $record->user_id;
         $activityid = $record->activity_id;
     }
-} else {
-    debugging("No records found for this user.");
 }
-
-debugging("user_id: ".$userid);
-debugging("activity_id: ".$activityid);
 
 
 // Course data.

@@ -31,12 +31,12 @@ class NaasClient {
         $this->config = $config;
         $this->debug = property_exists($config, "naas_debug") ? $this->config->naas_debug : false;
     }
-    private function log($thing) {
-        debugging("[NaaS] ".print_r($thing, 1));
+    private function log($message) {
+        debugging("[NaaS] {$message}");
     }
-    private function debug($thing) {
+    private function debug($message) {
         if ($this->debug) {
-            $this->log($thing);
+            $this->log($message);
         }
     }
 
@@ -103,10 +103,10 @@ class NaasClient {
     private function handle_result($res) {
         if ($res != null) {
             if (property_exists($res, "payload") && ($res->payload != null || is_array($res->payload))) {
-                $this->debug("Payload: ".print_r($res->payload, 1));
+                $this->debug("Payload: ".json_encode($res->payload, JSON_PRETTY_PRINT));
                 return $res->payload;
             } else if (property_exists($res, "error")) {
-                $this->debug($res->error);
+                $this->debug(json_encode($res->error, JSON_PRETTY_PRINT));
             } else {
                 $this->debug("Unexpected_error");
             }
