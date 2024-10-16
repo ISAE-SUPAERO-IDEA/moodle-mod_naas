@@ -17,8 +17,9 @@
 /**
  * Moodle Nugget Plugin : launch LTI
  *
- * @package    mod_naas
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright (C) 2019  ISAE-SUPAERO (https://www.isae-supaero.fr/)
+ * @package mod_naas
  */
 
 require_once($_SERVER['DOCUMENT_ROOT']."/config.php");

@@ -17,9 +17,9 @@
 /**
  * Strings for component 'url'; language 'en'; branch 'MOODLE_20_STABLE'
  *
- * @package    mod_naas
- * @copyright  1999 onwards Martin Dougiamas  {@link http://moodle.com}
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright (C) 2019  ISAE-SUPAERO (https://www.isae-supaero.fr/)
+ * @package mod_naas
  */
 
 $string['pluginname'] = 'Nugget';

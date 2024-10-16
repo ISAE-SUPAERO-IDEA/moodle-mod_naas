@@ -30,9 +30,9 @@ use naas;
  * Class for defining mod_naas's custom completion rules and fetching the completion statuses
  * of the custom completion rules for a given naas instance and a user.
  *
- * @package   mod_naas
- * @copyright 2024 SUPAERO-IDEA
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright (C) 2019  ISAE-SUPAERO (https://www.isae-supaero.fr/)
+ * @package mod_naas
  */
 class custom_completion extends activity_custom_completion {
 

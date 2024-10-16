@@ -17,9 +17,10 @@
 /**
  * Moodle Nugget Plugin : Mandatory public API of NaaS module
  *
- * @package    mod_naas
- * @copyright  2019 Bruno Ilponse
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @author Bruno Ilponse
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright (C) 2019  ISAE-SUPAERO (https://www.isae-supaero.fr/)
+ * @package mod_naas
  */
 
 defined('MOODLE_INTERNAL') || die;

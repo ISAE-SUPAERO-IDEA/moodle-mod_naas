@@ -17,10 +17,10 @@
 /**
  * Defines backup_url_activity_task class
  *
- * @package     mod_naas
- * @category    backup
- * @copyright   2021 Alban Dupire
- * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @category backup
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright (C) 2019  ISAE-SUPAERO (https://www.isae-supaero.fr/)
+ * @package mod_naas
  */
 
 defined('MOODLE_INTERNAL') || die;

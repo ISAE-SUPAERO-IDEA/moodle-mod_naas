@@ -16,6 +16,10 @@
 
 /**
  * Define all the backup steps that will be used by the backup_naas_activity_task
+ *
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright (C) 2019  ISAE-SUPAERO (https://www.isae-supaero.fr/)
+ * @package mod_naas
  */
 
 class backup_naas_activity_structure_step extends backup_activity_structure_step {
