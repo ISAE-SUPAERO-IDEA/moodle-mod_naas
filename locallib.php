@@ -23,8 +23,6 @@
  * @package mod_naas
  */
 
-defined('MOODLE_INTERNAL') || die;
-
 function naas_widget_html($nuggetid, $cmid, $component) {
     global $CFG;
     $widgetconfig = json_encode([

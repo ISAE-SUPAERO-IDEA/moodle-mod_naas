@@ -16,8 +16,6 @@
 
 namespace mod_naas\completion;
 
-defined('MOODLE_INTERNAL') || die();
-
 use context_module;
 use core_completion\activity_custom_completion;
 use grade_grade;

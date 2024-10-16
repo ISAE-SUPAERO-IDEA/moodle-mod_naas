@@ -23,8 +23,6 @@
  * @package mod_naas
  */
 
-defined('MOODLE_INTERNAL') || die;
-
 /**#@+
  * Option controlling what options are offered on the NaaS settings form.
  */

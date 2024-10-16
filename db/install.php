@@ -26,9 +26,6 @@
  * @copyright (C) 2019  ISAE-SUPAERO (https://www.isae-supaero.fr/)
  * @package mod_naas
  */
-
-defined('MOODLE_INTERNAL') || die;
-
 function xmldb_naas_install() {
     global $CFG;
 }

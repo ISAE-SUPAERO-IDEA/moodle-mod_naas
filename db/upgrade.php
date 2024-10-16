@@ -42,8 +42,6 @@
  * @package mod_naas
  */
 
-defined('MOODLE_INTERNAL') || die;
-
 function xmldb_naas_upgrade($oldversion) {
     global $CFG, $DB;
 
