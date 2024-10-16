@@ -129,8 +129,8 @@ class mod_naas_mod_form extends moodleform_mod {
             $mform->setDefault('gradetype', $CFG->gradepointdefault);
 
             if ($this->_features->advancedgrading
-                and !empty($this->current->_advancedgradingdata['methods'])
-                and !empty($this->current->_advancedgradingdata['areas'])) {
+                && !empty($this->current->_advancedgradingdata['methods'])
+                && !empty($this->current->_advancedgradingdata['areas'])) {
 
                 if (count($this->current->_advancedgradingdata['areas']) == 1) {
                     // If there is just one gradable area, display only the selector without its name.
