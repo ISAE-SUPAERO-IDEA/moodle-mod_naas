@@ -25,6 +25,7 @@
 
 require_once($_SERVER['DOCUMENT_ROOT']."/config.php");
 require_once('classes/NaasClient.php');
+require_login(null, false);
 
 $path  = $_GET['path'];
 
