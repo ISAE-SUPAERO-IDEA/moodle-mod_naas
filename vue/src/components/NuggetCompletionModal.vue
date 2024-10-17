@@ -26,7 +26,7 @@
               <button
                 id="send-rating"
                 type="button"
-                class="btn btn-sm btn-outline-secondary"
+                class="btn btn-sm btn-outline-success mt-2"
                 :disabled="ratingSent"
                 @click="rate(savedRating, $event)"
               >
@@ -49,11 +49,11 @@
               </span>
             </div>
           </div>
-          <div class="nugget-modal-footer row justify-content-between">
-            <a :href="backLink" class="btn btn-link"
+          <div class="nugget-modal-footer row justify-content-center">
+            <a :href="backLink" class="btn btn-sm btn-primary"
               >◀︎ {{ config.labels.back_to_course }}</a
             >
-            <a v-if="nextUnitLink" :href="nextUnitLink" class="btn btn-link"
+            <a v-if="nextUnitLink" :href="nextUnitLink" class="ml-2 btn btn-sm btn-primary"
               >{{ config.labels.next_unit }} ▶︎</a
             >
           </div>
