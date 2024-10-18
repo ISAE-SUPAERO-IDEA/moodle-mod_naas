@@ -83,36 +83,36 @@ function lti_get_jwt_claim_mapping_test() {
 function naas_supports($feature) {
     switch($feature) {
         case FEATURE_MOD_ARCHETYPE:
-return MOD_ARCHETYPE_RESOURCE;
+            return MOD_ARCHETYPE_RESOURCE;
         case FEATURE_GROUPS:
-return true;
+            return true;
         case FEATURE_GROUPINGS:
-return true;
+            return true;
         case FEATURE_MOD_INTRO:
-return true;
+            return true;
         case FEATURE_MOD_PURPOSE:
-return MOD_PURPOSE_CONTENT; // Defines the background color of icon.
+            return MOD_PURPOSE_CONTENT; // Defines the background color of icon.
         case FEATURE_COMPLETION_TRACKS_VIEWS:
-return true;
+            return true;
         case FEATURE_COMPLETION_HAS_RULES:
-return true;
+            return true;
         case FEATURE_GRADE_HAS_GRADE:
-return true;
+            return true;
         case FEATURE_GRADE_OUTCOMES:
-return true;
+            return true;
         case FEATURE_BACKUP_MOODLE2:
-return true;
+            return true;
         case FEATURE_SHOW_DESCRIPTION:
-return true;
+            return true;
         case FEATURE_CONTROLS_GRADE_VISIBILITY:
-return true;
+            return true;
         case FEATURE_USES_QUESTIONS:
-return true;
+            return true;
         case FEATURE_PLAGIARISM:
-return true;
+            return true;
 
         default:
-return null;
+            return null;
     }
 }
 
