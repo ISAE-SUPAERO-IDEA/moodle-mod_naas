@@ -1,26 +1,25 @@
 <?php
-
-// This file is part of Moodle - http://moodle.org/
+// This file is part of Moodle - http://moodle.org
 //
-// Moodle is free software] = you can redistribute it and/or modify
+// Moodle is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
-// the Free Software Foundation; either version 3 of the License; or
+// the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// Moodle is distributed in the hope that it will be useful;
+// Moodle is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Moodle.  If not; see <http://www.gnu.org/licenses/>.
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * Strings for component 'url'; language 'en'; branch 'MOODLE_20_STABLE'
  *
- * @package    mod_naas
- * @copyright  1999 onwards Martin Dougiamas  {@link http://moodle.com}
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright (C) 2019  ISAE-SUPAERO (https://www.isae-supaero.fr/)
+ * @package mod_naas
  */
 
 $string['pluginname'] = 'Nugget';
@@ -68,14 +67,12 @@ $string['naas_settings_privacy_learner_mail_help'] = 'Send the learner email whe
 $string['naas_settings_privacy_learner_name'] = 'Collect nugget learners names';
 $string['naas_settings_privacy_learner_name_help'] = 'Send the learner name when connecting the user to the NaaS to improve their experience';
 
-// Moodle Form
 $string['naas_unable_connect'] = 'Unable to contact the NaaS server';
 
 $string['name_help'] = 'Name of the nugget that will appear in the course section';
 $string['name_display'] = 'Name to display';
 $string['cgu_agreement'] = 'I have read and agree to the <a target="_blank" href="https://doc.clickup.com/2594656/p/h/2f5v0-13342/fff6a689cd78033">Terms and Conditions of the NaaS platform</a>';
 
-// Vue Form
 $string['nugget_search'] = 'Search Nuggets';
 $string['nugget_search_here'] = 'To get started, enter a keyword';
 $string['nugget_search_no_result'] = 'The search returned no results, please use another keyword.';
@@ -126,7 +123,6 @@ $string["pl"] = "Polish";
 $string["sv"] = "Swedish";
 $string["publication_date"] = "Publication date";
 
-/* Rating */
 $string['rating_title'] = 'Rate this nugget';
 $string['rating_description'] = 'Your rating will be used to improve the quality of our content';
 $string['rating_send'] = 'Send';
@@ -135,9 +131,6 @@ $string['rating_sent'] = 'Sent ✔';
 $string['learning_outcomes_desc'] = 'You have completed this nugget. The learning objectives were:';
 $string['complete_nugget'] = 'I Finished My Learning With This Nugget';
 
-
-/* LTI */
-/* Grade section */
 $string['grade_type'] = 'Type of grading';
 $string['attempts_allowed'] = 'Attempts allowed';
 $string['grade_method'] = 'Grading method';
@@ -152,7 +145,6 @@ $string['grade_method_help'] = 'When multiple attempts are allowed, the followin
 * First attempt (all other attempts are ignored)
 * Last attempt (all other attempts are ignored)';
 
-/* Activity Completion section */
 $string['completionpass'] = 'Require passing grade';
 $string['completionpass_desc'] = 'Student must achieve a passing grade to complete this activity';
 $string['completionpass_help'] = 'If enabled, this activity is considered complete when the student receives a pass grade (as specified in the Grade section of the nugget settings) or higher.';
@@ -167,6 +159,5 @@ $string['completionminattemptsdesc'] = 'Minimum number of attempts required: {$a
 $string['completionminattemptsgroup'] = 'Require attempts';
 $string['completionminattemptserror'] = 'Minimum number of attempts must be lower or equal to attempts allowed.';
 
-/* Activity Completion section error messages */
 $string['gradetopassnotset'] = 'This nugget does not yet have a grade to pass set. It may be set in the Grade section of the nugget settings.';
 $string['gradetopassmustbeset'] = 'Grade to pass cannot be zero as this nugget has its completion method set to require passing grade. Please set a non-zero value.';
