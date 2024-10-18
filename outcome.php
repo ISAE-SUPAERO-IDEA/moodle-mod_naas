@@ -75,7 +75,7 @@ $grademethod = $naasinstance->grade_method;
 
 // Highest Grade.
 if ($grademethod == "1") {
-    debugging("highest_grade");
+    debugging("highest_grade", DEBUG_DEVELOPER);
 
     $existinggrades = grade_get_grades($course->id, 'mod', 'naas', $cm->instance, $userid);
     $existinggradesdata = $existinggrades->items[0]->grades;
@@ -92,9 +92,9 @@ if ($grademethod == "1") {
         grade_update('mod/naas', $course->id, 'mod', 'naas', $cm->instance, $itemnumber, $grade, $gradeinfo);
     }
 } else if ($grademethod == "2") { // Grade Average.
-    debugging("grade_average");
+    debugging("grade_average", DEBUG_DEVELOPER);
 } else if ($grademethod == "3") { // Grade First Attempt.
-    debugging("first_attempt");
+    debugging("first_attempt", DEBUG_DEVELOPER);
 
     $existinggrades = grade_get_grades($course->id, 'mod', 'naas', $cm->instance, $userid);
     $existinggradesdata = $existinggrades->items[0]->grades;
@@ -103,10 +103,10 @@ if ($grademethod == "1") {
         grade_update('mod/naas', $course->id, 'mod', 'naas', $cm->instance, $itemnumber, $grade, $gradeinfo);
     }
 } else if ($grademethod == "4") { // Grade Last Attempt.
-    debugging("last_attemp");
+    debugging("last_attemp", DEBUG_DEVELOPER);
     grade_update('mod/naas', $course->id, 'mod', 'naas', $cm->instance, $itemnumber, $grade, $gradeinfo);
 } else { // Grade Method unknown.
-    debugging("Grading method error");
+    debugging("Grading method error", DEBUG_DEVELOPER);
 }
 
 // Set up completion object and check it is enabled.
@@ -117,6 +117,6 @@ if (!$completion->is_enabled()) {
 
 $targetstate = COMPLETION_COMPLETE;
 $completion->update_state($cm, $targetstate);
-debugging("completion_complete");
+debugging("completion_complete", DEBUG_DEVELOPER);
 
 

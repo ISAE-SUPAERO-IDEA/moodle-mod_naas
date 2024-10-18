@@ -66,7 +66,7 @@ class NaasMoodle {
         }
 
         if ($nuggetconfig == null || isset($nuggetconfig->error)) {
-            debugging(" Cannot get nugget information from NaaS server. ");
+            error_log(" Cannot get nugget information from NaaS server. ");
             echo(" Cannot get nugget information from NaaS server. ");
             return;
         }

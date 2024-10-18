@@ -60,15 +60,15 @@ function xmldb_naas_upgrade($oldversion) {
 
     // Automatically generated Moodle v3.7.0 release upgrade line.
     // Put any upgrade step following this.
-    debugging("upgrade");
+    debugging("upgrade", DEBUG_DEVELOPER);
     if ($oldversion < 2023090704) {
-        debugging("cgu");
+        debugging("cgu", DEBUG_DEVELOPER);
 
         $table = new xmldb_table('naas');
         $field = new xmldb_field('cgu_agreement', XMLDB_TYPE_INTEGER, '1', null, null, null, null, 'nugget_id');
 
         if (!$dbman->field_exists($table, $field)) {
-            debugging("c");
+            debugging("c", DEBUG_DEVELOPER);
             $dbman->add_field($table, $field);
         }
 
@@ -77,7 +77,7 @@ function xmldb_naas_upgrade($oldversion) {
     }
 
     if ($oldversion < 2024061403) {
-        debugging("retour lti");
+        debugging("retour lti", DEBUG_DEVELOPER);
 
         $table = new xmldb_table('naas_activity_outcome');
 

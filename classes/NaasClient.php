@@ -32,7 +32,7 @@ class NaasClient {
         $this->debug = property_exists($config, "naas_debug") ? $this->config->naas_debug : false;
     }
     private function log($message) {
-        debugging("[NaaS] {$message}");
+        debugging("[NaaS] {$message}", DEBUG_DEVELOPER);
     }
     private function debug($message) {
         if ($this->debug) {
