@@ -190,8 +190,6 @@ class mod_naas_mod_form extends moodleform_mod {
     public function data_preprocessing(&$data) {
         if (empty($data['completionminattempts'])) {
             $data['completionminattempts'] = 1;
-        } else {
-            $data['completionminattempts'] = $data['completionminattempts'] > 0;
         }
     }
 
