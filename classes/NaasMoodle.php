@@ -38,8 +38,8 @@ class NaasMoodle {
 
     /**
      * Launch LTI content.
-     * @param $naasinstanceid
-     * @param $language
+     * @param int $naasinstanceid
+     * @param string $language
      * @return void
      * @throws \Random\RandomException
      */
