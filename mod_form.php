@@ -184,7 +184,7 @@ class mod_naas_mod_form extends moodleform_mod {
 
     /**
      * Initialise the completion min attempts on the fly
-     * @param $data
+     * @param array $data
      * @return void
      */
     public function data_preprocessing(&$data) {
@@ -214,8 +214,8 @@ class mod_naas_mod_form extends moodleform_mod {
 
     /**
      * Form validation
-     * @param $data
-     * @param $files
+     * @param array $data
+     * @param array $files
      * @return mixed
      */
     public function validation($data, $files) {
