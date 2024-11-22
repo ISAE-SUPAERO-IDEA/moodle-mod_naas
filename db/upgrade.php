@@ -36,6 +36,7 @@
  *
  * Please do not forget to use upgrade_set_timeout()
  * before any action that may take longer time to finish.
+ * @param string $oldversion
  *
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @copyright (C) 2019  ISAE-SUPAERO (https://www.isae-supaero.fr/)
