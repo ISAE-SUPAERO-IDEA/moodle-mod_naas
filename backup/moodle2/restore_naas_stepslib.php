@@ -15,20 +15,17 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Define all the restore steps that will be used by the restore_naas_activity_task
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @copyright (C) 2019  ISAE-SUPAERO (https://www.isae-supaero.fr/)
  * @package mod_naas
  */
-
-/**
- * Define all the restore steps that will be used by the restore_naas_activity_task
- */
-
-/**
- * Structure step to restore one NaaS activity
- */
 class restore_naas_activity_structure_step extends restore_activity_structure_step {
 
+    /**
+     * Define the NaaS activity structure.
+     * @return mixed
+     */
     protected function define_structure() {
         $paths = [];
         $paths[] = new restore_path_element('naas', '/activity/naas');
@@ -37,11 +34,15 @@ class restore_naas_activity_structure_step extends restore_activity_structure_st
         return $this->prepare_activity_structure($paths);
     }
 
+    /**
+     * NaaS restore process.
+     * @param $data
+     * @return void
+     */
     protected function process_naas($data) {
         global $DB;
 
         $data = (object)$data;
-        $oldid = $data->id;
         $data->course = $this->get_courseid();
 
         $data->timeopen = $this->apply_date_offset($data->timeopen);
@@ -53,6 +54,10 @@ class restore_naas_activity_structure_step extends restore_activity_structure_st
         $this->apply_activity_instance($newitemid);
     }
 
+    /**
+     * Add NaaS related files at the end.
+     * @return void
+     */
     protected function after_execute() {
         // Add naas related files, no need to match by itemname (just internally handled context).
         $this->add_related_files('mod_naas', 'intro', null);
