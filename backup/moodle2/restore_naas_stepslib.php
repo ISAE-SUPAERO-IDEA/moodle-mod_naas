@@ -36,7 +36,7 @@ class restore_naas_activity_structure_step extends restore_activity_structure_st
 
     /**
      * NaaS restore process.
-     * @param $data
+     * @param array $data The process data
      * @return void
      */
     protected function process_naas($data) {
