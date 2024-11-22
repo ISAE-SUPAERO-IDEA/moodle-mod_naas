@@ -48,8 +48,7 @@ class restore_naas_activity_task extends restore_activity_task {
     }
 
     /**
-     * Define the contents in the activity that must be
-     * processed by the link decoder
+     * Define the contents in the activity that must be processed by the link decoder
      */
     public static function define_decode_contents() {
         $contents = [];
@@ -60,8 +59,7 @@ class restore_naas_activity_task extends restore_activity_task {
     }
 
     /**
-     * Define the decoding rules for links belonging
-     * to the activity to be executed by the link decoder
+     * Define the decoding rules for links belonging to the activity to be executed by the link decoder
      */
     public static function define_decode_rules() {
         $rules = [];
@@ -73,10 +71,7 @@ class restore_naas_activity_task extends restore_activity_task {
     }
 
     /**
-     * Define the restore log rules that will be applied
-     * by the {@link restore_logs_processor} when restoring
-     * naas logs. It must return one array
-     * of {@link restore_log_rule} objects
+     * Define the restore log rules
      */
     public static function define_restore_log_rules() {
         $rules = [];
@@ -89,12 +84,9 @@ class restore_naas_activity_task extends restore_activity_task {
     }
 
     /**
-     * Define the restore log rules that will be applied
-     * by the {@link restore_logs_processor} when restoring
-     * course logs. It must return one array
-     * of {@link restore_log_rule} objects
+     * Define the restore log rules that will be applied when restoring course logs.
      *
-     * Note this rules are applied when restoring course logs
+     * Note: these rules are applied when restoring course logs
      * by the restore final task, but are defined here at
      * activity level. All them are rules not linked to any module instance (cmid = 0)
      */
