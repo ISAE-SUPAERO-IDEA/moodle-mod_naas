@@ -41,7 +41,6 @@
  * @copyright (C) 2019  ISAE-SUPAERO (https://www.isae-supaero.fr/)
  * @package mod_naas
  */
-
 function xmldb_naas_upgrade($oldversion) {
     global $CFG, $DB;
 
