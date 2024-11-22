@@ -15,25 +15,34 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Moodle Nugget Plugin : Push to NaaS
- *
+ * Moodle Nugget Plugin : LTI connector
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @copyright (C) 2019  ISAE-SUPAERO (https://www.isae-supaero.fr/)
  * @package mod_naas
  */
-
 namespace mod_naas;
 
 /**
+ * LTI connector
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @copyright (C) 2019  ISAE-SUPAERO (https://www.isae-supaero.fr/)
  * @package mod_naas
  */
 class NaasMoodle {
+
+    /**
+     * Default constructor
+     */
     public function __construct() {
     }
 
-    // Launch LTI content.
+    /**
+     * Launch LTI content.
+     * @param $naasinstanceid
+     * @param $language
+     * @return void
+     * @throws \Random\RandomException
+     */
     public function lti_launch($naasinstanceid, $language="") {
         global $PAGE;
         global $DB;
@@ -66,7 +75,7 @@ class NaasMoodle {
         }
 
         if ($nuggetconfig == null || isset($nuggetconfig->error)) {
-            error_log(" Cannot get nugget information from NaaS server. ");
+            debugging(" Cannot get nugget information from NaaS server. ");
             echo(" Cannot get nugget information from NaaS server. ");
             return;
         }
@@ -93,7 +102,7 @@ class NaasMoodle {
         $newrecord->date_added = time(); // UNIX timestamp format.
         $DB->insert_record('naas_activity_outcome', $newrecord);
 
-        // Delete records longer than 45 minutes car un nugget est sensé durer 30 minutes max.
+        // Delete records longer than 45 minutes because a nugget shouldn't last for more than 30 minutes.
         $timestamplimit = time() - (45 * 60);
         $sql = "date_added < " . $timestamplimit;
         $params = ['timestampLimit' => $timestamplimit];
@@ -158,6 +167,7 @@ class NaasMoodle {
 
         // Generate HTML & javascript code to POST request.
         ?>
+
         <form id="ltiLaunchForm" name="ltiLaunchForm" method="POST" action="<?php printf($launchurl); ?>">
             <?php foreach ($launchdata as $k => $v) { ?>
                 <input type="hidden" name="<?php echo $k ?>" value="<?php echo $v ?>">
