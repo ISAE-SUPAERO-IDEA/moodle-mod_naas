@@ -37,7 +37,7 @@ class NaasClient {
 
     /**
      * Initialize the NaaS client
-     * @param $config
+     * @param object $config
      */
     public function __construct($config) {
         $this->config = $config;
@@ -46,7 +46,7 @@ class NaasClient {
 
     /**
      * Log
-     * @param $message
+     * @param string $message
      * @return void
      */
     private function log($message) {
@@ -55,7 +55,7 @@ class NaasClient {
 
     /**
      * Log when debug mode is activated
-     * @param $message
+     * @param string $message
      * @return void
      */
     private function debug($message) {
@@ -66,10 +66,10 @@ class NaasClient {
 
     /**
      * Makes an HTTP request returns the json decoded body or null in case of http error.
-     * @param $protocol
-     * @param $service
-     * @param $data
-     * @param $params
+     * @param string $protocol
+     * @param string $service
+     * @param object $data
+     * @param array $params
      * @return bool|string
      */
     private function request_raw($protocol, $service, $data = null, $params = null) {
@@ -130,10 +130,10 @@ class NaasClient {
 
     /**
      * Send a request
-     * @param $protocol
-     * @param $service
-     * @param $data
-     * @param $params
+     * @param string $protocol
+     * @param string $service
+     * @param array $data
+     * @param array $params
      * @return mixed
      */
     public function request($protocol, $service, $data = null, $params = null) {
@@ -143,7 +143,7 @@ class NaasClient {
 
     /**
      * Handle the HTTP result
-     * @param $res
+     * @param object $res
      * @return array|mixed
      */
     private function handle_result($res) {
@@ -175,8 +175,8 @@ class NaasClient {
 
     /**
      * Retrieve the LTI config of a nugget from the NaaS.
-     * @param $nuggetid
-     * @param $structureid
+     * @param int $nuggetid
+     * @param int $structureid
      * @return array|mixed
      */
     public function get_nugget_lti_config($nuggetid, $structureid=null) {
@@ -193,7 +193,7 @@ class NaasClient {
 
     /**
      * Retrieve data of a nugget from the NaaS.
-     * @param $nuggetid
+     * @param int $nuggetid
      * @return array|mixed
      */
     public function get_nugget_data($nuggetid) {
@@ -219,6 +219,9 @@ class NaasClient {
 
     /**
      * Post an xAPI statements.
+     * @param string $verb
+     * @param int $versionid
+     * @param object $data
      */
     public function post_xapi_statement($verb, $versionid, $data) {
         $this->debug("Send xAPI statement to LRS");
