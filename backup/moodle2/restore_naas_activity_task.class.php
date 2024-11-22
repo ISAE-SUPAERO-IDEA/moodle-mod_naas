@@ -15,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * NaaS restore task that provides all the settings and steps to perform one
+ *  complete restore of the activity
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @copyright (C) 2019  ISAE-SUPAERO (https://www.isae-supaero.fr/)
  * @package mod_naas
