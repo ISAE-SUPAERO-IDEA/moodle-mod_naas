@@ -166,19 +166,25 @@ class NaasMoodle {
         $_SESSION["resource_link_id"] = $resourcelinkid;
 
         // Generate HTML & javascript code to POST request.
-        ?>
+        $flaunchurl = printf($launchurl);
+        $html = <<<HTML
+    <form id="ltiLaunchForm" name="ltiLaunchForm" method="POST" action="$flaunchurl">
+HTML;
+        foreach ($launchdata as $k => $v) {
+            $html .= <<<HTML
+    <input type="hidden" name="$k" value="$v">
+HTML;
+        }
 
-        <form id="ltiLaunchForm" name="ltiLaunchForm" method="POST" action="<?php printf($launchurl); ?>">
-            <?php foreach ($launchdata as $k => $v) { ?>
-                <input type="hidden" name="<?php echo $k ?>" value="<?php echo $v ?>">
-            <?php } ?>
-                <input type="hidden" name="oauth_signature" value="<?php echo $signature ?>">
-        </form>
-        <script>
-            window.addEventListener("load", (event) => {
-                document.getElementById("ltiLaunchForm").submit();
-            });
-        </script>
-        <?php
+        $html .= <<<HTML
+    <input type="hidden" name="oauth_signature" value="$signature">
+    </form>
+    <script>
+        window.addEventListener("load", () => {
+            document.getElementById("ltiLaunchForm").submit();
+        });
+    </script>
+HTML;
+        echo $html;
     }
 }
