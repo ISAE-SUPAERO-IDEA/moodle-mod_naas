@@ -25,9 +25,9 @@
 
 /**
  * Returns the HTML code of the NaaS widget.
- * @param $nuggetid
- * @param $cmid
- * @param $component
+ * @param int $nuggetid
+ * @param int $cmid
+ * @param string $component
  * @return string
  */
 function naas_widget_html($nuggetid, $cmid, $component) {
