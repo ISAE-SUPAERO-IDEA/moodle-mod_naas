@@ -38,8 +38,8 @@ class NaasMoodle {
 
     /**
      * Launch LTI content.
-     * @param $naasinstanceid
-     * @param $language
+     * @param int $naasinstanceid
+     * @param string $language
      * @return void
      * @throws \Random\RandomException
      */
@@ -166,9 +166,8 @@ class NaasMoodle {
         $_SESSION["resource_link_id"] = $resourcelinkid;
 
         // Generate HTML & javascript code to POST request.
-        $flaunchurl = printf($launchurl);
         $html = <<<HTML
-    <form id="ltiLaunchForm" name="ltiLaunchForm" method="POST" action="$flaunchurl">
+    <form id="ltiLaunchForm" name="ltiLaunchForm" method="POST" action="$launchurl">
 HTML;
         foreach ($launchdata as $k => $v) {
             $html .= <<<HTML
