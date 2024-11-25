@@ -24,19 +24,6 @@ Nugget Post
     box-shadow: 0 10px 20px 0 rgba(0, 0, 0, 0.2);
 }
 
-.nugget-post .description {
-    max-height: 190px;
-    overflow-y: auto;
-    overflow-x: hidden;
-    scrollbar-color: #ddd white;
-    margin-bottom: 25px;
-}
-
-.nugget-post .description::-webkit-scrollbar-thumb {
-    background-color: none; /* color of the scroll thumb */
-    border: none; /* creates padding around scroll thumb */
-}
-
 .nugget-buttons {
     position: absolute;
     right: 30px;
