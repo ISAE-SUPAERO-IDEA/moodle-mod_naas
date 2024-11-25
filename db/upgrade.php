@@ -73,7 +73,7 @@ function xmldb_naas_upgrade($oldversion) {
         }
 
         // Naas savepoint reached.
-        upgrade_mod_savepoint(true, 2023100149, 'naas');
+        upgrade_mod_savepoint(true, 2023090704, 'naas');
     }
 
     if ($oldversion < 2024061403) {
