@@ -10,7 +10,7 @@ Nugget Post
 }
 
 .nugget-post-selected {
-    background: #A6C3FE;
+    background: #a6c3fe;
 }
 
 .nugget-post {
@@ -96,7 +96,7 @@ Modal style
     position: absolute;
     left: 50%;
     top: 50%;
-    background: #FFFFFF;
+    background: #fff;
     box-shadow: 2px 2px 20px 1px;
     border-radius: 5px;
     flex-direction: column;
@@ -207,7 +207,7 @@ div.separator {
 }
 
 a.aggregation-title {
-    color: #000000;
+    color: #000;
     font-weight: 400;
 }
 
