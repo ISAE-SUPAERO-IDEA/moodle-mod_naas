@@ -23,8 +23,10 @@
  */
 
 $string['pluginname'] = 'Nugget';
+$string['naas:addinstance'] = 'Add a new NaaS module';
 $string['modulename'] = 'Nugget';
 $string['modulename_help'] = 'The Moodle Nugget Plugin enables a teacher to integrate a micro-content from the NaaS Server.
+
 
 The teacher can allow the Nugget exercice to be attempted multiple times. A time limit may be set.
 
