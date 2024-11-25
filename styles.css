@@ -2,11 +2,11 @@
 Nugget Post
 ******************************/
 .nugget-selected {
-    margin-bottom: 75px !important;
+    margin-bottom: 75px !important; /* stylelint-disable-line declaration-no-important */
 }
 
 .nugget-post-selection {
-    margin-bottom: 20px !important;
+    margin-bottom: 20px !important; /* stylelint-disable-line declaration-no-important */
 }
 
 .nugget-post-selected {
@@ -44,16 +44,16 @@ Nugget Post
 }
 
 .nugget-button {
-    margin-right: 5px !important;
+    margin-right: 5px !important; /* stylelint-disable-line declaration-no-important */
 }
 
 .nugget-button-selection {
-    padding: 0 5px 0 5px !important;
+    padding: 0 5px 0 5px !important; /* stylelint-disable-line declaration-no-important */
 }
 
 .nugget-button:focus {
-    outline: none !important;
-    box-shadow: none !important;
+    outline: none !important; /* stylelint-disable-line declaration-no-important */
+    box-shadow: none !important; /* stylelint-disable-line declaration-no-important */
 }
 
 /* Load more nugget */
@@ -147,7 +147,7 @@ Modal style
 }
 
 .metadata-field {
-    margin: 0 15px !important;
+    margin: 0 15px !important; /* stylelint-disable-line declaration-no-important */
 }
 
 .metadata-list {
@@ -165,8 +165,8 @@ Modal style
 }
 
 .nugget-view {
-    margin: 0 !important;
-    padding: 0 !important;
+    margin: 0 !important; /* stylelint-disable-line declaration-no-important */
+    padding: 0 !important; /* stylelint-disable-line declaration-no-important */
 }
 
 #nugget-preview-modal {
@@ -178,7 +178,7 @@ Modal style
 }
 
 .preview-iframe {
-    border: none !important;
+    border: none !important; /* stylelint-disable-line declaration-no-important */
 }
 
 /******************************
@@ -322,7 +322,7 @@ Completion modal
 Other style
 ******************************/
 .course-button {
-    margin: 0 18px !important;
+    margin: 0 18px !important; /* stylelint-disable-line declaration-no-important */
     height: 40px;
 }
 
@@ -371,5 +371,5 @@ Other style
 
 /* Fix for Boost theme (Moodle 3) */
 #nav-drawer {
-    z-index: inherit !important;
+    z-index: inherit !important; /* stylelint-disable-line declaration-no-important */
 }
