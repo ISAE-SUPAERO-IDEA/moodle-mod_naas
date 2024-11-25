@@ -40,7 +40,7 @@ Nugget Post
 .nugget-buttons {
     position: absolute;
     right: 30px;
-    bottom: 0px;
+    bottom: 0;
 }
 
 .nugget-button {
@@ -115,7 +115,7 @@ Modal style
 }
 
 .nugget-modal-header h2 {
-    padding: 20px 0px 15px 30px;
+    padding: 20px 0 15px 30px;
 }
 
 .nugget-modal-body {
@@ -202,8 +202,8 @@ div.separator {
 
 .filters-title {
     margin-top: 10px;
-    margin-bottom: 0px;
-    padding-top: 0px
+    margin-bottom: 0;
+    padding-top: 0;
 }
 
 a.aggregation-title {
@@ -280,12 +280,12 @@ Completion modal
     flex-direction: row-reverse;
     justify-content: center;
     height: 40px;
-    margin-bottom: 0px;
+    margin-bottom: 0;
 }
 
 .star {
     color: lightgrey;
-    padding: 0px 4px;
+    padding: 0 4px;
 }
 
 .star i {
@@ -305,11 +305,11 @@ Completion modal
 .rating-description {
     color: #999;
     font-size: 14px;
-    margin: 10px 0px;
+    margin: 10px 0;
 }
 
 .finish-learning-outcomes {
-    margin: 50px 0px;
+    margin: 50px 0;
 }
 
 .finish-learning-outcomes span {
@@ -321,7 +321,7 @@ Completion modal
 Other style
 ******************************/
 .course-button {
-    margin: 0px 18px !important;
+    margin: 0 18px !important;
     height: 40px;
 }
 
