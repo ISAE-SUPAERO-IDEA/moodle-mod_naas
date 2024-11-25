@@ -103,7 +103,8 @@ Modal style
     transform: translate(-50%, -50%);
 }
 
-.nugget-modal h2, .nugget-modal h3 {
+.nugget-modal h2,
+.nugget-modal h3 {
     font-family: Open Sans Condensed, Open Sans, proxima-nova, nunito, Arial, sans-serif;
 }
 
