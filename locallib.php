@@ -23,6 +23,13 @@
  * @package mod_naas
  */
 
+/**
+ * Returns the HTML code of the NaaS widget.
+ * @param int $nuggetid
+ * @param int $cmid
+ * @param string $component
+ * @return string
+ */
 function naas_widget_html($nuggetid, $cmid, $component) {
     global $CFG;
     $widgetconfig = json_encode([
@@ -98,6 +105,10 @@ function naas_widget_html($nuggetid, $cmid, $component) {
     return $html;
 }
 
+/**
+ * Return a link to the next activity
+ * @return object|null { link: string, name: string }
+ */
 function get_next_activity_url() {
     /* Gets the link to the next activity of the course */
     /* Adapted from https://gist.github.com/frumbert/b4fbb8e6f9a23c7233128a1f51df02b7 */
@@ -188,6 +199,7 @@ function get_next_activity_url() {
 }
 
 /**
+ * Returns the grading options.
  * @return array int => lang string the options for calculating the NaaS grade
  *      from the individual attempt grades.
  */
@@ -200,6 +212,7 @@ function naas_get_grading_options() {
 }
 
 /**
+ * Returns the i18n message for the grading option.
  * @param int $option one of the values NAAS_GRADEHIGHEST,
  *      NAAS_ATTEMPTFIRST or NAAS_ATTEMPTLAST.
  * @return the lang string for that option.

@@ -21,9 +21,17 @@
  * @copyright  2021 Leslie Bordonné
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 namespace mod_naas\event;
+
+/**
+ * The course_module_viewed event.
+ */
 class course_module_viewed extends \core\event\course_module_viewed {
+
+    /**
+     * Initialize
+     * @return void
+     */
     protected function init() {
         $this->data['objecttable'] = 'naas';
         parent::init();

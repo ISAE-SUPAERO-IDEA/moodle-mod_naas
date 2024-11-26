@@ -118,7 +118,7 @@ function naas_supports($feature) {
 
 /**
  * This function is used by the reset_course_userdata function in moodlelib.
- * @param $data the data submitted from the reset course.
+ * @param array $data the data submitted from the reset course.
  * @return array status array
  */
 function naas_reset_userdata($data) {
@@ -188,7 +188,7 @@ function naas_add_instance($data) {
  * @param object $data the data that came from the form.
  * @return mixed true on success, false or a string error message on failure.
  */
-function naas_update_instance($data, $mform) {
+function naas_update_instance($data) {
     global $CFG, $DB;
     $data->timemodified = time();
 
@@ -290,10 +290,10 @@ function naas_page_type_list($pagetype, $parentcontext, $currentcontext) {
 
 /**
  * Export URL resource contents
- *
+ * @param object $cm
  * @return array of file content
  */
-function naas_export_contents($cm, $baseurl) {
+function naas_export_contents($cm) {
     global $CFG, $DB;
     require_once("$CFG->dirroot/mod/url/locallib.php");
     $contents = [];
@@ -338,7 +338,6 @@ function naas_dndupload_register() {
 /**
  * Mark the activity completed (if required) and trigger the course_module_viewed event.
  *
- * @param  stdClass $url        url object
  * @param  stdClass $course     course object
  * @param  stdClass $cm         course module object
  * @param  stdClass $context    context object
@@ -377,7 +376,7 @@ function naas_check_updates_since(cm_info $cm, $from, $filter = []) {
  * Adds link(s) to secondary navigation inside activity
  *
  * @param settings_navigation $settings The settings navigation object
- * @param navigation_node $chatnode The node to add module settings to
+ * @param navigation_node $naasnode The node to add module settings to
  * @since Moodle 4.0
  */
 function naas_extend_settings_navigation(settings_navigation $settings, navigation_node $naasnode) {

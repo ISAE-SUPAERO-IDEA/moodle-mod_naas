@@ -31,8 +31,15 @@ require_once('locallib.php');
 require_once('classes/completion/custom_completion.php');
 use core_grades\component_gradeitems;
 
+/**
+ * NaaS configuration form
+ */
 class mod_naas_mod_form extends moodleform_mod {
 
+    /**
+     * Form definition
+     * @return void
+     */
     public function definition() {
         global $CFG, $DB;
         $mform = $this->_form;
@@ -67,7 +74,7 @@ class mod_naas_mod_form extends moodleform_mod {
         // Grade settings.
         $mform->addElement('header', 'grade', 'Grade');
 
-        $this->standard_grading_coursemodule_elements();
+        $this->standard_naas_grading_coursemodule_elements();
 
         // Number of attempts.
         $attemptoptions = ['0' => get_string('unlimited')];
@@ -83,10 +90,6 @@ class mod_naas_mod_form extends moodleform_mod {
 
         $this->standard_coursemodule_elements();
         $this->add_action_buttons();
-    }
-
-    public function standard_grading_coursemodule_elements() {
-        $this->standard_naas_grading_coursemodule_elements();
     }
 
     /**
@@ -179,11 +182,14 @@ class mod_naas_mod_form extends moodleform_mod {
 
     }
 
+    /**
+     * Initialise the completion min attempts on the fly
+     * @param array $data
+     * @return void
+     */
     public function data_preprocessing(&$data) {
         if (empty($data['completionminattempts'])) {
             $data['completionminattempts'] = 1;
-        } else {
-            $data['completionminattempts'] = $data['completionminattempts'] > 0;
         }
     }
 
@@ -206,6 +212,12 @@ class mod_naas_mod_form extends moodleform_mod {
         }
     }
 
+    /**
+     * Form validation
+     * @param array $data
+     * @param array $files
+     * @return mixed
+     */
     public function validation($data, $files) {
         $errors = parent::validation($data, $files);
 

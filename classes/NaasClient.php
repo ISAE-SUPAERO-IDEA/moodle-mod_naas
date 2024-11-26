@@ -21,26 +21,57 @@
  * @copyright (C) 2019  ISAE-SUPAERO (https://www.isae-supaero.fr/)
  * @package mod_naas
  */
-
 class NaasClient {
 
+    /**
+     * Config
+     * @var array
+     */
     protected $config;
+
+    /**
+     * Debug mode
+     * @var bool
+     */
     protected $debug;
 
+    /**
+     * Initialize the NaaS client
+     * @param object $config
+     */
     public function __construct($config) {
         $this->config = $config;
         $this->debug = property_exists($config, "naas_debug") ? $this->config->naas_debug : false;
     }
+
+    /**
+     * Log
+     * @param string $message
+     * @return void
+     */
     private function log($message) {
         debugging("[NaaS] {$message}", DEBUG_DEVELOPER);
     }
+
+    /**
+     * Log when debug mode is activated
+     * @param string $message
+     * @return void
+     */
     private function debug($message) {
         if ($this->debug) {
             $this->log($message);
         }
     }
 
-    // Makes an HTTP request returns the json decoded body or null in case of http error.
+    /**
+     * Makes an HTTP request returns the json decoded body or null in case of http error.
+     * @param string $protocol
+     * @param string $service
+     * @param object $data
+     * @param array $params
+     * @return bool|string
+     */
     private function request_raw($protocol, $service, $data = null, $params = null) {
         $url = $this->config->naas_endpoint.$service;
         if ($params != null) {
@@ -96,10 +127,25 @@ class NaasClient {
 
         return $body;
     }
+
+    /**
+     * Send a request
+     * @param string $protocol
+     * @param string $service
+     * @param array $data
+     * @param array $params
+     * @return mixed
+     */
     public function request($protocol, $service, $data = null, $params = null) {
         $result = $this->request_raw($protocol, $service, $data, $params);
         return json_decode($result);
     }
+
+    /**
+     * Handle the HTTP result
+     * @param object $res
+     * @return array|mixed
+     */
     private function handle_result($res) {
         if ($res != null) {
             if (property_exists($res, "payload") && ($res->payload != null || is_array($res->payload))) {
@@ -115,14 +161,24 @@ class NaasClient {
         }
         return $res;
     }
-    // Retrieve the NAAS API info.
+
+    /**
+     * Retrieve the NAAS API info.
+     * @return array|mixed
+     */
     public function get_api_info() {
         $this->debug("Get API info");
         $protocol = "GET";
         $config = $this->request($protocol, "");
         return $this->handle_result($config);
     }
-    // Retrieve the LTI config of a nugget from the NaaS.
+
+    /**
+     * Retrieve the LTI config of a nugget from the NaaS.
+     * @param int $nuggetid
+     * @param int $structureid
+     * @return array|mixed
+     */
     public function get_nugget_lti_config($nuggetid, $structureid=null) {
         if ($structureid == null) {
             $structureid = $this->config->naas_structure_id;
@@ -134,7 +190,12 @@ class NaasClient {
         $config = $this->request($protocol, $service, null, $params);
         return $this->handle_result($config);
     }
-    // Retrieve data of a nugget from the NaaS.
+
+    /**
+     * Retrieve data of a nugget from the NaaS.
+     * @param int $nuggetid
+     * @return array|mixed
+     */
     public function get_nugget_data($nuggetid) {
         $this->debug("Get nugget data: ".$nuggetid);
         $protocol = "GET";
@@ -143,7 +204,11 @@ class NaasClient {
         $config = $this->request($protocol, $service, null, $params);
         return $this->handle_result($config);
     }
-    // Authentication.
+
+    /**
+     * Authenticate
+     * @return array|mixed
+     */
     public function get_connected_user() {
         $this->debug("Getting user information");
         $protocol = "GET";
@@ -151,7 +216,13 @@ class NaasClient {
         $result = $this->request($protocol, $service);
         return $this->handle_result($result);
     }
-    // The xAPI statements.
+
+    /**
+     * Post an xAPI statements.
+     * @param string $verb
+     * @param int $versionid
+     * @param object $data
+     */
     public function post_xapi_statement($verb, $versionid, $data) {
         $this->debug("Send xAPI statement to LRS");
         $protocol = "POST";
