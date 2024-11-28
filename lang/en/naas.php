@@ -17,9 +17,9 @@
 
 /**
  * Strings for component 'url'; language 'en'; branch 'MOODLE_20_STABLE'
- *
+ * English messages.
  * @package    mod_naas
- * @copyright  1999 onwards Martin Dougiamas  {@link http://moodle.com}
+ * @copyright (C) 2019  ISAE-SUPAERO (https://www.isae-supaero.fr/)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
