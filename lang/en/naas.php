@@ -42,6 +42,10 @@ $string['modulenameplural'] = 'Nuggets';
 $string['pluginadministration'] = '';
 $string['nugget'] = 'Nugget';
 
+// capabilities
+$string['mod_naas:view'] = 'Can view the Nugget';
+$string['mod_naas:addinstance'] = 'Can add a new Nugget to the course';
+
 $string['naas_settings'] = 'NaaS settings';
 $string['naas_settings_information'] = 'The NaaS API documentation may provide information on how to obtain the API endpoint and credentials. You can check their documentation for more information or contact the support team of NaaS.';
 $string['naas_settings_endpoint'] = 'NaaS API endpoint';
