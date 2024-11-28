@@ -25,18 +25,14 @@
 
 // Clés générales
 $string['modulename'] = 'nugget';
-$string['modulename_help'] = 'The Moodle Nugget Plugin enables a teacher to integrate a micro-content from the NaaS Server._
-
-_The teacher can allow the Nugget exercice to be attempted multiple times. A time limit may be set._
-
-_Each attempt is marked automatically and the grade is recorded in the gradebook._
-
-_Nuggets may be used
-
-* As course exams
-* As mini tests for reading assignments or at the end of a topic
-* As exam practice using questions from past exams
-* For self-assessment';
+$string['modulename_help'] = '<p>The Moodle Nugget Plugin enables a teacher to integrate a micro-content from the NaaS Server. The teacher can allow the Nugget exercice to be attempted multiple times. A time limit may be set.
+Each attempt is marked automatically and the grade is recorded in the gradebook.
+Nuggets may be used:
+<ul>
+<li>As course exams</li>
+<li>As mini tests for reading assignments or at the end of a topic</li>
+<li>As exam practice using questions from past exams</li>
+<li>For self-assessment</li></ul></p>';
 $string['modulename_link'] = 'mod/naas/view';
 $string['modulenameplural'] = 'Nuggets';
 $string['pluginadministration'] = '';
