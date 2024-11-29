@@ -25,7 +25,6 @@
 require_once($_SERVER['DOCUMENT_ROOT']."/config.php");
 require_once($CFG->dirroot.'/mod/lti/locallib.php');
 require_once('classes/NaasClient.php');
-require_once('locallib.php');
 
 $id        = optional_param('id', 0, PARAM_INT);        // Course module ID.
 $u         = optional_param('u', 0, PARAM_INT);         // NaaS instance id.
@@ -70,15 +69,14 @@ $backcoursebutton = "<div class='course-button'><a class='btn btn-outline-second
 
 echo $backcoursebutton;
 
-// Hide Next activity button.
-$nextactivityurl = get_next_activity_url();
+$nextactivityurl = \mod_naas\mod_util::get_next_activity_url();
 if ($nextactivityurl) {
     echo "<div class='next-activity hidden'><a class='btn btn-outline-secondary btn-sm'
-    href=".get_next_activity_url()->link."&forceview=1>".get_next_activity_url()->name."</a></div>";
+    href=".$nextactivityurl->link."&forceview=1>".$nextactivityurl->name."</a></div>";
 }
 
 // Displays Nugget.
-echo naas_widget_html($naasinstance->nugget_id, $cm->id, "NuggetView");
+echo \mod_naas\naas_widget::naas_widget_html($naasinstance->nugget_id, $cm->id, "NuggetView");
 
 // Toggles the Nugget 'About' Modal.
 echo "<script>

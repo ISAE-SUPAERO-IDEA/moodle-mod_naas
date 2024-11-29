@@ -27,7 +27,6 @@ defined('MOODLE_INTERNAL') || die;
 
 require_once($CFG->dirroot.'/course/moodleform_mod.php');
 require_once('classes/NaasClient.php');
-require_once('locallib.php');
 require_once('classes/completion/custom_completion.php');
 use core_grades\component_gradeitems;
 
@@ -56,7 +55,7 @@ class mod_naas_mod_form extends moodleform_mod {
         $mform->addElement('header', 'general', get_string('general', 'form'));
 
         $nuggetid = $mform->getCleanedValue("nugget_id", PARAM_TEXT);
-        $mform->addElement('html',  naas_widget_html($nuggetid, null, "NuggetSearchWidget"));
+        $mform->addElement('html',  \mod_naas\naas_widget::naas_widget_html($nuggetid, null, "NuggetSearchWidget"));
 
         $mform->addElement('text', 'name', get_string('name_display', 'naas'), ['size' => '48']);
         $mform->setType('name', PARAM_TEXT);
@@ -83,7 +82,12 @@ class mod_naas_mod_form extends moodleform_mod {
         }
 
         // Grading method.
-        $mform->addElement('select', 'grade_method', get_string('grade_method', 'naas'), naas_get_grading_options());
+        $mform->addElement(
+            'select',
+            'grade_method',
+            get_string('grade_method', 'naas'),
+            \mod_naas\naas_widget::naas_get_grading_options()
+        );
         $mform->addHelpButton('grade_method', 'grade_method', 'naas');
 
         // -------------------------------------------------------------------------------
