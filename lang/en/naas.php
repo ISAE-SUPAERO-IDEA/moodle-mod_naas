@@ -25,14 +25,7 @@
 
 // Clés générales
 $string['modulename'] = 'nugget';
-$string['modulename_help'] = '<p>The Moodle Nugget Plugin enables a teacher to integrate a micro-content from the NaaS Server. The teacher can allow the Nugget exercice to be attempted multiple times. A time limit may be set.
-Each attempt is marked automatically and the grade is recorded in the gradebook.
-Nuggets may be used:
-<ul>
-<li>As course exams</li>
-<li>As mini tests for reading assignments or at the end of a topic</li>
-<li>As exam practice using questions from past exams</li>
-<li>For self-assessment</li></ul></p>';
+$string['modulename_help'] = '<p>The Moodle Nugget Plugin enables a teacher to integrate a micro-content from the NaaS Server. The teacher can allow the Nugget exercice to be attempted multiple times. A time limit may be set. Each attempt is marked automatically and the grade is recorded in the gradebook.<br>Nuggets may be used:<ul><li>As course exams</li><li>As mini tests for reading assignments or at the end of a topic</li><li>As exam practice using questions from past exams</li><li>For self-assessment</li></ul></p>';
 $string['modulename_link'] = 'mod/naas/view';
 $string['modulenameplural'] = 'Nuggets';
 $string['pluginadministration'] = '';
@@ -129,12 +122,7 @@ $string['beginner'] = '_Beginner_';
 $string['gradehighest'] = 'Highest grade';
 $string['gradeaverage'] = 'Average grade';
 $string['grade_method'] = 'Grading method';
-$string['grade_method_help'] = 'When multiple attempts are allowed, the following methods are available for calculating the final nugget grade:
-
-* Highest grade of all attempts
-* Average (mean) grade of all attempts
-* First attempt (all other attempts are ignored)
-* Last attempt (all other attempts are ignored)';
+$string['grade_method_help'] = '<p>When multiple attempts are allowed, the following methods are available for calculating the final nugget grade:<ul><li>Highest grade of all attempts</li><li>Average (mean) grade of all attempts</li><li>First attempt (all other attempts are ignored)</li><li>Last attempt (all other attempts are ignored)</li></ul></p>';
 $string['grade_type'] = 'Type of grading';
 
 // Rating
