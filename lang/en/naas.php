@@ -22,7 +22,7 @@
  * @package mod_naas
  */
 
-// Clés générales
+// Clés générales.
 $string['modulename'] = 'nugget';
 $string['naas:addinstance'] = 'Add a new NaaS module';
 $string['modulename_help'] = '<p>The Moodle Nugget Plugin enables a teacher to integrate a micro-content from the NaaS Server. The teacher can allow the Nugget exercice to be attempted multiple times. A time limit may be set. Each attempt is marked automatically and the grade is recorded in the gradebook.<br>Nuggets may be used:<ul><li>As course exams</li><li>As mini tests for reading assignments or at the end of a topic</li><li>As exam practice using questions from past exams</li><li>For self-assessment</li></ul></p>';
@@ -32,11 +32,11 @@ $string['pluginadministration'] = '';
 $string['pluginname'] = 'nugget';
 $string['nugget'] = 'Nugget';
 
-// capabilities
+// Capabilities.
 $string['mod_naas:view'] = 'Can view the Nugget';
 $string['mod_naas:addinstance'] = 'Can add a new Nugget to the course';
 
-// NaaS settings
+// NaaS settings.
 $string['completiondetail:passorexhaust'] = 'Complete on pass or exhaustion';
 $string['completiondetail:passgrade'] = 'Complete on passing grade';
 $string['naas_settings'] = 'NaaS settings';
@@ -64,7 +64,7 @@ $string['naas_settings_timeout_help'] = 'Number of seconds to wait before aborti
 $string['naas_settings_username'] = 'NaaS API user';
 $string['naas_settings_username_help'] = 'Enter the NaaS API user';
 
-// Moodle Form
+// Moodle Form.
 $string['cgu_agreement'] = 'I have read and agree to the <a target="_blank" href="https://doc.clickup.com/2594656/p/h/2f5v0-13342/fff6a689cd78033">Terms and Conditions of the NaaS platform</a>';
 $string['general'] = 'General';
 $string['lastmodified'] = 'Last modified';
@@ -74,7 +74,7 @@ $string['name_help'] = 'Name of the nugget that will appear in the course sectio
 $string['naas_unable_connect'] = 'Unable to contact the NaaS server';
 $string['unlimited'] = 'Unlimited';
 
-// Vue Form
+// Vue Form.
 $string['about'] = 'About';
 $string['back_to_course'] = 'Back to Course Index';
 $string['click_to_replace'] = 'Replace the selected nugget';
@@ -91,7 +91,7 @@ $string['select_button'] = 'Select';
 $string['show_more_authors'] = 'Show more';
 $string['show_more_nugget_button'] = 'Show more ...';
 
-// Metadata
+// Metadata.
 $string['about_author'] = '_About the author_';
 $string['advanced'] = '_Advanced_';
 $string['authors'] = '_Authors_';
@@ -125,7 +125,7 @@ $string['grade_method'] = 'Grading method';
 $string['grade_method_help'] = '<p>When multiple attempts are allowed, the following methods are available for calculating the final nugget grade:<ul><li>Highest grade of all attempts</li><li>Average (mean) grade of all attempts</li><li>First attempt (all other attempts are ignored)</li><li>Last attempt (all other attempts are ignored)</li></ul></p>';
 $string['grade_type'] = 'Type of grading';
 
-// Rating
+// Rating.
 $string['complete_nugget'] = 'I Finished My Learning With This Nugget';
 $string['learning_outcomes_desc'] = 'You have completed this nugget. The learning objectives were: ';
 $string['rating_description'] = 'Your rating will be used to improve the quality of our content';
@@ -133,7 +133,7 @@ $string['rating_send'] = 'Send';
 $string['rating_sent'] = 'Sent';
 $string['rating_title'] = 'Rate this nugget';
 
-// Activity Completion section
+// Activity Completion section.
 $string['completionpass'] = 'Require passing grade';
 $string['completionpass_desc'] = 'Student must achieve a passing grade to complete this activity';
 $string['completionpass_help'] = 'If enabled, this activity is considered complete when the student receives a pass grade (as specified in the Grade section of the nugget settings) or higher.';
@@ -142,7 +142,7 @@ $string['completionminattemptsdesc'] = 'Minimum number of attempts required: {$a
 $string['completionminattemptsgroup'] = 'Require attempts';
 $string['completionminattemptserror'] = 'Minimum number of attempts must be lower or equal to attempts allowed.';
 
-// Activity Completion section error messages
+// Activity Completion section error messages.
 $string['gradecategoryonmodform'] = 'Grade category on mod form';
 $string['gradetopass'] = 'Grade to pass';
 $string['gradetopassnotset'] = 'This nugget does not yet have a grade to pass set. It may be set in the Grade section of the nugget settings.';
