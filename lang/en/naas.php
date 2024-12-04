@@ -1,30 +1,30 @@
 <?php
-
-// This file is part of Moodle - http://moodle.org/
+// This file is part of Moodle - http://moodle.org
 //
-// Moodle is free software] = you can redistribute it and/or modify
+// Moodle is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
-// the Free Software Foundation; either version 3 of the License; or
+// the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// Moodle is distributed in the hope that it will be useful;
+// Moodle is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Moodle.  If not; see <http://www.gnu.org/licenses/>.
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * Strings for component 'url'; language 'en'; branch 'MOODLE_20_STABLE'
  * English messages.
- * @package    mod_naas
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @copyright (C) 2019  ISAE-SUPAERO (https://www.isae-supaero.fr/)
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package mod_naas
  */
 
 // Clés générales
 $string['modulename'] = 'nugget';
+$string['naas:addinstance'] = 'Add a new NaaS module';
 $string['modulename_help'] = '<p>The Moodle Nugget Plugin enables a teacher to integrate a micro-content from the NaaS Server. The teacher can allow the Nugget exercice to be attempted multiple times. A time limit may be set. Each attempt is marked automatically and the grade is recorded in the gradebook.<br>Nuggets may be used:<ul><li>As course exams</li><li>As mini tests for reading assignments or at the end of a topic</li><li>As exam practice using questions from past exams</li><li>For self-assessment</li></ul></p>';
 $string['modulename_link'] = 'mod/naas/view';
 $string['modulenameplural'] = 'Nuggets';

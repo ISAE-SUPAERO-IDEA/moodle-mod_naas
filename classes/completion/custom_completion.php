@@ -1,5 +1,5 @@
 <?php
-// This file is part of Moodle - http://moodle.org/
+// This file is part of Moodle - http://moodle.org
 //
 // Moodle is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -16,8 +16,6 @@
 
 namespace mod_naas\completion;
 
-defined('MOODLE_INTERNAL') || die();
-
 use context_module;
 use core_completion\activity_custom_completion;
 use grade_grade;
@@ -30,9 +28,9 @@ use naas;
  * Class for defining mod_naas's custom completion rules and fetching the completion statuses
  * of the custom completion rules for a given naas instance and a user.
  *
- * @package   mod_naas
- * @copyright 2024 SUPAERO-IDEA
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright (C) 2019  ISAE-SUPAERO (https://www.isae-supaero.fr/)
+ * @package mod_naas
  */
 class custom_completion extends activity_custom_completion {
 
@@ -57,7 +55,7 @@ class custom_completion extends activity_custom_completion {
             'itemtype' => 'mod',
             'itemmodule' => 'naas',
             'iteminstance' => $this->cm->instance,
-            'outcomeid' => null
+            'outcomeid' => null,
         ]);
         if ($item) {
             $grades = grade_grade::fetch_users_grades($item, [$this->userid], false);
@@ -94,7 +92,7 @@ class custom_completion extends activity_custom_completion {
      */
     public static function get_defined_custom_rules(): array {
         return [
-            'completionpassorattemptsexhausted'
+            'completionpassorattemptsexhausted',
         ];
     }
 
@@ -112,7 +110,7 @@ class custom_completion extends activity_custom_completion {
         }
 
         return [
-            'completionpassorattemptsexhausted' => $passorallattemptslabel
+            'completionpassorattemptsexhausted' => $passorallattemptslabel,
         ];
     }
 
@@ -121,11 +119,11 @@ class custom_completion extends activity_custom_completion {
      *
      * @return array
      */
-    public function get_sort_order(): array {       
+    public function get_sort_order(): array {
         return [
             'completionview',
             'completionusegrade',
-            'completionpassorattemptsexhausted'
+            'completionpassorattemptsexhausted',
         ];
     }
 }

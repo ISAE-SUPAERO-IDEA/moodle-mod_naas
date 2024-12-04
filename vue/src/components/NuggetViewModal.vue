@@ -64,9 +64,9 @@ export default {
       }
     },
     closeNuggetModal() {
-        this.iframeVisible = false;
-        this.$emit("close");
-    }
-  }
+      this.iframeVisible = false;
+      this.$emit("close");
+    },
+  },
 };
 </script>

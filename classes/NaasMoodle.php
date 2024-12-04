@@ -1,5 +1,5 @@
 <?php
-// This file is part of Moodle - http://moodle.org/
+// This file is part of Moodle - http://moodle.org
 //
 // Moodle is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -15,223 +15,175 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Moodle Nugget Plugin : Push to NaaS
- *
- * @package    mod_naas
- * @copyright  2019 onwards ISAE-SUPAERO
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * Moodle Nugget Plugin : LTI connector
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright (C) 2019  ISAE-SUPAERO (https://www.isae-supaero.fr/)
+ * @package mod_naas
  */
-
 namespace mod_naas;
-#require_once($CFG->dirroot.'/mod/hvp/autoloader.php');
 
-class NaasMoodle  {
-    public function __construct() { }
+/**
+ * LTI connector
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright (C) 2019  ISAE-SUPAERO (https://www.isae-supaero.fr/)
+ * @package mod_naas
+ */
+class NaasMoodle {
 
-    // Inspired from /mod/hvp/lib.php
-    function get_hvp_file_for_course($course_id, $context_id) {
-        global $DB;
-        $activity = $DB->get_record('hvp', array('course' => $course_id));
-        return $this->get_hvp_file_for_course($activity->id, $context_id);
+    /**
+     * Default constructor
+     */
+    public function __construct() {
     }
 
-    function get_hvp_file($id, $context_id) {
-        global $DB;
-        $activity = $DB->get_record('hvp', array('id' => $id));
-        $h5pinterface = \mod_hvp\framework::instance('interface');
-        // $h5pcore = \mod_hvp\framework::instance('core');
-        $contentid = $activity->id;
-        $content = $h5pinterface->loadContent($contentid);
-        $slug = $activity->slug;
-        $filename = "{$slug}-{$contentid}.h5p";
-        //$filepath = (!$args ? '/' : '/' .implode('/', $args) . '/');
-        $filepath = "/";
-        $itemid = 0;
-        $filearea = "exports";
-        $fs = get_file_storage();
-        $file = $fs->get_file($context_id, 'mod_hvp', "exports", $itemid, $filepath, $filename);
-        if (!$file) {
-            return false; // No such file.
-        }    
-        return $file;
-    }
-
-    function get_course_img($context_id) {
-        $fs = get_file_storage();
-        $files = $fs->get_area_files($context_id, 'course', "overviewfiles", 0);
-        foreach ($files as $file) {
-            if ($file->get_filesize() > 0) return $file;
-        }
-    }
-
-    // Returns the value of the nugget_id field for a given course
-    function get_nugget_id_from_course($course_id) {
-        $handler = \core_course\customfield\course_handler::create();
-        $custom_data = $handler-> export_instance_data_object($course_id);
-        return $custom_data->nugget_id;
-    }
-
-    // Returns True if the user is an editing teacher in the course context
-    function can_push($userid, $context) {
-        $roles = get_user_roles($userid, $context);
-        foreach($roles as $role) {
-            if (is_siteadmin() || $role->shortname == 'manager' || $role->shortname == 'editingteacher') return true;
-        }
-        return false;
-    }
-
-    // Gets the physical path of a moodle file
-    function get_stored_file_path($file) {
-        $file_handle = $file->get_content_file_handle();
-        $meta_data = stream_get_meta_data($file_handle);
-        return $meta_data["uri"];
-    }
-
-    // Launch LTI content
-    function lti_launch($naas_instance_id, $language="") {
+    /**
+     * Launch LTI content.
+     * @param int $naasinstanceid
+     * @param string $language
+     * @return void
+     * @throws \Random\RandomException
+     */
+    public function lti_launch($naasinstanceid, $language="") {
         global $PAGE;
         global $DB;
         global $CFG;
         global $USER;
-        $cm = get_coursemodule_from_id('naas', $naas_instance_id, 0, false, MUST_EXIST);
-        $naas_instance = $DB->get_record('naas', array('id' => $cm->instance), '*', MUST_EXIST);
+        $cm = get_coursemodule_from_id('naas', $naasinstanceid, 0, false, MUST_EXIST);
+        $naasinstance = $DB->get_record('naas', ['id' => $cm->instance], '*', MUST_EXIST);
         $context = \context_module::instance($cm->id);
-        $course = $DB->get_record('course', array('id'=>$cm->course), '*', MUST_EXIST);
+        $course = $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST);
 
-        // Retrieve LTI config from NaaS server
+        // Retrieve LTI config from NaaS server.
         $config = (object) array_merge((array) \get_config('naas'), (array) $CFG);
         $naas = new \NaasClient($config);
-        $nugget_data = $naas->get_nugget_data($naas_instance->nugget_id);
-        $nugget_config = $naas->get_nugget_lti_config($naas_instance->nugget_id);
-        if ($language != "" && isset($nugget_data) && is_object($nugget_data) && property_exists($nugget_data, 'multilanguages')) {
-            $matchingNugget = null;
-            foreach ($nugget_data->multilanguages as $item) {
+        $nuggetdata = $naas->get_nugget_data($naasinstance->nugget_id);
+        $nuggetconfig = $naas->get_nugget_lti_config($naasinstance->nugget_id);
+        if ($language != ""
+            && isset($nuggetdata)
+            && is_object($nuggetdata)
+            && property_exists($nuggetdata, 'multilanguages')) {
+            $matchingnugget = null;
+            foreach ($nuggetdata->multilanguages as $item) {
                 if (isset($item->language) && $item->language === $language) {
-                    $matchingNugget = $item;
+                    $matchingnugget = $item;
                     break;
                 }
             }
-            if ($matchingNugget != null && isset($matchingNugget->nugget_id)) $nugget_config = $naas->get_nugget_lti_config($matchingNugget->nugget_id);
+            if ($matchingnugget != null && isset($matchingnugget->nugget_id)) {
+                $nuggetconfig = $naas->get_nugget_lti_config($matchingnugget->nugget_id);
+            }
         }
 
-        if ($nugget_config == null || isset($nugget_config->error)) {
-            error_log(" Cannot get nugget information from NaaS server. ");
+        if ($nuggetconfig == null || isset($nuggetconfig->error)) {
+            debugging(" Cannot get nugget information from NaaS server. ");
             echo(" Cannot get nugget information from NaaS server. ");
             return;
         }
 
-        // Configure LTI module
+        // Configure LTI module.
         $PAGE->set_course($course);
 
-        // See: https://moodle.org/mod/forum/discuss.php?d=335734
-        // Configure launch data
-        $launch_url = $nugget_config->url;
-        $key = $nugget_config->key;
-        $secret = $nugget_config->secret;
+        // See: https://moodle.org/mod/forum/discuss.php?d=335734.
+        // Configure launch data.
+        $launchurl = $nuggetconfig->url;
+        $key = $nuggetconfig->key;
+        $secret = $nuggetconfig->secret;
 
-        // To store in database: user id, activity id, secret
-        $userId = $USER->id;
-        $activityId = $cm->id;
-        $sourcedId = bin2hex(random_bytes(16)); // 16 bytes to obtain a 32-character hexadecimal string
+        // To store in database: user id, activity id, secret.
+        $userid = $USER->id;
+        $activityid = $cm->id;
+        $sourcedid = bin2hex(random_bytes(16)); // 16 bytes to obtain a 32-character hexadecimal string.
 
-        // Insert a record in the database
-        $newRecord = new \stdClass();
-        $newRecord->user_id = $userId;
-        $newRecord->activity_id = $activityId;
-        $newRecord->sourced_id = $sourcedId;
-        $newRecord->date_added = time(); // UNIX timestamp format
-        $DB->insert_record('naas_activity_outcome', $newRecord);
+        // Insert a record in the database.
+        $newrecord = new \stdClass();
+        $newrecord->user_id = $userid;
+        $newrecord->activity_id = $activityid;
+        $newrecord->sourced_id = $sourcedid;
+        $newrecord->date_added = time(); // UNIX timestamp format.
+        $DB->insert_record('naas_activity_outcome', $newrecord);
 
-        /* // Display records for logs
-        $conditions = array('user_id' => $userId);
-        $records = $DB->get_records('naas_activity_outcome', $conditions);
-        if ($records) {
-            foreach ($records as $record) {
-                $recordData = array(
-                    "user_id" => $record->user_id,
-                    "activity_id" => $record->activity_id,
-                    "sourced_id" => $record->sourced_id,
-                    "date_added" => date('Y-m-d H:i:s', $record->date_added)
-                );
-                echo json_encode($recordData, JSON_PRETTY_PRINT)."<br>";
-            }
-        }
-        else {
-            echo "No records found for this user.<br><br>";
-        }
-        */
-
-        // Delete records longer than 45 minutes car un nugget est sensé durer 30 minutes max
-        $timestampLimit = time() - (45 * 60);
-        $sql = "date_added < " . $timestampLimit;
-        $params = array('timestampLimit' => $timestampLimit);
+        // Delete records longer than 45 minutes because a nugget shouldn't last for more than 30 minutes.
+        $timestamplimit = time() - (45 * 60);
+        $sql = "date_added < " . $timestamplimit;
+        $params = ['timestampLimit' => $timestamplimit];
         $DB->delete_records_select('naas_activity_outcome', $sql, $params);
 
         $now = new \DateTime();
 
         $secret = urlencode($secret) . "&";
-        $resource_link_id = base64_encode(hash_hmac("sha1", $_SERVER['SERVER_NAME'].$USER->email.$nugget_data->version_id, $secret, false));
+        $resourcelinkid = base64_encode(
+                hash_hmac(
+                        "sha1",
+                        $_SERVER['SERVER_NAME'].$USER->email.$nuggetdata->version_id,
+                        $secret,
+                        false
+                )
+        );
 
-        $launch_data = [
-            // LTI version
+        $launchdata = [
             "lti_version" => "LTI-1p0",
             "lti_message_type" => "basic-lti-launch-request",
-            // OAuth parameters
+
             "oauth_callback" => "about:blank",
-            "oauth_consumer_key"=> $key,
+            "oauth_consumer_key" => $key,
             "oauth_version" => "1.0",
             "oauth_nonce" => uniqid('', true),
             "oauth_timestamp" => $now->getTimestamp(),
             "oauth_signature_method" => "HMAC-SHA1",
 
-            // Context info
             "context_id" => $cm->id,
-            // Return grade parameters
-            "lis_result_sourcedid" => $sourcedId,
+
+            "lis_result_sourcedid" => $sourcedid,
             "lis_outcome_service_url" => $CFG->wwwroot. "/mod/naas/outcome.php?id=" . $cm->id,
-            "resource_link_id" => $resource_link_id
+            "resource_link_id" => $resourcelinkid,
         ];
-        // private information
+
         if ($config->naas_privacy_learner_name) {
-            $launch_data["lis_person_name_full"] = $USER->firstname. " ".$USER->lastname; 
+            $launchdata["lis_person_name_full"] = $USER->firstname. " ".$USER->lastname;
         }
         if ($config->naas_privacy_learner_mail) {
-            $launch_data["lis_person_contact_email_primary"] = $USER->email; 
+            $launchdata["lis_person_contact_email_primary"] = $USER->email;
         }
 
-        // LTI 
-        # Basic LTI uses OAuth to sign requests
-        # OAuth Core 1.0 spec: http://oauth.net/core/1.0/
+        // LTI.
+        // Basic LTI uses OAuth to sign requests.
+        // OAuth Core 1.0 spec: http://oauth.net/core/1.0/.
 
-        # In OAuth, request parameters must be sorted by name
-        $launch_data_keys = array_keys($launch_data);
-        sort($launch_data_keys);
+        // In OAuth, request parameters must be sorted by name.
+        $launchdatakeys = array_keys($launchdata);
+        sort($launchdatakeys);
 
-        // Compute launch parameters
-        $launch_params = array();
-        foreach ($launch_data_keys as $key) {
-            array_push($launch_params, $key . "=" . rawurlencode($launch_data[$key]));
+        // Compute launch parameters.
+        $launchparams = [];
+        foreach ($launchdatakeys as $key) {
+            array_push($launchparams, $key . "=" . rawurlencode($launchdata[$key]));
         }
-        $base_string = "POST&" . urlencode($launch_url) . "&" . rawurlencode(implode("&", $launch_params));
+        $basestring = "POST&" . urlencode($launchurl) . "&" . rawurlencode(implode("&", $launchparams));
 
-        $signature = base64_encode(hash_hmac("sha1", $base_string, $secret, true));
+        $signature = base64_encode(hash_hmac("sha1", $basestring, $secret, true));
 
-        // session php variable avec le resource_link_id
-        $_SESSION["resource_link_id"] = $resource_link_id;
-        
-        // Generate HTML & javascript code to POST request
-        ?>
-        <form id="ltiLaunchForm" name="ltiLaunchForm" method="POST" action="<?php printf($launch_url); ?>">
-            <?php foreach ($launch_data as $k => $v ) { ?>
-                <input type="hidden" name="<?php echo $k ?>" value="<?php echo $v ?>">
-            <?php } ?>
-                <input type="hidden" name="oauth_signature" value="<?php echo $signature ?>">
-        </form>
-        <script>
-            window.addEventListener("load", (event) => {
-                document.getElementById("ltiLaunchForm").submit();
-            });
-        </script>
-        <?php
+        // Session php variable avec le resource_link_id.
+        $_SESSION["resource_link_id"] = $resourcelinkid;
+
+        // Generate HTML & javascript code to POST request.
+        $html = <<<HTML
+    <form id="ltiLaunchForm" name="ltiLaunchForm" method="POST" action="$launchurl">
+HTML;
+        foreach ($launchdata as $k => $v) {
+            $html .= <<<HTML
+    <input type="hidden" name="$k" value="$v">
+HTML;
+        }
+
+        $html .= <<<HTML
+    <input type="hidden" name="oauth_signature" value="$signature">
+    </form>
+    <script>
+        window.addEventListener("load", () => {
+            document.getElementById("ltiLaunchForm").submit();
+        });
+    </script>
+HTML;
+        echo $html;
     }
 }

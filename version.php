@@ -1,5 +1,5 @@
 <?php
-// This file is part of Moodle - http://moodle.org/
+// This file is part of Moodle - http://moodle.org
 //
 // Moodle is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -17,16 +17,16 @@
 /**
  * Folder module version information
  *
- * @package    mod_naas
- * @copyright  2009 Petr Skoda  {@link http://skodak.org}
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright (C) 2019  ISAE-SUPAERO (https://www.isae-supaero.fr/)
+ * @package mod_naas
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version        = 2024073004;                   // The current module version (Date: YYYYMMDDXX)
-$plugin->requires       = 2019051100;                   // Requires this Moodle version
-$plugin->component      = 'mod_naas';                   // Full name of the plugin (used for diagnostics)
-$plugin->cron           = 0;                            // Frequency of the plugin's cron task
-$plugin->maturity       = MATURITY_STABLE;              // Plugin thoroughly tested and considered stable for production
-$plugin->dependencies   = [ 'mod_url' => 20191030 ];    // DB module dependency with version needed
+$plugin->version        = 2024073004;                  // The current module version (Date: YYYYMMDDXX).
+$plugin->requires       = 2019051100;                  // Requires this Moodle version.
+$plugin->component      = 'mod_naas';                  // Full name of the plugin (used for diagnostics).
+$plugin->cron           = 0;                           // Frequency of the plugin's cron task.
+$plugin->maturity       = MATURITY_STABLE;             // Plugin thoroughly tested and considered stable for production.
+$plugin->dependencies   = [ 'mod_url' => 20191030 ];   // DB module dependency with version needed.
