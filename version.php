@@ -30,6 +30,6 @@ $plugin->component      = 'mod_naas';                  // Full name of the plugi
 $plugin->cron           = 0;                           // Frequency of the plugin's cron task.
 $plugin->maturity       = MATURITY_STABLE;             // Plugin thoroughly tested and considered stable for production.
 $plugin->dependencies   = [
-    'mod_url' => 20191030 ,
-    'mod_lti' => 2022041900
+    'mod_url' => 20191030,
+    'mod_lti' => 2022041900,
 ];
