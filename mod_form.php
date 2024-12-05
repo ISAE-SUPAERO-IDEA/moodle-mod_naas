@@ -26,8 +26,6 @@
 defined('MOODLE_INTERNAL') || die;
 
 require_once($CFG->dirroot.'/course/moodleform_mod.php');
-require_once('classes/NaasClient.php');
-require_once('classes/completion/custom_completion.php');
 use core_grades\component_gradeitems;
 
 /**
@@ -44,7 +42,7 @@ class mod_naas_mod_form extends moodleform_mod {
         $mform = $this->_form;
 
         $config = (object) array_merge((array) get_config('naas'), (array) $CFG);
-        $naas = new NaasClient($config);
+        $naas = new \mod_naas\naas_client($config);
 
         $info = $naas->get_api_info();
         if ($info == null) {

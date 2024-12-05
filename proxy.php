@@ -24,7 +24,6 @@
  */
 
 require_once($_SERVER['DOCUMENT_ROOT']."/config.php");
-require_once('classes/NaasClient.php');
 require_login(null, false);
 
 $path  = $_GET['path'];
@@ -60,7 +59,7 @@ if (!$match) {
 }
 
 $config = (object) array_merge((array) get_config('naas'), (array) $CFG);
-$naas = new NaasClient($config);
+$naas = new \mod_naas\naas_client($config);
 
 // Add nql filter.
 $nql = $config->naas_filter;
