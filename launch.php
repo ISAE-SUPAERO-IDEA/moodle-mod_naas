@@ -23,8 +23,6 @@
  */
 
 require_once($_SERVER['DOCUMENT_ROOT']."/config.php");
-require_once($CFG->dirroot.'/mod/lti/lib.php');
-require_once($CFG->dirroot.'/mod/lti/locallib.php');
 
 // Get data from DB.
 $id = required_param('id', PARAM_INT); // Course Module ID.
