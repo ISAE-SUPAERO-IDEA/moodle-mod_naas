@@ -23,7 +23,6 @@
  */
 
 require_once($_SERVER['DOCUMENT_ROOT']."/config.php");
-require_once('classes/NaasClient.php');
 
 $verb = required_param('verb', PARAM_TEXT);
 $versionid = required_param('version_id', PARAM_TEXT);
@@ -41,7 +40,7 @@ require_capability('mod/naas:view', $context);
 
 // Get NaaS Client.
 $config = (object) array_merge((array) get_config('naas'), (array) $CFG);
-$naas = new NaasClient($config);
+$naas = new \mod_naas\naas_client($config);
 
 // Get user info from Moodle.
 $user = new stdClass();
