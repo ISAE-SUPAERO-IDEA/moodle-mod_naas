@@ -23,7 +23,6 @@
  */
 
 require_once($_SERVER['DOCUMENT_ROOT']."/config.php");
-require_once($CFG->dirroot.'/mod/lti/locallib.php');
 
 $id        = optional_param('id', 0, PARAM_INT);        // Course module ID.
 $u         = optional_param('u', 0, PARAM_INT);         // NaaS instance id.

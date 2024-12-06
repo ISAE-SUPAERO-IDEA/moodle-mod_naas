@@ -25,8 +25,11 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->version        = 2024073004;                  // The current module version (Date: YYYYMMDDXX).
-$plugin->requires       = 2019051100;                  // Requires this Moodle version.
+$plugin->requires       = 2022041900;                  // Requires this Moodle version.
 $plugin->component      = 'mod_naas';                  // Full name of the plugin (used for diagnostics).
 $plugin->cron           = 0;                           // Frequency of the plugin's cron task.
 $plugin->maturity       = MATURITY_STABLE;             // Plugin thoroughly tested and considered stable for production.
-$plugin->dependencies   = [ 'mod_url' => 20191030 ];   // DB module dependency with version needed.
+$plugin->dependencies   = [
+    'mod_url' => 20191030,
+    'mod_lti' => 2022041900,
+];
