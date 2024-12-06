@@ -28,7 +28,7 @@ namespace mod_naas;
  * @copyright (C) 2019  ISAE-SUPAERO (https://www.isae-supaero.fr/)
  * @package mod_naas
  */
-class NaasMoodle {
+class naas_lti {
 
     /**
      * Default constructor
@@ -55,7 +55,7 @@ class NaasMoodle {
 
         // Retrieve LTI config from NaaS server.
         $config = (object) array_merge((array) \get_config('naas'), (array) $CFG);
-        $naas = new \NaasClient($config);
+        $naas = new \mod_naas\naas_client($config);
         $nuggetdata = $naas->get_nugget_data($naasinstance->nugget_id);
         $nuggetconfig = $naas->get_nugget_lti_config($naasinstance->nugget_id);
         if ($language != ""

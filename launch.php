@@ -25,9 +25,6 @@
 require_once($_SERVER['DOCUMENT_ROOT']."/config.php");
 require_once($CFG->dirroot.'/mod/lti/lib.php');
 require_once($CFG->dirroot.'/mod/lti/locallib.php');
-require_once('classes/NaasClient.php');
-require_once('classes/NaasMoodle.php');
-
 
 // Get data from DB.
 $id = required_param('id', PARAM_INT); // Course Module ID.
@@ -41,5 +38,5 @@ require_login($course, true, $cm);
 require_capability('mod/naas:view', $context);
 
 // Launch LTI.
-$naasmoodle = new \mod_naas\NaasMoodle();
+$naasmoodle = new \mod_naas\naas_lti();
 $naasmoodle->lti_launch($id, $language);
