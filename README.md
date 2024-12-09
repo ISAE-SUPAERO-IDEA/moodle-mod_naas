@@ -3,6 +3,9 @@
 
 This plugin enables the use of “nuggets” provided by the NaaS (Nugget as a Service) platform in the Moodle ecosystem.
 
+Example of a Nugget integrated into a Moodle course:
+![nugget](https://t2594656.p.clickup-attachments.com/t2594656/98f394c0-8c09-40d3-b6d0-e249af8906d0/image.png)
+
 ## Description
 
 ### Digital Nugget
