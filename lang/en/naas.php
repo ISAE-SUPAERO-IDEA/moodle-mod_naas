@@ -15,7 +15,6 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Strings for component 'url'; language 'en'; branch 'MOODLE_20_STABLE'
  * English messages.
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @copyright (C) 2019  ISAE-SUPAERO (https://www.isae-supaero.fr/)
@@ -23,13 +22,13 @@
  */
 
 // Clés générales.
-$string['modulename'] = 'nugget';
+$string['modulename'] = 'Nugget';
 $string['naas:addinstance'] = 'Add a new NaaS module';
 $string['modulename_help'] = '<p>The Moodle Nugget Plugin enables a teacher to integrate a micro-content from the NaaS Server. The teacher can allow the Nugget exercice to be attempted multiple times. A time limit may be set. Each attempt is marked automatically and the grade is recorded in the gradebook.<br>Nuggets may be used:<ul><li>As course exams</li><li>As mini tests for reading assignments or at the end of a topic</li><li>As exam practice using questions from past exams</li><li>For self-assessment</li></ul></p>';
 $string['modulename_link'] = 'mod/naas/view';
 $string['modulenameplural'] = 'Nuggets';
 $string['pluginadministration'] = '';
-$string['pluginname'] = 'nugget';
+$string['pluginname'] = 'Nugget';
 $string['nugget'] = 'Nugget';
 
 // Capabilities.
@@ -92,38 +91,44 @@ $string['show_more_authors'] = 'Show more';
 $string['show_more_nugget_button'] = 'Show more ...';
 
 // Metadata.
-$string['about_author'] = '_About the author_';
-$string['advanced'] = '_Advanced_';
-$string['authors'] = '_Authors_';
-$string['description'] = '_Description_';
-$string['en'] = '_English_';
-$string['field_of_study'] = '_Field of study_';
-$string['fr'] = '_French_';
-$string['de'] = '_German_';
-$string['it'] = '_Italian_';
-$string['es'] = '_Spanish_';
-$string['intermediate'] = '_Intermediate_';
-$string['in_brief'] = '_In Brief_';
-$string['language'] = '_Language_';
-$string['level'] = '_Level_';
-$string['lesson'] = '_Lesson_';
-$string['pl'] = '_Polish_';
-$string['preview'] = '_Preview: _';
-$string['producers'] = '_Producers_';
-$string['publication_date'] = '_Publication date_';
-$string['references'] = '_References_';
-$string['tags'] = '_Tags_';
-$string['tutorial'] = '_Tutorial_';
-$string['structure_id'] = '_Structure_';
-$string['type'] = '_Type_';
-$string['demo'] = '_Demo_';
-$string['sv'] = '_Swedish_';
-$string['beginner'] = '_Beginner_';
+$string['about_author'] = 'About the author';
+$string['advanced'] = 'Advanced';
+$string['authors'] = 'Authors';
+$string['description'] = 'Description';
+$string['en'] = 'English';
+$string['field_of_study'] = 'Field of study';
+$string['fr'] = 'French';
+$string['de'] = 'German';
+$string['it'] = 'Italian';
+$string['es'] = 'Spanish';
+$string['intermediate'] = 'Intermediate';
+$string['in_brief'] = 'In Brief';
+$string['language'] = 'Language';
+$string['level'] = 'Level';
+$string['lesson'] = 'Lesson';
+$string['pl'] = 'Polish';
+$string['preview'] = 'Preview: ';
+$string['producers'] = 'Producers';
+$string['publication_date'] = 'Publication date';
+$string['references'] = 'References';
+$string['tags'] = 'Tags';
+$string['tutorial'] = 'Tutorial';
+$string['structure_id'] = 'Structure';
+$string['type'] = 'Type';
+$string['demo'] = 'Demo';
+$string['sv'] = 'Swedish';
+$string['beginner'] = 'Beginner';
 $string['gradehighest'] = 'Highest grade';
 $string['gradeaverage'] = 'Average grade';
 $string['grade_method'] = 'Grading method';
 $string['grade_method_help'] = '<p>When multiple attempts are allowed, the following methods are available for calculating the final nugget grade:<ul><li>Highest grade of all attempts</li><li>Average (mean) grade of all attempts</li><li>First attempt (all other attempts are ignored)</li><li>Last attempt (all other attempts are ignored)</li></ul></p>';
 $string['grade_type'] = 'Type of grading';
+$string["learning_outcomes"] = "Learning outcomes";
+$string["prerequisites"] = "Prerequisites";
+
+
+
+
 
 // Rating.
 $string['complete_nugget'] = 'I Finished My Learning With This Nugget';
@@ -132,6 +137,9 @@ $string['rating_description'] = 'Your rating will be used to improve the quality
 $string['rating_send'] = 'Send';
 $string['rating_sent'] = 'Sent';
 $string['rating_title'] = 'Rate this nugget';
+$string["duration"] = "Duration";
+$string['attemptfirst'] = 'First attempt';
+$string['attemptlast'] = 'Last attempt';
 
 // Activity Completion section.
 $string['completionpass'] = 'Require passing grade';
