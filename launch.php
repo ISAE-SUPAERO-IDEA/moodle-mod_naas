@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Moodle Nugget Plugin : launch LTI
+ * Load a Nugget using LTI
  *
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @copyright (C) 2019  ISAE-SUPAERO (https://www.isae-supaero.fr/)
@@ -35,6 +35,5 @@ $course = $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST);
 require_login($course, true, $cm);
 require_capability('mod/naas:view', $context);
 
-// Launch LTI.
-$naasmoodle = new \mod_naas\naas_lti();
-$naasmoodle->lti_launch($id, $language);
+\mod_naas\naas_lti::lti_launch($id, $language);
+
