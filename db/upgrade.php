@@ -42,7 +42,7 @@
  * @copyright (C) 2019  ISAE-SUPAERO (https://www.isae-supaero.fr/)
  * @package mod_nugget
  */
-function xmldb_naas_upgrade($oldversion) {
+function xmldb_nugget_upgrade($oldversion) {
     global $CFG, $DB;
 
     $dbman = $DB->get_manager();
@@ -64,7 +64,7 @@ function xmldb_naas_upgrade($oldversion) {
     if ($oldversion < 2023090704) {
         debugging("cgu", DEBUG_DEVELOPER);
 
-        $table = new xmldb_table('naas');
+        $table = new xmldb_table('nugget');
         $field = new xmldb_field('cgu_agreement', XMLDB_TYPE_INTEGER, '1', null, null, null, null, 'nugget_id');
 
         if (!$dbman->field_exists($table, $field)) {
@@ -72,14 +72,14 @@ function xmldb_naas_upgrade($oldversion) {
             $dbman->add_field($table, $field);
         }
 
-        // Naas savepoint reached.
-        upgrade_mod_savepoint(true, 2023090704, 'naas');
+        // Nugget savepoint reached.
+        upgrade_mod_savepoint(true, 2023090704, 'nugget');
     }
 
     if ($oldversion < 2024061403) {
         debugging("retour lti", DEBUG_DEVELOPER);
 
-        $table = new xmldb_table('naas_activity_outcome');
+        $table = new xmldb_table('nugget_activity_outcome');
 
         if (!$dbman->table_exists($table)) {
             $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
@@ -93,10 +93,10 @@ function xmldb_naas_upgrade($oldversion) {
             $dbman->create_table($table);
         }
 
-        upgrade_mod_savepoint(true, 2024061403, 'naas');
+        upgrade_mod_savepoint(true, 2024061403, 'nugget');
     }
 
-    $table = new xmldb_table('naas');
+    $table = new xmldb_table('nugget');
 
     $completionpass = new xmldb_field('completionpass', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'nugget_id');
     if (!$dbman->field_exists($table, $completionpass)) {

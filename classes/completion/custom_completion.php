@@ -20,13 +20,12 @@ use context_module;
 use core_completion\activity_custom_completion;
 use grade_grade;
 use grade_item;
-use naas;
 
 /**
- * Activity custom completion subclass for the naas activity.
+ * Activity custom completion subclass for the Nugget activity.
  *
  * Class for defining mod_nugget's custom completion rules and fetching the completion statuses
- * of the custom completion rules for a given naas instance and a user.
+ * of the custom completion rules for a given Nugget instance and a user.
  *
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @copyright (C) 2019  ISAE-SUPAERO (https://www.isae-supaero.fr/)
@@ -53,7 +52,7 @@ class custom_completion extends activity_custom_completion {
         $item = grade_item::fetch([
             'courseid' => $this->cm->get_course()->id,
             'itemtype' => 'mod',
-            'itemmodule' => 'naas',
+            'itemmodule' => 'nugget',
             'iteminstance' => $this->cm->instance,
             'outcomeid' => null,
         ]);
@@ -104,9 +103,9 @@ class custom_completion extends activity_custom_completion {
     public function get_custom_rule_descriptions(): array {
         $completionpassorattempts = $this->cm->customdata['customcompletionrules']['completionpassorattemptsexhausted'] ?? [];
         if (!empty($completionpassorattempts['completionattemptsexhausted'])) {
-            $passorallattemptslabel = get_string('completiondetail:passorexhaust', 'naas');
+            $passorallattemptslabel = get_string('completiondetail:passorexhaust', 'nugget');
         } else {
-            $passorallattemptslabel = get_string('completiondetail:passgrade', 'naas');
+            $passorallattemptslabel = get_string('completiondetail:passgrade', 'nugget');
         }
 
         return [

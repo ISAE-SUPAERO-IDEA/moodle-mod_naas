@@ -34,7 +34,7 @@ class course_module_viewed extends \core\event\course_module_viewed {
      * @return void
      */
     protected function init() {
-        $this->data['objecttable'] = 'naas';
+        $this->data['objecttable'] = 'nugget';
         parent::init();
     }
     // You might need to override get_url() and get_legacy_log_data() if view mode needs to be stored as well.

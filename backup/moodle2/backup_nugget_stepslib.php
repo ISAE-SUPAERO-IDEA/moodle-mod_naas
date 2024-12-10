@@ -21,7 +21,7 @@
  * @copyright (C) 2019  ISAE-SUPAERO (https://www.isae-supaero.fr/)
  * @package mod_nugget
  */
-class backup_naas_activity_structure_step extends backup_activity_structure_step {
+class backup_nugget_activity_structure_step extends backup_activity_structure_step {
 
     /**
      * Define NaaS activity structure
@@ -33,7 +33,7 @@ class backup_naas_activity_structure_step extends backup_activity_structure_step
 
         // Define each element separated.
         // Save the name of the nugget and the nugget_id.
-        $naas = new backup_nested_element('naas', ['id'], [
+        $nugget = new backup_nested_element('nugget', ['id'], [
             'name', 'nugget_id', 'intro', 'introformat', 'publish',
             'showresults', 'display', 'allowupdate', 'allowunanswered',
             'limitanswers', 'timeopen', 'timeclose', 'timemodified']);
@@ -41,13 +41,13 @@ class backup_naas_activity_structure_step extends backup_activity_structure_step
         // Build the tree.
 
         // Define sources.
-        $naas->set_source_table('naas', ['id' => backup::VAR_ACTIVITYID]);
+        $nugget->set_source_table('nugget', ['id' => backup::VAR_ACTIVITYID]);
 
         // Define id annotations.
 
         // Define file annotations.
 
-        // Return the root element (naas), wrapped into standard activity structure.
-        return $this->prepare_activity_structure($naas);
+        // Return the root element, wrapped into standard activity structure.
+        return $this->prepare_activity_structure($nugget);
     }
 }

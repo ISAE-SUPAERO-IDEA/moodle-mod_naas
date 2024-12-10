@@ -25,7 +25,7 @@ export default {
         return Promise.resolve(cache[path]);
       }
       cache[path] = client
-        .get("/mod/naas/proxy.php", { params: { path } })
+        .get("/mod/nugget/proxy.php", { params: { path } })
         .then((response) => {
           cache[path] = response.data.payload;
           return response.data.payload;
@@ -34,7 +34,7 @@ export default {
     },
     xapi(params) {
       let info = axios
-        .get("/mod/naas/xapi.php", { params })
+        .get("/mod/nugget/xapi.php", { params })
         .then((response) => {
           info = response.data.payload;
         });

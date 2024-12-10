@@ -25,12 +25,12 @@
 
 defined('MOODLE_INTERNAL') || die;
 
-require_once($CFG->dirroot . '/mod/naas/backup/moodle2/backup_naas_stepslib.php');
+require_once($CFG->dirroot . '/mod/nugget/backup/moodle2/backup_nugget_stepslib.php');
 
 /**
  * Provides all the settings and steps to perform one complete backup of the activity
  */
-class backup_naas_activity_task extends backup_activity_task {
+class backup_nugget_activity_task extends backup_activity_task {
 
     /**
      * No specific settings for this activity
@@ -39,10 +39,10 @@ class backup_naas_activity_task extends backup_activity_task {
     }
 
     /**
-     * Defines a backup step to store the instance data in the naas.xml file
+     * Defines a backup step to store the instance data in the nugget.xml file
      */
     protected function define_my_steps() {
-        $this->add_step(new backup_naas_activity_structure_step('naas_structure', 'naas.xml'));
+        $this->add_step(new backup_nugget_activity_structure_step('nugget_structure', 'nugget.xml'));
     }
 
     /**

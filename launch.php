@@ -26,14 +26,14 @@ require_once($_SERVER['DOCUMENT_ROOT']."/config.php");
 
 // Get data from DB.
 $id = required_param('id', PARAM_INT); // Course Module ID.
-$cm = get_coursemodule_from_id('naas', $id, 0, false, MUST_EXIST);
+$cm = get_coursemodule_from_id('nugget', $id, 0, false, MUST_EXIST);
 $context = context_module::instance($cm->id);
 $language = optional_param('language', null, PARAM_TEXT); // Multilanguage change.
 $course = $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST);
 
 // Check credentials.
 require_login($course, true, $cm);
-require_capability('mod/naas:view', $context);
+require_capability('mod/nugget:view', $context);
 
 // Launch LTI.
 $naasmoodle = new \mod_nugget\naas_lti();

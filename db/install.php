@@ -26,6 +26,6 @@
  * @copyright (C) 2019  ISAE-SUPAERO (https://www.isae-supaero.fr/)
  * @package mod_nugget
  */
-function xmldb_naas_install() {
+function xmldb_nugget_install() {
     global $CFG;
 }

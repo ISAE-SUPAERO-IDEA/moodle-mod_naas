@@ -31,6 +31,6 @@ class provider {
      * @return  string
      */
     public static function get_reason(): string {
-        return get_string('naas_settings_privacy_information', 'naas');
+        return get_string('naas_settings_privacy_information', 'nugget');
     }
 }

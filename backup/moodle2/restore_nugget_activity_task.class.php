@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * NaaS restore task that provides all the settings and steps to perform one
+ * Nugget restore task that provides all the settings and steps to perform one
  *  complete restore of the activity
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @copyright (C) 2019  ISAE-SUPAERO (https://www.isae-supaero.fr/)
@@ -24,13 +24,13 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once($CFG->dirroot . '/mod/naas/backup/moodle2/restore_naas_stepslib.php'); // Because it exists (must).
+require_once($CFG->dirroot . '/mod/nugget/backup/moodle2/restore_nugget_stepslib.php'); // Because it exists (must).
 
 /**
- * NaaS restore task that provides all the settings and steps to perform one
+ * Nugget restore task that provides all the settings and steps to perform one
  * complete restore of the activity
  */
-class restore_naas_activity_task extends restore_activity_task {
+class restore_nugget_activity_task extends restore_activity_task {
 
     /**
      * Define (add) particular settings this activity can have
@@ -43,8 +43,8 @@ class restore_naas_activity_task extends restore_activity_task {
      * Define (add) particular steps this activity can have
      */
     protected function define_my_steps() {
-        // Naas only has one structure step.
-        $this->add_step(new restore_naas_activity_structure_step('naas_structure', 'naas.xml'));
+        // Nugget only has one structure step.
+        $this->add_step(new restore_nugget_activity_structure_step('nugget_structure', 'nugget.xml'));
     }
 
     /**
@@ -53,7 +53,7 @@ class restore_naas_activity_task extends restore_activity_task {
     public static function define_decode_contents() {
         $contents = [];
 
-        $contents[] = new restore_decode_content('naas', ['intro'], 'naas');
+        $contents[] = new restore_decode_content('nugget', ['intro'], 'nugget');
 
         return $contents;
     }
@@ -64,8 +64,8 @@ class restore_naas_activity_task extends restore_activity_task {
     public static function define_decode_rules() {
         $rules = [];
 
-        $rules[] = new restore_decode_rule('NAASVIEWBYID', '/mod/naas/view.php?id=$1', 'course_module');
-        $rules[] = new restore_decode_rule('NAASINDEX', '/mod/naas/index.php?id=$1', 'course');
+        $rules[] = new restore_decode_rule('NUGGETVIEWBYID', '/mod/nugget/view.php?id=$1', 'course_module');
+        $rules[] = new restore_decode_rule('NUGGETINDEX', '/mod/nugget/index.php?id=$1', 'course');
 
         return $rules;
     }
@@ -76,9 +76,9 @@ class restore_naas_activity_task extends restore_activity_task {
     public static function define_restore_log_rules() {
         $rules = [];
 
-        $rules[] = new restore_log_rule('naas', 'add', 'view.php?id={course_module}', '{naas}');
-        $rules[] = new restore_log_rule('naas', 'update', 'view.php?id={course_module}', '{naas}');
-        $rules[] = new restore_log_rule('naas', 'view', 'view.php?id={course_module}', '{naas}');
+        $rules[] = new restore_log_rule('nugget', 'add', 'view.php?id={course_module}', '{nugget}');
+        $rules[] = new restore_log_rule('nugget', 'update', 'view.php?id={course_module}', '{nugget}');
+        $rules[] = new restore_log_rule('nugget', 'view', 'view.php?id={course_module}', '{nugget}');
 
         return $rules;
     }
@@ -93,7 +93,7 @@ class restore_naas_activity_task extends restore_activity_task {
     public static function define_restore_log_rules_for_course() {
         $rules = [];
 
-        $rules[] = new restore_log_rule('naas', 'view all', 'index.php?id={course}', null);
+        $rules[] = new restore_log_rule('nugget', 'view all', 'index.php?id={course}', null);
 
         return $rules;
     }

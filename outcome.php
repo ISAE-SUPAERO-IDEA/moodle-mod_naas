@@ -45,8 +45,8 @@ if ($records) {
 
 
 // Course data.
-$cm = get_coursemodule_from_id('naas', $activityid, 0, false, MUST_EXIST);
-$naasinstance = $DB->get_record('naas', ['id' => $cm->instance], '*', MUST_EXIST);
+$cm = get_coursemodule_from_id('nugget', $activityid, 0, false, MUST_EXIST);
+$nuggetinstance = $DB->get_record('nugget', ['id' => $cm->instance], '*', MUST_EXIST);
 $course = $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST);
 $context = context_module::instance($cm->id);
 
@@ -66,14 +66,14 @@ $gradeinfo = [
 ];
 
 // Grading method.
-$grademethod = $naasinstance->grade_method;
+$grademethod = $nuggetinstance->grade_method;
 
 
 // Highest Grade.
 if ($grademethod == "1") {
     debugging("highest_grade", DEBUG_DEVELOPER);
 
-    $existinggrades = grade_get_grades($course->id, 'mod', 'naas', $cm->instance, $userid);
+    $existinggrades = grade_get_grades($course->id, 'mod', 'nugget', $cm->instance, $userid);
     $existinggradesdata = $existinggrades->items[0]->grades;
 
     $currenthighestgrade = 0;
@@ -85,22 +85,22 @@ if ($grademethod == "1") {
     }
 
     if ($score * 100 > $currenthighestgrade) {
-        grade_update('mod/naas', $course->id, 'mod', 'naas', $cm->instance, $itemnumber, $grade, $gradeinfo);
+        grade_update('mod/nugget', $course->id, 'mod', 'nugget', $cm->instance, $itemnumber, $grade, $gradeinfo);
     }
 } else if ($grademethod == "2") { // Grade Average.
     debugging("grade_average", DEBUG_DEVELOPER);
 } else if ($grademethod == "3") { // Grade First Attempt.
     debugging("first_attempt", DEBUG_DEVELOPER);
 
-    $existinggrades = grade_get_grades($course->id, 'mod', 'naas', $cm->instance, $userid);
+    $existinggrades = grade_get_grades($course->id, 'mod', 'nugget', $cm->instance, $userid);
     $existinggradesdata = $existinggrades->items[0]->grades;
 
     if (count($existinggradesdata) == 0) {
-        grade_update('mod/naas', $course->id, 'mod', 'naas', $cm->instance, $itemnumber, $grade, $gradeinfo);
+        grade_update('mod/nugget', $course->id, 'mod', 'nugget', $cm->instance, $itemnumber, $grade, $gradeinfo);
     }
 } else if ($grademethod == "4") { // Grade Last Attempt.
     debugging("last_attemp", DEBUG_DEVELOPER);
-    grade_update('mod/naas', $course->id, 'mod', 'naas', $cm->instance, $itemnumber, $grade, $gradeinfo);
+    grade_update('mod/nugget', $course->id, 'mod', 'nugget', $cm->instance, $itemnumber, $grade, $gradeinfo);
 } else { // Grade Method unknown.
     debugging("Grading method error", DEBUG_DEVELOPER);
 }

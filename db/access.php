@@ -27,7 +27,7 @@ defined('MOODLE_INTERNAL') || die;
 $capabilities = [
 
     // Ability to see that the Nugget exists, and the basic information.
-    'mod/naas:view' => [
+    'mod/nugget:view' => [
         'captype' => 'read',
         'contextlevel' => CONTEXT_MODULE,
         'archetypes' => [
@@ -37,7 +37,7 @@ $capabilities = [
     ],
 
     // Ability to add a new Nugget to the course.
-    'mod/naas:addinstance' => [
+    'mod/nugget:addinstance' => [
         'riskbitmask' => RISK_XSS,
 
         'captype' => 'write',

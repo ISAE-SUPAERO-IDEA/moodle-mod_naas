@@ -48,16 +48,16 @@ class naas_lti {
         global $DB;
         global $CFG;
         global $USER;
-        $cm = get_coursemodule_from_id('naas', $naasinstanceid, 0, false, MUST_EXIST);
-        $naasinstance = $DB->get_record('naas', ['id' => $cm->instance], '*', MUST_EXIST);
+        $cm = get_coursemodule_from_id('nugget', $naasinstanceid, 0, false, MUST_EXIST);
+        $nuggetinstance = $DB->get_record('nugget', ['id' => $cm->instance], '*', MUST_EXIST);
         $context = \context_module::instance($cm->id);
         $course = $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST);
 
         // Retrieve LTI config from NaaS server.
         $config = (object) array_merge((array) \get_config('naas'), (array) $CFG);
         $naas = new \mod_nugget\naas_client($config);
-        $nuggetdata = $naas->get_nugget_data($naasinstance->nugget_id);
-        $nuggetconfig = $naas->get_nugget_lti_config($naasinstance->nugget_id);
+        $nuggetdata = $naas->get_nugget_data($nuggetinstance->nugget_id);
+        $nuggetconfig = $naas->get_nugget_lti_config($nuggetinstance->nugget_id);
         if ($language != ""
             && isset($nuggetdata)
             && is_object($nuggetdata)
@@ -100,13 +100,13 @@ class naas_lti {
         $newrecord->activity_id = $activityid;
         $newrecord->sourced_id = $sourcedid;
         $newrecord->date_added = time(); // UNIX timestamp format.
-        $DB->insert_record('naas_activity_outcome', $newrecord);
+        $DB->insert_record('nugget_activity_outcome', $newrecord);
 
         // Delete records longer than 45 minutes because a nugget shouldn't last for more than 30 minutes.
         $timestamplimit = time() - (45 * 60);
         $sql = "date_added < " . $timestamplimit;
         $params = ['timestampLimit' => $timestamplimit];
-        $DB->delete_records_select('naas_activity_outcome', $sql, $params);
+        $DB->delete_records_select('nugget_activity_outcome', $sql, $params);
 
         $now = new \DateTime();
 
@@ -134,7 +134,7 @@ class naas_lti {
             "context_id" => $cm->id,
 
             "lis_result_sourcedid" => $sourcedid,
-            "lis_outcome_service_url" => $CFG->wwwroot. "/mod/naas/outcome.php?id=" . $cm->id,
+            "lis_outcome_service_url" => $CFG->wwwroot. "/mod/nugget/outcome.php?id=" . $cm->id,
             "resource_link_id" => $resourcelinkid,
         ];
 

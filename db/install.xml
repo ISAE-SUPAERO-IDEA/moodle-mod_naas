@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="mod/naas/db" VERSION="20240101" COMMENT="XMLDB file for URL module"
+<XMLDB PATH="mod/nugget/db" VERSION="20240101" COMMENT="XMLDB file for URL module"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
   <TABLES>
-    <TABLE NAME="naas" COMMENT="each record is one NaaS resource">
+    <TABLE NAME="nugget" COMMENT="each record is one Nugget resource">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Course basiclti activity belongs to"/>
@@ -22,7 +22,7 @@
         <FIELD NAME="completionattemptsexhausted" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="completionpass" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="completionminattempts" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
-        <FIELD NAME="allowofflineattempts" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Whether to allow the NaaS to be attempted offline in the mobile app"/>
+        <FIELD NAME="allowofflineattempts" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Whether to allow the Nugget to be attempted offline in the mobile app"/>
 
       </FIELDS>
       <KEYS>
@@ -33,7 +33,7 @@
       </INDEXES>
     </TABLE>
 
-    <TABLE NAME="naas_activity_outcome" COMMENT="Store in database: user id, activity id and source id">
+    <TABLE NAME="nugget_activity_outcome" COMMENT="Store in database: user id, activity id and source id">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="user_id" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>

@@ -30,16 +30,16 @@ $body = optional_param('body', null, PARAM_TEXT);
 
 // Get data from DB.
 $id = required_param('id', PARAM_INT); // Course Module ID.
-$cm = get_coursemodule_from_id('naas', $id, 0, false, MUST_EXIST);
+$cm = get_coursemodule_from_id('nugget', $id, 0, false, MUST_EXIST);
 $context = context_module::instance($cm->id);
 $course = $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST);
 
 // Check credentials.
 require_login($course, true, $cm);
-require_capability('mod/naas:view', $context);
+require_capability('mod/nugget:view', $context);
 
 // Get NaaS Client.
-$config = (object) array_merge((array) get_config('naas'), (array) $CFG);
+$config = (object) array_merge((array) get_config('nugget'), (array) $CFG);
 $naas = new \mod_nugget\naas_client($config);
 
 // Get user info from Moodle.

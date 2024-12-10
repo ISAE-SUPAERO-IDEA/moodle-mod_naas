@@ -24,7 +24,7 @@
           :placeholder="config.labels.nugget_search_here"
         />
         <img
-          v-bind:src="'../mod/naas/assets/search_icon.png'"
+          v-bind:src="'../mod/nugget/assets/search_icon.png'"
           class="search-center"
           width="35"
           height="35"

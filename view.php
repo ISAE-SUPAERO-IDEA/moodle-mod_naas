@@ -30,12 +30,12 @@ $redirect  = optional_param('redirect', 0, PARAM_BOOL);
 $forceview = optional_param('forceview', 0, PARAM_BOOL);
 
 if ($u) {  // Two ways to specify the module.
-    $naasinstance = $DB->get_record('naas', ['id' => $u], '*', MUST_EXIST);
-    $cm = get_coursemodule_from_instance('naas', $naas->id, $naas->course, false, MUST_EXIST);
+    $nuggetinstance = $DB->get_record('nugget', ['id' => $u], '*', MUST_EXIST);
+    $cm = get_coursemodule_from_instance('nugget', $naas->id, $naas->course, false, MUST_EXIST);
 
 } else {
-    $cm = get_coursemodule_from_id('naas', $id, 0, false, MUST_EXIST);
-    $naasinstance = $DB->get_record('naas', ['id' => $cm->instance], '*', MUST_EXIST);
+    $cm = get_coursemodule_from_id('nugget', $id, 0, false, MUST_EXIST);
+    $nuggetinstance = $DB->get_record('nugget', ['id' => $cm->instance], '*', MUST_EXIST);
 }
 
 $course = $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST);
@@ -43,17 +43,17 @@ $context = context_module::instance($cm->id);
 
 // Check credentials.
 require_course_login($course, true, $cm);
-require_capability('mod/naas:view', $context);
+require_capability('mod/nugget:view', $context);
 
 // Completion and trigger events.
-naas_view($course, $cm, $context);
+nugget_view($course, $cm, $context);
 
 // Set page stuff.
 $PAGE->set_cm($cm, $course); // Set's up global $COURSE.
 $PAGE->set_context($context);
-$url = new moodle_url('/mod/naas/view.php', ['id' => $cm->id]);
+$url = new moodle_url('/mod/nugget/view.php', ['id' => $cm->id]);
 $PAGE->set_url($url);
-$pagetitle = strip_tags($course->shortname.': '.format_string($naasinstance->name));
+$pagetitle = strip_tags($course->shortname.': '.format_string($nuggetinstance->name));
 $PAGE->set_title($pagetitle);
 $PAGE->set_heading($course->fullname);
 
@@ -63,7 +63,7 @@ echo $OUTPUT->header();
 $courseurl = new moodle_url('/course/view.php', ['id' => $COURSE->id]);
 // Back to course button.
 $backcoursebutton = "<div class='course-button'><a class='btn btn-outline-secondary btn-sm'
-    href=".$courseurl.">".get_string('back_to_course', 'naas')."</a></div>";
+    href=".$courseurl.">".get_string('back_to_course', 'nugget')."</a></div>";
 
 echo $backcoursebutton;
 
@@ -74,7 +74,7 @@ if ($nextactivityurl) {
 }
 
 // Displays Nugget.
-echo \mod_nugget\nugget_widget::nugget_widget_html($naasinstance->nugget_id, $cm->id, "NuggetView");
+echo \mod_nugget\nugget_widget::nugget_widget_html($nuggetinstance->nugget_id, $cm->id, "NuggetView");
 
 // Toggles the Nugget 'About' Modal.
 echo "<script>

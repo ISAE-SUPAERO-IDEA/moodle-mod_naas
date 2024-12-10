@@ -23,9 +23,9 @@
 
 // Clés générales.
 $string['modulename'] = 'Nugget';
-$string['naas:addinstance'] = 'Add a new NaaS module';
+$string['nugget:addinstance'] = 'Add a nugget';
 $string['modulename_help'] = '<p>The Moodle Nugget Plugin enables a teacher to integrate a micro-content from the NaaS Server. The teacher can allow the Nugget exercice to be attempted multiple times. A time limit may be set. Each attempt is marked automatically and the grade is recorded in the gradebook.<br>Nuggets may be used:<ul><li>As course exams</li><li>As mini tests for reading assignments or at the end of a topic</li><li>As exam practice using questions from past exams</li><li>For self-assessment</li></ul></p>';
-$string['modulename_link'] = 'mod/naas/view';
+$string['modulename_link'] = 'mod/nugget/view';
 $string['modulenameplural'] = 'Nuggets';
 $string['pluginadministration'] = '';
 $string['pluginname'] = 'Nugget';

@@ -2,7 +2,7 @@
   <div class="filters" ref="filters">
     <img
       v-show="loading"
-      v-bind:src="'../mod/naas/assets/loading.gif'"
+      v-bind:src="'../mod/nugget/assets/loading.gif'"
       width="35"
       height="35"
     />

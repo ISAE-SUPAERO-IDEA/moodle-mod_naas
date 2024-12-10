@@ -58,7 +58,7 @@ if (!$match) {
     }
 }
 
-$config = (object) array_merge((array) get_config('naas'), (array) $CFG);
+$config = (object) array_merge((array) get_config('nugget'), (array) $CFG);
 $naas = new \mod_nugget\naas_client($config);
 
 // Add nql filter.

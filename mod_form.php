@@ -29,9 +29,9 @@ require_once($CFG->dirroot.'/course/moodleform_mod.php');
 use core_grades\component_gradeitems;
 
 /**
- * NaaS configuration form
+ * Mod Nugget configuration form
  */
-class mod_naas_mod_form extends moodleform_mod {
+class mod_nugget_mod_form extends moodleform_mod {
 
     /**
      * Form definition
@@ -41,12 +41,12 @@ class mod_naas_mod_form extends moodleform_mod {
         global $CFG, $DB;
         $mform = $this->_form;
 
-        $config = (object) array_merge((array) get_config('naas'), (array) $CFG);
+        $config = (object) array_merge((array) get_config('nugget'), (array) $CFG);
         $naas = new \mod_nugget\naas_client($config);
 
         $info = $naas->get_api_info();
         if ($info == null) {
-            $mform->addElement('html', '<div class="alert alert-danger">'.get_string("naas_unable_connect", "naas").'</div>');
+            $mform->addElement('html', '<div class="alert alert-danger">'.get_string("naas_unable_connect", "nugget").'</div>');
         }
 
         // -------------------------------------------------------
@@ -55,13 +55,13 @@ class mod_naas_mod_form extends moodleform_mod {
         $nuggetid = $mform->getCleanedValue("nugget_id", PARAM_TEXT);
         $mform->addElement('html',  \mod_nugget\nugget_widget::nugget_widget_html($nuggetid, null, "NuggetSearchWidget"));
 
-        $mform->addElement('text', 'name', get_string('name_display', 'naas'), ['size' => '48']);
+        $mform->addElement('text', 'name', get_string('name_display', 'nugget'), ['size' => '48']);
         $mform->setType('name', PARAM_TEXT);
         $mform->addElement('hidden', 'nugget_id', 'nugget_id', ['size' => '48']);
         $mform->setType('nugget_id', PARAM_TEXT);
 
         // CGU.
-        $mform->addElement('checkbox', 'cgu_agreement', get_string('cgu_agreement', 'naas'));
+        $mform->addElement('checkbox', 'cgu_agreement', get_string('cgu_agreement', 'nugget'));
         $mform->addRule('cgu_agreement', null, 'required');
 
         // Course description.
@@ -83,10 +83,10 @@ class mod_naas_mod_form extends moodleform_mod {
         $mform->addElement(
             'select',
             'grade_method',
-            get_string('grade_method', 'naas'),
-            \mod_nugget\nugget_widget::naas_get_grading_options()
+            get_string('grade_method', 'nugget'),
+            \mod_nugget\nugget_widget::nugget_get_grading_options()
         );
-        $mform->addHelpButton('grade_method', 'grade_method', 'naas');
+        $mform->addHelpButton('grade_method', 'grade_method', 'nugget');
 
         // -------------------------------------------------------------------------------
 
@@ -129,7 +129,7 @@ class mod_naas_mod_form extends moodleform_mod {
                 }
             }
 
-            $mform->addElement('modgrade', 'gradetype', get_string('grade_type', 'naas'), $gradeoptions);
+            $mform->addElement('modgrade', 'gradetype', get_string('grade_type', 'nugget'), $gradeoptions);
             $mform->addHelpButton('gradetype', 'modgrade', 'grades');
             $mform->setDefault('gradetype', $CFG->gradepointdefault);
 
@@ -232,9 +232,9 @@ class mod_naas_mod_form extends moodleform_mod {
             // Show an error if require passing grade was selected and the grade to pass was set to < 0.
             if ($completionpass && (empty($data['gradepass']) || grade_floatval($data['gradepass']) < 0)) {
                 if (isset($data['completionpass'])) {
-                    $errors['completionpassgroup'] = get_string('gradetopassnotset', 'naas');
+                    $errors['completionpassgroup'] = get_string('gradetopassnotset', 'nugget');
                 } else {
-                    $errors['gradepass'] = get_string('gradetopassmustbeset', 'naas');
+                    $errors['gradepass'] = get_string('gradetopassmustbeset', 'nugget');
                 }
             }
         }
@@ -259,12 +259,12 @@ class mod_naas_mod_form extends moodleform_mod {
                     'advcheckbox',
                     'completionpass',
                     null,
-                    get_string('completionpass', 'naas'),
+                    get_string('completionpass', 'nugget'),
                     ['group' => 'cpass']
                 );
                 $mform->disabledIf('completionpass', 'completionusegrade', 'notchecked');
-                $mform->addGroup($group, 'completionpassgroup', get_string('completionpass', 'naas'), ' &nbsp; ', false);
-                $mform->addHelpButton('completionpassgroup', 'completionpass', 'naas');
+                $mform->addGroup($group, 'completionpassgroup', get_string('completionpass', 'nugget'), ' &nbsp; ', false);
+                $mform->addHelpButton('completionpassgroup', 'completionpass', 'nugget');
                 $items[] = 'completionpassgroup';
             }
         }

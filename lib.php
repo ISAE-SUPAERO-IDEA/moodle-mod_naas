@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Moodle Nugget Plugin : Mandatory public API of NaaS module
+ * Moodle Nugget Plugin : Mandatory public API of Nugget module
  *
  * @author Bruno Ilponse
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -76,11 +76,11 @@ function lti_get_jwt_claim_mapping_test() {
 }
 
 /**
- * List of features supported in NaaS module
+ * List of features supported in Nugget module
  * @param string $feature FEATURE_xx constant for requested feature
  * @return mixed True if module supports feature, false if not, null if doesn't know
  */
-function naas_supports($feature) {
+function nugget_supports($feature) {
     switch($feature) {
         case FEATURE_MOD_ARCHETYPE:
             return MOD_ARCHETYPE_RESOURCE;
@@ -121,7 +121,7 @@ function naas_supports($feature) {
  * @param array $data the data submitted from the reset course.
  * @return array status array
  */
-function naas_reset_userdata($data) {
+function nugget_reset_userdata($data) {
 
     // Any changes to the list of dates that needs to be rolled should be same during course restore and course reset.
     // See MDL-9367.
@@ -139,7 +139,7 @@ function naas_reset_userdata($data) {
  *
  * @return array
  */
-function naas_get_view_actions() {
+function nugget_get_view_actions() {
     return ['view', 'view all'];
 }
 
@@ -153,7 +153,7 @@ function naas_get_view_actions() {
  *
  * @return array
  */
-function naas_get_post_actions() {
+function nugget_get_post_actions() {
     return ['update', 'add'];
 }
 
@@ -167,15 +167,15 @@ function naas_get_post_actions() {
  * @return mixed the id of the new instance on success,
  *          false or a string error message on failure.
  */
-function naas_add_instance($data) {
+function nugget_add_instance($data) {
     global $DB;
 
     $data->timecreated = time();
     $data->timemodified = $data->timecreated;
-    $data->id = $DB->insert_record('naas', $data);
+    $data->id = $DB->insert_record('nugget', $data);
 
     $completiontimeexpected = !empty($data->completionexpected) ? $data->completionexpected : null;
-    \core_completion\api::update_completion_date_event($data->coursemodule, 'naas', $data->id, $completiontimeexpected);
+    \core_completion\api::update_completion_date_event($data->coursemodule, 'nugget', $data->id, $completiontimeexpected);
 
     return $data->id;
 }
@@ -188,15 +188,15 @@ function naas_add_instance($data) {
  * @param object $data the data that came from the form.
  * @return mixed true on success, false or a string error message on failure.
  */
-function naas_update_instance($data) {
+function nugget_update_instance($data) {
     global $CFG, $DB;
     $data->timemodified = time();
 
     $data->id = $data->instance;
-    $DB->update_record('naas', $data);
+    $DB->update_record('nugget', $data);
 
     $completiontimeexpected = !empty($data->completionexpected) ? $data->completionexpected : null;
-    \core_completion\api::update_completion_date_event($data->coursemodule, 'naas', $data->id, $completiontimeexpected);
+    \core_completion\api::update_completion_date_event($data->coursemodule, 'nugget', $data->id, $completiontimeexpected);
 
     return true;
 }
@@ -206,35 +206,35 @@ function naas_update_instance($data) {
  * this function will permanently delete the instance
  * and any data that depends on it.
  *
- * @param int $id the id of the naas to delete.
+ * @param int $id the id of the nugget to delete.
  * @return bool success or failure.
  */
-function naas_delete_instance($id) {
+function nugget_delete_instance($id) {
     global $DB;
 
-    $naas = $DB->get_record('naas', ['id' => $id], '*', MUST_EXIST);
+    $nugget = $DB->get_record('nugget', ['id' => $id], '*', MUST_EXIST);
 
-    $cm = get_coursemodule_from_instance('naas', $id);
-    \core_completion\api::update_completion_date_event($cm->id, 'naas', $id, null);
+    $cm = get_coursemodule_from_instance('nugget', $id);
+    \core_completion\api::update_completion_date_event($cm->id, 'nugget', $id, null);
 
     /*
     ...
     */
 
-    $events = $DB->get_records('event', ['modulename' => 'naas', 'instance' => $naas->id]);
+    $events = $DB->get_records('event', ['modulename' => 'nugget', 'instance' => $nugget->id]);
     foreach ($events as $event) {
         $event = calendar_event::load($event);
         $event->delete();
     }
 
     // We must delete the module record after we delete the grade item.
-    $DB->delete_records('naas', ['id' => $naas->id]);
+    $DB->delete_records('nugget', ['id' => $nugget->id]);
 
     return true;
 }
 
 /**
- * Add a get_coursemodule_info function in case any NaaS type wants to add 'extra' information
+ * Add a get_coursemodule_info function in case any Nugget type wants to add 'extra' information
  * for the course (see resource).
  *
  * Given a course_module object, this function returns any "extra" information that may be needed
@@ -244,34 +244,34 @@ function naas_delete_instance($id) {
  * @return cached_cm_info An object on information that the courses
  *                        will know about (most noticeably, an icon).
  */
-function naas_get_coursemodule_info($coursemodule) {
+function nugget_get_coursemodule_info($coursemodule) {
     global $CFG, $DB;
 
     $dbparams = ['id' => $coursemodule->instance];
     $fields = 'id, name, intro, introformat, nugget_id, completionattemptsexhausted, completionpass, completionminattempts';
-    if (!$naas = $DB->get_record('naas', $dbparams, $fields)) {
+    if (!$nnugget = $DB->get_record('nugget', $dbparams, $fields)) {
         return null;
     }
 
     $result = new cached_cm_info();
-    $result->name = $naas->name;
+    $result->name = $nnugget->name;
 
     if ($coursemodule->showdescription) {
         // Convert intro to html. Do not filter cached version, filters run at display time.
-        $result->content = format_module_intro('naas', $naas, $coursemodule->id, false);
+        $result->content = format_module_intro('nugget', $nnugget, $coursemodule->id, false);
     }
 
     // Populate the custom completion rules as key => value pairs, but only if the completion mode is 'automatic'.
     if ($coursemodule->completion == COMPLETION_TRACKING_AUTOMATIC) {
-        if ($naas->completionpass) {
+        if ($nnugget->completionpass) {
             $result->customdata['customcompletionrules']['completionpassorattemptsexhausted'] = [
-                'completionpass' => $naas->completionpass,
+                'completionpass' => $nnugget->completionpass,
             ];
         } else {
             $result->customdata['customcompletionrules']['completionpassorattemptsexhausted'] = [];
         }
 
-        $result->customdata['customcompletionrules']['completionminattempts'] = $naas->completionminattempts;
+        $result->customdata['customcompletionrules']['completionminattempts'] = $nnugget->completionminattempts;
     }
 
     return $result;
@@ -283,7 +283,7 @@ function naas_get_coursemodule_info($coursemodule) {
  * @param stdClass $parentcontext Block's parent context
  * @param stdClass $currentcontext Current context of block
  */
-function naas_page_type_list($pagetype, $parentcontext, $currentcontext) {
+function nugget_page_type_list($pagetype, $parentcontext, $currentcontext) {
     $modulepagetype = ['mod-url-*' => get_string('page-mod-url-x', 'url')];
     return $modulepagetype;
 }
@@ -293,7 +293,7 @@ function naas_page_type_list($pagetype, $parentcontext, $currentcontext) {
  * @param object $cm
  * @return array of file content
  */
-function naas_export_contents($cm) {
+function nugget_export_contents($cm) {
     global $CFG, $DB;
     require_once("$CFG->dirroot/mod/url/locallib.php");
     $contents = [];
@@ -329,7 +329,7 @@ function naas_export_contents($cm) {
  * Register the ability to handle drag and drop file uploads
  * @return array containing details of the files / types the mod can handle
  */
-function naas_dndupload_register() {
+function nugget_dndupload_register() {
     return ['types' => [
         ['identifier' => 'url', 'message' => get_string('createurl', 'url')],
     ]];
@@ -343,7 +343,7 @@ function naas_dndupload_register() {
  * @param  stdClass $context    context object
  * @since Moodle 3.0
  */
-function naas_view($course, $cm, $context) {
+function nugget_view($course, $cm, $context) {
     // Trigger view event.
     $event = \mod_nugget\event\course_module_viewed::create([
         'objectid' => $cm->instance,
@@ -367,7 +367,7 @@ function naas_view($course, $cm, $context) {
  * @return stdClass an object with the different type of areas indicating if they were updated or not
  * @since Moodle 3.2
  */
-function naas_check_updates_since(cm_info $cm, $from, $filter = []) {
+function nugget_check_updates_since(cm_info $cm, $from, $filter = []) {
     $updates = course_check_module_updates_since($cm, $from, ['content'], $filter);
     return $updates;
 }
@@ -376,11 +376,11 @@ function naas_check_updates_since(cm_info $cm, $from, $filter = []) {
  * Adds link(s) to secondary navigation inside activity
  *
  * @param settings_navigation $settings The settings navigation object
- * @param navigation_node $naasnode The node to add module settings to
+ * @param navigation_node $nuggetnode The node to add module settings to
  * @since Moodle 4.0
  */
-function naas_extend_settings_navigation(settings_navigation $settings, navigation_node $naasnode) {
-    $naasnode->add(get_string('about', 'naas'),
+function nugget_extend_settings_navigation(settings_navigation $settings, navigation_node $nuggetnode) {
+    $nuggetnode->add(get_string('about', 'nugget'),
         new moodle_url('#'),
         navigation_node::TYPE_SETTING, null, 'about');
 }

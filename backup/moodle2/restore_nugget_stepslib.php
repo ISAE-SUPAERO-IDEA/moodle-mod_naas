@@ -15,31 +15,31 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Define all the restore steps that will be used by the restore_naas_activity_task
+ * Define all the restore steps that will be used by the restore_nugget_activity_task
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @copyright (C) 2019  ISAE-SUPAERO (https://www.isae-supaero.fr/)
  * @package mod_nugget
  */
-class restore_naas_activity_structure_step extends restore_activity_structure_step {
+class restore_nugget_activity_structure_step extends restore_activity_structure_step {
 
     /**
-     * Define the NaaS activity structure.
+     * Define the Nugget activity structure.
      * @return mixed
      */
     protected function define_structure() {
         $paths = [];
-        $paths[] = new restore_path_element('naas', '/activity/naas');
+        $paths[] = new restore_path_element('nugget', '/activity/nugget');
 
         // Return the paths wrapped into standard activity structure.
         return $this->prepare_activity_structure($paths);
     }
 
     /**
-     * NaaS restore process.
+     * Nugget restore process.
      * @param array $data The process data
      * @return void
      */
-    protected function process_naas($data) {
+    protected function process_nugget($data) {
         global $DB;
 
         $data = (object)$data;
@@ -48,18 +48,18 @@ class restore_naas_activity_structure_step extends restore_activity_structure_st
         $data->timeopen = $this->apply_date_offset($data->timeopen);
         $data->timeclose = $this->apply_date_offset($data->timeclose);
 
-        // Insert the naas record.
-        $newitemid = $DB->insert_record('naas', $data);
+        // Insert the nugget record.
+        $newitemid = $DB->insert_record('nugget', $data);
         // Immediately after inserting "activity" record, call this.
         $this->apply_activity_instance($newitemid);
     }
 
     /**
-     * Add NaaS related files at the end.
+     * Add mod nugget related files at the end.
      * @return void
      */
     protected function after_execute() {
-        // Add naas related files, no need to match by itemname (just internally handled context).
+        // Add mod nugget related files, no need to match by itemname (just internally handled context).
         $this->add_related_files('mod_nugget', 'intro', null);
     }
 }

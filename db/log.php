@@ -25,8 +25,8 @@
 defined('MOODLE_INTERNAL') || die();
 
 $logs = [
-    ['module' => 'naas', 'action' => 'add', 'mtable' => 'naas', 'field' => 'name'],
-    ['module' => 'naas', 'action' => 'update', 'mtable' => 'naas', 'field' => 'name'],
-    ['module' => 'naas', 'action' => 'view', 'mtable' => 'naas', 'field' => 'name'],
-    ['module' => 'naas', 'action' => 'view all', 'mtable' => 'naas', 'field' => 'name'],
+    ['module' => 'nugget', 'action' => 'add', 'mtable' => 'nugget', 'field' => 'name'],
+    ['module' => 'nugget', 'action' => 'update', 'mtable' => 'nugget', 'field' => 'name'],
+    ['module' => 'nugget', 'action' => 'view', 'mtable' => 'nugget', 'field' => 'name'],
+    ['module' => 'nugget', 'action' => 'view all', 'mtable' => 'nugget', 'field' => 'name'],
 ];

@@ -1,6 +1,6 @@
 # Changelog
 
-_All notable changes to the NaaS Moodle plugin will be documented in this file._
+_All notable changes to the Nugget Moodle plugin will be documented in this file._
 
 ## Version 2.0.0 (2024-12-09)
 
