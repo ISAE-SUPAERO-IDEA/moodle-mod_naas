@@ -139,7 +139,6 @@ export default {
   },
   computed: {
     filter_options() {
-      if (this.debounced_typed == "") return null;
       return Object.assign(
         {},
         {
@@ -150,7 +149,6 @@ export default {
       );
     },
     search_options() {
-      if (this.debounced_typed == "") return null;
       return Object.assign({}, this.filter_options, this.filters);
     },
     filter_query() {
@@ -163,7 +161,7 @@ export default {
   methods: {
     async initialize() {
       this.selected_id = document.getElementsByName("nugget_id")[0].value;
-      if (this.selected_id != "") {
+      if (this.selected_id != "" && this.selected_id != "nugget_id") {
         // Nugget_id in memory -> Retrieve from id
         this.selected_nugget_loading++;
         try {
@@ -176,6 +174,8 @@ export default {
           throw e;
         }
         this.selected_nugget_loading--;
+      } else {
+        this.search();
       }
     },
     show_more_nugget() {

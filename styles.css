@@ -2,54 +2,51 @@
 Nugget Post
 ******************************/
 .nugget-selected {
-  margin-bottom: 75px !important;
+    margin-bottom: 75px !important; /* stylelint-disable-line declaration-no-important */
 }
+
 .nugget-post-selection {
-  margin-bottom: 20px !important;
+    margin-bottom: 20px !important; /* stylelint-disable-line declaration-no-important */
 }
+
 .nugget-post-selected {
-  background: #A6C3FE;
+    background: #a6c3fe;
 }
+
 .nugget-post {
-  border-radius: 5px;
-  box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
-  padding: 10px;
-  margin: 10px 10px 25px 10px;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+    padding: 10px;
+    margin: 10px 10px 25px 10px;
 }
+
 .nugget-post:hover {
-  box-shadow: 0 10px 20px 0 rgba(0,0,0,0.2);
-}
-.nugget-post .description {
-  max-height: 190px;
-  overflow-y: auto;
-  overflow-x: hidden;
-  scrollbar-color: #ddd white;
-  margin-bottom: 25px;
-}
-.nugget-post .description::-webkit-scrollbar-thumb {
-  background-color: none;    /* color of the scroll thumb */
-  border: none;  /* creates padding around scroll thumb */
+    box-shadow: 0 10px 20px 0 rgba(0, 0, 0, 0.2);
 }
 
 .nugget-buttons {
-  position: absolute;
-  right: 30px;
-  bottom: 0px;
+    position: absolute;
+    right: 30px;
+    bottom: 0;
 }
+
 .nugget-button {
-  margin-right: 5px !important;
+    margin-right: 5px !important; /* stylelint-disable-line declaration-no-important */
 }
+
 .nugget-button-selection {
-  padding: 0 5px 0 5px !important;
+    padding: 0 5px 0 5px !important; /* stylelint-disable-line declaration-no-important */
 }
+
 .nugget-button:focus {
-  outline: none !important;
-  box-shadow: none !important;
+    outline: none !important; /* stylelint-disable-line declaration-no-important */
+    box-shadow: none !important; /* stylelint-disable-line declaration-no-important */
 }
+
 /* Load more nugget */
 .show-more-nugget {
-  margin-left: 25px;
-  margin-bottom: 20px;
+    margin-left: 25px;
+    margin-bottom: 20px;
 }
 
 /******************************
@@ -57,99 +54,118 @@ Modal style
 ******************************/
 .modal-fade-enter,
 .modal-fade-leave-to {
-  opacity: 0;
+    opacity: 0;
 }
+
 .modal-fade-enter-active,
 .modal-fade-leave-active {
-  transition: opacity .3s ease;
+    transition: opacity .3s ease;
 }
+
 .nugget-modal-backdrop {
-  position: fixed;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background-color: rgba(0, 0, 0, 0.3);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 2;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: rgba(0, 0, 0, 0.3);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2;
 }
+
 .nugget-modal {
-  font-family: Open Sans, proxima-nova, nunito, Arial, sans-serif;
-  max-height: 90%;
-  width: 70%;
-  max-width: 1140px;
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  background: #FFFFFF;
-  box-shadow: 2px 2px 20px 1px;
-  border-radius: 5px;
-  flex-direction: column;
-  transform: translate(-50%, -50%);
+    font-family: Open Sans, proxima-nova, nunito, Arial, sans-serif;
+    max-height: 90%;
+    width: 70%;
+    max-width: 1140px;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    background: #fff;
+    box-shadow: 2px 2px 20px 1px;
+    border-radius: 5px;
+    flex-direction: column;
+    transform: translate(-50%, -50%);
 }
-.nugget-modal h2, .nugget-modal h3 {
-  font-family: Open Sans Condensed, Open Sans, proxima-nova, nunito, Arial, sans-serif;
+
+.nugget-modal h2,
+.nugget-modal h3 {
+    font-family: Open Sans Condensed, Open Sans, proxima-nova, nunito, Arial, sans-serif;
 }
+
 @media (max-width: 1250px) {
-  .nugget-modal {
-    max-height: 75%;
-    width: 75%;
-  }
+    .nugget-modal {
+        max-height: 75%;
+        width: 75%;
+    }
 }
+
 .nugget-modal-header h2 {
-  padding: 20px 0px 15px 30px;
+    padding: 20px 0 15px 30px;
 }
+
 .nugget-modal-body {
-  padding-bottom: 15px;
+    padding-bottom: 15px;
 }
+
 .nugget-modal-footer {
-  padding: 10px;
+    padding: 10px;
 }
+
 .nugget-modal-description {
-  overflow-y: auto;
-  display: block;
-  max-height: 200px;
-  margin-bottom: 20px;
+    overflow-y: auto;
+    display: block;
+    max-height: 200px;
+    margin-bottom: 20px;
 }
+
 .btn-close {
-  position: relative;
-  float: right;
-  padding: 15px;
-  top: -10px;
-  color: #999;
-  font-size: 24px;
-  font-weight: bold;
-  border: none;
-  background: transparent;
+    position: relative;
+    float: right;
+    padding: 15px;
+    top: -10px;
+    color: #999;
+    font-size: 24px;
+    font-weight: bold;
+    border: none;
+    background: transparent;
 }
+
 .metadata-field {
-  margin: 0 15px !important;
+    margin: 0 15px !important; /* stylelint-disable-line declaration-no-important */
 }
+
 .metadata-list {
-  list-style: none;
-  padding-left: 5px;
+    list-style: none;
+    padding-left: 5px;
 }
+
 .metadata-list-item {
-  margin-left: 30px;
+    margin-left: 30px;
 }
+
 .metadata-list-item .badge {
-  white-space: normal;
-  max-width: 90%;
+    white-space: normal;
+    max-width: 90%;
 }
+
 .nugget-view {
-  margin: 0 !important;
-  padding: 0 !important;
+    margin: 0 !important; /* stylelint-disable-line declaration-no-important */
+    padding: 0 !important; /* stylelint-disable-line declaration-no-important */
 }
+
 #nugget-preview-modal {
-  height: 85%;
+    height: 85%;
 }
+
 #nugget-preview-modal .nugget-modal-body {
-  height: 85%;
+    height: 85%;
 }
+
 .preview-iframe {
-  border: none !important;
+    border: none !important; /* stylelint-disable-line declaration-no-important */
 }
 
 /******************************
@@ -159,45 +175,52 @@ div.filters {
     float: left;
     width: 200px;
     margin-left: 40px;
-  }
+}
+
 div.filters-inner {
-  background-color: white;
-  display: table-cell;
-  padding: 10px;
-  margin-bottom: 10px;
+    background-color: white;
+    display: table-cell;
+    padding: 10px;
+    margin-bottom: 10px;
 }
+
 div.separator {
-  height: 15px;
+    height: 15px;
 }
+
 .filters-title {
-  margin-top: 10px;
-  margin-bottom: 0px;
-  padding-top: 0px
+    margin-top: 10px;
+    margin-bottom: 0;
+    padding-top: 0;
 }
+
 a.aggregation-title {
-  color: #000000;
-  font-weight: 400;
+    color: #000;
+    font-weight: 400;
 }
+
 a.aggregation-title:hover {
-  text-decoration: none;
+    text-decoration: none;
 }
 
 .hide-authors {
-  display: none;
+    display: none;
 }
+
 .show-more {
-  margin-left: 10px;
+    margin-left: 10px;
 }
+
 .clear-filters {
-  font-size: 13px;
-  margin-top: 15px;
+    font-size: 13px;
+    margin-top: 15px;
 }
 
 /******************************
 facets badge
 ******************************/
 .badge-margin {
-  margin: 1px;
+    margin: 1px;
 }
 
 
@@ -205,27 +228,30 @@ facets badge
 facets tree-view
 ******************************/
 .related-domains-list {
-  margin: 0;
-  padding: 0;
+    margin: 0;
+    padding: 0;
 }
+
 .related-domains-list-element {
-  list-style-type: none;
+    list-style-type: none;
 }
 
 /* Style the caret */
 .tree-view-caret {
-  cursor: pointer;
-  user-select: none;
+    cursor: pointer;
+    user-select: none;
 }
+
 .tree-view-caret::after {
-  content: "\25BC";
-  color: black;
-  display: inline-block;
-  margin-right: 6px;
-  transform: rotate(-90deg);
+    content: "\25BC";
+    color: black;
+    display: inline-block;
+    margin-right: 6px;
+    transform: rotate(-90deg);
 }
+
 .tree-view-caret-down::after {
-  transform: rotate(0deg);
+    transform: rotate(0deg);
 }
 
 
@@ -233,41 +259,49 @@ facets tree-view
 Completion modal
 ******************************/
 #completion-modal-button button {
-  padding: 10px 30px;
-  margin: 30px;
+    padding: 10px 30px;
+    margin: 30px;
 }
+
 .rating {
-  display: flex;
-  flex-direction: row-reverse;
-  justify-content: center;
-  height: 40px;
-  margin-bottom: 0px;
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: center;
+    height: 40px;
+    margin-bottom: 0;
 }
+
 .star {
-  color: lightgrey;
-  padding: 0px 4px;
+    color: lightgrey;
+    padding: 0 4px;
 }
+
 .star i {
-  font-size: 32px;
+    font-size: 32px;
 }
+
 .star:hover,
 .star:hover ~ .star {
-  color: orange;
+    color: orange;
 }
+
 .star.checked,
 .star.checked ~ span {
-  color: orange;
+    color: orange;
 }
+
 .rating-description {
-  color: #999; 
-  font-size: 14px;
-  margin: 10px 0px;
+    color: #999;
+    font-size: 14px;
+    margin: 10px 0;
 }
+
 .finish-learning-outcomes {
-  margin: 50px 0px;
+    margin: 50px 0;
 }
+
 .finish-learning-outcomes span {
-  display: block;
+    display: block;
 }
 
 
@@ -275,47 +309,54 @@ Completion modal
 Other style
 ******************************/
 .course-button {
-  margin: 0px 18px !important;
-  height: 40px;
+    margin: 0 18px !important; /* stylelint-disable-line declaration-no-important */
+    height: 40px;
 }
+
 .course-button a {
-  float: right;
+    float: right;
 }
+
 .language-select {
-  margin-left: 5px;
-  padding: 0.3rem 1rem 0.5rem 1rem;
-  cursor: pointer;
+    margin-left: 5px;
+    padding: 0.3rem 1rem 0.5rem 1rem;
+    cursor: pointer;
 }
+
 .search-center {
-  display: block;
-  margin-top: auto;
-  margin-bottom: auto;
-  margin-left:10px;
-  border: 1px solid;
+    display: block;
+    margin-top: auto;
+    margin-bottom: auto;
+    margin-left: 10px;
+    border: 1px solid;
 }
+
 .md-layout {
-  margin: 0;
+    margin: 0;
 }
+
 .btn-replace {
-  margin-left: 10px;
+    margin-left: 10px;
 }
+
 .nugget-display {
-  width: 100%;
+    width: 100%;
 }
 
 .h-100 {
-  height: 100%;
+    height: 100%;
 }
+
 .w-100 {
-  width: 100%;
+    width: 100%;
 }
 
 /* Logo fix (for Moodle 4) */
 :root {
-  --activityother: #399be2;
+    --activityother: #399be2;
 }
 
 /* Fix for Boost theme (Moodle 3) */
 #nav-drawer {
-  z-index: inherit !important;
+    z-index: inherit !important; /* stylelint-disable-line declaration-no-important */
 }

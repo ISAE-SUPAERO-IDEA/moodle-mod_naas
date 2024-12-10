@@ -1,6 +1,5 @@
 <?php
-
-// This file is part of Moodle - http://moodle.org/
+// This file is part of Moodle - http://moodle.org
 //
 // Moodle is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -18,17 +17,16 @@
 /**
  * Definition of log events
  *
- * @package    mod_url
- * @category   log
- * @copyright  2010 Petr Skoda (http://skodak.org)
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright (C) 2019  ISAE-SUPAERO (https://www.isae-supaero.fr/)
+ * @package mod_naas
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$logs = array(
-    array('module'=>'naas', 'action'=>'add', 'mtable'=>'naas', 'field'=>'name'),
-    array('module'=>'naas', 'action'=>'update', 'mtable'=>'naas', 'field'=>'name'),
-    array('module'=>'naas', 'action'=>'view', 'mtable'=>'naas', 'field'=>'name'),
-    array('module'=>'naas', 'action'=>'view all', 'mtable'=>'naas', 'field'=>'name'),
-);
+$logs = [
+    ['module' => 'naas', 'action' => 'add', 'mtable' => 'naas', 'field' => 'name'],
+    ['module' => 'naas', 'action' => 'update', 'mtable' => 'naas', 'field' => 'name'],
+    ['module' => 'naas', 'action' => 'view', 'mtable' => 'naas', 'field' => 'name'],
+    ['module' => 'naas', 'action' => 'view all', 'mtable' => 'naas', 'field' => 'name'],
+];

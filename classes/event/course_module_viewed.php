@@ -18,13 +18,21 @@
  * The course_module_viewed event.
  *
  * @package    mod_naas
- * @copyright  2021 Leslie Bordonné
+ * @author  Leslie Bordonné
+ * @copyright (C) 2019  ISAE-SUPAERO (https://www.isae-supaero.fr/)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 namespace mod_naas\event;
-defined('MOODLE_INTERNAL') || die();
+
+/**
+ * The course_module_viewed event.
+ */
 class course_module_viewed extends \core\event\course_module_viewed {
+
+    /**
+     * Initialize
+     * @return void
+     */
     protected function init() {
         $this->data['objecttable'] = 'naas';
         parent::init();
