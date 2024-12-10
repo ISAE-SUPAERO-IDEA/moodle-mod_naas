@@ -17,7 +17,7 @@ module.exports = {
     if (process.env.NODE_ENV === "production") {
       // Configure output file
       config.optimization.splitChunks = false;
-      config.output.filename = "naas_widget.js";
+      config.output.filename = "nugget_widget.js";
     } else {
       // Inject developpement configuration
       config.plugins.push(

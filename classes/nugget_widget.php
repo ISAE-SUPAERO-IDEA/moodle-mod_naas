@@ -24,13 +24,13 @@
 namespace mod_nugget;
 
 /**
- * Render the NaaS widget which allows to display a Nugget in Moodle.
+ * Render the Nugget widget which allows to display a Nugget in Moodle.
  * @author Bruno Ilponse
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @copyright (C) 2019  ISAE-SUPAERO (https://www.isae-supaero.fr/)
  * @package mod_nugget
  */
-class naas_widget {
+class nugget_widget {
     /**
      * Render this NaaS widget as HTML
      * @param int $nuggetid
@@ -38,10 +38,10 @@ class naas_widget {
      * @param string $component
      * @return string
      */
-    public static function naas_widget_html($nuggetid, $cmid, $component): string {
+    public static function nugget_widget_html($nuggetid, $cmid, $component): string {
         global $CFG;
         $widgetconfig = json_encode([
-            "mount_point" => "#naas_widget",
+            "mount_point" => "#nugget_widget",
             "proxy_url" => "$CFG->wwwroot/mod/naas/proxy.php",
             "component" => $component,
             "nugget_id" => $nuggetid,
@@ -105,9 +105,9 @@ class naas_widget {
                 "complete_nugget" => get_string('complete_nugget', 'naas'),
             ],
         ]);
-        $html = "<div id='naas_widget'></div>";
+        $html = "<div id='nugget_widget'></div>";
         $html .= "<script>NAAS=$widgetconfig</script>";
-        $widgetjsurl = new \moodle_url('/mod/naas/assets/vue/naas_widget.js');
+        $widgetjsurl = new \moodle_url('/mod/naas/assets/vue/nugget_widget.js');
         $html .= "<script src='$widgetjsurl' ></script>";
 
         return $html;

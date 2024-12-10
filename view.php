@@ -74,7 +74,7 @@ if ($nextactivityurl) {
 }
 
 // Displays Nugget.
-echo \mod_nugget\naas_widget::naas_widget_html($naasinstance->nugget_id, $cm->id, "NuggetView");
+echo \mod_nugget\nugget_widget::nugget_widget_html($naasinstance->nugget_id, $cm->id, "NuggetView");
 
 // Toggles the Nugget 'About' Modal.
 echo "<script>
