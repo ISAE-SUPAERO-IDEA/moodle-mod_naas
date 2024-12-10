@@ -20,7 +20,7 @@
  * @author Bruno Ilponse
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @copyright (C) 2019  ISAE-SUPAERO (https://www.isae-supaero.fr/)
- * @package mod_naas
+ * @package mod_nugget
  */
 
 defined('MOODLE_INTERNAL') || die;
@@ -42,7 +42,7 @@ class mod_naas_mod_form extends moodleform_mod {
         $mform = $this->_form;
 
         $config = (object) array_merge((array) get_config('naas'), (array) $CFG);
-        $naas = new \mod_naas\naas_client($config);
+        $naas = new \mod_nugget\naas_client($config);
 
         $info = $naas->get_api_info();
         if ($info == null) {
@@ -53,7 +53,7 @@ class mod_naas_mod_form extends moodleform_mod {
         $mform->addElement('header', 'general', get_string('general', 'form'));
 
         $nuggetid = $mform->getCleanedValue("nugget_id", PARAM_TEXT);
-        $mform->addElement('html',  \mod_naas\naas_widget::naas_widget_html($nuggetid, null, "NuggetSearchWidget"));
+        $mform->addElement('html',  \mod_nugget\naas_widget::naas_widget_html($nuggetid, null, "NuggetSearchWidget"));
 
         $mform->addElement('text', 'name', get_string('name_display', 'naas'), ['size' => '48']);
         $mform->setType('name', PARAM_TEXT);
@@ -84,7 +84,7 @@ class mod_naas_mod_form extends moodleform_mod {
             'select',
             'grade_method',
             get_string('grade_method', 'naas'),
-            \mod_naas\naas_widget::naas_get_grading_options()
+            \mod_nugget\naas_widget::naas_get_grading_options()
         );
         $mform->addHelpButton('grade_method', 'grade_method', 'naas');
 

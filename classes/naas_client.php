@@ -14,14 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace mod_naas;
+namespace mod_nugget;
 
 /**
  * Enables interaction with a NaaS Server
  *
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @copyright (C) 2019  ISAE-SUPAERO (https://www.isae-supaero.fr/)
- * @package mod_naas
+ * @package mod_nugget
  */
 class naas_client {
 

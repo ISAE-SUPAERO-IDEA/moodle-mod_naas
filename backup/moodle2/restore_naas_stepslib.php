@@ -18,7 +18,7 @@
  * Define all the restore steps that will be used by the restore_naas_activity_task
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @copyright (C) 2019  ISAE-SUPAERO (https://www.isae-supaero.fr/)
- * @package mod_naas
+ * @package mod_nugget
  */
 class restore_naas_activity_structure_step extends restore_activity_structure_step {
 
@@ -60,6 +60,6 @@ class restore_naas_activity_structure_step extends restore_activity_structure_st
      */
     protected function after_execute() {
         // Add naas related files, no need to match by itemname (just internally handled context).
-        $this->add_related_files('mod_naas', 'intro', null);
+        $this->add_related_files('mod_nugget', 'intro', null);
     }
 }

@@ -19,7 +19,7 @@
  *
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @copyright (C) 2019  ISAE-SUPAERO (https://www.isae-supaero.fr/)
- * @package mod_naas
+ * @package mod_nugget
  */
 
 require_once($_SERVER['DOCUMENT_ROOT']."/config.php");
@@ -67,14 +67,14 @@ $backcoursebutton = "<div class='course-button'><a class='btn btn-outline-second
 
 echo $backcoursebutton;
 
-$nextactivityurl = \mod_naas\mod_util::get_next_activity_url();
+$nextactivityurl = \mod_nugget\mod_util::get_next_activity_url();
 if ($nextactivityurl) {
     echo "<div class='next-activity hidden'><a class='btn btn-outline-secondary btn-sm'
     href=".$nextactivityurl->link."&forceview=1>".$nextactivityurl->name."</a></div>";
 }
 
 // Displays Nugget.
-echo \mod_naas\naas_widget::naas_widget_html($naasinstance->nugget_id, $cm->id, "NuggetView");
+echo \mod_nugget\naas_widget::naas_widget_html($naasinstance->nugget_id, $cm->id, "NuggetView");
 
 // Toggles the Nugget 'About' Modal.
 echo "<script>

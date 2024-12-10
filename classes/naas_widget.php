@@ -19,16 +19,16 @@
  * @author Bruno Ilponse
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @copyright (C) 2019  ISAE-SUPAERO (https://www.isae-supaero.fr/)
- * @package mod_naas
+ * @package mod_nugget
  */
-namespace mod_naas;
+namespace mod_nugget;
 
 /**
  * Render the NaaS widget which allows to display a Nugget in Moodle.
  * @author Bruno Ilponse
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @copyright (C) 2019  ISAE-SUPAERO (https://www.isae-supaero.fr/)
- * @package mod_naas
+ * @package mod_nugget
  */
 class naas_widget {
     /**

@@ -20,7 +20,7 @@
  *  - ?nugget_id=...
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @copyright (C) 2019  ISAE-SUPAERO (https://www.isae-supaero.fr/)
- * @package mod_naas
+ * @package mod_nugget
  */
 
 require_once($_SERVER['DOCUMENT_ROOT']."/config.php");
@@ -59,7 +59,7 @@ if (!$match) {
 }
 
 $config = (object) array_merge((array) get_config('naas'), (array) $CFG);
-$naas = new \mod_naas\naas_client($config);
+$naas = new \mod_nugget\naas_client($config);
 
 // Add nql filter.
 $nql = $config->naas_filter;

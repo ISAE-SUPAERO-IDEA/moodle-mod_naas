@@ -32,8 +32,8 @@ $string['pluginname'] = 'Nugget';
 $string['nugget'] = 'Nugget';
 
 // Capabilities.
-$string['mod_naas:view'] = 'Can view the Nugget';
-$string['mod_naas:addinstance'] = 'Can add a new Nugget to the course';
+$string['mod_nugget:view'] = 'Can view the Nugget';
+$string['mod_nugget:addinstance'] = 'Can add a new Nugget to the course';
 
 // NaaS settings.
 $string['completiondetail:passorexhaust'] = 'Complete on pass or exhaustion';

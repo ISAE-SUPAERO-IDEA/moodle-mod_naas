@@ -19,7 +19,7 @@
  *
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @copyright (C) 2019  ISAE-SUPAERO (https://www.isae-supaero.fr/)
- * @package mod_naas
+ * @package mod_nugget
  */
 
 require_once($_SERVER['DOCUMENT_ROOT']."/config.php");
@@ -36,5 +36,5 @@ require_login($course, true, $cm);
 require_capability('mod/naas:view', $context);
 
 // Launch LTI.
-$naasmoodle = new \mod_naas\naas_lti();
+$naasmoodle = new \mod_nugget\naas_lti();
 $naasmoodle->lti_launch($id, $language);

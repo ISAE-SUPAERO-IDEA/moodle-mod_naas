@@ -18,15 +18,15 @@
  * Moodle Nugget Plugin : LTI connector
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @copyright (C) 2019  ISAE-SUPAERO (https://www.isae-supaero.fr/)
- * @package mod_naas
+ * @package mod_nugget
  */
-namespace mod_naas;
+namespace mod_nugget;
 
 /**
  * LTI connector
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @copyright (C) 2019  ISAE-SUPAERO (https://www.isae-supaero.fr/)
- * @package mod_naas
+ * @package mod_nugget
  */
 class naas_lti {
 
@@ -55,7 +55,7 @@ class naas_lti {
 
         // Retrieve LTI config from NaaS server.
         $config = (object) array_merge((array) \get_config('naas'), (array) $CFG);
-        $naas = new \mod_naas\naas_client($config);
+        $naas = new \mod_nugget\naas_client($config);
         $nuggetdata = $naas->get_nugget_data($naasinstance->nugget_id);
         $nuggetconfig = $naas->get_nugget_lti_config($naasinstance->nugget_id);
         if ($language != ""

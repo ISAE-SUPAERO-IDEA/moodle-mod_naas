@@ -19,7 +19,7 @@
  *
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @copyright (C) 2019  ISAE-SUPAERO (https://www.isae-supaero.fr/)
- * @package mod_naas
+ * @package mod_nugget
  */
 
 defined('MOODLE_INTERNAL') || die();
@@ -27,7 +27,7 @@ defined('MOODLE_INTERNAL') || die();
 $plugin->version        = 2024120900;                  // The current module version (Date: YYYYMMDDXX).
 $plugin->release        = "2.0.0";
 $plugin->requires       = 2022041900;                  // Requires this Moodle version.
-$plugin->component      = 'mod_naas';                  // Full name of the plugin (used for diagnostics).
+$plugin->component      = 'mod_nugget';                // Full name of the plugin (used for diagnostics).
 $plugin->cron           = 0;                           // Frequency of the plugin's cron task.
 $plugin->maturity       = MATURITY_STABLE;             // Plugin thoroughly tested and considered stable for production.
 $plugin->dependencies   = [

@@ -20,7 +20,7 @@
  * @author Bruno Ilponse
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @copyright (C) 2019  ISAE-SUPAERO (https://www.isae-supaero.fr/)
- * @package mod_naas
+ * @package mod_nugget
  */
 
 /**#@+
@@ -345,7 +345,7 @@ function naas_dndupload_register() {
  */
 function naas_view($course, $cm, $context) {
     // Trigger view event.
-    $event = \mod_naas\event\course_module_viewed::create([
+    $event = \mod_nugget\event\course_module_viewed::create([
         'objectid' => $cm->instance,
         'context' => $context,
     ]);

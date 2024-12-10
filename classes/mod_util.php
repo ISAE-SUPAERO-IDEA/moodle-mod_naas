@@ -20,9 +20,9 @@
  * @author John Tranier
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @copyright (C) 2019  ISAE-SUPAERO (https://www.isae-supaero.fr/)
- * @package mod_naas
+ * @package mod_nugget
  */
-namespace mod_naas;
+namespace mod_nugget;
 
 /**
  * Provides utility functions on Moodle modules.
@@ -30,7 +30,7 @@ namespace mod_naas;
  * @author John Tranier
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @copyright (C) 2019  ISAE-SUPAERO (https://www.isae-supaero.fr/)
- * @package mod_naas
+ * @package mod_nugget
  */
 class mod_util {
 

@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace mod_naas\completion;
+namespace mod_nugget\completion;
 
 use context_module;
 use core_completion\activity_custom_completion;
@@ -25,12 +25,12 @@ use naas;
 /**
  * Activity custom completion subclass for the naas activity.
  *
- * Class for defining mod_naas's custom completion rules and fetching the completion statuses
+ * Class for defining mod_nugget's custom completion rules and fetching the completion statuses
  * of the custom completion rules for a given naas instance and a user.
  *
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @copyright (C) 2019  ISAE-SUPAERO (https://www.isae-supaero.fr/)
- * @package mod_naas
+ * @package mod_nugget
  */
 class custom_completion extends activity_custom_completion {
 
