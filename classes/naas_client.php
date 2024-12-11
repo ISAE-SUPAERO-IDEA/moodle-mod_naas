@@ -129,23 +129,23 @@ class naas_client {
     private function handle_result($res) {
         if ($res != null) {
             if (property_exists($res, "payload") && ($res->payload != null || is_array($res->payload))) {
-                if($this->debug) {
+                if ($this->debug) {
                     debugging("Payload: ".json_encode($res->payload, JSON_PRETTY_PRINT), DEBUG_DEVELOPER);
                 }
 
                 return $res->payload;
             } else if (property_exists($res, "error")) {
-                if($this->debug) {
+                if ($this->debug) {
                     debugging("An error occurred on the NaaS server", DEBUG_NORMAL);
                     debugging(json_encode($res->error, JSON_PRETTY_PRINT), DEBUG_DEVELOPER);
                 }
             } else {
-                if($this->debug) {
+                if ($this->debug) {
                     debugging("Unexpected error occurred on the NaaS server", DEBUG_NORMAL);
                 }
             }
         } else {
-            if($this->debug) {
+            if ($this->debug) {
                 debugging("Unexpected error occurred on the NaaS server", DEBUG_NORMAL);
             }
         }
