@@ -47,26 +47,6 @@ class naas_client {
     }
 
     /**
-     * Log
-     * @param string $message
-     * @return void
-     */
-    private function log($message) {
-        debugging("[NaaS] {$message}", DEBUG_DEVELOPER);
-    }
-
-    /**
-     * Log when debug mode is activated
-     * @param string $message
-     * @return void
-     */
-    private function debug($message) {
-        if ($this->debug) {
-            $this->log($message);
-        }
-    }
-
-    /**
      * Makes an HTTP request returns the json decoded body or null in case of http error.
      * @param string $protocol
      * @param string $service
@@ -114,16 +94,14 @@ class naas_client {
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         $body = curl_exec($ch);
         $code = curl_getinfo ( $ch, CURLINFO_RESPONSE_CODE );
-        $contenttype = curl_getinfo ($ch, CURLINFO_CONTENT_TYPE );
-        if (curl_errno($ch)) {
-            echo 'Curl error: ' . curl_error($ch);
+        if (curl_errno($ch) && $this->debug) {
+            $message = 'Curl error: ' . curl_error($ch);
+            debugging($message, DEBUG_DEVELOPER);
         }
-        if ($code != 200) {
-            $this->log("Request failed: ".$protocol." - ".$url." (".$code.")");
-            if (curl_errno($ch)) {
-                $this->log('=> Curl error: ' . curl_error($ch));
-            }
-            $this->debug($body);
+        if ($code != 200 && $this->debug) {
+            $message = "Request failed: ".$protocol." - ".$url." (".$code.")";
+            debugging($message, DEBUG_NORMAL);
+            debugging($body, DEBUG_DEVELOPER);
         }
         curl_close($ch);
 
@@ -151,15 +129,25 @@ class naas_client {
     private function handle_result($res) {
         if ($res != null) {
             if (property_exists($res, "payload") && ($res->payload != null || is_array($res->payload))) {
-                $this->debug("Payload: ".json_encode($res->payload, JSON_PRETTY_PRINT));
+                if ($this->debug) {
+                    debugging("Payload: ".json_encode($res->payload, JSON_PRETTY_PRINT), DEBUG_DEVELOPER);
+                }
+
                 return $res->payload;
             } else if (property_exists($res, "error")) {
-                $this->debug(json_encode($res->error, JSON_PRETTY_PRINT));
+                if ($this->debug) {
+                    debugging("An error occurred on the NaaS server", DEBUG_NORMAL);
+                    debugging(json_encode($res->error, JSON_PRETTY_PRINT), DEBUG_DEVELOPER);
+                }
             } else {
-                $this->debug("Unexpected_error");
+                if ($this->debug) {
+                    debugging("Unexpected error occurred on the NaaS server", DEBUG_NORMAL);
+                }
             }
         } else {
-            $this->debug("Unexpected_error");
+            if ($this->debug) {
+                debugging("Unexpected error occurred on the NaaS server", DEBUG_NORMAL);
+            }
         }
         return $res;
     }
@@ -169,7 +157,6 @@ class naas_client {
      * @return array|mixed
      */
     public function get_api_info() {
-        $this->debug("Get API info");
         $protocol = "GET";
         $config = $this->request($protocol, "");
         return $this->handle_result($config);
@@ -185,7 +172,6 @@ class naas_client {
         if ($structureid == null) {
             $structureid = $this->config->naas_structure_id;
         }
-        $this->debug("Get nugget LTI config: ".$nuggetid);
         $protocol = "GET";
         $params = [ "structure_id" => $structureid ];
         $service = "/nuggets/".$nuggetid."/lti";
@@ -199,7 +185,6 @@ class naas_client {
      * @return array|mixed
      */
     public function get_nugget_data($nuggetid) {
-        $this->debug("Get nugget data: ".$nuggetid);
         $protocol = "GET";
         $params = [ "nugget_id" => $nuggetid ];
         $service = "/nuggets/".$nuggetid."/default_version";
@@ -212,7 +197,6 @@ class naas_client {
      * @return array|mixed
      */
     public function get_connected_user() {
-        $this->debug("Getting user information");
         $protocol = "GET";
         $service = "/auth";
         $result = $this->request($protocol, $service);
@@ -226,7 +210,6 @@ class naas_client {
      * @param object $data
      */
     public function post_xapi_statement($verb, $versionid, $data) {
-        $this->debug("Send xAPI statement to LRS");
         $protocol = "POST";
         $service = "/versions/{$versionid}/records/{$verb}";
 
