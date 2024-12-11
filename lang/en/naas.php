@@ -70,7 +70,7 @@ $string['lastmodified'] = 'Last modified';
 $string['moduleintro'] = 'Introduction to the module';
 $string['name_display'] = 'Name to display';
 $string['name_help'] = 'Name of the nugget that will appear in the course section';
-$string['naas_unable_connect'] = 'Unable to contact the NaaS server';
+$string['naas_unable_connect'] = 'Unable to contact the NaaS server.';
 $string['unlimited'] = 'Unlimited';
 
 // Vue Form.
