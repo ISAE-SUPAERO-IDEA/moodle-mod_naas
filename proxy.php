@@ -26,7 +26,7 @@
 require_once($_SERVER['DOCUMENT_ROOT']."/config.php");
 require_login(null, false);
 
-$path  = $_GET['path'];
+$path  = required_param('path',  PARAM_ALPHANUM);
 
 // We allow requests to these specific URIs.
 $whitelist = [
