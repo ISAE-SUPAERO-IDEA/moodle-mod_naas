@@ -29,13 +29,13 @@ require_login(null, false);
 $path  = required_param('path',  PARAM_ALPHANUM);
 
 // We allow requests to these specific URIs.
-$whitelist = [
+$allowedlist = [
     '/^\/nuggets\/([\w]+-?)+\/default_version$/',
     '/^\/persons\/[\w]+\/?$/',
     '/^\/vocabularies\/nugget_domains_vocabulary\/[\d]+\/?$/'];
 
 $match = false;
-foreach ($whitelist as $pexp) {
+foreach ($allowedlist as $pexp) {
     if (preg_match($pexp, $path) == 1 ) {
         $match = true;
         break;
