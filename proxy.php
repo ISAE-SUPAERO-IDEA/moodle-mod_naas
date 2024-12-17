@@ -23,7 +23,7 @@
  * @package mod_naas
  */
 
-require_once($_SERVER['DOCUMENT_ROOT']."/config.php");
+require_once('../../config.php');
 require_login(null, false);
 
 $path  = $_GET['path'];
