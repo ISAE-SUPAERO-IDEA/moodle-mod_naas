@@ -1,45 +1,59 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <thirdpartylibs>
     <library>
+        <location>vue/node_modules/axios</location>
         <name>axios</name>
         <version>0.25.0</version>
         <license>MIT</license>
-        <homepage>https://github.com/axios/axios</homepage>
+        <origin>https://github.com/axios/axios</origin>
+        <homepage>https://axios-http.com/</homepage>
     </library>
     <library>
         <name>core-js</name>
         <version>3.6.5</version>
         <license>MIT</license>
         <homepage>https://github.com/zloirock/core-js</homepage>
+        <origin>https://github.com/zloirock/core-js</origin>
+        <location>vue/node_modules/core-js</location>
     </library>
     <library>
         <name>debounce</name>
         <version>1.2.1</version>
         <license>MIT</license>
         <homepage>https://github.com/component/debounce</homepage>
+        <origin>https://github.com/component/debounce</origin>
+        <location>vue/node_modules/debounce</location>
     </library>
     <library>
         <name>iframe-resizer</name>
         <version>4.3.6</version>
         <license>MIT</license>
         <homepage>https://github.com/davidjbradshaw/iframe-resizer</homepage>
+        <origin>https://github.com/davidjbradshaw/iframe-resizer</origin>
+        <location>vue/node_modules/iframe-resizer</location>
     </library>
     <library>
         <name>moment</name>
         <version>2.29.4</version>
         <license>MIT</license>
         <homepage>https://momentjs.com/</homepage>
+        <origin>https://github.com/moment/moment/</origin>
+        <location>vue/node_modules/moment</location>
     </library>
     <library>
+        <location>vue/node_modules/vue</location>
         <name>vue</name>
         <version>2.6.11</version>
         <license>MIT</license>
         <homepage>https://vuejs.org/</homepage>
+        <origin>https://github.com/vuejs/vue</origin>
     </library>
     <library>
         <name>vue-simple-suggest</name>
         <version>1.11.2</version>
         <license>MIT</license>
         <homepage>https://github.com/KazanExpress/vue-simple-suggest</homepage>
+        <origin>https://github.com/KazanExpress/vue-simple-suggest</origin>
+        <location>vue/node_modules/vue-simple-suggest</location>
     </library>
 </thirdpartylibs>
