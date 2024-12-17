@@ -2,11 +2,11 @@
 Nugget Post
 ******************************/
 .path-mod-naas .nugget-selected {
-    margin-bottom: 75px !important; /* stylelint-disable-line declaration-no-important */
+    margin-bottom: 75px;
 }
 
 .path-mod-naas .nugget-post-selection {
-    margin-bottom: 20px !important; /* stylelint-disable-line declaration-no-important */
+    margin-bottom: 20px;
 }
 
 .path-mod-naas .nugget-post-selected {
@@ -31,16 +31,16 @@ Nugget Post
 }
 
 .path-mod-naas .nugget-button {
-    margin-right: 5px !important; /* stylelint-disable-line declaration-no-important */
+    margin-right: 5px;
 }
 
 .path-mod-naas .nugget-button-selection {
-    padding: 0 5px 0 5px !important; /* stylelint-disable-line declaration-no-important */
+    padding: 0 5px 0 5px;
 }
 
 .path-mod-naas .nugget-button:focus {
-    outline: none !important; /* stylelint-disable-line declaration-no-important */
-    box-shadow: none !important; /* stylelint-disable-line declaration-no-important */
+    outline: none;
+    box-shadow: none;
 }
 
 /* Load more nugget */
@@ -134,7 +134,7 @@ Modal style
 }
 
 .path-mod-naas .metadata-field {
-    margin: 0 15px !important; /* stylelint-disable-line declaration-no-important */
+    margin: 0 15px; /* stylelint-disable-line declaration-no-important */
 }
 
 .path-mod-naas .metadata-list {
@@ -152,8 +152,8 @@ Modal style
 }
 
 .path-mod-naas .nugget-view {
-    margin: 0 !important; /* stylelint-disable-line declaration-no-important */
-    padding: 0 !important; /* stylelint-disable-line declaration-no-important */
+    margin: 0;
+    padding: 0;
 }
 
 .path-mod-naas #nugget-preview-modal {
@@ -165,7 +165,7 @@ Modal style
 }
 
 .path-mod-naas .preview-iframe {
-    border: none !important; /* stylelint-disable-line declaration-no-important */
+    border: none;
 }
 
 /******************************
@@ -309,7 +309,7 @@ Completion modal
 Other style
 ******************************/
 .path-mod-naas .course-button {
-    margin: 0 18px !important; /* stylelint-disable-line declaration-no-important */
+    margin: 0 18px;
     height: 40px;
 }
 
