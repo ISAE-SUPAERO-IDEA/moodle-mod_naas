@@ -174,7 +174,6 @@ Aggregations
 .path-mod-naas div.filters {
     float: left;
     width: 200px;
-    margin-left: 40px;
 }
 
 .path-mod-naas div.filters-inner {
@@ -214,6 +213,10 @@ Aggregations
 .path-mod-naas .clear-filters {
     font-size: 13px;
     margin-top: 15px;
+}
+
+.path-mod-naas div.filters img{
+    margin-left: 40px;
 }
 
 /******************************
