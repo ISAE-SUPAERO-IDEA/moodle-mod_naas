@@ -22,7 +22,7 @@
  * @package mod_naas
  */
 
-require_once($_SERVER['DOCUMENT_ROOT']."/config.php");
+require_once('../../config.php');
 
 $id = required_param('id', PARAM_INT); // Course id.
 $course = $DB->get_record('course', ['id' => $id], '*', MUST_EXIST);

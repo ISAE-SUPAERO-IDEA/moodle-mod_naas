@@ -22,7 +22,7 @@
  * @package mod_naas
  */
 
-require_once($_SERVER['DOCUMENT_ROOT']."/config.php");
+require_once('../../config.php');
 
 $verb = required_param('verb', PARAM_TEXT);
 $versionid = required_param('version_id', PARAM_TEXT);
