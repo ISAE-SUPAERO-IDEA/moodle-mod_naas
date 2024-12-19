@@ -22,7 +22,7 @@
  * @package mod_naas
  */
 
-require_once($_SERVER['DOCUMENT_ROOT']."/config.php");
+require_once('../../config.php');
 require_once("$CFG->libdir/completionlib.php");
 require_login(null, false);
 
