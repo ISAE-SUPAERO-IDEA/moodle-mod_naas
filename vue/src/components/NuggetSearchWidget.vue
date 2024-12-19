@@ -42,7 +42,7 @@
       <div class="col-md-9">
         <div class="row">
           <div
-            class="col-6 col-lg-6 col-xl-4 nugget-post-selection"
+            class="col-6 col-lg-6 col-xl-6 nugget-post-selection"
             v-for="(nugget, index) in nuggets"
             :key="index"
           >

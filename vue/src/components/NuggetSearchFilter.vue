@@ -57,15 +57,17 @@
               >
             </a>
           </span>
-          <a
-            href="javascript:;"
-            id="show-more-authors"
-            class="clear-filters show-more"
-            v-if="aggregation_key == 'authors' && has_more(aggregation)"
-            @click="show_more_bucket()"
-          >
-            {{ config.labels.show_more_authors }}
-          </a>
+          <div>
+            <a
+              href="javascript:;"
+              id="show-more-authors"
+              class="clear-filters show-more"
+              v-if="aggregation_key == 'authors' && has_more(aggregation)"
+              @click="show_more_bucket()"
+            >
+              + {{ config.labels.show_more_authors }}
+            </a>
+          </div>
         </div>
       </div>
       <div class="clear-filters" v-show="has_filters">
@@ -395,11 +397,11 @@ export default {
         if (is_visible) {
           hide_button[i].style.display = "none";
           document.getElementById("show-more-authors").innerHTML =
-            this.config.labels.show_more_authors;
+            "+ " + this.config.labels.show_more_authors;
         } else {
           hide_button[i].style.display = "inline";
           document.getElementById("show-more-authors").innerHTML =
-            this.config.labels.hide_authors;
+            "- " + this.config.labels.hide_authors;
         }
       }
     },
