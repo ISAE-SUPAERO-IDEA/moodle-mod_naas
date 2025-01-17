@@ -33,7 +33,7 @@
       </INDEXES>
     </TABLE>
 
-    <TABLE NAME="naas_activity_outcome" COMMENT="Store in database: user id, activity id and source id">
+    <TABLE NAME="naas_activity_outcome" COMMENT="Associate (user id, activity id) to source id which is an anonymized token allowing to retrieve the activity score from the NaaS without sending personal data to the NaaS">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="user_id" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
