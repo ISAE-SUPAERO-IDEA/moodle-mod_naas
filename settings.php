@@ -23,7 +23,6 @@
  */
 
 defined('MOODLE_INTERNAL') || die();
-require_once('privacy/provider.php');
 
 if ($hassiteconfig) {
     // NaaS settings.
@@ -35,84 +34,84 @@ if ($hassiteconfig) {
 
     $settings->add(new admin_setting_configtext(
         'naas/naas_endpoint',
-        new lang_string('naas_settings_endpoint', 'naas'),
-        new lang_string('naas_settings_endpoint_help', 'naas'),
+        get_string('naas_settings_endpoint', 'naas'),
+        get_string('naas_settings_endpoint_help', 'naas'),
         'https://api.naas-edu.eu/api',
         PARAM_URL
     ));
 
     $settings->add(new admin_setting_configtext(
         'naas/naas_username',
-        new lang_string('naas_settings_username', 'naas'),
-        new lang_string('naas_settings_username_help', 'naas'),
+        get_string('naas_settings_username', 'naas'),
+        get_string('naas_settings_username_help', 'naas'),
         'structures_06d37c13-6ffe-4c4a-a9e3-ac227652f98c_learner',
         PARAM_TEXT
     ));
 
     $settings->add(new admin_setting_configtext(
         'naas/naas_structure_id',
-        new lang_string('naas_settings_structure_id', 'naas'),
-        new lang_string('naas_settings_structure_id_help', 'naas'),
+        get_string('naas_settings_structure_id', 'naas'),
+        get_string('naas_settings_structure_id_help', 'naas'),
         '06d37c13-6ffe-4c4a-a9e3-ac227652f98c',
          PARAM_TEXT
      ));
 
     $settings->add(new admin_setting_configpasswordunmask(
         'naas/naas_password',
-        new lang_string('naas_settings_password', 'naas'),
-        new lang_string('naas_settings_password_help', 'naas'),
+        get_string('naas_settings_password', 'naas'),
+        get_string('naas_settings_password_help', 'naas'),
         'h6teLq3cQangBLFE6qw8',
         PARAM_TEXT
     ));
 
     $settings->add(new admin_setting_configtext(
         'naas/naas_timeout',
-        new lang_string('naas_settings_timeout', 'naas'),
-        new lang_string('naas_settings_timeout_help', 'naas'),
+        get_string('naas_settings_timeout', 'naas'),
+        get_string('naas_settings_timeout_help', 'naas'),
         10,
         PARAM_INT
     ));
 
     $settings->add(new admin_setting_configtextarea(
         'naas/naas_css',
-        new lang_string('naas_settings_css', 'naas'),
-        new lang_string('naas_settings_css_help', 'naas'),
+        get_string('naas_settings_css', 'naas'),
+        get_string('naas_settings_css_help', 'naas'),
         '',
         PARAM_TEXT
     ));
 
     $settings->add(new admin_setting_configtextarea(
         'naas/naas_filter',
-        new lang_string('naas_settings_filter', 'naas'),
-        new lang_string('naas_settings_filter_help', 'naas'),
+        get_string('naas_settings_filter', 'naas'),
+        get_string('naas_settings_filter_help', 'naas'),
         '',
         PARAM_TEXT
     ));
 
     $settings->add(new admin_setting_configcheckbox(
         'naas/naas_feedback',
-        new lang_string('naas_settings_feedback', 'naas'),
-        new lang_string('naas_settings_feedback_help', 'naas'),
+        get_string('naas_settings_feedback', 'naas'),
+        get_string('naas_settings_feedback_help', 'naas'),
         1
     ));
 
     $settings->add(new admin_setting_heading(
         'naas/privacy',
         get_string('naas_settings_privacy', 'naas'),
-        (new provider())->get_reason()
+        get_string('naas_settings_privacy_information', 'naas')
     ));
 
     $settings->add(new admin_setting_configcheckbox(
         'naas/naas_privacy_learner_mail',
-        new lang_string('naas_settings_privacy_learner_mail', 'naas'),
-        new lang_string('naas_settings_privacy_learner_mail_help', 'naas'),
+        get_string('naas_settings_privacy_learner_mail', 'naas'),
+        get_string('naas_settings_privacy_learner_mail_help', 'naas'),
         1
     ));
 
     $settings->add(new admin_setting_configcheckbox(
         'naas/naas_privacy_learner_name',
-        new lang_string('naas_settings_privacy_learner_name', 'naas'),
-        new lang_string('naas_settings_privacy_learner_name_help', 'naas'),
+        get_string('naas_settings_privacy_learner_name', 'naas'),
+        get_string('naas_settings_privacy_learner_name_help', 'naas'),
         1
     ));
 }
