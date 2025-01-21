@@ -26,7 +26,7 @@
 require_once('../../config.php');
 require_login(null, false);
 
-$path  = required_param('path',  PARAM_ALPHANUM);
+$path  = required_param('path',  PARAM_RAW);
 
 // We allow requests to these specific URIs.
 $allowedlist = [
