@@ -2,6 +2,20 @@
 
 _All notable changes to the NaaS Moodle plugin will be documented in this file._
 
+## Version 2.1.0 (2025-01-23)
+
+### Features
+- Implement the Privacy API
+- Add an error message when a Nugget cannot be retrieved
+
+### Chore
+- Fix CSS classes without proper namespace
+- Fix Config.php included incorrectly
+- Add missing info in thirdpartylibs.xml
+- Improve terminology
+- Remove direct access to $_GET/$_POST
+
+
 ## Version 2.0.0 (2024-12-09)
 
 ### Chore
