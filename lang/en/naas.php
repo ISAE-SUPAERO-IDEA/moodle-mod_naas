@@ -70,7 +70,8 @@ $string['lastmodified'] = 'Last modified';
 $string['moduleintro'] = 'Introduction to the module';
 $string['name_display'] = 'Name to display';
 $string['name_help'] = 'Name of the nugget that will appear in the course section';
-$string['naas_unable_connect'] = 'Unable to contact the NaaS server.';
+$string['naas_unable_connect'] = 'Unable to contact the server ; cannot search the Nuggets. Please try again. If the problem persists, please contact your platform administrator.';
+$string['cannot_get_nugget'] = 'The Nugget could not be loaded. Please try again. If the problem persists, please contact your platform administrator.';
 $string['unlimited'] = 'Unlimited';
 
 // Vue Form.

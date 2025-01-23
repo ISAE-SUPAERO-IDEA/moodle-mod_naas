@@ -69,7 +69,7 @@ class naas_lti {
         }
 
         if ($nuggetconfig == null || isset($nuggetconfig->error)) {
-            $errormessage = get_string("naas_unable_connect", "naas");
+            $errormessage = get_string("cannot_get_nugget", "naas");
             echo <<<HTML
 <style>
 .error-message {
