@@ -71,5 +71,5 @@ if ($nql) {
     }
 }
 
-$response = $naas->request('GET', $path);
-echo json_encode($response);
+$response = $naas->request_raw('GET', $path);
+echo $response->build_client_response();

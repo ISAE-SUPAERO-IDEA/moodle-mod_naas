@@ -1,19 +1,36 @@
 // Global functions
+import handleAxiosError from "./http/axios-error-handler";
+
 const cache = {};
 const client = axios.create({ baseURL: NAAS.proxy_url });
 import axios from "axios";
+import NaasHttpError from "./http/NaasHttpError";
+import ProxyHttpError from "./http/ProxyHttpError";
+import translateError from "./error-message";
 /*global NAAS*/
 
 export default {
   data() {
     return {
       config: NAAS,
+
+      // Error when querying the plugin proxy
+      proxyError: null,
     };
   },
   computed: {
     url_root() {
       return this.labels.url_root;
     },
+
+    // User readable error message when needed
+    errorUserMessage() {
+      if(!this.proxyError) {
+        return null
+      }
+
+      return translateError(this.proxyError)
+    }
   },
   methods: {
     $id(thing) {
@@ -24,13 +41,29 @@ export default {
       if (cache[path]) {
         return Promise.resolve(cache[path]);
       }
-      cache[path] = client
+      this.proxyError = null
+      return client
         .get("/mod/naas/proxy.php", { params: { path } })
         .then((response) => {
-          cache[path] = response.data.payload;
-          return response.data.payload;
-        });
-      return cache[path];
+          if(!response.data.success) {
+            throw new NaasHttpError(response.data.error.code, response.data.error.message)
+          }
+
+          const payload = response.data.payload;
+          cache[path] = payload;
+          return payload;
+        })
+          .catch((error) => {
+            handleAxiosError(error)
+
+            if(error instanceof NaasHttpError) {
+                this.proxyError = error
+            } else {
+              this.proxyError = new ProxyHttpError(error.statusCode, error.message)
+            }
+
+            return Promise.reject(this.proxyError)
+          });
     },
     xapi(params) {
       let info = axios

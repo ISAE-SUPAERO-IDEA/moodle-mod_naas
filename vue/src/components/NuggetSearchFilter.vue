@@ -168,11 +168,15 @@ export default {
     },
     async load() {
       if (this.query) {
-        this.proxy(this.query).then(async (payload) => {
+        this.proxy(this.query)
+            .then(async (payload) => {
           if (payload) this.loading = true;
           await this.handle_aggregations(payload.aggregations);
           this.loading = false;
-        });
+        })
+            .catch(async () => {
+              this.aggregations = {};
+            });
       } else {
         this.aggregations = {};
       }
