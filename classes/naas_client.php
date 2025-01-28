@@ -47,14 +47,14 @@ class naas_client {
     }
 
     /**
-     * Makes an HTTP request returns the json decoded body or null in case of http error.
+     * Makes an HTTP request and return the response.
      * @param string $protocol
      * @param string $service
      * @param object $data
      * @param array $params
-     * @return bool|string
+     * @return proxy_http_response
      */
-    private function request_raw($protocol, $service, $data = null, $params = null) {
+    public function request_raw($protocol, $service, $data = null, $params = null) {
         $url = $this->config->naas_endpoint.$service;
         if ($params != null) {
             // Remove indices from query params.
@@ -105,7 +105,7 @@ class naas_client {
         }
         curl_close($ch);
 
-        return $body;
+        return new proxy_http_response($code, $body);
     }
 
     /**
@@ -117,8 +117,9 @@ class naas_client {
      * @return mixed
      */
     public function request($protocol, $service, $data = null, $params = null) {
-        $result = $this->request_raw($protocol, $service, $data, $params);
-        return json_decode($result);
+        $response = $this->request_raw($protocol, $service, $data, $params);
+        $result = json_decode($response->get_body());
+        return $this->handle_result($result);
     }
 
     /**
@@ -158,8 +159,7 @@ class naas_client {
      */
     public function get_api_info() {
         $protocol = "GET";
-        $config = $this->request($protocol, "");
-        return $this->handle_result($config);
+        return $this->request($protocol, "");
     }
 
     /**
@@ -175,8 +175,7 @@ class naas_client {
         $protocol = "GET";
         $params = [ "structure_id" => $structureid ];
         $service = "/nuggets/".$nuggetid."/lti";
-        $config = $this->request($protocol, $service, null, $params);
-        return $this->handle_result($config);
+        return $this->request($protocol, $service, null, $params);
     }
 
     /**
@@ -188,8 +187,7 @@ class naas_client {
         $protocol = "GET";
         $params = [ "nugget_id" => $nuggetid ];
         $service = "/nuggets/".$nuggetid."/default_version";
-        $config = $this->request($protocol, $service, null, $params);
-        return $this->handle_result($config);
+        return $this->request($protocol, $service, null, $params);
     }
 
     /**
@@ -199,8 +197,7 @@ class naas_client {
     public function get_connected_user() {
         $protocol = "GET";
         $service = "/auth";
-        $result = $this->request($protocol, $service);
-        return $this->handle_result($result);
+        return $this->request($protocol, $service);
     }
 
     /**
@@ -213,7 +210,6 @@ class naas_client {
         $protocol = "POST";
         $service = "/versions/{$versionid}/records/{$verb}";
 
-        $result = $this->request($protocol, $service, ((array)$data));
-        return $this->handle_result($result);
+        return $this->request($protocol, $service, ((array)$data));
     }
 }
