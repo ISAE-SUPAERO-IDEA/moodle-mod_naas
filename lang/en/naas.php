@@ -82,6 +82,9 @@ $string['naas_settings_timeout'] = 'NaaS API timeout';
 $string['naas_settings_timeout_help'] = 'Number of seconds to wait before aborting a call to the NaaS API (0 for infinite)';
 $string['naas_settings_username'] = 'NaaS API user';
 $string['naas_settings_username_help'] = 'Enter the NaaS API user';
+$string['test_connection'] = 'Test connection';
+$string['test_connection_information'] = 'This action tests communication with the Nugget as a Service platform. The following settings must be set and saved before performing this test.';
+
 
 // Moodle Form.
 $string['cgu_agreement'] = 'I have read and agree to the <a target="_blank" href="https://doc.clickup.com/2594656/p/h/2f5v0-13342/fff6a689cd78033">Terms and Conditions of the NaaS platform</a>';
