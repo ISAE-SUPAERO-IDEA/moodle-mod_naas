@@ -2,7 +2,7 @@
 import handleAxiosError from "./http/axios-error-handler";
 
 const cache = {};
-const client = axios.create({ baseURL: NAAS.proxy_url });
+const proxyClient = axios.create({ baseURL: NAAS.moodle_url || "/" });
 import axios from "axios";
 import NaasHttpError from "./http/NaasHttpError";
 import ProxyHttpError from "./http/ProxyHttpError";
@@ -42,7 +42,7 @@ export default {
         return Promise.resolve(cache[path]);
       }
       this.proxyError = null
-      return client
+      return proxyClient
         .get("/mod/naas/proxy.php", { params: { path } })
         .then((response) => {
           if(!response.data.success) {
