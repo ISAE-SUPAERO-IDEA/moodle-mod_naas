@@ -25,6 +25,24 @@
 defined('MOODLE_INTERNAL') || die();
 
 if ($hassiteconfig) {
+    // Test connection button.
+    $PAGE->requires->js_call_amd('mod_naas/test_connection', 'init');
+    $link = html_writer::tag(
+        'p',
+        html_writer::link('#', get_string('test_connection', 'naas'), ['class' => 'btn btn-secondary', 'id' => 'testconnection'])
+    );
+    $resultspan = html_writer::div(
+        '',
+        'connection-result',
+        ['id' => 'connection-result']);
+    $settings->add(
+        new admin_setting_heading(
+            'test_connection',
+            get_string('test_connection', 'naas'),
+            get_string('test_connection_information', 'naas') . $link . $resultspan
+        )
+    );
+
     // NaaS settings.
     $settings->add(new admin_setting_heading(
         'naas',
