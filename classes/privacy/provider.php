@@ -43,6 +43,28 @@ class provider implements \core_privacy\local\metadata\provider,
      */
     public static function get_metadata(collection $collection): collection {
         $collection->add_database_table(
+            'naas',
+            [
+                'id' => 'privacy:metadata:naastable:id',
+                'course' => 'privacy:metadata:naastable:course',
+                'name' => 'privacy:metadata:naastable:name',
+                'intro' => 'privacy:metadata:naastable:intro',
+                'introformat' => 'privacy:metadata:naastable:introformat',
+                'timecreated' => 'privacy:metadata:naastable:timecreated',
+                'timemodified' => 'privacy:metadata:naastable:timemodified',
+                'nugget_id' => 'privacy:metadata:naastable:nugget_id',
+                'cgu_agreement' => 'privacy:metadata:naastable:cgu_agreement',
+                'attempts' => 'privacy:metadata:naastable:attempts',
+                'grade_method' => 'privacy:metadata:naastable:grade_method',
+                'completionattemptsexhausted' => 'privacy:metadata:naastable:completionattemptsexhausted',
+                'completionpass' => 'privacy:metadata:naastable:completionpass',
+                'completionminattempts' => 'privacy:metadata:naastable:completionminattempts',
+                'allowofflineattempts' => 'privacy:metadata:naastable:allowofflineattempts',
+            ],
+            'privacy:metadata:naastable'
+        );
+
+        $collection->add_database_table(
             'naas_activity_outcome',
             [
                 'id' => 'privacy:metadata:naas_activity_outcome:id',
