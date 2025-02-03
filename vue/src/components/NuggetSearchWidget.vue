@@ -1,5 +1,7 @@
 <template>
   <div>
+
+    <div v-if="proxyError" class="alert alert-danger">{{ errorUserMessage }}</div>
     <div
       class="row"
       v-if="selected_nugget == null && selected_nugget_loading == 0"
@@ -243,6 +245,7 @@ export default {
   },
   mounted: function () {
     this.initialize();
+
   },
 };
 </script>

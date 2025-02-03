@@ -36,6 +36,23 @@ $string['mod_naas:view'] = 'Can view the Nugget';
 $string['mod_naas:addinstance'] = 'Can add a new Nugget to the course';
 
 // Privacy.
+$string['privacy:metadata:naastable:id'] = 'The ID of this Nugget configuration.';
+$string['privacy:metadata:naastable:course'] = 'The ID of the course containing the Nugget activity.';
+$string['privacy:metadata:naastable:name'] = 'The name of the activity.';
+$string['privacy:metadata:naastable:intro'] = 'The general introduction of the Nugget activity.';
+$string['privacy:metadata:naastable:introformat'] = 'The format of the intro (MOODLE, HTML, MARKDOWN...).';
+$string['privacy:metadata:naastable:timecreated'] = 'The created date of this Nugget activity.';
+$string['privacy:metadata:naastable:timemodified'] = 'The last modified date of this Nugget activity.';
+$string['privacy:metadata:naastable:nugget_id'] = 'The ID of the Nugget of this activity.';
+$string['privacy:metadata:naastable:cgu_agreement'] = 'The CGU of the NaaS platform must be accepted by the Nugget activity creator.';
+$string['privacy:metadata:naastable:attempts'] = 'The maximum number of attempts a student is allowed.';
+$string['privacy:metadata:naastable:grade_method'] = 'The grading method (one of the values NAAS_GRADEHIGHEST, NAAS_ATTEMPTFIRST or NAAS_ATTEMPTLAST).';
+$string['privacy:metadata:naastable:completionattemptsexhausted'] = 'Marks the activity as complete when all available attempts have been exhausted.';
+$string['privacy:metadata:naastable:completionpass'] = 'Sets the activity to complete only if the user successfully passes it.';
+$string['privacy:metadata:naastable:completionminattempts'] = 'Requires a minimum number of attempts before the activity can be marked as complete.';
+$string['privacy:metadata:naastable:allowofflineattempts'] = 'Whether to allow the NaaS to be attempted offline in the mobile app.';
+$string['privacy:metadata:naastable'] = 'The Nugget plugin creates an entry for each Nugget activity to store its configuration.';
+
 $string['privacy:metadata:naas_activity_outcome:id'] = 'The ID of the user session on a particular instance of a Nugget activity.';
 $string['privacy:metadata:naas:oauth_timestamp'] = 'Time stamp used to establish the OAuth authentication.';
 $string['privacy:metadata:naas_activity_outcome:user_id'] = 'The ID of the user accessing the Nugget activity.';
@@ -82,6 +99,9 @@ $string['naas_settings_timeout'] = 'NaaS API timeout';
 $string['naas_settings_timeout_help'] = 'Number of seconds to wait before aborting a call to the NaaS API (0 for infinite)';
 $string['naas_settings_username'] = 'NaaS API user';
 $string['naas_settings_username_help'] = 'Enter the NaaS API user';
+$string['test_connection'] = 'Test connection';
+$string['test_connection_information'] = 'This action tests communication with the Nugget as a Service platform. The following settings must be set and saved before performing this test.';
+
 
 // Moodle Form.
 $string['cgu_agreement'] = 'I have read and agree to the <a target="_blank" href="https://doc.clickup.com/2594656/p/h/2f5v0-13342/fff6a689cd78033">Terms and Conditions of the NaaS platform</a>';

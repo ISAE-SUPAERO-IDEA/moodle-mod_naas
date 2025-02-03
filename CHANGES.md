@@ -2,6 +2,16 @@
 
 _All notable changes to the NaaS Moodle plugin will be documented in this file._
 
+## Version 2.2.0 (2025-02-03)
+
+### Features
+- Add the "naas" table description to the Privacy API
+- Add a "Test connection" button to check communication with the NaaS platform on the plugin settings page
+- Improve http errors handling and display error messages 
+
+### Fix
+- Fix the proxy URL
+
 ## Version 2.1.0 (2025-01-23)
 
 ### Features

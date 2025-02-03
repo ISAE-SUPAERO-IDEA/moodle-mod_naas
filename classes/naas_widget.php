@@ -42,7 +42,6 @@ class naas_widget {
         global $CFG;
         $widgetconfig = json_encode([
             "mount_point" => "#naas_widget",
-            "proxy_url" => "$CFG->wwwroot/mod/naas/proxy.php",
             "component" => $component,
             "nugget_id" => $nuggetid,
             "cm_id" => $cmid, // Course module ID.
