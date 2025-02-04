@@ -2,6 +2,11 @@
 
 _All notable changes to the NaaS Moodle plugin will be documented in this file._
 
+## Version 2.2.1 (2025-02-04)
+
+### Fix
+- Fix the proxy URL (previous fix was not correct)
+
 ## Version 2.2.0 (2025-02-03)
 
 ### Features
