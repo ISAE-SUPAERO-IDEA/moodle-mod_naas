@@ -41,6 +41,7 @@ class naas_widget {
     public static function naas_widget_html($nuggetid, $cmid, $component): string {
         global $CFG;
         $widgetconfig = json_encode([
+            "moodle_url" => $CFG->wwwroot,
             "mount_point" => "#naas_widget",
             "component" => $component,
             "nugget_id" => $nuggetid,
@@ -106,7 +107,7 @@ class naas_widget {
         ]);
         $html = "<div id='naas_widget'></div>";
         $html .= "<script>NAAS=$widgetconfig</script>";
-        $widgetjsurl = new \moodle_url('/mod/naas/assets/vue/naas_widget.js');
+        $widgetjsurl = new \moodle_url('/mod/naas/assets/vue/naas_widget-221.js');
         $html .= "<script src='$widgetjsurl' ></script>";
 
         return $html;
