@@ -23,7 +23,6 @@
  */
 
 require_once('../../config.php');
-require_once($CFG->dirroot.'/mod/lti/locallib.php');
 require_once("$CFG->libdir/completionlib.php");
 require_once('classes/completion/custom_completion.php');
 //require_login(null, false);
