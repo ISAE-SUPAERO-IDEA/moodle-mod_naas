@@ -2,6 +2,11 @@
 
 _All notable changes to the NaaS Moodle plugin will be documented in this file._
 
+## Version 2.2.2 (2025-02-10)
+
+### Fix
+- Fix the grading feedback from the NaaS platform
+
 ## Version 2.2.1 (2025-02-04)
 
 ### Fix
