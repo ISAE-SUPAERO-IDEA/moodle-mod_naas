@@ -23,7 +23,7 @@
  */
 
 require_once($_SERVER['DOCUMENT_ROOT']."/config.php");
-require_once("$CFG->dirroot.'/mod/lti/locallib.php");
+require_once($CFG->dirroot.'/mod/lti/locallib.php');
 require_once("$CFG->libdir/completionlib.php");
 require_once('classes/completion/custom_completion.php');
 // require_login(null, false);
@@ -116,5 +116,3 @@ if (!$completion->is_enabled()) {
 $targetstate = COMPLETION_COMPLETE;
 $completion->update_state($cm, $targetstate);
 debugging("completion_complete", DEBUG_DEVELOPER);
-
-
