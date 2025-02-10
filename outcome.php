@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Moodle Nugget Plugin : NaaS Outcome file
+ * Entrypoint for receiving grade and completion information from the NaaS plateform.
  *
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @copyright (C) 2019  ISAE-SUPAERO (https://www.isae-supaero.fr/)
@@ -24,7 +24,7 @@
 
 require_once('../../config.php');
 require_once("$CFG->libdir/completionlib.php");
-require_login(null, false);
+require_once('classes/completion/custom_completion.php');
 
 $entitybody = file_get_contents('php://input');
 
@@ -114,5 +114,3 @@ if (!$completion->is_enabled()) {
 $targetstate = COMPLETION_COMPLETE;
 $completion->update_state($cm, $targetstate);
 debugging("completion_complete", DEBUG_DEVELOPER);
-
-
