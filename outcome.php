@@ -69,14 +69,11 @@ $gradeinfo = [
 $grademethod = $naasinstance->grade_method;
 
 
-// Highest Grade.
-if ($grademethod == "1") {
-    debugging("highest_grade", DEBUG_DEVELOPER);
-
+if ($grademethod == "1") { // Highest Grade.
     $existinggrades = grade_get_grades($course->id, 'mod', 'naas', $cm->instance, $userid);
     $existinggradesdata = $existinggrades->items[0]->grades;
 
-    $currenthighestgrade = 0;
+    $currenthighestgrade = -1;
 
     foreach ($existinggradesdata as $data) {
         if ($data->grade > $currenthighestgrade) {
@@ -87,11 +84,7 @@ if ($grademethod == "1") {
     if ($score * 100 > $currenthighestgrade) {
         grade_update('mod/naas', $course->id, 'mod', 'naas', $cm->instance, $itemnumber, $grade, $gradeinfo);
     }
-} else if ($grademethod == "2") { // Grade Average.
-    debugging("grade_average", DEBUG_DEVELOPER);
 } else if ($grademethod == "3") { // Grade First Attempt.
-    debugging("first_attempt", DEBUG_DEVELOPER);
-
     $existinggrades = grade_get_grades($course->id, 'mod', 'naas', $cm->instance, $userid);
     $existinggradesdata = $existinggrades->items[0]->grades;
 
@@ -99,10 +92,15 @@ if ($grademethod == "1") {
         grade_update('mod/naas', $course->id, 'mod', 'naas', $cm->instance, $itemnumber, $grade, $gradeinfo);
     }
 } else if ($grademethod == "4") { // Grade Last Attempt.
-    debugging("last_attemp", DEBUG_DEVELOPER);
     grade_update('mod/naas', $course->id, 'mod', 'naas', $cm->instance, $itemnumber, $grade, $gradeinfo);
 } else { // Grade Method unknown.
-    debugging("Grading method error", DEBUG_DEVELOPER);
+    throw new moodle_exception(
+        'naas_unsupported_grademethod',
+        'naas',
+        '',
+        null,
+        'The grade method "'. $grademethod .'" is not supported.'
+    );
 }
 
 // Set up completion object and check it is enabled.
