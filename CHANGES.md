@@ -2,6 +2,12 @@
 
 _All notable changes to the NaaS Moodle plugin will be documented in this file._
 
+## Version 2.2.3 (2025-02-24)
+
+### Fix
+- Grade "0" wasn't recorded
+
+
 ## Version 2.2.2 (2025-02-10)
 
 ### Fix
