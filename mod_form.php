@@ -62,17 +62,35 @@ class mod_naas_mod_form extends moodleform_mod {
         // Course description.
         $this->standard_intro_elements();
 
-        // -------------------------------------------------------------------------------
         // Grade settings.
-        $mform->addElement('header', 'grade', 'Grade');
+        $mform->addElement('header', 'gradesettings', get_string('gradenoun'));
+        $this->grading_elements();
 
-        $this->standard_naas_grading_coursemodule_elements();
+        $this->standard_coursemodule_elements();
+        $this->add_action_buttons();
+    }
 
-        // Number of attempts.
-        $attemptoptions = ['0' => get_string('unlimited')];
-        for ($i = 1; $i <= NAAS_MAX_ATTEMPT_OPTION; $i++) {
-            $attemptoptions[$i] = $i;
+    private function grading_elements() {
+        global $COURSE;
+
+        $mform =& $this->_form;
+        $isupdate = !empty($this->_cm);
+
+        $grademax = 100.0;
+        if ($isupdate) {
+            $gradeitem = grade_item::fetch([
+                'itemtype' => 'mod',
+                'itemmodule' => 'naas',
+                'iteminstance' => $this->_cm->instance,
+                'itemnumber' => 0,
+                'courseid' => $COURSE->id
+            ]);
+
+            if($gradeitem) {
+                $grademax = $gradeitem->grademax;
+            }
         }
+
 
         // Grading method.
         $mform->addElement(
@@ -83,100 +101,18 @@ class mod_naas_mod_form extends moodleform_mod {
         );
         $mform->addHelpButton('grade_method', 'grade_method', 'naas');
 
-        // -------------------------------------------------------------------------------
+        // Maximum Grade.
+        $maxgradefieldname = component_gradeitems::get_field_name_for_itemnumber("mod/naas", 0, 'maxgrade');
+        $mform->addElement('text', $maxgradefieldname, get_string('maximumgrade'));
+        $mform->setType($maxgradefieldname, PARAM_FLOAT);
+        $mform->setDefault($maxgradefieldname, format_float($grademax, 2));
 
-        $this->standard_coursemodule_elements();
-        $this->add_action_buttons();
-    }
-
-    /**
-     * Add grading settings for NaaS.
-     */
-    public function standard_naas_grading_coursemodule_elements() {
-        global $COURSE, $CFG;
-        $mform =& $this->_form;
-        $isupdate = !empty($this->_cm);
-        $gradeoptions = ['isupdate' => $isupdate,
-            'currentgrade' => false,
-            'hasgrades' => false,
-            'canrescale' => $this->_features->canrescale,
-            'useratings' => $this->_features->rating];
-
-        $itemnumber = 0;
-        $component = "mod_{$this->_modname}";
-        $gradefieldname = component_gradeitems::get_field_name_for_itemnumber($component, $itemnumber, 'grade');
-        $gradecatfieldname = component_gradeitems::get_field_name_for_itemnumber($component, $itemnumber, 'gradecat');
-        $gradepassfieldname = component_gradeitems::get_field_name_for_itemnumber($component, $itemnumber, 'gradepass');
-
-        if ($this->_features->hasgrades) {
-            // If supports grades and grades aren't being handled via ratings.
-            if ($isupdate) {
-                $gradeitem = grade_item::fetch(['itemtype' => 'mod',
-                    'itemmodule' => $this->_cm->modname,
-                    'iteminstance' => $this->_cm->instance,
-                    'itemnumber' => 0,
-                    'courseid' => $COURSE->id]);
-                if ($gradeitem) {
-                    $gradeoptions['currentgrade'] = $gradeitem->grademax;
-                    $gradeoptions['currentgradetype'] = $gradeitem->gradetype;
-                    $gradeoptions['currentscaleid'] = $gradeitem->scaleid;
-                    $gradeoptions['hasgrades'] = $gradeitem->has_grades();
-                }
-            }
-
-            $mform->addElement('modgrade', 'gradetype', get_string('grade_type', 'naas'), $gradeoptions);
-            $mform->addHelpButton('gradetype', 'modgrade', 'grades');
-            $mform->setDefault('gradetype', $CFG->gradepointdefault);
-
-            if ($this->_features->advancedgrading
-                && !empty($this->current->_advancedgradingdata['methods'])
-                && !empty($this->current->_advancedgradingdata['areas'])) {
-
-                if (count($this->current->_advancedgradingdata['areas']) == 1) {
-                    // If there is just one gradable area, display only the selector without its name.
-                    $areadata = reset($this->current->_advancedgradingdata['areas']);
-                    $areaname = key($this->current->_advancedgradingdata['areas']);
-                    $mform->addElement('select', 'advancedgradingmethod_'.$areaname,
-                        get_string('gradingmethod', 'core_grading'), $this->current->_advancedgradingdata['methods']);
-                    $mform->addHelpButton('advancedgradingmethod_'.$areaname, 'gradingmethod', 'core_grading');
-                    if (!$this->_features->rating) {
-                        $mform->hideIf('advancedgradingmethod_'.$areaname, 'grade[modgrade_type]', 'eq', 'none');
-                    }
-
-                } else {
-                    // Display a selector for each of them together with a name of the area.
-                    $areasgroup = [];
-                    foreach ($this->current->_advancedgradingdata['areas'] as $areaname => $areadata) {
-                        $areasgroup[] = $mform->createElement('select', 'advancedgradingmethod_'.$areaname,
-                            $areadata['title'], $this->current->_advancedgradingdata['methods']);
-                        $areasgroup[] = $mform->createElement(
-                            'static',
-                            'advancedgradingareaname_'.$areaname,
-                            '',
-                            $areadata['title']
-                        );
-                    }
-                    $mform->addGroup($areasgroup, 'advancedgradingmethodsgroup', get_string('gradingmethods', 'core_grading'),
-                        [' ', '<br />'], false);
-                }
-            }
-
-            if ($this->_features->gradecat) {
-                $mform->addElement('select', $gradecatfieldname,
-                    get_string('gradecategoryonmodform', 'grades'),
-                    grade_get_categories_menu($COURSE->id, $this->_outcomesused));
-                $mform->addHelpButton($gradecatfieldname, 'gradecategoryonmodform', 'grades');
-                $mform->hideIf($gradecatfieldname, "{$gradefieldname}[modgrade_type]", 'eq', 'none');
-            }
-
-            // Grade to pass.
-            $mform->addElement('text', $gradepassfieldname, get_string($gradepassfieldname, 'grades'));
-            $mform->addHelpButton($gradepassfieldname, $gradepassfieldname, 'grades');
-            $mform->setDefault($gradepassfieldname, '');
-            $mform->setType($gradepassfieldname, PARAM_RAW);
-            $mform->hideIf($gradepassfieldname, "{$gradefieldname}[modgrade_type]", 'eq', 'none');
-        }
-
+        // Grade to pass.
+        $gradepassfieldname = component_gradeitems::get_field_name_for_itemnumber("mod/naas", 0, 'gradepass');
+        $mform->addElement('text', $gradepassfieldname, get_string($gradepassfieldname, 'grades'));
+        $mform->addHelpButton($gradepassfieldname, $gradepassfieldname, 'grades');
+        $mform->setDefault($gradepassfieldname, '');
+        $mform->setType($gradepassfieldname, PARAM_RAW);
     }
 
     /**
@@ -217,6 +153,12 @@ class mod_naas_mod_form extends moodleform_mod {
      */
     public function validation($data, $files) {
         $errors = parent::validation($data, $files);
+
+        // TODO Ensure a nugget has been selected
+
+        if($data['maxgrade'] <= 0) {
+            $errors['maxgrade'] = get_string('error:must_be_strictly_positive', 'naas');
+        }
 
         if (array_key_exists('completion', $data) && $data['completion'] == COMPLETION_TRACKING_AUTOMATIC) {
             // Check if completionpass exists in $data, otherwise use $this->current->completionpass.

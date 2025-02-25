@@ -53,26 +53,23 @@ $context = context_module::instance($cm->id);
 require_once($CFG->libdir . '/grade/grade_item.php');
 require_once($CFG->libdir . '/gradelib.php');
 
-$itemnumber = 0;    // Change this only if your activity needs to store more than one grade per user.
+$itemnumber = 0; // Change this only if your activity needs to store more than one grade per user.
+
+// Get existing grades.
+$existinggrades = grade_get_grades($course->id, 'mod', 'naas', $cm->instance, $userid);
+$existinggradesdata = $existinggrades->items[$itemnumber]->grades;
+$grademax = $existinggrades->items[$itemnumber]->grademax;
 
 $grade = new stdClass();
 $grade->userid = $userid;
-$grade->rawgrade = $score * 100;    // Success percentage.
+$grade->rawgrade = $score * $grademax;    // Score is between 0 and 1.
 
 $activityname = $cm->name;
-
-$gradeinfo = [
-    'itemname' => $activityname,
-];
 
 // Grading method.
 $grademethod = $naasinstance->grade_method;
 
-
-if ($grademethod == "1") { // Highest Grade.
-    $existinggrades = grade_get_grades($course->id, 'mod', 'naas', $cm->instance, $userid);
-    $existinggradesdata = $existinggrades->items[0]->grades;
-
+if ($grademethod == NAAS_GRADEHIGHEST) {
     $currenthighestgrade = -1;
 
     foreach ($existinggradesdata as $data) {
@@ -81,18 +78,18 @@ if ($grademethod == "1") { // Highest Grade.
         }
     }
 
-    if ($score * 100 > $currenthighestgrade) {
-        grade_update('mod/naas', $course->id, 'mod', 'naas', $cm->instance, $itemnumber, $grade, $gradeinfo);
+    if ($grade->rawgrade > $currenthighestgrade) {
+        grade_update('mod/naas', $course->id, 'mod', 'naas', $cm->instance, $itemnumber, $grade);
     }
-} else if ($grademethod == "3") { // Grade First Attempt.
-    $existinggrades = grade_get_grades($course->id, 'mod', 'naas', $cm->instance, $userid);
-    $existinggradesdata = $existinggrades->items[0]->grades;
+} else if ($grademethod == NAAS_ATTEMPTFIRST) {
 
-    if (count($existinggradesdata) == 0) {
-        grade_update('mod/naas', $course->id, 'mod', 'naas', $cm->instance, $itemnumber, $grade, $gradeinfo);
+    // Check the 1st grade is undefined.
+    if (count($existinggradesdata) && array_values($existinggradesdata)[0]->grade === null) {
+        $grade->feedback = json_encode($existinggradesdata);
+        grade_update('mod/naas', $course->id, 'mod', 'naas', $cm->instance, $itemnumber, $grade);
     }
-} else if ($grademethod == "4") { // Grade Last Attempt.
-    grade_update('mod/naas', $course->id, 'mod', 'naas', $cm->instance, $itemnumber, $grade, $gradeinfo);
+} else if ($grademethod == NAAS_ATTEMPTLAST) {
+    grade_update('mod/naas', $course->id, 'mod', 'naas', $cm->instance, $itemnumber, $grade);
 } else { // Grade Method unknown.
     throw new moodle_exception(
         'naas_unsupported_grademethod',
