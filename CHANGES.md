@@ -2,6 +2,19 @@
 
 _All notable changes to the NaaS Moodle plugin will be documented in this file._
 
+## Version 2.3.0 (2025-03-03)
+
+### Feature
+- Simplify grading config: only set "Grading strategy", "Maximum grade", and "Grade to pass"
+- Store "Maximum grade" when creating a Nugget activity
+
+### Chore
+- Rework grading implementation
+
+### Fix
+- "FIRST GRADE" grading strategy
+
+
 ## Version 2.2.3 (2025-02-24)
 
 ### Fix
