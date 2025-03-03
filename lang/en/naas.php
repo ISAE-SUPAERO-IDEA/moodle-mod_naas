@@ -160,10 +160,11 @@ $string['demo'] = 'Demo';
 $string['sv'] = 'Swedish';
 $string['beginner'] = 'Beginner';
 $string['gradehighest'] = 'Highest grade';
-$string['gradeaverage'] = 'Average grade';
 $string['grade_method'] = 'Grading method';
-$string['grade_method_help'] = '<p>When multiple attempts are allowed, the following methods are available for calculating the final nugget grade:<ul><li>Highest grade of all attempts</li><li>Average (mean) grade of all attempts</li><li>First attempt (all other attempts are ignored)</li><li>Last attempt (all other attempts are ignored)</li></ul></p>';
+$string['grade_method_help'] = '<p>When multiple attempts are allowed, the following methods are available for calculating the final nugget grade:<ul><li>Highest grade of all attempts</li><li>First attempt (all other attempts are ignored)</li><li>Last attempt (all other attempts are ignored)</li></ul></p>';
 $string['grade_type'] = 'Type of grading';
+$string['max_grade'] = 'Maximum grade';
+
 $string["learning_outcomes"] = "Learning outcomes";
 $string["prerequisites"] = "Prerequisites";
 
@@ -198,3 +199,6 @@ $string['gradetopassnotset'] = 'This nugget does not yet have a grade to pass se
 $string['gradetopassmustbeset'] = 'Grade to pass cannot be zero as this nugget has its completion method set to require passing grade. Please set a non-zero value.';
 $string['gradingmethod'] = 'Grading method';
 $string['gradingmethods'] = 'Grading methods';
+
+// Errors.
+$string['error:must_be_strictly_positive'] = 'This must be a strictly positive number.';
