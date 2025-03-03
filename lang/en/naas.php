@@ -200,5 +200,5 @@ $string['gradetopassmustbeset'] = 'Grade to pass cannot be zero as this nugget h
 $string['gradingmethod'] = 'Grading method';
 $string['gradingmethods'] = 'Grading methods';
 
-// Errors
+// Errors.
 $string['error:must_be_strictly_positive'] = 'This must be a strictly positive number.';

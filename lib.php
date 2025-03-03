@@ -233,7 +233,6 @@ function naas_delete_instance($id) {
 
     naas_grade_item_delete($nugget);
 
-
     // We must delete the module record after we delete the grade item.
     $DB->delete_records('naas', ['id' => $nugget->id]);
 
@@ -394,8 +393,8 @@ function naas_extend_settings_navigation(settings_navigation $settings, navigati
 
 /**
  * Update the grades for a Nugget activity.
- * @param $nugget
- * @param $grades
+ * @param object $nugget
+ * @param object $grades
  * @return mixed
  */
 function naas_grade_item_update($nugget, $grades = null) {
@@ -406,9 +405,9 @@ function naas_grade_item_update($nugget, $grades = null) {
     }
 
     if (property_exists($nugget, 'cm_id')) { // It may not be always present.
-        $params = array('itemname' => $nugget->name, 'idnumber' => $nugget->cm_id);
+        $params = ['itemname' => $nugget->name, 'idnumber' => $nugget->cm_id];
     } else {
-        $params = array('itemname'=>$nugget->name);
+        $params = ['itemname'=>$nugget->name];
     }
 
     $params['gradetype'] = GRADE_TYPE_VALUE;
@@ -420,7 +419,7 @@ function naas_grade_item_update($nugget, $grades = null) {
 
 /**
  * Delete the grades of a Nugget activity.
- * @param $nugget
+ * @param object $nugget
  * @return mixed
  */
 function naas_grade_item_delete($nugget) {

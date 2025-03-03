@@ -70,6 +70,10 @@ class mod_naas_mod_form extends moodleform_mod {
         $this->add_action_buttons();
     }
 
+    /**
+     * Create grading section of a Nugget activity.
+     * @return void
+     */
     private function grading_elements() {
         global $COURSE;
 
@@ -83,14 +87,13 @@ class mod_naas_mod_form extends moodleform_mod {
                 'itemmodule' => 'naas',
                 'iteminstance' => $this->_cm->instance,
                 'itemnumber' => 0,
-                'courseid' => $COURSE->id
+                'courseid' => $COURSE->id,
             ]);
 
-            if($gradeitem) {
+            if ($gradeitem) {
                 $grademax = $gradeitem->grademax;
             }
         }
-
 
         // Grading method.
         $mform->addElement(
@@ -146,7 +149,7 @@ class mod_naas_mod_form extends moodleform_mod {
     }
 
     /**
-     * Form validation
+     * Form validation.
      * @param array $data
      * @param array $files
      * @return mixed
@@ -156,7 +159,7 @@ class mod_naas_mod_form extends moodleform_mod {
 
         // TODO Ensure a nugget has been selected
 
-        if($data['maxgrade'] <= 0) {
+        if ($data['maxgrade'] <= 0) {
             $errors['maxgrade'] = get_string('error:must_be_strictly_positive', 'naas');
         }
 
