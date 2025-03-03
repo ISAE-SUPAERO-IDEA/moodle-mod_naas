@@ -85,7 +85,6 @@ if ($grademethod == NAAS_GRADEHIGHEST) {
 
     // Check the 1st grade is undefined.
     if (count($existinggradesdata) && array_values($existinggradesdata)[0]->grade === null) {
-        $grade->feedback = json_encode($existinggradesdata);
         grade_update('mod/naas', $course->id, 'mod', 'naas', $cm->instance, $itemnumber, $grade);
     }
 } else if ($grademethod == NAAS_ATTEMPTLAST) {
