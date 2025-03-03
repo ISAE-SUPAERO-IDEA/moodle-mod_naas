@@ -177,6 +177,8 @@ function naas_add_instance($data) {
     $completiontimeexpected = !empty($data->completionexpected) ? $data->completionexpected : null;
     \core_completion\api::update_completion_date_event($data->coursemodule, 'naas', $data->id, $completiontimeexpected);
 
+    naas_grade_item_update($data);
+
     return $data->id;
 }
 
@@ -189,7 +191,7 @@ function naas_add_instance($data) {
  * @return mixed true on success, false or a string error message on failure.
  */
 function naas_update_instance($data) {
-    global $CFG, $DB;
+    global $DB;
     $data->timemodified = time();
 
     $data->id = $data->instance;
@@ -197,6 +199,8 @@ function naas_update_instance($data) {
 
     $completiontimeexpected = !empty($data->completionexpected) ? $data->completionexpected : null;
     \core_completion\api::update_completion_date_event($data->coursemodule, 'naas', $data->id, $completiontimeexpected);
+
+    naas_grade_item_update($data);
 
     return true;
 }
@@ -212,7 +216,7 @@ function naas_update_instance($data) {
 function naas_delete_instance($id) {
     global $DB;
 
-    $naas = $DB->get_record('naas', ['id' => $id], '*', MUST_EXIST);
+    $nugget = $DB->get_record('naas', ['id' => $id], '*', MUST_EXIST);
 
     $cm = get_coursemodule_from_instance('naas', $id);
     \core_completion\api::update_completion_date_event($cm->id, 'naas', $id, null);
@@ -221,14 +225,17 @@ function naas_delete_instance($id) {
     ...
     */
 
-    $events = $DB->get_records('event', ['modulename' => 'naas', 'instance' => $naas->id]);
+    $events = $DB->get_records('event', ['modulename' => 'naas', 'instance' => $nugget->id]);
     foreach ($events as $event) {
         $event = calendar_event::load($event);
         $event->delete();
     }
 
+    naas_grade_item_delete($nugget);
+
+
     // We must delete the module record after we delete the grade item.
-    $DB->delete_records('naas', ['id' => $naas->id]);
+    $DB->delete_records('naas', ['id' => $nugget->id]);
 
     return true;
 }
@@ -383,4 +390,41 @@ function naas_extend_settings_navigation(settings_navigation $settings, navigati
     $naasnode->add(get_string('about', 'naas'),
         new moodle_url('#'),
         navigation_node::TYPE_SETTING, null, 'about');
+}
+
+/**
+ * Update the grades for a Nugget activity.
+ * @param $nugget
+ * @param $grades
+ * @return mixed
+ */
+function naas_grade_item_update($nugget, $grades = null) {
+    global $CFG;
+
+    if (!function_exists('grade_update')) { // Workaround for buggy PHP versions.
+        require_once($CFG->libdir.'/gradelib.php');
+    }
+
+    if (property_exists($nugget, 'cm_id')) { // It may not be always present.
+        $params = array('itemname' => $nugget->name, 'idnumber' => $nugget->cm_id);
+    } else {
+        $params = array('itemname'=>$nugget->name);
+    }
+
+    $params['gradetype'] = GRADE_TYPE_VALUE;
+    $params['grademax'] = $nugget->maxgrade;
+    $params['grademin'] = 0;
+
+    return grade_update('mod/naas', $nugget->course, 'mod', 'naas', $nugget->id, 0, $grades, $params);
+}
+
+/**
+ * Delete the grades of a Nugget activity.
+ * @param $nugget
+ * @return mixed
+ */
+function naas_grade_item_delete($nugget) {
+    global $CFG;
+    require_once($CFG->libdir . '/gradelib.php');
+    return grade_update('mod/naas', $nugget->course, 'mod', 'naas', $nugget->id, 0, null, ['deleted' => 1]);
 }
