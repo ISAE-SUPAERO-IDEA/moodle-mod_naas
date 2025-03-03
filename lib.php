@@ -407,7 +407,7 @@ function naas_grade_item_update($nugget, $grades = null) {
     if (property_exists($nugget, 'cm_id')) { // It may not be always present.
         $params = ['itemname' => $nugget->name, 'idnumber' => $nugget->cm_id];
     } else {
-        $params = ['itemname'=>$nugget->name];
+        $params = ['itemname' => $nugget->name];
     }
 
     $params['gradetype'] = GRADE_TYPE_VALUE;
