@@ -2,6 +2,12 @@
 
 _All notable changes to the NaaS Moodle plugin will be documented in this file._
 
+## Version 2.3.1 (2025-03-04)
+
+### Fix
+- Restore the "fr" lang file
+
+
 ## Version 2.3.0 (2025-03-03)
 
 ### Feature
