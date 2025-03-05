@@ -117,12 +117,6 @@ HTML;
         $newrecord->date_added = time(); // UNIX timestamp format.
         $DB->insert_record('naas_activity_outcome', $newrecord);
 
-        // Delete records longer than 45 minutes because a nugget shouldn't last for more than 30 minutes.
-        $timestamplimit = time() - (45 * 60);
-        $sql = "date_added < " . $timestamplimit;
-        $params = ['timestampLimit' => $timestamplimit];
-        $DB->delete_records_select('naas_activity_outcome', $sql, $params);
-
         $now = new \DateTime();
 
         $secret = urlencode($secret) . "&";
