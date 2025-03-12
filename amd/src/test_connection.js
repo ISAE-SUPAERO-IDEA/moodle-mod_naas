@@ -36,7 +36,7 @@ define('mod_naas/test_connection', ['jquery', 'core/ajax', 'core/str'], function
                     url: M.cfg.wwwroot + '/mod/naas/proxy.php',
                     type: 'GET',
                     data: {
-                        path: '/nuggets/search?is_default_version=true&page_size=6&fulltext='
+                        action: 'test-config'
                     },
                     success: function(response) {
                         const parsedResponse = JSON.parse(response);
