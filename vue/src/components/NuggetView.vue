@@ -10,7 +10,7 @@
         >
           {{ config.labels.about }}
         </a>
-        <select class="language-select" @change="changeLanguage">
+        <select class="language-select" @change="language = $event.item.value">
           <option selected :value="this.nugget.language">
             {{ config.labels.metadata[nugget.language] }}
           </option>
@@ -36,7 +36,7 @@
         height="600px"
         width="100%"
         style="border: none"
-        :src="`launch.php?id=${this.config.cm_id}&triggerview=0&language=${this.nugget.language}`"
+        :src="iframeUrl"
         webkitallowfullscreen
         mozallowfullscreen
         allowfullscreen
@@ -75,6 +75,7 @@ export default {
       completionModal: false,
       nugget: {},
       nuggetCompleted: false,
+      language: null,
     };
   },
   created() {
@@ -86,6 +87,8 @@ export default {
   },
   async mounted() {
     this.nugget = await this.get_nugget_default_version(this.config.nugget_id);
+    this.language = this.nugget.language
+
     window.setTimeout(() => {
       iframeResize(
         {
@@ -103,6 +106,15 @@ export default {
       });
     }, 100);
   },
+  computed: {
+    iframeUrl() {
+      if(!this.language) {
+        return null
+      }
+
+      return `launch.php?id=${this.config.cm_id}&triggerview=0&language=${this.language}`
+    }
+  },
   methods: {
     async complete() {
       this.completionModal = true;
@@ -115,11 +127,6 @@ export default {
         });
         this.nuggetCompleted = true;
       }
-    },
-    changeLanguage(event) {
-      const iframe = document.getElementById("lti-frame");
-      if (iframe)
-        iframe.src = `launch.php?id=${this.config.cm_id}&triggerview=0&language=${event.target.value}`;
     },
   },
 };
