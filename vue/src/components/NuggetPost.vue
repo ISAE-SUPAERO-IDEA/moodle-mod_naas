@@ -43,6 +43,7 @@
       @close="closeNuggetAboutModal()"
     />
     <NuggetViewModal
+      :course-id="config.courseId"
       :visible="isNuggetViewModalVisible"
       :nugget="nugget"
       @close="closeNuggetViewModal()"

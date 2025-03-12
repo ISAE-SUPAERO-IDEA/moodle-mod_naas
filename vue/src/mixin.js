@@ -1,7 +1,7 @@
 // Global functions
 import handleAxiosError from "./http/axios-error-handler";
 
-const cache = {};
+const cache = new WeakMap();
 import axios from "axios";
 const axiosClient = axios.create({ baseURL: NAAS.moodle_url });
 import NaasHttpError from "./http/NaasHttpError";
@@ -36,21 +36,24 @@ export default {
     $id(thing) {
       return this._uid + "." + thing;
     },
+
     // Queries the proxy
-    proxy(path) {
-      if (cache[path]) {
-        return Promise.resolve(cache[path]);
+    proxy(action, params) {
+      if (cache.has( { action, params })) {
+        return Promise.resolve(
+            cache.get({ action, params })
+        );
       }
       this.proxyError = null
       return axiosClient
-        .get("/mod/naas/proxy.php", { params: { path } })
+        .get("/mod/naas/proxy.php", { params: { action, ...params } })
         .then((response) => {
           if(!response.data.success) {
             throw new NaasHttpError(response.data.error.code, response.data.error.message)
           }
 
           const payload = response.data.payload;
-          cache[path] = payload;
+          cache.set( { action, params }, payload );
           return payload;
         })
           .catch((error) => {
@@ -94,8 +97,8 @@ export default {
       var promises = [];
       promises = promises
         .concat(
-          this.make_data_array_load_promises(nugget, "authors", (email) =>
-            this.getPerson(email)
+          this.make_data_array_load_promises(nugget, "authors", (personKey) =>
+            this.getPerson(personKey)
           )
         )
         .concat(
@@ -105,17 +108,17 @@ export default {
         );
       return promises;
     },
-    get_nugget_default_version(nugget_id) {
-      return this.proxy(`/nuggets/${nugget_id}/default_version`).then(
+    get_nugget_default_version(nuggetId) {
+      return this.proxy("get-nugget", { nuggetId, courseId: this.config.courseId }).then(
         async (nugget) => {
-          var promises = this.make_nugget_promises(nugget);
+          let promises = this.make_nugget_promises(nugget);
           await Promise.all(promises);
           return nugget;
         }
       );
     },
-    getPerson(email) {
-      return this.proxy(`/persons/${email}`);
+    getPerson(personKey) {
+      return this.proxy("get-person", { personKey, courseId: this.config.courseId });
     },
     getPersonName(email) {
       return this.getPerson(email).then((author) => {
@@ -127,13 +130,14 @@ export default {
       });
     },
     getDomain(key) {
-      return this.proxy(`/vocabularies/nugget_domains_vocabulary/${key}`);
+      return this.proxy(
+          "get-domain", { domainKey: key, courseId: this.config.courseId });
     },
     getDomainLabel(key) {
       return this.getDomain(key).then((entry) => (entry ? entry.label : key));
     },
     getStructure(key) {
-      return this.proxy(`/structures/${key}`);
+      return this.proxy("get-structure", { structureKey: key, courseId: this.config.courseId });
     },
     getStructureAcronym(key) {
       return this.getStructure(key).then((structure) =>

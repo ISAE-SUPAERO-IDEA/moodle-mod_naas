@@ -168,7 +168,7 @@ export default {
     },
     async load() {
       if (this.query) {
-        this.proxy(this.query)
+        this.proxy("search-nuggets",  { ...this.query, courseId: this.config.courseId })
             .then(async (payload) => {
           if (payload) this.loading = true;
           await this.handle_aggregations(payload.aggregations);
