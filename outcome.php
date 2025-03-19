@@ -94,8 +94,7 @@ if ($grademethod == NAAS_GRADEHIGHEST) {
         'error:unsupported_grade_method',
         'naas',
         '',
-        $grademethod,
-        get_string('error:unsupported_grade_method', 'naas', $grademethod)
+        $grademethod
     );
 }
 
