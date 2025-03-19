@@ -1,10 +1,14 @@
-define('mod_naas/test_connection', ['jquery', 'core/ajax'], function($) {
+define('mod_naas/test_connection', ['jquery', 'core/ajax', 'core/str'], function($, Ajax, Str) {
     return {
         init: function() {
             $('#testconnection').on('click', function(e) {
                 e.preventDefault();
                 const resultDiv = $('#connection-result');
                 resultDiv.hide().removeClass();
+
+                // Pre-fetch strings we'll need
+                const successStringPromise = Str.get_string('connection_test_success', 'naas');
+                const failedStringPromise = Str.get_string('connection_test_failed', 'naas');
 
                 $.ajax({
                     url: M.cfg.wwwroot + '/mod/naas/proxy.php',
@@ -16,19 +20,42 @@ define('mod_naas/test_connection', ['jquery', 'core/ajax'], function($) {
                         const parsedResponse = JSON.parse(response);
 
                         if (parsedResponse.success) {
-                            resultDiv.addClass("alert alert-success").text('Success !');
+                            successStringPromise.then(function(successString) {
+                                resultDiv.addClass("alert alert-success").text(successString);
+                                resultDiv.show();
+                            }).catch(function() {
+                                // Fallback if string loading fails
+                                resultDiv.addClass("alert alert-success").text('Success!');
+                                resultDiv.show();
+                            });
                         } else {
-                            resultDiv.addClass("alert alert-danger").html(
-                                '<p>Failed !</p><code>' + response + '</code>'
-                            );
+                            failedStringPromise.then(function(failedString) {
+                                resultDiv.addClass("alert alert-danger").html(
+                                    '<p>' + failedString + '</p><code>' + response + '</code>'
+                                );
+                                resultDiv.show();
+                            }).catch(function() {
+                                // Fallback if string loading fails
+                                resultDiv.addClass("alert alert-danger").html(
+                                    '<p>Failed!</p><code>' + response + '</code>'
+                                );
+                                resultDiv.show();
+                            });
                         }
-                        resultDiv.show();
                     },
                     error: function(xhr, status, error) {
-                        resultDiv.addClass("alert alert-danger").html(
-                            `<p>Failed !</p><p>${error}</p>`
-                        );
-                        resultDiv.show();
+                        failedStringPromise.then(function(failedString) {
+                            resultDiv.addClass("alert alert-danger").html(
+                                `<p>${failedString}</p><p>${error}</p>`
+                            );
+                            resultDiv.show();
+                        }).catch(function() {
+                            // Fallback if string loading fails
+                            resultDiv.addClass("alert alert-danger").html(
+                                `<p>Failed!</p><p>${error}</p>`
+                            );
+                            resultDiv.show();
+                        });
                     }
                 });
             });
