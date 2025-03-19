@@ -1,0 +1,55 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template mod_naas/error_message
+
+    Template for displaying an error message.
+
+    Classes required for JS:
+    * none
+
+    Data attributes required for JS:
+    * none
+
+    Context variables required for this template:
+    * errormessage - The error message to display
+
+    Example context (json):
+    {
+        "errormessage": "An error occurred while attempting to connect to the server."
+    }
+}}
+<div class="error-message">{{errormessage}}</div>
+<style>
+.error-message {
+    color: #721c24;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    padding: 12px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: bold;
+    margin: 10px 0;
+    display: flex;
+    align-items: center;
+}
+
+.error-message::before {
+    content: "⚠️";
+    margin-right: 8px;
+}
+</style> 

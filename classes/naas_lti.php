@@ -70,28 +70,9 @@ class naas_lti {
 
         if ($nuggetconfig == null || isset($nuggetconfig->error)) {
             $errormessage = get_string("cannot_get_nugget", "naas");
-            echo <<<HTML
-<style>
-.error-message {
-  color: #721c24;
-  background-color: #f8d7da;
-  border: 1px solid #f5c6cb;
-  padding: 12px;
-  border-radius: 4px;
-  font-size: 14px;
-  font-weight: bold;
-  margin: 10px 0;
-  display: flex;
-  align-items: center;
-}
-
-.error-message::before {
-  content: "⚠️";
-  margin-right: 8px;
-}
-</style>
-    <div class="error-message">$errormessage</div>
-HTML;
+            global $OUTPUT, $PAGE;
+            $naasrenderer = $PAGE->get_renderer('mod_naas');
+            echo $naasrenderer->render_error_message($errormessage);
             return;
         }
 
@@ -175,24 +156,8 @@ HTML;
         $_SESSION["resource_link_id"] = $resourcelinkid;
 
         // Generate HTML & javascript code to POST request.
-        $html = <<<HTML
-    <form id="ltiLaunchForm" name="ltiLaunchForm" method="POST" action="$launchurl">
-HTML;
-        foreach ($launchdata as $k => $v) {
-            $html .= <<<HTML
-    <input type="hidden" name="$k" value="$v">
-HTML;
-        }
-
-        $html .= <<<HTML
-    <input type="hidden" name="oauth_signature" value="$signature">
-    </form>
-    <script>
-        window.addEventListener("load", () => {
-            document.getElementById("ltiLaunchForm").submit();
-        });
-    </script>
-HTML;
-        echo $html;
+        global $PAGE;
+        $naasrenderer = $PAGE->get_renderer('mod_naas');
+        echo $naasrenderer->render_lti_form($launchurl, $launchdata, $signature);
     }
 }

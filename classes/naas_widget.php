@@ -39,7 +39,7 @@ class naas_widget {
      * @return string
      */
     public static function naas_widget_html($nuggetid, $cmid, $component): string {
-        global $CFG;
+        global $CFG, $OUTPUT, $PAGE;
         $widgetconfig = json_encode([
             "moodle_url" => $CFG->wwwroot,
             "mount_point" => "#naas_widget",
@@ -47,7 +47,7 @@ class naas_widget {
             "nugget_id" => $nuggetid,
             "cm_id" => $cmid, // Course module ID.
             "labels" => [
-                "nugget_search_here" => get_string('nugget_search_here', 'naas'),
+                "nugget_search_here" => \get_string('nugget_search_here', 'naas'),
                 "nugget_search_no_result" => get_string('nugget_search_no_result', 'naas'),
                 "search" => get_string('nugget_search', 'naas'),
                 "click_to_replace" => get_string('click_to_replace', 'naas'),
@@ -105,12 +105,19 @@ class naas_widget {
                 "complete_nugget" => get_string('complete_nugget', 'naas'),
             ],
         ]);
-        $html = "<div id='naas_widget'></div>";
-        $html .= "<script>NAAS=$widgetconfig</script>";
         $widgetjsurl = new \moodle_url('/mod/naas/assets/vue/naas_widget-232.js');
-        $html .= "<script src='$widgetjsurl' ></script>";
-
-        return $html;
+        
+        // Use the plugin's specific renderer
+        try {
+            $naasrenderer = $PAGE->get_renderer('mod_naas');
+            return $naasrenderer->render_naas_widget($widgetconfig, $widgetjsurl->out(false));
+        } catch (Exception $e) {
+            // Fallback to direct HTML generation
+            $html = "<div id='naas_widget'></div>";
+            $html .= "<script>NAAS=$widgetconfig</script>";
+            $html .= "<script src='".$widgetjsurl->out(false)."'></script>";
+            return $html;
+        }
     }
 
     /**

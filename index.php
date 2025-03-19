@@ -48,20 +48,15 @@ if (!$urls = get_all_instances_in_course('url', $course)) {
 }
 
 $usesections = course_format_uses_sections($course->format);
-$table = new html_table();
-$table->attributes['class'] = 'generaltable mod_index';
-
+$strsectionname = '';
 if ($usesections) {
     $strsectionname = get_string('sectionname', 'format_'.$course->format);
-    $table->head  = [$strsectionname, $strname, $strintro];
-    $table->align = ['center', 'left', 'left'];
-} else {
-    $table->head  = [$strlastmodified, $strname, $strintro];
-    $table->align = ['left', 'left', 'left'];
 }
 
 $modinfo = get_fast_modinfo($course);
 $currentsection = '';
+$rows = [];
+
 foreach ($urls as $url) {
     $cm = $modinfo->cms[$url->coursemodule];
     if ($usesections) {
@@ -71,7 +66,7 @@ foreach ($urls as $url) {
                 $printsection = get_section_name($course, $url->section);
             }
             if ($currentsection !== '') {
-                $table->data[] = 'hr';
+                $rows[] = ['ishr' => true];
             }
             $currentsection = $url->section;
         }
@@ -87,12 +82,15 @@ foreach ($urls as $url) {
     }
 
     $class = $url->visible ? '' : 'class="dimmed"'; // Hidden modules are dimmed.
-    $table->data[] = [
-        $printsection,
-        "<a $class $extra href=\"view.php?id=$cm->id\">".$icon.format_string($url->name)."</a>",
-        format_module_intro('url', $url, $cm->id)];
+    $rows[] = [
+        'ishr' => false,
+        'printsection' => $printsection,
+        'name' => "<a $class $extra href=\"view.php?id=$cm->id\">".$icon.format_string($url->name)."</a>",
+        'intro' => format_module_intro('url', $url, $cm->id)
+    ];
 }
 
-echo html_writer::table($table);
+$naasrenderer = $PAGE->get_renderer('mod_naas');
+echo $naasrenderer->render_course_modules_table($usesections, $strsectionname, $strname, $strintro, $strlastmodified, $rows);
 
 echo $OUTPUT->footer();

@@ -1,0 +1,96 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template mod_naas/course_modules_table
+
+    Template for displaying a table of NAAS modules in a course.
+
+    Classes required for JS:
+    * none
+
+    Data attributes required for JS:
+    * none
+
+    Context variables required for this template:
+    * usesections - Whether the course format uses sections
+    * strsectionname - Section name string (if usesections is true)
+    * strname - Name string
+    * strintro - Intro string
+    * strlastmodified - Last modified string (if usesections is false)
+    * rows - Array of table row data, with properties:
+      * printsection - Section name or last modified date
+      * name - Module name HTML
+      * intro - Module intro HTML
+      * ishr - Whether this is a horizontal rule (boolean)
+
+    Example context (json):
+    {
+        "usesections": true,
+        "strsectionname": "Week",
+        "strname": "Name",
+        "strintro": "Description",
+        "rows": [
+            {
+                "printsection": "Week 1",
+                "name": "<a href=\"view.php?id=123\">Introduction to NAAS</a>",
+                "intro": "Getting started with NAAS",
+                "ishr": false
+            },
+            {
+                "ishr": true
+            },
+            {
+                "printsection": "Week 2",
+                "name": "<a href=\"view.php?id=124\">Advanced NAAS</a>",
+                "intro": "More complex NAAS concepts",
+                "ishr": false
+            }
+        ]
+    }
+}}
+<table class="generaltable mod_index">
+    <thead>
+        <tr>
+            {{#usesections}}
+                <th class="header c0">{{strsectionname}}</th>
+                <th class="header c1">{{strname}}</th>
+                <th class="header c2">{{strintro}}</th>
+            {{/usesections}}
+            {{^usesections}}
+                <th class="header c0">{{strlastmodified}}</th>
+                <th class="header c1">{{strname}}</th>
+                <th class="header c2">{{strintro}}</th>
+            {{/usesections}}
+        </tr>
+    </thead>
+    <tbody>
+        {{#rows}}
+            {{#ishr}}
+                <tr class="separator">
+                    <td colspan="3" class="activity separator"></td>
+                </tr>
+            {{/ishr}}
+            {{^ishr}}
+                <tr class="activity">
+                    <td class="cell c0">{{printsection}}</td>
+                    <td class="cell c1">{{{name}}}</td>
+                    <td class="cell c2">{{{intro}}}</td>
+                </tr>
+            {{/ishr}}
+        {{/rows}}
+    </tbody>
+</table> 
