@@ -48,6 +48,7 @@ $string["description"] = "Description";
 $string["duration"] = "Duration";
 $string["en"] = "English";
 $string["error:must_be_strictly_positive"] = "This must be a strictly positive number.";
+$string['error:unsupported_grade_method'] = 'The grade method "{$a}" is not supported.';
 $string["es"] = "Spanish";
 $string["field_of_study"] = "Field of study";
 $string["fr"] = "French";
