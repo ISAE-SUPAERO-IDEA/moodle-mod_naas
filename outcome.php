@@ -91,10 +91,11 @@ if ($grademethod == NAAS_GRADEHIGHEST) {
     grade_update('mod/naas', $course->id, 'mod', 'naas', $cm->instance, $itemnumber, $grade);
 } else { // Grade Method unknown.
     throw new moodle_exception(
-        'naas_unsupported_grademethod',
+        'error:unsupported_grade_method',
         'naas',
         '',
-        $grademethod
+        $grademethod,
+        get_string('error:unsupported_grade_method', 'naas', $grademethod)
     );
 }
 
