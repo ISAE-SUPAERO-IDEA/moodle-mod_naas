@@ -133,21 +133,20 @@ class naas_client {
                 if ($this->debug) {
                     debugging("Payload: ".json_encode($res->payload, JSON_PRETTY_PRINT), DEBUG_DEVELOPER);
                 }
-
                 return $res->payload;
             } else if (property_exists($res, "error")) {
                 if ($this->debug) {
-                    debugging("An error occurred on the NaaS server", DEBUG_NORMAL);
+                    debugging(get_string("error:naas_server", "naas"), DEBUG_NORMAL);
                     debugging(json_encode($res->error, JSON_PRETTY_PRINT), DEBUG_DEVELOPER);
                 }
             } else {
                 if ($this->debug) {
-                    debugging("Unexpected error occurred on the NaaS server", DEBUG_NORMAL);
+                    debugging(get_string("error:naas_server_unexpected", "naas"), DEBUG_NORMAL);
                 }
             }
         } else {
             if ($this->debug) {
-                debugging("Unexpected error occurred on the NaaS server", DEBUG_NORMAL);
+                debugging(get_string("error:naas_server_unexpected", "naas"), DEBUG_NORMAL);
             }
         }
         return $res;
