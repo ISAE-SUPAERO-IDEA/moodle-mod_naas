@@ -94,8 +94,7 @@ if ($grademethod == NAAS_GRADEHIGHEST) {
         'naas_unsupported_grademethod',
         'naas',
         '',
-        null,
-        'The grade method "'. $grademethod .'" is not supported.'
+        $grademethod
     );
 }
 
