@@ -20,21 +20,21 @@ define('mod_naas/test_connection', ['jquery', 'core/ajax', 'core/str'], function
                         const parsedResponse = JSON.parse(response);
 
                         if (parsedResponse.success) {
-                            successStringPromise.then(function(successString) {
+                            successStringPromise.done(function(successString) {
                                 resultDiv.addClass("alert alert-success").text(successString);
                                 resultDiv.show();
-                            }).catch(function() {
+                            }).fail(function() {
                                 // Fallback if string loading fails
                                 resultDiv.addClass("alert alert-success").text('Success!');
                                 resultDiv.show();
                             });
                         } else {
-                            failedStringPromise.then(function(failedString) {
+                            failedStringPromise.done(function(failedString) {
                                 resultDiv.addClass("alert alert-danger").html(
                                     '<p>' + failedString + '</p><code>' + response + '</code>'
                                 );
                                 resultDiv.show();
-                            }).catch(function() {
+                            }).fail(function() {
                                 // Fallback if string loading fails
                                 resultDiv.addClass("alert alert-danger").html(
                                     '<p>Failed!</p><code>' + response + '</code>'
@@ -44,12 +44,12 @@ define('mod_naas/test_connection', ['jquery', 'core/ajax', 'core/str'], function
                         }
                     },
                     error: function(xhr, status, error) {
-                        failedStringPromise.then(function(failedString) {
+                        failedStringPromise.done(function(failedString) {
                             resultDiv.addClass("alert alert-danger").html(
                                 `<p>${failedString}</p><p>${error}</p>`
                             );
                             resultDiv.show();
-                        }).catch(function() {
+                        }).fail(function() {
                             // Fallback if string loading fails
                             resultDiv.addClass("alert alert-danger").html(
                                 `<p>Failed!</p><p>${error}</p>`
