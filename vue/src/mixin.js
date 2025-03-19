@@ -2,8 +2,8 @@
 import handleAxiosError from "./http/axios-error-handler";
 
 const cache = {};
-const proxyClient = axios.create({ baseURL: NAAS.moodle_url });
 import axios from "axios";
+const proxyClient = axios.create({ baseURL: NAAS.moodle_url });
 import NaasHttpError from "./http/NaasHttpError";
 import ProxyHttpError from "./http/ProxyHttpError";
 import translateError from "./error-message";
@@ -66,7 +66,7 @@ export default {
           });
     },
     xapi(params) {
-      let info = axios
+      let info = proxyClient
         .get("/mod/naas/xapi.php", { params })
         .then((response) => {
           info = response.data.payload;
