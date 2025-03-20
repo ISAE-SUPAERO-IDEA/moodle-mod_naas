@@ -24,12 +24,5 @@
 
 require_once('../../config.php');
 
-// Get the course ID from URL parameters.
-$id = optional_param('id', 0, PARAM_INT);
-
-// Redirect to course view page.
-if ($id) {
-    redirect("$CFG->wwwroot/course/view.php?id=$id");
-} else {
-    redirect($CFG->wwwroot);
-}
+// Simple redirect to Moodle homepage.
+redirect($CFG->wwwroot);
