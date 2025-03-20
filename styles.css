@@ -70,6 +70,7 @@ Modal style
     right: 0;
     background-color: rgba(0, 0, 0, 0.3);
     display: flex;
+    overflow:scroll;
     justify-content: center;
     align-items: center;
     z-index: 2;
@@ -77,7 +78,6 @@ Modal style
 
 .path-mod-naas .nugget-modal {
     font-family: Open Sans, proxima-nova, nunito, Arial, sans-serif;
-    max-height: 90%;
     width: 70%;
     max-width: 1140px;
     position: absolute;
@@ -97,7 +97,6 @@ Modal style
 
 @media (max-width: 1250px) {
     .path-mod-naas .nugget-modal {
-        max-height: 75%;
         width: 75%;
     }
 }

@@ -19,7 +19,7 @@
           </div>
           <div class="container nugget-modal-body">
             <div class="row metadata-field">
-              <div class="col">
+              <div class="col-sm-12 col-md-8">
                 <!-- Description -->
                 <div v-show="is_shown(nugget.resume)">
                   <h3>{{ config.labels.metadata.description }}</h3>
@@ -43,7 +43,7 @@
                   </div>
                 </div>
               </div>
-              <div v-show="in_brief_shown" class="col-4">
+              <div v-show="in_brief_shown" class="col-sm-12 col-md-4">
                 <h3>{{ config.labels.metadata.in_brief }}</h3>
                 <div>
                   <ul class="metadata-list">
