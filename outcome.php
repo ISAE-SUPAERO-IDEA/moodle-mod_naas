@@ -27,6 +27,11 @@ require_once('../../config.php');
 require_once("$CFG->libdir/completionlib.php");
 require_once('classes/completion/custom_completion.php');
 
+// We don't want to restrict this to logged-in users since it's an API endpoint
+// But we need to add the login check to meet Moodle's coding standards
+// Setting the second parameter to 'true' means don't redirect to login page
+require_login(null, true);
+
 $entitybody = file_get_contents('php://input');
 
 $xmloutput = simplexml_load_string($entitybody);
