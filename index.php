@@ -29,21 +29,21 @@ $course = $DB->get_record('course', ['id' => $id], '*', MUST_EXIST);
 require_course_login($course, true);
 
 $PAGE->set_pagelayout('incourse');
-$strurl          = get_string('modulename', 'url');
-$strurls         = get_string('modulenameplural', 'url');
+$strnaas          = get_string('modulename', 'naas');
+$strnaases        = get_string('modulenameplural', 'naas');
 $strname         = get_string('name');
 $strintro        = get_string('moduleintro');
 $strlastmodified = get_string('lastmodified');
 
-$PAGE->set_url('/mod/url/index.php', ['id' => $course->id]);
-$PAGE->set_title($course->shortname.': '.$strurls);
+$PAGE->set_url('/mod/naas/index.php', ['id' => $course->id]);
+$PAGE->set_title($course->shortname.': '.$strnaases);
 $PAGE->set_heading($course->fullname);
-$PAGE->navbar->add($strurls);
+$PAGE->navbar->add($strnaases);
 echo $OUTPUT->header();
-echo $OUTPUT->heading($strurls);
+echo $OUTPUT->heading($strnaases);
 
-if (!$urls = get_all_instances_in_course('url', $course)) {
-    notice(get_string('thereareno', 'moodle', $strurls), "$CFG->wwwroot/course/view.php?id=$course->id");
+if (!$naases = get_all_instances_in_course('naas', $course)) {
+    notice(get_string('thereareno', 'moodle', $strnaases), "$CFG->wwwroot/course/view.php?id=$course->id");
     exit;
 }
 
@@ -62,35 +62,35 @@ if ($usesections) {
 
 $modinfo = get_fast_modinfo($course);
 $currentsection = '';
-foreach ($urls as $url) {
-    $cm = $modinfo->cms[$url->coursemodule];
+foreach ($naases as $naas) {
+    $cm = $modinfo->cms[$naas->coursemodule];
     if ($usesections) {
         $printsection = '';
-        if ($url->section !== $currentsection) {
-            if ($url->section) {
-                $printsection = get_section_name($course, $url->section);
+        if ($naas->section !== $currentsection) {
+            if ($naas->section) {
+                $printsection = get_section_name($course, $naas->section);
             }
             if ($currentsection !== '') {
                 $table->data[] = 'hr';
             }
-            $currentsection = $url->section;
+            $currentsection = $naas->section;
         }
     } else {
-        $printsection = '<span class="smallinfo">'.userdate($url->timemodified)."</span>";
+        $printsection = '<span class="smallinfo">'.userdate($naas->timemodified)."</span>";
     }
 
     $extra = empty($cm->extra) ? '' : $cm->extra;
     $icon = '';
     if (!empty($cm->icon)) {
-        // Each url has an icon in 2.0.
+        // Each naas has an icon in 2.0.
         $icon = $OUTPUT->pix_icon($cm->icon, get_string('modulename', $cm->modname)) . ' ';
     }
 
-    $class = $url->visible ? '' : 'class="dimmed"'; // Hidden modules are dimmed.
+    $class = $naas->visible ? '' : 'class="dimmed"'; // Hidden modules are dimmed.
     $table->data[] = [
         $printsection,
-        "<a $class $extra href=\"view.php?id=$cm->id\">".$icon.format_string($url->name)."</a>",
-        format_module_intro('url', $url, $cm->id)];
+        "<a $class $extra href=\"view.php?id=$cm->id\">".$icon.format_string($naas->name)."</a>",
+        format_module_intro('naas', $naas, $cm->id)];
 }
 
 echo html_writer::table($table);
