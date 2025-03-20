@@ -23,10 +23,20 @@
  */
 
 require_once('../../config.php');
+require_once($CFG->dirroot.'/mod/naas/lib.php');
 
 $id = required_param('id', PARAM_INT); // Course id.
 $course = $DB->get_record('course', ['id' => $id], '*', MUST_EXIST);
 require_course_login($course, true);
+$coursecontext = context_course::instance($course->id);
+
+// Trigger course module instance list event.
+$params = array(
+    'context' => $coursecontext
+);
+$event = \mod_naas\event\course_module_instance_list_viewed::create($params);
+$event->add_record_snapshot('course', $course);
+$event->trigger();
 
 $PAGE->set_pagelayout('incourse');
 $strnaas          = get_string('modulename', 'naas');
