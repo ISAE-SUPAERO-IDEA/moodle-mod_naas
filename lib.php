@@ -233,7 +233,6 @@ function naas_delete_instance($id) {
 
     naas_grade_item_delete($nugget);
 
-
     $DB->delete_records('naas_activity_outcome', ['activity_id' => $cm->id]);
 
     // We must delete the module record after we delete the grade item.
