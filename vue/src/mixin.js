@@ -3,7 +3,7 @@ import handleAxiosError from "./http/axios-error-handler";
 
 const cache = {};
 import axios from "axios";
-const proxyClient = axios.create({ baseURL: NAAS.moodle_url });
+const axiosClient = axios.create({ baseURL: NAAS.moodle_url });
 import NaasHttpError from "./http/NaasHttpError";
 import ProxyHttpError from "./http/ProxyHttpError";
 import translateError from "./error-message";
@@ -42,7 +42,7 @@ export default {
         return Promise.resolve(cache[path]);
       }
       this.proxyError = null
-      return proxyClient
+      return axiosClient
         .get("/mod/naas/proxy.php", { params: { path } })
         .then((response) => {
           if(!response.data.success) {
@@ -66,7 +66,7 @@ export default {
           });
     },
     xapi(params) {
-      let info = proxyClient
+      let info = axiosClient
         .get("/mod/naas/xapi.php", { params })
         .then((response) => {
           info = response.data.payload;
