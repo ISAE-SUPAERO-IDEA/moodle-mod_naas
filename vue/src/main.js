@@ -16,8 +16,7 @@
 /**
  * Main entry point for the Vue application.
  *
- * @module     mod_naas/main
- * @copyright  2023 NAAS Team
+ * @copyright (C) 2023 ISAE-SUPAERO (https://www.isae-supaero.fr/)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
