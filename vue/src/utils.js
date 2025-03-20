@@ -16,7 +16,6 @@
 /**
  * Utility functions for NAAS plugin.
  *
- * @module     mod_naas/utils
  * @copyright  2023 NAAS Team
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */

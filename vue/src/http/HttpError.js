@@ -16,8 +16,7 @@
 /**
  * Base HTTP error class for NAAS plugin.
  *
- * @module     mod_naas/http/HttpError
- * @copyright  2023 NAAS Team
+ * @copyright (C) 2023 ISAE-SUPAERO (https://www.isae-supaero.fr/)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
