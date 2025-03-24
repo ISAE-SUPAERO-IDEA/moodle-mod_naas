@@ -129,6 +129,13 @@ HTML;
                 )
         );
 
+        $custom = [
+            "hostname" => $CFG->wwwroot, // Used by feedback feature.
+            "is_authenticated" => true, // Required by feedback feature.
+            "css" => $config->naas_css,
+            "feedback" => ($config->naas_feedback === "1") ? "on" : "off",
+        ];
+
         $launchdata = [
             "lti_version" => "LTI-1p0",
             "lti_message_type" => "basic-lti-launch-request",
@@ -145,6 +152,7 @@ HTML;
             "lis_result_sourcedid" => $sourcedid,
             "lis_outcome_service_url" => $CFG->wwwroot. "/mod/naas/outcome.php?id=" . $cm->id,
             "resource_link_id" => $resourcelinkid,
+            "custom_naas" => json_encode($custom),
         ];
 
         if ($config->naas_privacy_learner_name) {
@@ -178,10 +186,11 @@ HTML;
         $html = <<<HTML
     <form id="ltiLaunchForm" name="ltiLaunchForm" method="POST" action="$launchurl">
 HTML;
-        foreach ($launchdata as $k => $v) {
-            $html .= <<<HTML
-    <input type="hidden" name="$k" value="$v">
-HTML;
+
+        foreach ($launchdata as $key => $value) {
+            $key = htmlspecialchars($key, ENT_COMPAT);
+            $value = htmlspecialchars($value, ENT_COMPAT);
+            $html .= "  <input type=\"hidden\" name=\"{$key}\" value=\"{$value}\"/>\n";
         }
 
         $html .= <<<HTML
