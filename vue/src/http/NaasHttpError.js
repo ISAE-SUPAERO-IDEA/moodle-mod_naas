@@ -16,7 +16,7 @@
 /**
  * NAAS HTTP error class.
  *
- * @copyright (C) 2023 ISAE-SUPAERO (https://www.isae-supaero.fr/)
+ * @copyright (C) 2019 ISAE-SUPAERO (https://www.isae-supaero.fr/)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
