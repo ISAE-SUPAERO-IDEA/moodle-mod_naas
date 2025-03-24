@@ -487,35 +487,35 @@ Other style
 }
 
 /* Bootstrap-like utility classes for modal */
-.path-mod-naas .modal-content .shadow-sm { 
-    box-shadow: 0 .125rem .25rem rgba(0, 0, 0, 0.075); 
+.path-mod-naas .modal-content .shadow-sm {
+    box-shadow: 0 .125rem .25rem rgba(0, 0, 0, 0.075);
 }
-.path-mod-naas .modal-content .shadow { 
-    box-shadow: 0 .5rem 1rem rgba(0, 0, 0, 0.15); 
+.path-mod-naas .modal-content .shadow {
+    box-shadow: 0 .5rem 1rem rgba(0, 0, 0, 0.15);
 }
-.path-mod-naas .modal-content .rounded { 
-    border-radius: .25rem; 
+.path-mod-naas .modal-content .rounded {
+    border-radius: .25rem;
 }
-.path-mod-naas .modal-content .bg-light { 
-    background-color: #f8f9fa; 
+.path-mod-naas .modal-content .bg-light {
+    background-color: #f8f9fa;
 }
-.path-mod-naas .modal-content .bg-white { 
-    background-color: #fff; 
+.path-mod-naas .modal-content .bg-white {
+    background-color: #fff;
 }
-.path-mod-naas .modal-content .text-primary { 
-    color: #007bff; 
+.path-mod-naas .modal-content .text-primary {
+    color: #007bff;
 }
-.path-mod-naas .modal-content .text-secondary { 
-    color: #6c757d; 
+.path-mod-naas .modal-content .text-secondary {
+    color: #6c757d;
 }
-.path-mod-naas .modal-content .text-dark { 
-    color: #343a40; 
+.path-mod-naas .modal-content .text-dark {
+    color: #343a40;
 }
-.path-mod-naas .modal-content .font-weight-bold { 
-    font-weight: 700; 
+.path-mod-naas .modal-content .font-weight-bold {
+    font-weight: 700;
 }
-.path-mod-naas .modal-content .font-weight-normal { 
-    font-weight: 400; 
+.path-mod-naas .modal-content .font-weight-normal {
+    font-weight: 400;
 }
 
 /* Better content scrolling with custom scrollbar */
