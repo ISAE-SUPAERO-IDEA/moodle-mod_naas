@@ -21,7 +21,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-define('mod_naas/test_connection', ['jquery', 'core/ajax'], function($) {
+define('mod_naas/test_connection', ['jquery', 'core/ajax', 'core/str'], function($, Ajax, Str) {
     return {
         init: function() {
             $('#testconnection').on('click', function(e) {
