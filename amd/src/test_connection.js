@@ -22,6 +22,7 @@
  */
 
 define('mod_naas/test_connection', ['jquery', 'core/ajax', 'core/str'], function($, Ajax, Str) {
+    // This handler tests the connection to the NAAS server
     return {
         init: function() {
             $('#testconnection').on('click', function(e) {
