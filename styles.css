@@ -91,7 +91,7 @@ Modal style
     transform: none;
     height: auto;
     max-height: none;
-    overflow: visible !important;
+    overflow: visible;
     left: auto;
     top: 50px;
     font-family: Open Sans, proxima-nova, nunito, Arial, sans-serif;
@@ -112,16 +112,16 @@ Modal style
     .path-mod-naas .nugget-modal {
         width: 95%;
     }
-    
+
     .path-mod-naas .nugget-modal-backdrop {
         padding: 20px 0;
     }
-    
+
     .path-mod-naas .nugget-modal-body {
         max-height: calc(95vh - 100px);
         padding: 15px 10px;
     }
-    
+
     .path-mod-naas .metadata-field {
         margin: 0 5px;
     }
@@ -134,7 +134,7 @@ Modal style
 .path-mod-naas .nugget-modal-body {
     padding: 20px 15px;
     max-height: calc(90vh - 120px);
-    overflow-y: auto !important;
+    overflow-y: auto;
     flex-grow: 1;
 }
 
@@ -396,7 +396,7 @@ Other style
 /* Enhanced Modal Styling */
 .path-mod-naas .card {
     border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
     border: none; /* Removed border */
     background-color: #fff;
     padding: 1.25rem;
@@ -405,7 +405,7 @@ Other style
 }
 
 .path-mod-naas .card:hover {
-    box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
     transform: translateY(-2px);
 }
 
@@ -419,14 +419,14 @@ Other style
     color: white;
     margin: 0.15rem;
     text-align: center;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     transition: all 0.2s ease;
 }
 
 .path-mod-naas .badge:hover {
     background-color: #0069d9;
     transform: translateY(-1px);
-    box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
 }
 
 /* Better icons */
@@ -445,7 +445,7 @@ Other style
     position: sticky;
     top: 0;
     z-index: 5;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03);
 }
 
 .path-mod-naas .nugget-modal-header h2 {
@@ -487,16 +487,36 @@ Other style
 }
 
 /* Bootstrap-like utility classes for modal */
-.path-mod-naas .modal-content .shadow-sm { box-shadow: 0 .125rem .25rem rgba(0,0,0,.075) !important; }
-.path-mod-naas .modal-content .shadow { box-shadow: 0 .5rem 1rem rgba(0,0,0,.15) !important; }
-.path-mod-naas .modal-content .rounded { border-radius: .25rem !important; }
-.path-mod-naas .modal-content .bg-light { background-color: #f8f9fa !important; }
-.path-mod-naas .modal-content .bg-white { background-color: #fff !important; }
-.path-mod-naas .modal-content .text-primary { color: #007bff !important; }
-.path-mod-naas .modal-content .text-secondary { color: #6c757d !important; }
-.path-mod-naas .modal-content .text-dark { color: #343a40 !important; }
-.path-mod-naas .modal-content .font-weight-bold { font-weight: 700 !important; }
-.path-mod-naas .modal-content .font-weight-normal { font-weight: 400 !important; }
+.path-mod-naas .modal-content .shadow-sm { 
+    box-shadow: 0 .125rem .25rem rgba(0, 0, 0, 0.075); 
+}
+.path-mod-naas .modal-content .shadow { 
+    box-shadow: 0 .5rem 1rem rgba(0, 0, 0, 0.15); 
+}
+.path-mod-naas .modal-content .rounded { 
+    border-radius: .25rem; 
+}
+.path-mod-naas .modal-content .bg-light { 
+    background-color: #f8f9fa; 
+}
+.path-mod-naas .modal-content .bg-white { 
+    background-color: #fff; 
+}
+.path-mod-naas .modal-content .text-primary { 
+    color: #007bff; 
+}
+.path-mod-naas .modal-content .text-secondary { 
+    color: #6c757d; 
+}
+.path-mod-naas .modal-content .text-dark { 
+    color: #343a40; 
+}
+.path-mod-naas .modal-content .font-weight-bold { 
+    font-weight: 700; 
+}
+.path-mod-naas .modal-content .font-weight-normal { 
+    font-weight: 400; 
+}
 
 /* Better content scrolling with custom scrollbar */
 .path-mod-naas .nugget-modal-body::-webkit-scrollbar {
