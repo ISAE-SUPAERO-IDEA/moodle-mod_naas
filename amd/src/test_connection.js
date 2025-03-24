@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-define('mod_naas/test_connection', ['jquery', 'core/ajax', 'core/str'], function($, Ajax, Str) {
-=======
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -25,7 +22,6 @@ define('mod_naas/test_connection', ['jquery', 'core/ajax', 'core/str'], function
  */
 
 define('mod_naas/test_connection', ['jquery', 'core/ajax'], function($) {
->>>>>>> f89b43c (adding copyright comments on top of the js files)
     return {
         init: function() {
             $('#testconnection').on('click', function(e) {
