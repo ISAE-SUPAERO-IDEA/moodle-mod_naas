@@ -1,5 +1,5 @@
 <?php
-// This file is part of Moodle - http://moodle.org
+// This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -15,84 +15,135 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Moodle Nugget Plugin
+ * Display information about all NAAS modules in the requested course.
  *
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @copyright (C) 2019  ISAE-SUPAERO (https://www.isae-supaero.fr/)
- * @package mod_naas
+ * @package     mod_naas
+ * @copyright   2019 ISAE-SUPAERO (https://www.isae-supaero.fr/)
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 require_once('../../config.php');
+require_once('lib.php');
 
-$id = required_param('id', PARAM_INT); // Course id.
-$course = $DB->get_record('course', ['id' => $id], '*', MUST_EXIST);
-require_course_login($course, true);
+// Course ID is a required parameter.
+$id = optional_param('id', 0, PARAM_INT);  // Using optional_param to handle missing ID gracefully.
 
-$PAGE->set_pagelayout('incourse');
-$strurl          = get_string('modulename', 'url');
-$strurls         = get_string('modulenameplural', 'url');
-$strname         = get_string('name');
-$strintro        = get_string('moduleintro');
-$strlastmodified = get_string('lastmodified');
-
-$PAGE->set_url('/mod/url/index.php', ['id' => $course->id]);
-$PAGE->set_title($course->shortname.': '.$strurls);
-$PAGE->set_heading($course->fullname);
-$PAGE->navbar->add($strurls);
-echo $OUTPUT->header();
-echo $OUTPUT->heading($strurls);
-
-if (!$urls = get_all_instances_in_course('url', $course)) {
-    notice(get_string('thereareno', 'moodle', $strurls), "$CFG->wwwroot/course/view.php?id=$course->id");
-    exit;
+// Redirect with error message if ID is missing or invalid.
+if (empty($id)) {
+    redirect(
+        new moodle_url('/'),
+        get_string('invalidcoursemodule', 'error'),
+        null,
+        \core\output\notification::NOTIFY_ERROR
+    );
 }
 
+// Get the course - with graceful error handling.
+try {
+    $course = $DB->get_record('course', array('id' => $id), '*', MUST_EXIST);
+} catch (dml_exception $e) {
+    redirect(
+        new moodle_url('/'),
+        get_string('invalidcourseid', 'error'),
+        null,
+        \core\output\notification::NOTIFY_ERROR
+    );
+}
+
+// Check user is logged in and has access to this course.
+require_login($course, true);  // Second parameter true forces login for the course.
+
+// Check if user has capability to view NAAS content.
+$context = context_course::instance($course->id);
+if (!has_capability('mod/naas:view', $context)) {
+    redirect(
+        new moodle_url('/course/view.php', array('id' => $course->id)),
+        get_string('nopermissions', 'error', get_string('view')),
+        null,
+        \core\output\notification::NOTIFY_ERROR
+    );
+}
+
+// Set up page.
+$PAGE->set_pagelayout('incourse');
+$PAGE->set_url('/mod/naas/index.php', array('id' => $id));
+$PAGE->set_title(format_string($course->fullname));
+$PAGE->set_heading(format_string($course->fullname));
+$PAGE->set_context($context);
+
+echo $OUTPUT->header();
+
+// Add a navigation link back to the course.
+$courseurl = new moodle_url('/course/view.php', array('id' => $course->id));
+echo '<div class="course-button mb-3"><a class="btn btn-outline-secondary btn-sm" href="' . 
+    $courseurl . '">' . get_string('back_to_course', 'naas') . '</a></div>';
+
+// Get all the appropriate data.
+if (!$naasmodules = get_all_instances_in_course('naas', $course)) {
+    echo $OUTPUT->heading(get_string('modulenameplural', 'naas'), 2);
+    echo '<div class="alert alert-info">' . get_string('nonewmodules', 'naas') . '</div>';
+    echo $OUTPUT->continue_button($courseurl);
+    echo $OUTPUT->footer();
+    die();
+}
+
+// Print the list of instances.
 $usesections = course_format_uses_sections($course->format);
+$strname = get_string('name');
+$strintro = get_string('moduleintro');
+$strlastmodified = get_string('lastmodified');
+
 $table = new html_table();
 $table->attributes['class'] = 'generaltable mod_index';
 
 if ($usesections) {
     $strsectionname = get_string('sectionname', 'format_'.$course->format);
-    $table->head  = [$strsectionname, $strname, $strintro];
-    $table->align = ['center', 'left', 'left'];
+    $table->head = array($strsectionname, $strname, $strintro, $strlastmodified);
+    $table->align = array('center', 'left', 'left', 'left');
 } else {
-    $table->head  = [$strlastmodified, $strname, $strintro];
-    $table->align = ['left', 'left', 'left'];
+    $table->head = array($strname, $strintro, $strlastmodified);
+    $table->align = array('left', 'left', 'left');
 }
 
-$modinfo = get_fast_modinfo($course);
-$currentsection = '';
-foreach ($urls as $url) {
-    $cm = $modinfo->cms[$url->coursemodule];
-    if ($usesections) {
-        $printsection = '';
-        if ($url->section !== $currentsection) {
-            if ($url->section) {
-                $printsection = get_section_name($course, $url->section);
-            }
-            if ($currentsection !== '') {
-                $table->data[] = 'hr';
-            }
-            $currentsection = $url->section;
-        }
+foreach ($naasmodules as $naasmodule) {
+    $attributes = array();
+    if ($naasmodule->visible) {
+        $class = '';
     } else {
-        $printsection = '<span class="smallinfo">'.userdate($url->timemodified)."</span>";
+        $class = 'dimmed';
     }
+    $attributes['class'] = $class;
 
-    $extra = empty($cm->extra) ? '' : $cm->extra;
-    $icon = '';
-    if (!empty($cm->icon)) {
-        // Each url has an icon in 2.0.
-        $icon = $OUTPUT->pix_icon($cm->icon, get_string('modulename', $cm->modname)) . ' ';
+    $content = html_writer::link(
+        new moodle_url('/mod/naas/view.php', array('id' => $naasmodule->coursemodule)),
+        format_string($naasmodule->name),
+        $attributes
+    );
+
+    $intro = format_module_intro('naas', $naasmodule, $naasmodule->coursemodule);
+    $timemodified = userdate($naasmodule->timemodified);
+
+    if ($usesections) {
+        $table->data[] = array(
+            get_section_name($course, $naasmodule->section),
+            $content,
+            $intro,
+            $timemodified
+        );
+    } else {
+        $table->data[] = array(
+            $content,
+            $intro,
+            $timemodified
+        );
     }
-
-    $class = $url->visible ? '' : 'class="dimmed"'; // Hidden modules are dimmed.
-    $table->data[] = [
-        $printsection,
-        "<a $class $extra href=\"view.php?id=$cm->id\">".$icon.format_string($url->name)."</a>",
-        format_module_intro('url', $url, $cm->id)];
 }
 
+echo $OUTPUT->heading(get_string('modulenameplural', 'naas'), 2);
 echo html_writer::table($table);
+
+// Add another navigation link back to the course at the bottom.
+echo '<div class="course-button mt-3"><a class="btn btn-outline-secondary btn-sm" href="' . 
+    $courseurl . '">' . get_string('back_to_course', 'naas') . '</a></div>';
 
 echo $OUTPUT->footer();
