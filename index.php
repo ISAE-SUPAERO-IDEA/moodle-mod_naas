@@ -40,7 +40,7 @@ if (empty($id)) {
 
 // Get the course - with graceful error handling.
 try {
-    $course = $DB->get_record('course', array('id' => $id), '*', MUST_EXIST);
+    $course = $DB->get_record('course', ['id' => $id], '*', MUST_EXIST);
 } catch (dml_exception $e) {
     redirect(
         new moodle_url('/'),
@@ -57,7 +57,7 @@ require_login($course, true);  // Second parameter true forces login for the cou
 $context = context_course::instance($course->id);
 if (!has_capability('mod/naas:view', $context)) {
     redirect(
-        new moodle_url('/course/view.php', array('id' => $course->id)),
+        new moodle_url('/course/view.php', ['id' => $course->id]),
         get_string('nopermissions', 'error', get_string('view')),
         null,
         \core\output\notification::NOTIFY_ERROR
@@ -66,7 +66,7 @@ if (!has_capability('mod/naas:view', $context)) {
 
 // Set up page.
 $PAGE->set_pagelayout('incourse');
-$PAGE->set_url('/mod/naas/index.php', array('id' => $id));
+$PAGE->set_url('/mod/naas/index.php', ['id' => $id]);
 $PAGE->set_title(format_string($course->fullname));
 $PAGE->set_heading(format_string($course->fullname));
 $PAGE->set_context($context);
@@ -74,8 +74,8 @@ $PAGE->set_context($context);
 echo $OUTPUT->header();
 
 // Add a navigation link back to the course.
-$courseurl = new moodle_url('/course/view.php', array('id' => $course->id));
-echo '<div class="course-button mb-3"><a class="btn btn-outline-secondary btn-sm" href="' . 
+$courseurl = new moodle_url('/course/view.php', ['id' => $course->id]);
+echo '<div class="course-button mb-3"><a class="btn btn-outline-secondary btn-sm" href="' .
     $courseurl . '">' . get_string('back_to_course', 'naas') . '</a></div>';
 
 // Get all the appropriate data.
@@ -98,15 +98,15 @@ $table->attributes['class'] = 'generaltable mod_index';
 
 if ($usesections) {
     $strsectionname = get_string('sectionname', 'format_'.$course->format);
-    $table->head = array($strsectionname, $strname, $strintro, $strlastmodified);
-    $table->align = array('center', 'left', 'left', 'left');
+    $table->head = [$strsectionname, $strname, $strintro, $strlastmodified];
+    $table->align = ['center', 'left', 'left', 'left'];
 } else {
-    $table->head = array($strname, $strintro, $strlastmodified);
-    $table->align = array('left', 'left', 'left');
+    $table->head = [$strname, $strintro, $strlastmodified];
+    $table->align = ['left', 'left', 'left'];
 }
 
 foreach ($naasmodules as $naasmodule) {
-    $attributes = array();
+    $attributes = [];
     if ($naasmodule->visible) {
         $class = '';
     } else {
@@ -115,7 +115,7 @@ foreach ($naasmodules as $naasmodule) {
     $attributes['class'] = $class;
 
     $content = html_writer::link(
-        new moodle_url('/mod/naas/view.php', array('id' => $naasmodule->coursemodule)),
+        new moodle_url('/mod/naas/view.php', ['id' => $naasmodule->coursemodule]),
         format_string($naasmodule->name),
         $attributes
     );
@@ -124,18 +124,18 @@ foreach ($naasmodules as $naasmodule) {
     $timemodified = userdate($naasmodule->timemodified);
 
     if ($usesections) {
-        $table->data[] = array(
+        $table->data[] = [
             get_section_name($course, $naasmodule->section),
             $content,
             $intro,
-            $timemodified
-        );
+            $timemodified,
+        ];
     } else {
-        $table->data[] = array(
+        $table->data[] = [
             $content,
             $intro,
-            $timemodified
-        );
+            $timemodified,
+        ];
     }
 }
 
@@ -143,7 +143,7 @@ echo $OUTPUT->heading(get_string('modulenameplural', 'naas'), 2);
 echo html_writer::table($table);
 
 // Add another navigation link back to the course at the bottom.
-echo '<div class="course-button mt-3"><a class="btn btn-outline-secondary btn-sm" href="' . 
+echo '<div class="course-button mt-3"><a class="btn btn-outline-secondary btn-sm" href="' .
     $courseurl . '">' . get_string('back_to_course', 'naas') . '</a></div>';
 
 echo $OUTPUT->footer();
