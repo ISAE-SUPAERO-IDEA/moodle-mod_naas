@@ -15,11 +15,12 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Display information about all NAAS modules in the requested course.
+ * Display information about all Nugget modules in the requested course.
  *
  * @package     mod_naas
  * @copyright   2019 ISAE-SUPAERO (https://www.isae-supaero.fr/)
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @author      Thomas Delalbre
  */
 
 require_once('../../config.php');
