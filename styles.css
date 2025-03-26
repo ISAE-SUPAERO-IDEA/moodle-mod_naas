@@ -72,7 +72,7 @@ Modal style
     display: flex;
     justify-content: center;
     align-items: flex-start;
-    z-index: 2;
+    z-index: 999;
     overflow-y: auto;
     padding: 40px 0;
 }
