@@ -76,9 +76,12 @@
             <a :href="backLink" class="btn btn-sm btn-primary"
               >◀︎ {{ config.labels.back_to_course }}</a
             >
-            <a v-if="nextUnitLink" :href="nextUnitLink" class="ml-2 btn btn-sm btn-primary"
-              >{{ config.labels.next_unit }} ▶︎</a
-            >
+            <a 
+              v-if="nextUnitLink" 
+              @click.prevent="goToNextResource" 
+              :href="nextUnitLink" 
+              class="ml-2 btn btn-sm btn-primary"
+            >{{ config.labels.next_unit }} ▶︎</a>
           </div>
         </div>
       </div>
@@ -115,6 +118,42 @@ export default {
   methods: {
     closeModal() {
       this.$emit("close");
+    },
+    goToNextResource() {
+      // On ferme d'abord le modal
+      this.closeModal();
+      
+      // Récupération de l'URL de la ressource suivante
+      const nextUrl = this.nextUnitLink;
+      
+      // Vérifier si l'URL contient un identifiant d'ancre
+      const hasAnchor = nextUrl.includes('#');
+      
+      // Si un ancre est présent dans l'URL, on le récupère
+      if (hasAnchor) {
+        const anchor = nextUrl.split('#')[1];
+        // On extrait juste l'URL sans l'ancre
+        const urlWithoutAnchor = nextUrl.split('#')[0];
+        
+        // Si on est déjà sur la même page (sans considérer l'ancre)
+        if (window.location.href.split('#')[0] === urlWithoutAnchor) {
+          // On navigue uniquement vers l'ancre
+          window.location.hash = '#' + anchor;
+          return;
+        }
+      }
+      
+      // Si on arrive ici, soit il n'y a pas d'ancre, soit c'est une page différente
+      // Ajout du paramètre forceview=1 pour s'assurer que la ressource est affichée correctement
+      let finalUrl = nextUrl;
+      if (finalUrl.includes('?')) {
+        finalUrl += '&forceview=1';
+      } else {
+        finalUrl += '?forceview=1';
+      }
+      
+      // Redirection vers la ressource suivante
+      window.location.href = finalUrl;
     },
     rate(score, event) {
       event.target.innerHTML = this.config.labels.rating.sent;
