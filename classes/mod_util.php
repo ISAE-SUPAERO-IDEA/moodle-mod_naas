@@ -66,9 +66,11 @@ class mod_util {
         $previousmod = null;
 
         foreach ($modinfo->cms as $mod) {
-            if ($mod->modname == 'label') {
-                continue;
-            }
+            // Ne pas exclure les labels (Zone texte et média) pour les inclure dans la navigation
+            // if ($mod->modname == 'label') {
+            //     continue;
+            // }
+            
             $format = course_get_format($COURSE);
             if (method_exists($format, 'get_last_section_number')) {
                 $numsections = $format->get_last_section_number();
