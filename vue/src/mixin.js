@@ -1,7 +1,7 @@
 // Global functions
 import handleAxiosError from "./http/axios-error-handler";
+import cache from "./cache-service";
 
-const cache = new WeakMap();
 import axios from "axios";
 const axiosClient = axios.create({ baseURL: NAAS.moodle_url });
 import NaasHttpError from "./http/NaasHttpError";
