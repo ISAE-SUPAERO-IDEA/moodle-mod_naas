@@ -79,23 +79,24 @@ switch ($action) {
     case 'search-nuggets':
         $courseid = required_param('courseId',  PARAM_INT);
         require_capability('mod/naas:addinstance', context_course::instance($courseid));
-        $pagesize = optional_param('page_size', 6, PARAM_INT);
-        $fulltext = optional_param('fulltext', '', PARAM_TEXT);
+        $searchoptionsjson = optional_param('searchOptions', '{}', PARAM_TEXT);
+        $searchoptions = json_decode($searchoptionsjson, true);
+
+        // Set default search options.
+        $searchoptions['is_default_version'] = true;
+        if (!isset($searchoptions['page_size'])) {
+            $searchoptions['page_size'] = 6;
+        }
 
         $path = '/nuggets/search';
-        $queryparams = [
-            'is_default_version' => true,
-            'page_size' => $pagesize,
-            'fulltext' => $fulltext,
-        ];
 
         // Add nql filter.
         $nql = $config->naas_filter;
         if ($nql) {
-            $queryparams['nql'] = urlencode($nql);
+            $searchoptions['nql'] = urlencode($nql);
         }
 
-        $url = $path . '?' . http_build_query($queryparams);
+        $url = $path . '?' . http_build_query($searchoptions);
         break;
 
     default:
