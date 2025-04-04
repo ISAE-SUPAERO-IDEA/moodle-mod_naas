@@ -181,7 +181,9 @@ export default {
       this.show_more_nugget_button = false;
       if (this.search_options) {
         this.loading++;
-        this.proxy("search-nuggets",  { ...this.search_options, courseId: this.config.courseId })
+
+        console.log(`*** search-nuggets by widget`)
+        this.proxy("search-nuggets",  { searchOptions: this.search_options, courseId: this.config.courseId })
           .then(async (payload) => {
             if (payload) {
               var nuggets = payload.items;
@@ -204,7 +206,8 @@ export default {
           });
       } else this.nuggets = this.default_nugget_list;
     },
-    searchQuery(params) {
+    searchQuery(params) { // TODO *** remove
+      console.log(`*** WARNING: call deprecated function`)
       if (params) {
         var params_str = new URLSearchParams(params).toString();
         return `/nuggets/search?${params_str}`;
@@ -212,6 +215,7 @@ export default {
       return null;
     },
     onFilters(filters) {
+      console.info(filters) // TODO ***
       this.filters = filters;
     },
     onInput: debounce(function () {
