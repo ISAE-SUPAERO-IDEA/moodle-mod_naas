@@ -96,7 +96,8 @@ switch ($action) {
             $searchoptions['nql'] = urlencode($nql);
         }
 
-        $url = $path . '?' . http_build_query($searchoptions);
+        $url = $path . '?' . http_build_query($searchoptions, '', '&');
+        $url = preg_replace('/\%5B\d+\%5D/', '', $url);
         break;
 
     default:
