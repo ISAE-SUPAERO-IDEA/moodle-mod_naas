@@ -32,7 +32,8 @@ $path  = required_param('path',  PARAM_RAW);
 $allowedlist = [
     '/^\/nuggets\/([\w]+-?)+\/default_version$/',
     '/^\/persons\/[\w]+\/?$/',
-    '/^\/vocabularies\/nugget_domains_vocabulary\/[\d]+\/?$/'];
+    '/^\/vocabularies\/nugget_domains_vocabulary\/[\d]+\/?$/',
+    '/^\/nuggets\/search/'];
 
 $match = false;
 foreach ($allowedlist as $pexp) {
@@ -42,7 +43,7 @@ foreach ($allowedlist as $pexp) {
     }
 }
 
-if (!$match) {
+if (!$match) {    
     if (!is_siteadmin()) {
         // Only managers and teachers can use the proxy.
         $roleid = $DB->get_field('role', 'id', ['shortname' => 'manager']);
@@ -52,7 +53,16 @@ if (!$match) {
             $roleid = $DB->get_field('role', 'id', ['shortname' => 'editingteacher']);
             $isteacher = $DB->record_exists('role_assignments', ['userid' => $USER->id, 'roleid' => $roleid]);
             if (!$isteacher) {
-                die;
+                // Return a proper error message
+                header('Content-Type: application/json');
+                echo json_encode([
+                    'success' => false,
+                    'error' => [
+                        'code' => 403,
+                        'message' => 'Access denied'
+                    ]
+                ]);
+                exit;
             }
         }
     }
@@ -62,7 +72,7 @@ $config = (object) array_merge((array) get_config('naas'), (array) $CFG);
 $naas = new \mod_naas\naas_client($config);
 
 // Add nql filter.
-$nql = $config->naas_filter;
+$nql = isset($config->naas_filter) ? $config->naas_filter : null;
 if ($nql) {
     $nql = urlencode($nql);
     if (strpos($path, "/nuggets/search") === 0) {
@@ -70,6 +80,5 @@ if ($nql) {
         $path = "$path$separator"."nql=$nql";
     }
 }
-
 $response = $naas->request_raw('GET', $path);
 echo $response->build_client_response();
