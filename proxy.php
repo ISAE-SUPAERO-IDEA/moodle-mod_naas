@@ -47,7 +47,7 @@ foreach ($allowedlist as $pexp) {
     }
 }
 
-if (!$match) {    
+if (!$match) {
     if (!is_siteadmin()) {
         // Only managers and teachers can use the proxy.
         $roleid = $DB->get_field('role', 'id', ['shortname' => 'manager']);
@@ -57,7 +57,7 @@ if (!$match) {
             $roleid = $DB->get_field('role', 'id', ['shortname' => 'editingteacher']);
             $isteacher = $DB->record_exists('role_assignments', ['userid' => $USER->id, 'roleid' => $roleid]);
             if (!$isteacher) {
-                // Return a proper error message
+                // Return a proper error message.
                 header('Content-Type: application/json');
                 echo json_encode([
                     'success' => false,

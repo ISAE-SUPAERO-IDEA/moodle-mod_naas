@@ -61,7 +61,7 @@ class naas_client {
      */
     public function request_raw($protocol, $service, $data = null, $params = null) {
         global $CFG, $DB;
-        
+
         $url = $this->config->naas_endpoint.$service;
         if ($params != null) {
             // Remove indices from query params.
@@ -115,29 +115,29 @@ class naas_client {
             $code = $info['http_code'];
         } else {
             $options['CURLOPT_CUSTOMREQUEST'] = $protocol;
-            
+
             if ($protocol == "PUT" || $protocol == "POST") {
                 $datajson = json_encode($data);
                 $headers[] = 'Content-Length:' . strlen($datajson);
                 $options['CURLOPT_HTTPHEADER'] = $headers;
                 $options['CURLOPT_POSTFIELDS'] = $datajson;
             }
-            
+
             $curl->setopt($options);
-            
+
             // Log before making the request.
             if ($this->debug) {
                 debugging("NAAS: About to make request.", DEBUG_DEVELOPER);
             }
-            
+
             // Make the request.
             $response = $curl->get($url);
-            
+
             // Log after making the request.
             if ($this->debug) {
                 debugging("NAAS: Request completed.", DEBUG_DEVELOPER);
             }
-            
+
             $info = $curl->get_info();
             $code = isset($info['http_code']) ? $info['http_code'] : 0;
         }
@@ -147,7 +147,7 @@ class naas_client {
             if ($this->debug) {
                 debugging("NAAS ERROR: " . $message . " (Code: " . $curl->get_errno() . ")", DEBUG_DEVELOPER);
             }
-            
+
             return new proxy_http_response(500, json_encode([
                 'success' => false,
                 'error' => [
@@ -156,7 +156,7 @@ class naas_client {
                 ],
             ]));
         }
-        
+
         if ($code != 200 && $this->debug) {
             $message = "Request failed: " . $protocol . " - " . $url . " (" . $code . ")";
             debugging("NAAS ERROR: " . $message, DEBUG_DEVELOPER);

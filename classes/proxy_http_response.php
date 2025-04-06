@@ -79,7 +79,6 @@ class proxy_http_response {
         if ($this->is_success()) {
             // Try to parse the body as JSON.
             $decoded = json_decode($this->body);
-            
             // If body is valid JSON and contains a payload property.
             if ($decoded && property_exists($decoded, 'payload')) {
                 return json_encode([
@@ -96,7 +95,6 @@ class proxy_http_response {
         } else {
             // Try to parse the body as JSON first - it might already contain an error structure.
             $decoded = json_decode($this->body);
-            
             if ($decoded && property_exists($decoded, 'error')) {
                 // If we already have a structured error, pass it through.
                 return json_encode([
@@ -106,14 +104,12 @@ class proxy_http_response {
             } else {
                 // Create a generic error structure.
                 $message = $this->body;
-                
                 // If the body is too large or empty, provide a more helpful message.
                 if (strlen($message) > 1000) {
                     $message = "Server error (code: " . $this->statuscode . ")";
                 } else if (empty($message)) {
                     $message = "Empty response from server (code: " . $this->statuscode . ")";
                 }
-                
                 return json_encode([
                     "success" => false,
                     "error" => [
