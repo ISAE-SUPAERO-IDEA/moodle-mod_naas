@@ -69,32 +69,29 @@ class naas_client {
             $url .= "?".$query;
         }
 
-        // Log the request and config
+        // Log the request and config.
         if ($this->debug) {
-            error_log("NAAS: Connecting to " . $url);
-            error_log("NAAS: Configuration dump: " . print_r($this->config, true));
+            debugging("NAAS: Connecting to " . $url, DEBUG_DEVELOPER);
+            debugging("NAAS: Configuration: " . var_export($this->config, true), DEBUG_DEVELOPER);
         }
-        
 
-        // Create curl with the correct Moodle class
+        // Create curl with the correct Moodle class.
         $curl = new \curl();
         $headers = [];
         $options = [
             'CURLOPT_RETURNTRANSFER' => true,
             'CURLOPT_USERPWD' => $this->config->naas_username . ":" . $this->config->naas_password,
-            'CURLOPT_CONNECTTIMEOUT' => 10, // Connection timeout
-            // Explicitly disable proxy usage for all connections
+            'CURLOPT_CONNECTTIMEOUT' => 10, // Connection timeout.
+            // Explicitly disable proxy usage for all connections.
             'CURLOPT_PROXY' => '',
             'CURLOPT_HTTPPROXYTUNNEL' => false,
-            'CURLOPT_SSL_VERIFYPEER' => false
+            'CURLOPT_SSL_VERIFYPEER' => false,
         ];
-
-        // Proxy settings are now completely ignored since we're explicitly disabling the proxy
 
         if (property_exists($this->config, "naas_timeout")) {
             $options['CURLOPT_TIMEOUT'] = $this->config->naas_timeout;
         } else {
-            // Set a default timeout of 30 seconds if not configured
+            // Set a default timeout of 30 seconds if not configured.
             $options['CURLOPT_TIMEOUT'] = 30;
         }
 
@@ -128,17 +125,17 @@ class naas_client {
             
             $curl->setopt($options);
             
-            // Log before making the request
+            // Log before making the request.
             if ($this->debug) {
-                error_log("NAAS: About to make request");
+                debugging("NAAS: About to make request.", DEBUG_DEVELOPER);
             }
             
-            // Make the request
+            // Make the request.
             $response = $curl->get($url);
             
-            // Log after making the request
+            // Log after making the request.
             if ($this->debug) {
-                error_log("NAAS: Request completed");
+                debugging("NAAS: Request completed.", DEBUG_DEVELOPER);
             }
             
             $info = $curl->get_info();
@@ -148,23 +145,23 @@ class naas_client {
         if ($curl->get_errno()) {
             $message = 'Curl error: ' . $curl->error;
             if ($this->debug) {
-                error_log("NAAS ERROR: " . $message . " (Code: " . $curl->get_errno() . ")");
+                debugging("NAAS ERROR: " . $message . " (Code: " . $curl->get_errno() . ")", DEBUG_DEVELOPER);
             }
             
             return new proxy_http_response(500, json_encode([
                 'success' => false,
                 'error' => [
                     'code' => $curl->get_errno(),
-                    'message' => $curl->error
-                ]
+                    'message' => $curl->error,
+                ],
             ]));
         }
         
         if ($code != 200 && $this->debug) {
             $message = "Request failed: " . $protocol . " - " . $url . " (" . $code . ")";
-            error_log("NAAS ERROR: " . $message);
+            debugging("NAAS ERROR: " . $message, DEBUG_DEVELOPER);
             if ($response) {
-                error_log("NAAS ERROR RESPONSE: " . $response);
+                debugging("NAAS ERROR RESPONSE: " . $response, DEBUG_DEVELOPER);
             }
         }
 
@@ -194,21 +191,21 @@ class naas_client {
         if ($res != null) {
             if (property_exists($res, "payload") && ($res->payload != null || is_array($res->payload))) {
                 if ($this->debug) {
-                    error_log("NAAS: Received payload");
+                    debugging("NAAS: Received payload.", DEBUG_DEVELOPER);
                 }
                 return $res->payload;
             } else if (property_exists($res, "error")) {
                 if ($this->debug) {
-                    error_log("NAAS ERROR: " . json_encode($res->error));
+                    debugging("NAAS ERROR: " . json_encode($res->error), DEBUG_DEVELOPER);
                 }
             } else {
                 if ($this->debug) {
-                    error_log("NAAS: Unexpected response");
+                    debugging("NAAS: Unexpected response.", DEBUG_DEVELOPER);
                 }
             }
         } else {
             if ($this->debug) {
-                error_log("NAAS: NULL response");
+                debugging("NAAS: NULL response.", DEBUG_DEVELOPER);
             }
         }
         return $res;
