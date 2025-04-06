@@ -36,7 +36,8 @@ $allowedlist = [
     '/^\/nuggets\/([\w]+-?)+\/default_version$/',
     '/^\/persons\/[\w]+\/?$/',
     '/^\/vocabularies\/nugget_domains_vocabulary\/[\d]+\/?$/',
-    '/^\/nuggets\/search/'];
+    '/^\/nuggets\/search/',
+];
 
 $match = false;
 foreach ($allowedlist as $pexp) {
@@ -62,8 +63,8 @@ if (!$match) {
                     'success' => false,
                     'error' => [
                         'code' => 403,
-                        'message' => 'Access denied'
-                    ]
+                        'message' => 'Access denied',
+                    ],
                 ]);
                 exit;
             }

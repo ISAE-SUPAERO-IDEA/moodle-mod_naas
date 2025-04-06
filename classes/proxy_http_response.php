@@ -77,37 +77,37 @@ class proxy_http_response {
      */
     public function build_client_response() {
         if ($this->is_success()) {
-            // Try to parse the body as JSON
+            // Try to parse the body as JSON.
             $decoded = json_decode($this->body);
             
-            // If body is valid JSON and contains a payload property
+            // If body is valid JSON and contains a payload property.
             if ($decoded && property_exists($decoded, 'payload')) {
                 return json_encode([
                     "success" => true,
                     "payload" => $decoded->payload,
                 ]);
             } else {
-                // Handle success but invalid JSON or missing payload
+                // Handle success but invalid JSON or missing payload.
                 return json_encode([
                     "success" => true,
                     "payload" => $this->body,
                 ]);
             }
         } else {
-            // Try to parse the body as JSON first - it might already contain an error structure
+            // Try to parse the body as JSON first - it might already contain an error structure.
             $decoded = json_decode($this->body);
             
             if ($decoded && property_exists($decoded, 'error')) {
-                // If we already have a structured error, pass it through
+                // If we already have a structured error, pass it through.
                 return json_encode([
                     "success" => false,
-                    "error" => $decoded->error
+                    "error" => $decoded->error,
                 ]);
             } else {
-                // Create a generic error structure
+                // Create a generic error structure.
                 $message = $this->body;
                 
-                // If the body is too large or empty, provide a more helpful message
+                // If the body is too large or empty, provide a more helpful message.
                 if (strlen($message) > 1000) {
                     $message = "Server error (code: " . $this->statuscode . ")";
                 } else if (empty($message)) {
