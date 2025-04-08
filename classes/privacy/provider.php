@@ -105,6 +105,19 @@ class provider implements \core_privacy\local\metadata\provider,
         );
 
         $collection->add_external_location_link(
+            'naas_api',
+            [
+                'username' => 'privacy:metadata:naas_api:username',
+                'structure_id' => 'privacy:metadata:naas_api:structure_id',
+                'nugget_id' => 'privacy:metadata:naas_api:nugget_id',
+                'version_id' => 'privacy:metadata:naas_api:version_id',
+                'user_data' => 'privacy:metadata:naas_api:user_data',
+                'resource_link_id' => 'privacy:metadata:naas_api:resource_link_id',
+            ],
+            'privacy:metadata:naas_api'
+        );
+
+        $collection->add_external_location_link(
             'naas_xapi',
             [
                 'name' => 'privacy:metadata:naas_xapi:name',

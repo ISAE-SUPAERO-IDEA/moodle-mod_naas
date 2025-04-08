@@ -44,8 +44,23 @@ $naas = new \mod_naas\naas_client($config);
 
 // Get user info from Moodle.
 $user = new stdClass();
-$user->name = $USER->firstname.' '.$USER->lastname;
-$user->email = $USER->email;
+
+// Check privacy settings to determine if we should send user's real information
+$sendusername = get_config('naas', 'naas_privacy_learner_name');
+$senduseremail = get_config('naas', 'naas_privacy_learner_mail');
+
+// Set user information based on privacy settings
+if ($sendusername) {
+    $user->name = $USER->firstname.' '.$USER->lastname;
+} else {
+    $user->name = 'anonymous_user_' . substr(md5($USER->id), 0, 8);
+}
+
+if ($senduseremail) {
+    $user->email = $USER->email;
+} else {
+    $user->email = 'anonymous@example.com';
+}
 
 // Request post data.
 $data = new stdClass();
