@@ -47,7 +47,7 @@ class mod_util {
         require_once($CFG->libdir . '/modinfolib.php');
 
         $cmid = $PAGE->cm->id;
-        $modinfo = get_fast_modinfo($COURSE);
+        $modinfo = \get_fast_modinfo($COURSE);
         $context = \context_course::instance($COURSE->id);
         $sections = $DB->get_records('course_sections', ['course' => $COURSE->id], 'section', 'section,visible,summary');
 
@@ -66,14 +66,11 @@ class mod_util {
         $previousmod = null;
 
         foreach ($modinfo->cms as $mod) {
-            if ($mod->modname == 'label') {
-                continue;
-            }
-            $format = course_get_format($COURSE);
+            $format = \course_get_format($COURSE);
             if (method_exists($format, 'get_last_section_number')) {
                 $numsections = $format->get_last_section_number();
             } else {
-                $opts = course_get_format($COURSE)->get_format_options();
+                $opts = \course_get_format($COURSE)->get_format_options();
                 $numsections = isset($opts['numsections']) ? $opts['numsections'] : 0;
             }
             if ($numsections && $mod->sectionnum > $numsections) {
@@ -85,7 +82,7 @@ class mod_util {
             if ($mod->sectionnum > 0 && $sectionnum != $mod->sectionnum) {
                 $thissection = $sections[$mod->sectionnum];
                 if ($thissection->visible ||
-                    has_capability('moodle/course:viewhiddensections', $context)
+                    \has_capability('moodle/course:viewhiddensections', $context)
                 ) {
                     $sectionnum = $mod->sectionnum;
                     $firstthissection = false;
@@ -103,7 +100,7 @@ class mod_util {
             }
             $thismod = (object)[
                 'link' => new \moodle_url('/mod/'.$mod->modname.'/view.php', ['id' => $mod->id]),
-                'name' => strip_tags(format_string($mod->name, true)),
+                'name' => \format_string($mod->name, true),
             ];
             if ($flag) { // Current mod is the 'next' mod.
                 $next = $thismod;

@@ -76,9 +76,12 @@
             <a :href="backLink" class="btn btn-sm btn-primary"
               >◀︎ {{ config.labels.back_to_course }}</a
             >
-            <a v-if="nextUnitLink" :href="nextUnitLink" class="ml-2 btn btn-sm btn-primary"
-              >{{ config.labels.next_unit }} ▶︎</a
-            >
+            <a 
+              v-if="nextUnitLink" 
+              @click.prevent="goToNextResource" 
+              :href="nextUnitLink" 
+              class="ml-2 btn btn-sm btn-primary"
+            >{{ config.labels.next_unit }} ▶︎</a>
           </div>
         </div>
       </div>
@@ -86,7 +89,7 @@
   </div>
 </template>
 <script>
-// Maximum and minimum score
+// Maximum and minimum score.
 const MinScore = 1;
 const MaxScore = 5;
 
@@ -103,7 +106,7 @@ export default {
     };
   },
   mounted() {
-    // We steal the 'back to course' and 'next actvity' links from other elements of the DOM
+    // On récupère les liens 'back to course' et 'next activity' depuis d'autres éléments du DOM.
     this.backLink = document.querySelector(".course-button a").href;
 
     if (document.querySelector(".next-activity a, #next-activity-link")) {
@@ -116,6 +119,49 @@ export default {
     closeModal() {
       this.$emit("close");
     },
+    goToNextResource() {
+      // On ferme d'abord le modal.
+      this.closeModal();
+      
+      // Récupération de l'URL de la ressource suivante.
+      const nextUrl = this.nextUnitLink;
+      
+      // Extraction de l'identifiant de l'activité suivante.
+      let anchorId = '';
+      
+      // Essayons d'extraire l'ID du module de l'URL.
+      const idMatch = nextUrl.match(/id=(\d+)/);
+      if (idMatch && idMatch[1]) {
+        anchorId = 'module-' + idMatch[1];
+      } else {
+        // Si nous ne pouvons pas extraire l'ID, essayons de voir s'il y a une ancre.
+        const hashMatch = nextUrl.match(/#([^&]*)/);
+        if (hashMatch && hashMatch[1]) {
+          anchorId = hashMatch[1];
+        }
+      }
+      
+      // Fermer le Nugget (cela devrait nous ramener à la page du cours).
+      // Si on a trouvé une ancre, naviguer vers elle.
+      if (anchorId) {
+        // Petit délai pour s'assurer que le Nugget est bien fermé.
+        setTimeout(() => {
+          // Obtenir l'élément par ID.
+          const targetElement = document.getElementById(anchorId);
+          
+          if (targetElement) {
+            // Faire défiler jusqu'à l'élément.
+            targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          } else {
+            // Si l'élément n'existe pas, essayer de naviguer vers l'ancre via l'URL.
+            window.location.hash = '#' + anchorId;
+          }
+        }, 100);
+      } else {
+        // Si nous ne pouvons pas trouver d'ancre, revenir à la page du cours.
+        window.location.href = this.backLink;
+      }
+    },
     rate(score, event) {
       event.target.innerHTML = this.config.labels.rating.sent;
       let body = {
@@ -124,7 +170,7 @@ export default {
         min: MinScore,
         max: MaxScore,
       };
-      // Sends 'rated' xAPI statement
+      // Sends 'rated' xAPI statement.
       this.xapi({
         id: this.config.cm_id,
         verb: "rated",
