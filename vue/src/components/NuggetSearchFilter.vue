@@ -88,7 +88,7 @@ import RelatedDomain from "./RelatedDomain";
 
 import utils from "@/utils";
 // Useful for aggregation display order
-var aggregations_definitions = [
+let aggregations_definitions = [
   {
     name: "related_domains",
     bucket_key_to_ui(bucket_key, component) {
@@ -125,8 +125,8 @@ var aggregations_definitions = [
   },
 ];
 // Setting default values for simple aggregations
-for (var i in aggregations_definitions) {
-  var def = aggregations_definitions[i];
+for (let i in aggregations_definitions) {
+  let def = aggregations_definitions[i];
   if (typeof def === "string" || def instanceof String) def = { name: def };
   def.aggregation_key = def.aggregation_key || def.name;
   def.bucket_key_filter = def.bucket_key_filter || ((bucket_key) => bucket_key);
@@ -155,11 +155,12 @@ export default {
     };
   },
   watch: {
-    query() {
-      console.log(`*** query:`)
-      console.info(this.query)
-      this.load();
-    },
+    query: {
+      handler() {
+        this.load();
+      },
+      deep: true
+    }
   },
   mounted() {
     this.load();
@@ -170,7 +171,6 @@ export default {
     },
     async load() {
       if (this.query) {
-        console.log(`*** search-nuggets by filters`)
         this.proxy("search-nuggets",  { searchOptions: this.query, courseId: this.config.courseId })
             .then(async (payload) => {
           if (payload) this.loading = true;
@@ -187,17 +187,17 @@ export default {
     // Updates aggregation data from response
     async handle_aggregations(network_aggregations) {
       if (network_aggregations) {
-        var aggregations = Object.assign({});
-        let aggregations_to_sort = new Array();
-        var j = 1;
+        let aggregations = Object.assign({});
+        let aggregations_to_sort = [];
+        let j = 1;
         let related_domains_list = Object.assign({});
-        for (var i in aggregations_definitions) {
+        for (let i in aggregations_definitions) {
           // going through expected aggregations
-          var aggregation_definition = aggregations_definitions[i];
-          var aggregation_key = aggregation_definition.aggregation_key;
-          var name = aggregation_definition.name;
+          let aggregation_definition = aggregations_definitions[i];
+          let aggregation_key = aggregation_definition.aggregation_key;
+          let name = aggregation_definition.name;
           if (network_aggregations[aggregation_key]) {
-            var state_buckets = network_aggregations[aggregation_key].buckets;
+            let state_buckets = network_aggregations[aggregation_key].buckets;
             // add bucket only if it has content
             if (state_buckets.length > 0) {
               let old_aggregation = this.aggregations[name];
@@ -211,10 +211,10 @@ export default {
               };
               aggregations[name].id = j;
               j = j + 1;
-              let aggregation_array = new Array();
+              let aggregation_array = [];
               // Convert all buckets into data structures adapted to the UI
-              for (var item_key in state_buckets) {
-                var state_bucket = state_buckets[item_key];
+              for (let item_key in state_buckets) {
+                let state_bucket = state_buckets[item_key];
                 if (
                   aggregation_definition.bucket_key_filter(
                     state_bucket.key,
@@ -255,7 +255,7 @@ export default {
         }
 
         // Sort the aggregations alphabetically
-        for (var aggregation_title in aggregations_to_sort) {
+        for (let aggregation_title in aggregations_to_sort) {
           let sorted_aggregation = aggregations_to_sort[aggregation_title].sort(
             (a, b) => {
               if (a.caption < b.caption) return -1;
@@ -263,7 +263,7 @@ export default {
               return 0;
             }
           );
-          for (var index in sorted_aggregation)
+          for (let index in sorted_aggregation)
             aggregations[aggregation_title].buckets[
               sorted_aggregation[index].key
             ] = sorted_aggregation[index];
@@ -332,7 +332,7 @@ export default {
       /*
       // Unselect all other bucket of this aggregation
       if (this.aggregations[aggregation_key]) {
-        for (var other_bucket_key in this.aggregations[aggregation_key]
+        for (let other_bucket_key in this.aggregations[aggregation_key]
           .buckets) {
           if (bucket_key != other_bucket_key) {
             // this.set_facet_selected(aggregation_key, other_bucket_key, false);
@@ -344,10 +344,10 @@ export default {
     },
     // Synchronize navigation with UI selection
     get_extra_params() {
-      var query = {};
-      for (var aggregation_key in this.aggregations) {
-        for (var item_key in this.aggregations[aggregation_key].buckets) {
-          var item = this.aggregations[aggregation_key].buckets[item_key];
+      let query = {};
+      for (let aggregation_key in this.aggregations) {
+        for (let item_key in this.aggregations[aggregation_key].buckets) {
+          let item = this.aggregations[aggregation_key].buckets[item_key];
           if (item.selected) {
             query[aggregation_key] = query[aggregation_key] || [];
             query[aggregation_key].push(item.key);
@@ -357,9 +357,9 @@ export default {
       return query;
     },
     bucket_class(bucket) {
-      var mode = bucket.selected ? "primary" : "default";
-      var key = `badge-${mode}`;
-      var clazz = {};
+      let mode = bucket.selected ? "primary" : "default";
+      let key = `badge-${mode}`;
+      let clazz = {};
       clazz[key] = true;
       return clazz;
     },
@@ -378,8 +378,8 @@ export default {
       collapseChildren(rootRelatedDomains);
 
       // Unselect all buckets in all aggregations
-      for (var aggregation_key in this.aggregations) {
-        for (var bucket_key in this.aggregations[aggregation_key].buckets) {
+      for (let aggregation_key in this.aggregations) {
+        for (let bucket_key in this.aggregations[aggregation_key].buckets) {
           this.set_facet_selected(aggregation_key, bucket_key, false);
         }
       }
@@ -390,17 +390,13 @@ export default {
       this.aggregations = Object.assign({}, this.aggregations);
     },
     has_more(aggregation) {
-      if (Object.keys(aggregation["buckets"]).length > 5) {
-        return true;
-      } else {
-        return false;
-      }
+      return Object.keys(aggregation["buckets"]).length > 5;
     },
     show_more_bucket() {
-      var hide_button = document.getElementsByClassName("hide-authors");
-      var is_visible = hide_button[0].style.display == "inline";
+      let hide_button = document.getElementsByClassName("hide-authors");
+      let is_visible = hide_button[0].style.display === "inline";
 
-      for (var i = 0; i < hide_button.length; i++) {
+      for (let i = 0; i < hide_button.length; i++) {
         if (is_visible) {
           hide_button[i].style.display = "none";
           document.getElementById("show-more-authors").innerHTML =
@@ -415,14 +411,14 @@ export default {
   },
   computed: {
     has_aggregations() {
-      for (var key in this.aggregations) {
+      for (let key in this.aggregations) {
         if (this.aggregations[key].buckets) return true;
       }
       return false;
     },
     has_filters() {
-      for (var aggregation_key in this.aggregations) {
-        for (var bucket_key in this.aggregations[aggregation_key].buckets) {
+      for (let aggregation_key in this.aggregations) {
+        for (let bucket_key in this.aggregations[aggregation_key].buckets) {
           if (this.aggregations[aggregation_key].buckets[bucket_key].selected)
             return true;
         }
