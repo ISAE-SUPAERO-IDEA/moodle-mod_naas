@@ -51,7 +51,7 @@ class proxy_http_response {
      * Get the status code of the response.
      * @return int
      */
-    public function get_code(): int {
+    public function get_status_code(): int {
         return $this->statuscode;
     }
 
@@ -86,35 +86,11 @@ class proxy_http_response {
                     "payload" => $decoded->payload,
                 ]);
             } else {
-                // Handle success but invalid JSON or missing payload.
-                return json_encode([
-                    "success" => true,
-                    "payload" => $this->body,
-                ]);
-            }
-        } else {
-            // Try to parse the body as JSON first - it might already contain an error structure.
-            $decoded = json_decode($this->body);
-            if ($decoded && property_exists($decoded, 'error')) {
-                // If we already have a structured error, pass it through.
-                return json_encode([
-                    "success" => false,
-                    "error" => $decoded->error,
-                ]);
-            } else {
-                // Create a generic error structure.
-                $message = $this->body;
-                // If the body is too large or empty, provide a more helpful message.
-                if (strlen($message) > 1000) {
-                    $message = "Server error (code: " . $this->statuscode . ")";
-                } else if (empty($message)) {
-                    $message = "Empty response from server (code: " . $this->statuscode . ")";
-                }
                 return json_encode([
                     "success" => false,
                     "error" => [
                         "code" => $this->statuscode,
-                        "message" => $message,
+                        "message" => $this->body,
                     ],
                 ]);
             }

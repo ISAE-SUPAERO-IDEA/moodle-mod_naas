@@ -60,7 +60,7 @@ class naas_client {
      * @return proxy_http_response
      */
     public function request_raw($protocol, $service, $data = null, $params = null) {
-        global $CFG, $DB;
+        global $CFG;
 
         $url = $this->config->naas_endpoint.$service;
         if ($params != null) {

@@ -36,7 +36,6 @@ $allowedlist = [
     '/^\/nuggets\/([\w]+-?)+\/default_version$/',
     '/^\/persons\/[\w]+\/?$/',
     '/^\/vocabularies\/nugget_domains_vocabulary\/[\d]+\/?$/',
-    '/^\/nuggets\/search/',
 ];
 
 $match = false;
