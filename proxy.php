@@ -26,56 +26,11 @@
 require_once('../../config.php');
 require_login(null, false);
 
-<<<<<<< HEAD
 $action = required_param('action',  PARAM_TEXT);
-=======
-$path  = required_param('path',  PARAM_RAW);
-
-// We allow requests to these specific URIs.
-$allowedlist = [
-    '/^\/nuggets\/([\w]+-?)+\/default_version$/',
-    '/^\/persons\/[\w]+\/?$/',
-    '/^\/vocabularies\/nugget_domains_vocabulary\/[\d]+\/?$/',
-];
-
-$match = false;
-foreach ($allowedlist as $pexp) {
-    if (preg_match($pexp, $path) == 1 ) {
-        $match = true;
-        break;
-    }
-}
-
-if (!$match) {
-    if (!is_siteadmin()) {
-        // Only managers and teachers can use the proxy.
-        $roleid = $DB->get_field('role', 'id', ['shortname' => 'manager']);
-        $ismanager = $DB->record_exists('role_assignments', ['userid' => $USER->id, 'roleid' => $roleid]);
-
-        if (!$ismanager) {
-            $roleid = $DB->get_field('role', 'id', ['shortname' => 'editingteacher']);
-            $isteacher = $DB->record_exists('role_assignments', ['userid' => $USER->id, 'roleid' => $roleid]);
-            if (!$isteacher) {
-                // Return a proper error message.
-                header('Content-Type: application/json');
-                echo json_encode([
-                    'success' => false,
-                    'error' => [
-                        'code' => 403,
-                        'message' => 'Access denied',
-                    ],
-                ]);
-                exit;
-            }
-        }
-    }
-}
->>>>>>> c448e69 (changing curl to internal Moodle one)
 
 $config = (object) array_merge((array) get_config('naas'), (array) $CFG);
 $naas = new \mod_naas\naas_client($config);
 
-<<<<<<< HEAD
 switch ($action) {
     case 'test-config':
         require_capability('mod/naas:admin', context_system::instance());
@@ -151,17 +106,5 @@ switch ($action) {
 }
 
 $response = $naas->request_raw('GET', $url);
-=======
-// Add nql filter.
-$nql = isset($config->naas_filter) ? $config->naas_filter : null;
-if ($nql) {
-    $nql = urlencode($nql);
-    if (strpos($path, "/nuggets/search") === 0) {
-        $separator = strpos($path, "?") >= 0 ? "&" : "?";
-        $path = "$path$separator"."nql=$nql";
-    }
-}
-$response = $naas->request_raw('GET', $path);
->>>>>>> c448e69 (changing curl to internal Moodle one)
 echo $response->build_client_response();
 
