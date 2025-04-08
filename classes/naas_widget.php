@@ -34,17 +34,19 @@ class naas_widget {
     /**
      * Render this NaaS widget as HTML
      * @param int $nuggetid
+     * @param int $courseid
      * @param int $cmid
      * @param string $component
      * @return string
      */
-    public static function naas_widget_html($nuggetid, $cmid, $component): string {
+    public static function naas_widget_html($nuggetid, $courseid, $cmid, $component): string {
         global $CFG;
         $widgetconfig = json_encode([
             "moodle_url" => $CFG->wwwroot,
             "mount_point" => "#naas_widget",
             "component" => $component,
             "nugget_id" => $nuggetid,
+            "courseId" => $courseid,
             "cm_id" => $cmid, // Course module ID.
             "labels" => [
                 "nugget_search_here" => get_string('nugget_search_here', 'naas'),

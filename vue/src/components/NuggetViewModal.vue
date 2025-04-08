@@ -59,7 +59,7 @@
 <script>
 export default {
   name: "NuggetViewModal",
-  props: ["nugget", "visible"],
+  props: ["nugget", "visible", "courseId"],
   data() {
     return {
       NuggetView: "",
@@ -78,7 +78,7 @@ export default {
   methods: {
     initialize() {
       if (!this.initialized) {
-        this.proxy(`/versions/${this.nugget.version_id}/preview_url`).then(
+        this.proxy("get-nugget-preview", { versionId: this.nugget.version_id, courseId: this.courseId}).then(
           (payload) => {
             this.NuggetView = payload;
             this.initialized = true;

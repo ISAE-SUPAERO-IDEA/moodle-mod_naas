@@ -26,7 +26,7 @@ defined('MOODLE_INTERNAL') || die;
 
 $capabilities = [
 
-    // Ability to see that the Nugget exists, and the basic information.
+    // Ability to view a Nugget.
     'mod/naas:view' => [
         'captype' => 'read',
         'contextlevel' => CONTEXT_MODULE,
@@ -39,7 +39,6 @@ $capabilities = [
     // Ability to add a new Nugget to the course.
     'mod/naas:addinstance' => [
         'riskbitmask' => RISK_XSS,
-
         'captype' => 'write',
         'contextlevel' => CONTEXT_COURSE,
         'archetypes' => [
@@ -47,5 +46,16 @@ $capabilities = [
             'manager' => CAP_ALLOW,
         ],
         'clonepermissionsfrom' => 'moodle/course:manageactivities',
+    ],
+
+    // Ability to administrate the Nugget plugin.
+    'mod/naas:admin' => [
+        'riskbitmask' => RISK_XSS,
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes' => [
+            'manager' => CAP_ALLOW,
+        ],
+        'clonepermissionsfrom' => 'moodle/site:config',
     ],
 ];

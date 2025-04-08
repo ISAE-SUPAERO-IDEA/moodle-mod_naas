@@ -59,7 +59,7 @@
       <!-- Search filter -->
       <div class="col-md-3">
         <nugget-search-filter
-          :query="filter_query"
+          :query="filter_options"
           v-on:filters="onFilters"
         ></nugget-search-filter>
       </div>
@@ -167,7 +167,6 @@ export default {
       return Object.assign(
         {},
         {
-          is_default_version: true,
           page_size: this.default_page_size,
           fulltext: this.debounced_typed,
         }
@@ -175,12 +174,6 @@ export default {
     },
     search_options() {
       return Object.assign({}, this.filter_options, this.filters);
-    },
-    filter_query() {
-      return this.searchQuery(this.filter_options);
-    },
-    search_query() {
-      return this.searchQuery(this.search_options);
     },
   },
   methods: {
@@ -209,9 +202,10 @@ export default {
     },
     search() {
       this.show_more_nugget_button = false;
-      if (this.search_query) {
+      if (this.search_options) {
         this.loading++;
-        this.proxy(this.search_query)
+
+        this.proxy("search-nuggets",  { searchOptions: this.search_options, courseId: this.config.courseId })
           .then(async (payload) => {
             if (payload) {
               var nuggets = payload.items;
@@ -233,13 +227,6 @@ export default {
             this.loading--;
           });
       } else this.nuggets = this.default_nugget_list;
-    },
-    searchQuery(params) {
-      if (params) {
-        var params_str = new URLSearchParams(params).toString();
-        return `/nuggets/search?${params_str}`;
-      }
-      return null;
     },
     onFilters(filters) {
       this.filters = filters;
