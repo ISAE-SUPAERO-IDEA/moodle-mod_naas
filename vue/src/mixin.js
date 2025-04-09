@@ -139,6 +139,15 @@ export default {
         }
       );
     },
+    viewNugget(cmId) {
+      return this.proxy("view-nugget", { cmId }).then(
+          async (nugget) => {
+            let promises = this.make_nugget_promises(nugget);
+            await Promise.all(promises);
+            return nugget;
+          }
+      );
+    },
     getPerson(personKey) {
       return this.proxy("get-person", { personKey, courseId: this.config.courseId });
     },

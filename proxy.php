@@ -25,6 +25,7 @@
 
 require_once('../../config.php');
 require_login(null, false);
+global $DB, $CFG;
 
 $action = required_param('action',  PARAM_TEXT);
 
@@ -46,6 +47,16 @@ switch ($action) {
         require_capability('mod/naas:view', context_course::instance($courseid));
         $nuggetid = required_param('nuggetId', PARAM_TEXT);
         $url = "/nuggets/{$nuggetid}/default_version";
+        break;
+
+    case 'view-nugget':
+        $cmid = required_param('cmId',  PARAM_INT);
+        require_capability('mod/naas:view', context_module::instance($cmid));
+
+        $cm = get_coursemodule_from_id('naas', $cmid, 0, false, MUST_EXIST);
+        $naasinstance = $DB->get_record('naas', ['id' => $cm->instance], '*', MUST_EXIST);
+
+        $url = "/nuggets/{$naasinstance->nugget_id}/default_version";
         break;
 
     case 'get-nugget-preview':
