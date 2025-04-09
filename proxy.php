@@ -57,21 +57,21 @@ switch ($action) {
 
     case 'get-domain':
         $courseid = required_param('courseId',  PARAM_INT);
-        require_capability('mod/naas:addinstance', context_course::instance($courseid));
+        require_capability('mod/naas:view', context_course::instance($courseid));
         $domainkey = required_param('domainKey',  PARAM_TEXT);
         $url = "/vocabularies/nugget_domains_vocabulary/{$domainkey}";
         break;
 
     case 'get-structure':
         $courseid = required_param('courseId',  PARAM_INT);
-        require_capability('mod/naas:addinstance', context_course::instance($courseid));
+        require_capability('mod/naas:view', context_course::instance($courseid));
         $structurekey = required_param('structureKey',  PARAM_TEXT);
         $url = "/structures/{$structurekey}";
         break;
 
     case 'get-person':
         $courseid = required_param('courseId',  PARAM_INT);
-        require_capability('mod/naas:addinstance', context_course::instance($courseid));
+        require_capability('mod/naas:view', context_course::instance($courseid));
         $personkey = required_param('personKey',  PARAM_TEXT);
         $url = "/persons/{$personkey}";
         break;
