@@ -22,6 +22,7 @@
  * @package mod_naas
  */
 
+// phpcs:disable moodle.Files.RequireLogin.Missing
 require_once('../../config.php');
 require_once("$CFG->libdir/completionlib.php");
 require_once('classes/completion/custom_completion.php');
@@ -91,11 +92,10 @@ if ($grademethod == NAAS_GRADEHIGHEST) {
     grade_update('mod/naas', $course->id, 'mod', 'naas', $cm->instance, $itemnumber, $grade);
 } else { // Grade Method unknown.
     throw new moodle_exception(
-        'naas_unsupported_grademethod',
+        'error:unsupported_grade_method',
         'naas',
         '',
-        null,
-        'The grade method "'. $grademethod .'" is not supported.'
+        $grademethod
     );
 }
 
