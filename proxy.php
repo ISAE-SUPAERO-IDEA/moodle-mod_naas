@@ -44,7 +44,7 @@ switch ($action) {
 
     case 'get-nugget':
         $courseid = required_param('courseId',  PARAM_INT);
-        require_capability('mod/naas:view', context_course::instance($courseid));
+        require_capability('mod/naas:addinstance', context_course::instance($courseid));
         $nuggetid = required_param('nuggetId', PARAM_TEXT);
         $url = "/nuggets/{$nuggetid}/default_version";
         break;
