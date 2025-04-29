@@ -109,7 +109,7 @@ export default {
     this.aboutButton = !navAboutButton;
   },
   async mounted() {
-    this.nugget = await this.get_nugget_default_version(this.config.nugget_id);
+    this.nugget = await this.viewNugget(this.config.cm_id);
     this.language = this.nugget.language
 
     window.setTimeout(() => {

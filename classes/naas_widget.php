@@ -109,7 +109,7 @@ class naas_widget {
         ]);
         $html = "<div id='naas_widget'></div>";
         $html .= "<script>NAAS=$widgetconfig</script>";
-        $widgetjsurl = new \moodle_url('/mod/naas/assets/vue/naas_widget-2025040800.js');
+        $widgetjsurl = new \moodle_url('/mod/naas/assets/vue/naas_widget-2025042400.js');
         $html .= "<script src='$widgetjsurl' ></script>";
 
         return $html;
