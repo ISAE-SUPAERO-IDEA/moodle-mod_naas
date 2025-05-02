@@ -46,7 +46,47 @@ $functions = array(
         'ajax'        => true,
         'capabilities'=> 'mod/naas:view',
     ),
-    // TODO : Add the rest of the functions.
+    'mod_naas_get_nugget_preview' => array(
+        'classname'   => 'mod_naas\external\naas_api',
+        'methodname'  => 'get_nugget_preview',
+        'description' => 'Get preview URL for a nugget version',
+        'type'        => 'read',
+        'ajax'        => true,
+        'capabilities'=> 'mod/naas:addinstance',
+    ),
+    'mod_naas_get_domain' => array(
+        'classname'   => 'mod_naas\external\naas_api',
+        'methodname'  => 'get_domain',
+        'description' => 'Get domain information',
+        'type'        => 'read',
+        'ajax'        => true,
+        'capabilities'=> 'mod/naas:view',
+    ),
+    'mod_naas_get_structure' => array(
+        'classname'   => 'mod_naas\external\naas_api',
+        'methodname'  => 'get_structure',
+        'description' => 'Get structure information',
+        'type'        => 'read',
+        'ajax'        => true,
+        'capabilities'=> 'mod/naas:view',
+    ),
+    'mod_naas_get_person' => array(
+        'classname'   => 'mod_naas\external\naas_api',
+        'methodname'  => 'get_person',
+        'description' => 'Get person information',
+        'type'        => 'read',
+        'ajax'        => true,
+        'capabilities'=> 'mod/naas:view',
+    ),
+    'mod_naas_search_nuggets' => array(
+        'classname'   => 'mod_naas\external\naas_api',
+        'methodname'  => 'search_nuggets',
+        'description' => 'Search for nuggets',
+        'type'        => 'read',
+        'ajax'        => true,
+        'capabilities'=> 'mod/naas:addinstance',
+    ),
+
 );
 
 $services = array(

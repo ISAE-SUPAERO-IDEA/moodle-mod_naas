@@ -205,7 +205,7 @@ export default {
       if (this.search_options) {
         this.loading++;
 
-        this.proxy("search-nuggets",  { searchOptions: this.search_options, courseId: this.config.courseId })
+        this.proxy("mod_naas_search_nuggets",  { searchOptions: this.search_options, courseId: this.config.courseId })
           .then(async (payload) => {
             if (payload) {
               var nuggets = payload.items;

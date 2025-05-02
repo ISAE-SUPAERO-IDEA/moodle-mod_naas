@@ -22,6 +22,7 @@
 
 // Global functions
 import handleAxiosError from "./http/axios-error-handler";
+import moodleService from "./http/moodleService";
 import cache from "./cache-service";
 
 import axios from "axios";
@@ -67,18 +68,25 @@ export default {
         );
       }
       this.proxyError = null
-      return axiosClient
-        .get("/mod/naas/proxy.php", { params: { action, ...params } })
+
+      console.log(`*** action=${action}, params=${JSON.stringify(params)}`)
+      return moodleService.callWebservice(action, params)
+      // axiosClient
+        // .get("/mod/naas/proxy.php", { params: { action, ...params } })
         .then((response) => {
-          if(!response.data.success) {
-            throw new NaasHttpError(response.data.error.code, response.data.error.message)
+          console.info(response)
+
+          if(!response.success) {
+            throw new NaasHttpError(response.error.code, response.error.message)
           }
 
-          const payload = response.data.payload;
+          const payload = response.payload;
           cache.set( { action, params }, payload );
           return payload;
         })
           .catch((error) => {
+            console.info(error) // TODO ***
+
             handleAxiosError(error)
 
             if(error instanceof NaasHttpError) {
@@ -94,7 +102,7 @@ export default {
       let info = axiosClient
         .get("/mod/naas/xapi.php", { params })
         .then((response) => {
-          info = response.data.payload;
+          info = response.payload;
         });
       return info;
     },
@@ -131,7 +139,7 @@ export default {
       return promises;
     },
     get_nugget_default_version(nuggetId) {
-      return this.proxy("get-nugget", { nuggetId, courseId: this.config.courseId }).then(
+      return this.proxy("mod_naas_get_nugget", { nuggetId, courseId: this.config.courseId }).then(
         async (nugget) => {
           let promises = this.make_nugget_promises(nugget);
           await Promise.all(promises);
@@ -140,7 +148,7 @@ export default {
       );
     },
     viewNugget(cmId) {
-      return this.proxy("view-nugget", { cmId }).then(
+      return this.proxy("mod_naas_view_nugget", { cmId }).then(
           async (nugget) => {
             let promises = this.make_nugget_promises(nugget);
             await Promise.all(promises);
@@ -149,7 +157,7 @@ export default {
       );
     },
     getPerson(personKey) {
-      return this.proxy("get-person", { personKey, courseId: this.config.courseId });
+      return this.proxy("mod_naas_get_person", { personKey, courseId: this.config.courseId });
     },
     getPersonName(email) {
       return this.getPerson(email).then((author) => {
@@ -162,13 +170,13 @@ export default {
     },
     getDomain(key) {
       return this.proxy(
-          "get-domain", { domainKey: key, courseId: this.config.courseId });
+          "mod_naas_get_domain", { domainKey: key, courseId: this.config.courseId });
     },
     getDomainLabel(key) {
       return this.getDomain(key).then((entry) => (entry ? entry.label : key));
     },
     getStructure(key) {
-      return this.proxy("get-structure", { structureKey: key, courseId: this.config.courseId });
+      return this.proxy("mod_naas_get_structure", { structureKey: key, courseId: this.config.courseId });
     },
     getStructureAcronym(key) {
       return this.getStructure(key).then((structure) =>

@@ -40,7 +40,11 @@ class naas_widget {
      * @return string
      */
     public static function naas_widget_html($nuggetid, $courseid, $cmid, $component): string {
-        global $CFG;
+        global $CFG, $PAGE;
+
+        $PAGE->requires->js_call_amd('core/first', null, true);
+
+
         $widgetconfig = json_encode([
             "moodle_url" => $CFG->wwwroot,
             "mount_point" => "#naas_widget",
