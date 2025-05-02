@@ -56,7 +56,7 @@ class naas_client {
      * @param string $service
      * @param object $data
      * @param array $params
-     * @return proxy_http_response
+     * @return string the JSON response provided by the NaaS API
      */
     public function request_raw($protocol, $service, $data = null, $params = null) {
         $url = $this->config->naas_endpoint.$service;
@@ -129,32 +129,55 @@ class naas_client {
         $info = $curl->get_info();
         $code = $info['http_code'] ?? 0;
         $errno = $curl->get_errno();
+        $error = $curl->error;
 
-        if ($errno) {
-            $error = $curl->error;
+        if ($errno || $error) {
             $message = "Curl error: $error";
             if ($this->debug) {
                 debugging("NAAS ERROR: $message (Code: $errno)", DEBUG_DEVELOPER);
             }
 
-            return new proxy_http_response(500, json_encode([
-                'success' => false,
-                'error' => [
-                    'code' => $errno,
-                    'message' => $error,
-                ],
-            ]));
+            throw new \moodle_exception(
+                'error:proxy_naas_api:curl',
+                'naas',
+                '',
+                $error,
+                json_encode([
+                    "errno" => $errno,
+                    "error" => $error,
+                ])
+            );
         }
 
-        if ($code != 200 && $this->debug) {
-            $message = "Request failed: $protocol - $url ($code)";
-            debugging("NAAS ERROR: $message", DEBUG_DEVELOPER);
-            if ($response) {
-                debugging("NAAS ERROR RESPONSE: $response", DEBUG_DEVELOPER);
+        if ($code < 200 || $code > 299) {
+            switch ($code) {
+                case 400:
+                    $errormessage = "error:naas_api:bad_request";
+                    break;
+                case 401:
+                case 403:
+                    $errormessage = "error:naas_api:invalid_credentials";
+                    break;
+                case 404:
+                    $errormessage = "error:naas_api:invalid_endpoint";
+                    break;
+                default:
+                    $errormessage = "error:naas_api:unknown";
             }
+
+            throw new \moodle_exception(
+                $errormessage,
+                'naas',
+                '',
+                null,
+                json_encode([
+                    "code" => $code,
+                    "error" => $response,
+                ])
+            );
         }
 
-        return new proxy_http_response($code, $response);
+        return $response;
     }
 
     /**
@@ -167,7 +190,7 @@ class naas_client {
      */
     public function request($protocol, $service, $data = null, $params = null) {
         $response = $this->request_raw($protocol, $service, $data, $params);
-        $result = json_decode($response->get_body());
+        $result = json_decode($response);
         return $this->handle_result($result);
     }
 
