@@ -297,9 +297,23 @@ class naas_api extends  \external_api {
         return new \external_function_parameters(
             array(
                 'courseId' => new \external_value(PARAM_INT, 'Course ID'),
-                'searchOptions' => new \external_value(PARAM_RAW, 'Search options JSON', VALUE_DEFAULT, '{}')
+                'searchOptions' => new \external_single_structure(
+                    array(
+                        'fulltext' => new \external_value(PARAM_TEXT, 'Full text search', VALUE_OPTIONAL),
+                        'page_size' => new \external_value(PARAM_INT, 'Number of results per page', VALUE_OPTIONAL),
+                        'page' => new \external_value(PARAM_INT, 'Page number', VALUE_OPTIONAL),
+                        'domain' => new \external_value(PARAM_TEXT, 'Domain filter', VALUE_OPTIONAL),
+                        'structure' => new \external_value(PARAM_TEXT, 'Structure filter', VALUE_OPTIONAL),
+                        'language' => new \external_value(PARAM_TEXT, 'Language filter', VALUE_OPTIONAL)
+                        // Ajoutez ici tous les champs possibles de vos options de recherche
+                    ),
+                    'Search options',
+                    VALUE_DEFAULT,
+                    array()
+                )
             )
         );
+
     }
 
     public static function search_nuggets_returns() {
@@ -319,7 +333,7 @@ class naas_api extends  \external_api {
         $config = (object) array_merge((array) get_config('naas'), (array) $CFG);
         $naas = new \mod_naas\naas_client($config);
 
-        $searchoptionsarray = json_decode($params['searchOptions'], true);
+        $searchoptionsarray = $params['searchOptions'];
 
         // Set default search options
         $searchoptionsarray['is_default_version'] = true;
