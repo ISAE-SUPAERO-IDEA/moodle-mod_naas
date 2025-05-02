@@ -14,16 +14,29 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-// TODO Doc
-namespace mod_naas\external;
+/**
+ * Proxy requests from the user agent to the naas-api.
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright (C) 2019  ISAE-SUPAERO (https://www.isae-supaero.fr/)
+ * @package mod_naas/external
+ * @author John Tranier
+ * @author Bruno Ilponse
+ */namespace mod_naas\external;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->libdir . '/externallib.php');
 
 
-// TODO Doc
-class api extends  \external_api {
+/**
+ * Proxy requests from the user agent to the naas-api.
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright (C) 2019  ISAE-SUPAERO (https://www.isae-supaero.fr/)
+ * @package mod_naas/external
+ * @author John Tranier
+ * @author Bruno Ilponse
+ */
+class naas_api extends  \external_api {
 
     /**
      * Test config parameters description

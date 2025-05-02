@@ -23,7 +23,7 @@
 */
 $functions = array(
     'mod_naas_test_config' => array(
-        'classname'   => 'mod_naas\external\api',
+        'classname'   => 'mod_naas\external\naas_api',
         'methodname'  => 'test_config',
         'description' => 'Test the plugin configuration',
         'type'        => 'read',
@@ -31,7 +31,7 @@ $functions = array(
         'capabilities'=> 'mod/naas:admin',
     ),
     'mod_naas_get_nugget' => array(
-        'classname'   => 'mod_naas\external\api',
+        'classname'   => 'mod_naas\external\naas_api',
         'methodname'  => 'get_nugget',
         'description' => 'Get a specific nugget',
         'type'        => 'read',
@@ -39,7 +39,7 @@ $functions = array(
         'capabilities'=> 'mod/naas:addinstance',
     ),
     'mod_naas_view_nugget' => array(
-        'classname'   => 'mod_naas\external\api',
+        'classname'   => 'mod_naas\external\naas_api',
         'methodname'  => 'view_nugget',
         'description' => 'View a specific nugget',
         'type'        => 'read',
