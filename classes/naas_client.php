@@ -72,7 +72,7 @@ class naas_client {
             debugging("NAAS: Configuration: " . var_export($this->config, true), DEBUG_DEVELOPER);
         }
 
-        $curl = new \curl(array('proxy' => true));
+        $curl = new \curl(['proxy' => true]);
         $headers = [];
         $options = [
             'CURLOPT_RETURNTRANSFER' => true,
