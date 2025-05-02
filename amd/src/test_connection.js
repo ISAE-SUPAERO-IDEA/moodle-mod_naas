@@ -29,68 +29,58 @@ define('mod_naas/test_connection', ['jquery', 'core/ajax', 'core/str'], function
                 resultDiv.hide().removeClass();
 
                 // Pre-fetch strings we'll need
-                // *** const successStringPromise = Str.get_string('connection_test_success', 'naas');
-                // *** const failedStringPromise = Str.get_string('connection_test_failed', 'naas');
+                const successStringPromise = Str.get_string('connection_test_success', 'naas');
+                const failedStringPromise = Str.get_string('connection_test_failed', 'naas');
 
                 ajax.call([{
                     methodname: 'mod_naas_test_config',
                     args: {},
-                }])[0].done(function(config) {
-                    console.info(config);
-                }).fail(function(err) {
-                    console.info(err);
-                });
+                }])[0].done(function(response) {
+                    const parsedResponse = JSON.parse(response);
+                    if (parsedResponse.success) {
+                        successStringPromise.done(function(successString) {
+                            resultDiv.addClass("alert alert-success").text(successString);
+                            resultDiv.show();
+                        }).fail(function() {
+                            // Fallback if string loading fails
+                            resultDiv.addClass("alert alert-success").text('Success!');
+                            resultDiv.show();
+                        });
+                    } else {
+                        failedStringPromise.done(function(failedString) {
+                            const errorContainer = $('<div class="alert alert-danger"></div>');
+                            const paragraph = $('<p></p>').text(failedString);
+                            const codeBlock = $(
+                                '<code></code>').text(`${parsedResponse.error.code} - ${parsedResponse.error.message}`
+                            );
 
-            //     ajax.call({
-            //         url: M.cfg.wwwroot + '/mod/naas/proxy.php',
-            //         type: 'GET',
-            //         data: {
-            //             action: 'test-config'
-            //         },
-            //     })
-            //
-            //         success: function(response) {
-            //             const parsedResponse = JSON.parse(response);
-            //
-            //             if (parsedResponse.success) {
-            //                 successStringPromise.done(function(successString) {
-            //                     resultDiv.addClass("alert alert-success").text(successString);
-            //                     resultDiv.show();
-            //                 }).fail(function() {
-            //                     // Fallback if string loading fails
-            //                     resultDiv.addClass("alert alert-success").text('Success!');
-            //                     resultDiv.show();
-            //                 });
-            //             } else {
-            //                 failedStringPromise.done(function(failedString) {
-            //                     resultDiv.addClass("alert alert-danger").html(
-            //                         '<p>' + failedString + '</p><code>' + response + '</code>'
-            //                     );
-            //                     resultDiv.show();
-            //                 }).fail(function() {
-            //                     // Fallback if string loading fails
-            //                     resultDiv.addClass("alert alert-danger").html(
-            //                         '<p>Failed!</p><code>' + response + '</code>'
-            //                     );
-            //                     resultDiv.show();
-            //                 });
-            //             }
-            //         },
-            //         error: function(xhr, status, error) {
-            //             failedStringPromise.done(function(failedString) {
-            //                 resultDiv.addClass("alert alert-danger").html(
-            //                     `<p>${failedString}</p><p>${error}</p>`
-            //                 );
-            //                 resultDiv.show();
-            //             }).fail(function() {
-            //                 // Fallback if string loading fails
-            //                 resultDiv.addClass("alert alert-danger").html(
-            //                     `<p>Failed!</p><p>${error}</p>`
-            //                 );
-            //                 resultDiv.show();
-            //             });
-            //         }
-            //     });
+                            errorContainer.append(paragraph).append(codeBlock);
+                            resultDiv.empty().append(errorContainer);
+
+
+                            resultDiv.show();
+                        }).fail(function() {
+                            // Fallback if string loading fails
+                            resultDiv.addClass("alert alert-danger").html(
+                                '<p>Failed!</p><code>' + parsedResponse + '</code>'
+                            );
+                            resultDiv.show();
+                        });
+                    }
+                }).fail(function(error) {
+                    failedStringPromise.done(function(failedString) {
+                        resultDiv.addClass("alert alert-danger").html(
+                            `<p>${failedString}</p><p>${error}</p>`
+                        );
+                        resultDiv.show();
+                    }).fail(function() {
+                        // Fallback if string loading fails
+                        resultDiv.addClass("alert alert-danger").html(
+                            `<p>Failed!</p><p>${error}</p>`
+                        );
+                        resultDiv.show();
+                    });
+                });
              });
         }
     };
