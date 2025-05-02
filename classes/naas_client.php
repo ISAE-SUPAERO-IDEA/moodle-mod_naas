@@ -16,6 +16,10 @@
 
 namespace mod_naas;
 
+defined('MOODLE_INTERNAL') || die();
+
+require_once($CFG->libdir . '/filelib.php');
+
 /**
  * Enables interaction with a NaaS Server
  *
