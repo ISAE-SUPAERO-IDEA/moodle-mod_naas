@@ -16,6 +16,10 @@
 
 namespace mod_naas;
 
+defined('MOODLE_INTERNAL') || die();
+
+require_once($CFG->libdir . '/filelib.php');
+
 /**
  * Enables interaction with a NaaS Server
  *
@@ -27,7 +31,7 @@ class naas_client {
 
     /**
      * Config
-     * @var array
+     * @var object
      */
     protected $config;
 
@@ -61,51 +65,96 @@ class naas_client {
             $query = preg_replace('/\%5B\d+\%5D/', '', http_build_query($params));
             $url .= "?".$query;
         }
-        $ch = curl_init();
+
+        // Log the request and config.
+        if ($this->debug) {
+            debugging("NAAS: Connecting to " . $url, DEBUG_DEVELOPER);
+            debugging("NAAS: Configuration: " . var_export($this->config, true), DEBUG_DEVELOPER);
+        }
+
+        $curl = new \curl(['proxy' => true]);
         $headers = [];
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_USERPWD, $this->config->naas_username.":" . $this->config->naas_password);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        if (property_exists($this->config, "proxyhost") && !empty($this->config->proxyhost)) {
-            curl_setopt($ch, CURLOPT_PROXY, $this->config->proxyhost);
-            curl_setopt($ch, CURLOPT_NOPROXY, $this->config->proxybypass);
-            curl_setopt($ch, CURLOPT_PROXYPORT, $this->config->proxyport);
-        }
+        $options = [
+            'CURLOPT_RETURNTRANSFER' => true,
+            'CURLOPT_USERPWD' => $this->config->naas_username . ":" . $this->config->naas_password,
+            'CURLOPT_CONNECTTIMEOUT' => 10, // Connection timeout.
+            'CURLOPT_HTTPPROXYTUNNEL' => false,
+            'CURLOPT_SSL_VERIFYPEER' => false,
+        ];
+
         if (property_exists($this->config, "naas_timeout")) {
-            curl_setopt($ch, CURLOPT_TIMEOUT, $this->config->naas_timeout);
-        }
-        if (property_exists($this->config, "naas_impersonate")) {
-            $headers[] = "X-NaaS-Impersonate:" .$this->config->naas_impersonate;
-        }
-        if (property_exists($this->config, "wwwroot")) {
-            $headers[] = "X-Host:" .$this->config->wwwroot;
-        }
-        if ($protocol == "FILE") {
-            curl_setopt($ch, CURLOPT_POST, true);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+            $options['CURLOPT_TIMEOUT'] = $this->config->naas_timeout;
         } else {
-            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $protocol);
-            if ($protocol == "PUT" || $protocol == "POST") {
-                $datajson = json_encode($data);
-                $headers[] = 'Content-Length:' . strlen($datajson);
-                curl_setopt($ch, CURLOPT_POSTFIELDS, $datajson);
+            // Set a default timeout of 30 seconds if not configured.
+            $options['CURLOPT_TIMEOUT'] = 30;
+        }
+
+        if (property_exists($this->config, "naas_impersonate")) {
+            $headers[] = "X-NaaS-Impersonate:" . $this->config->naas_impersonate;
+        }
+
+        if (property_exists($this->config, "wwwroot")) {
+            $headers[] = "X-Host:" . $this->config->wwwroot;
+        }
+
+        // Set request method and data.
+        $options['CURLOPT_CUSTOMREQUEST'] = $protocol;
+
+        if ($protocol == "PUT" || $protocol == "POST") {
+            $datajson = json_encode($data);
+            $headers[] = 'Content-Length:' . strlen($datajson);
+            $options['CURLOPT_POSTFIELDS'] = $datajson;
+        }
+
+        // Set custom headers.
+        if (!empty($headers)) {
+            $options['CURLOPT_HTTPHEADER'] = $headers;
+        }
+
+        $curl->setopt($options);
+
+        // Log before making the request.
+        if ($this->debug) {
+            debugging("NAAS: About to make request.", DEBUG_DEVELOPER);
+        }
+
+        // Make the request.
+        $response = $curl->get($url);
+
+        // Log after making the request.
+        if ($this->debug) {
+            debugging("NAAS: Request completed.", DEBUG_DEVELOPER);
+        }
+
+        $info = $curl->get_info();
+        $code = $info['http_code'] ?? 0;
+        $errno = $curl->get_errno();
+
+        if ($errno) {
+            $error = $curl->error;
+            $message = "Curl error: $error";
+            if ($this->debug) {
+                debugging("NAAS ERROR: $message (Code: $errno)", DEBUG_DEVELOPER);
+            }
+
+            return new proxy_http_response(500, json_encode([
+                'success' => false,
+                'error' => [
+                    'code' => $errno,
+                    'message' => $error,
+                ],
+            ]));
+        }
+
+        if ($code != 200 && $this->debug) {
+            $message = "Request failed: $protocol - $url ($code)";
+            debugging("NAAS ERROR: $message", DEBUG_DEVELOPER);
+            if ($response) {
+                debugging("NAAS ERROR RESPONSE: $response", DEBUG_DEVELOPER);
             }
         }
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        $body = curl_exec($ch);
-        $code = curl_getinfo ( $ch, CURLINFO_RESPONSE_CODE );
-        if (curl_errno($ch) && $this->debug) {
-            $message = 'Curl error: ' . curl_error($ch);
-            debugging($message, DEBUG_DEVELOPER);
-        }
-        if ($code != 200 && $this->debug) {
-            $message = "Request failed: ".$protocol." - ".$url." (".$code.")";
-            debugging($message, DEBUG_NORMAL);
-            debugging($body, DEBUG_DEVELOPER);
-        }
-        curl_close($ch);
 
-        return new proxy_http_response($code, $body);
+        return new proxy_http_response($code, $response);
     }
 
     /**

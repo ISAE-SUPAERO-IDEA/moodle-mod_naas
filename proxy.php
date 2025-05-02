@@ -24,7 +24,7 @@
  */
 
 require_once('../../config.php');
-require_login(null, false);
+require_login(null, true);
 global $DB, $CFG;
 
 $action = required_param('action',  PARAM_TEXT);
