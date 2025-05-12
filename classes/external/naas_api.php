@@ -18,7 +18,7 @@
  * Proxy requests from the user agent to the naas-api.
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @copyright (C) 2019  ISAE-SUPAERO (https://www.isae-supaero.fr/)
- * @package mod_naas/external
+ * @package mod_naas
  * @author John Tranier
  * @author Bruno Ilponse
  */
@@ -59,7 +59,7 @@ class naas_api extends  \external_api {
     public static function test_config() {
         global $CFG;
 
-        // Context validation
+        // Context validation.
         $context = \context_system::instance();
         self::validate_context($context);
         require_capability('mod/naas:admin', $context);
@@ -81,10 +81,10 @@ class naas_api extends  \external_api {
      */
     public static function get_nugget_parameters() {
         return new \external_function_parameters(
-            array(
+            [
                 'courseId' => new external_value(PARAM_INT, 'Course ID'),
-                'nuggetId' => new external_value(PARAM_TEXT, 'Nugget ID')
-            )
+                'nuggetId' => new external_value(PARAM_TEXT, 'Nugget ID'),
+            ]
         );
     }
 
@@ -101,8 +101,10 @@ class naas_api extends  \external_api {
     public static function get_nugget($courseid, $nuggetid) {
         global $CFG;
 
-        $params = self::validate_parameters(self::get_nugget_parameters(),
-            array('courseId' => $courseid, 'nuggetId' => $nuggetid));
+        $params = self::validate_parameters(
+            self::get_nugget_parameters(),
+            ['courseId' => $courseid, 'nuggetId' => $nuggetid]
+        );
 
         // Context validation
         $context = context_course::instance($params['courseId']);
@@ -122,9 +124,9 @@ class naas_api extends  \external_api {
      */
     public static function view_nugget_parameters() {
         return new \external_function_parameters(
-            array(
-                'cmId' => new \external_value(PARAM_INT, 'Course Module ID')
-            )
+            [
+                'cmId' => new \external_value(PARAM_INT, 'Course Module ID'),
+            ]
         );
     }
 
@@ -135,8 +137,10 @@ class naas_api extends  \external_api {
     public static function view_nugget($cmid) {
         global $CFG, $DB;
 
-        $params = self::validate_parameters(self::view_nugget_parameters(),
-            array('cmId' => $cmid));
+        $params = self::validate_parameters(
+            self::view_nugget_parameters(),
+            ['cmId' => $cmid]
+        );
 
         $context = \context_module::instance($params['cmId']);
         self::validate_context($context);
@@ -160,10 +164,10 @@ class naas_api extends  \external_api {
      */
     public static function get_nugget_preview_parameters() {
         return new \external_function_parameters(
-            array(
+            [
                 'courseId' => new \external_value(PARAM_INT, 'Course ID'),
-                'versionId' => new \external_value(PARAM_TEXT, 'Version ID')
-            )
+                'versionId' => new \external_value(PARAM_TEXT, 'Version ID'),
+            ]
         );
     }
 
@@ -174,8 +178,10 @@ class naas_api extends  \external_api {
     public static function get_nugget_preview($courseid, $versionid) {
         global $CFG;
 
-        $params = self::validate_parameters(self::get_nugget_preview_parameters(),
-            array('courseId' => $courseid, 'versionId' => $versionid));
+        $params = self::validate_parameters(
+            self::get_nugget_preview_parameters(),
+            ['courseId' => $courseid, 'versionId' => $versionid]
+        );
 
         $context = \context_course::instance($params['courseId']);
         self::validate_context($context);
@@ -194,10 +200,10 @@ class naas_api extends  \external_api {
      */
     public static function get_domain_parameters() {
         return new \external_function_parameters(
-            array(
+            [
                 'courseId' => new \external_value(PARAM_INT, 'Course ID'),
-                'domainKey' => new \external_value(PARAM_TEXT, 'Domain Key')
-            )
+                'domainKey' => new \external_value(PARAM_TEXT, 'Domain Key'),
+            ]
         );
     }
 
@@ -208,8 +214,10 @@ class naas_api extends  \external_api {
     public static function get_domain($courseid, $domainkey) {
         global $CFG;
 
-        $params = self::validate_parameters(self::get_domain_parameters(),
-            array('courseId' => $courseid, 'domainKey' => $domainkey));
+        $params = self::validate_parameters(
+            self::get_domain_parameters(),
+            ['courseId' => $courseid, 'domainKey' => $domainkey]
+        );
 
         $context = \context_course::instance($params['courseId']);
         self::validate_context($context);
@@ -228,10 +236,10 @@ class naas_api extends  \external_api {
      */
     public static function get_structure_parameters() {
         return new \external_function_parameters(
-            array(
+            [
                 'courseId' => new \external_value(PARAM_INT, 'Course ID'),
-                'structureKey' => new \external_value(PARAM_TEXT, 'Structure Key')
-            )
+                'structureKey' => new \external_value(PARAM_TEXT, 'Structure Key'),
+            ]
         );
     }
 
@@ -242,8 +250,10 @@ class naas_api extends  \external_api {
     public static function get_structure($courseid, $structurekey) {
         global $CFG;
 
-        $params = self::validate_parameters(self::get_structure_parameters(),
-            array('courseId' => $courseid, 'structureKey' => $structurekey));
+        $params = self::validate_parameters(
+            self::get_structure_parameters(),
+            ['courseId' => $courseid, 'structureKey' => $structurekey]
+        );
 
         $context = \context_course::instance($params['courseId']);
         self::validate_context($context);
@@ -262,10 +272,10 @@ class naas_api extends  \external_api {
      */
     public static function get_person_parameters() {
         return new \external_function_parameters(
-            array(
+            [
                 'courseId' => new \external_value(PARAM_INT, 'Course ID'),
-                'personKey' => new \external_value(PARAM_TEXT, 'Person Key')
-            )
+                'personKey' => new \external_value(PARAM_TEXT, 'Person Key'),
+            ]
         );
     }
 
@@ -276,8 +286,10 @@ class naas_api extends  \external_api {
     public static function get_person($courseid, $personkey) {
         global $CFG;
 
-        $params = self::validate_parameters(self::get_person_parameters(),
-            array('courseId' => $courseid, 'personKey' => $personkey));
+        $params = self::validate_parameters(
+            self::get_person_parameters(),
+            ['courseId' => $courseid, 'personKey' => $personkey]
+        );
 
         $context = \context_course::instance($params['courseId']);
         self::validate_context($context);
@@ -296,10 +308,10 @@ class naas_api extends  \external_api {
      */
     public static function search_nuggets_parameters() {
         return new \external_function_parameters(
-            array(
+            [
                 'courseId' => new \external_value(PARAM_INT, 'Course ID'),
                 'searchOptions' => new \external_single_structure(
-                    array(
+                    [
                         'fulltext' => new \external_value(PARAM_TEXT, 'Full text search', VALUE_OPTIONAL),
                         'page_size' => new \external_value(PARAM_INT, 'Number of results per page', VALUE_OPTIONAL),
                         'page' => new \external_value(PARAM_INT, 'Page number', VALUE_OPTIONAL),
@@ -338,12 +350,12 @@ class naas_api extends  \external_api {
                             'Type filter',
                             VALUE_OPTIONAL
                         )
-                    ),
+                    ],
                     'Search options',
                     VALUE_DEFAULT,
-                    array()
+                    [],
                 )
-            )
+            ]
         );
 
     }
@@ -355,8 +367,10 @@ class naas_api extends  \external_api {
     public static function search_nuggets($courseid, $searchoptions = '{}') {
         global $CFG;
 
-        $params = self::validate_parameters(self::search_nuggets_parameters(),
-            array('courseId' => $courseid, 'searchOptions' => $searchoptions));
+        $params = self::validate_parameters(
+            self::search_nuggets_parameters(),
+            ['courseId' => $courseid, 'searchOptions' => $searchoptions]
+        );
 
         $context = \context_course::instance($params['courseId']);
         self::validate_context($context);
