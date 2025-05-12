@@ -73,7 +73,7 @@ class proxy_http_response {
 
     /**
      * Translate the NaaS API response for the client.
-     * @return false|string
+     * @return string JSON encoded response.
      */
     public function build_client_response() {
         if ($this->is_success()) {

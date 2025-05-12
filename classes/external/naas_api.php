@@ -40,21 +40,21 @@ require_once($CFG->libdir . '/externallib.php');
 class naas_api extends  \external_api {
 
     /**
-     * Test config parameters description
+     * Test config parameters description.
      */
     public static function test_config_parameters(): \external_function_parameters {
         return new \external_function_parameters([]);
     }
 
     /**
-     * Test config return description
+     * Test config return description.
      */
     public static function test_config_returns() {
         return new \external_value(PARAM_RAW, 'API response');
     }
 
     /**
-     * Test config method
+     * Test config method.
      */
     public static function test_config() {
         global $CFG;
@@ -77,7 +77,7 @@ class naas_api extends  \external_api {
     }
 
     /**
-     * Get nugget parameters description
+     * Get nugget parameters description.
      */
     public static function get_nugget_parameters() {
         return new \external_function_parameters(
@@ -89,14 +89,14 @@ class naas_api extends  \external_api {
     }
 
     /**
-     * Get nugget return description
+     * Get nugget return description.
      */
     public static function get_nugget_returns() {
         return new \external_value(PARAM_RAW, 'API response');
     }
 
     /**
-     * Get nugget method
+     * Get nugget method.
      */
     public static function get_nugget($courseid, $nuggetid) {
         global $CFG;
@@ -106,7 +106,7 @@ class naas_api extends  \external_api {
             ['courseId' => $courseid, 'nuggetId' => $nuggetid]
         );
 
-        // Context validation
+        // Context validation.
         $context = context_course::instance($params['courseId']);
         self::validate_context($context);
         require_capability('mod/naas:addinstance', $context);
@@ -120,7 +120,7 @@ class naas_api extends  \external_api {
     }
 
     /**
-     * View nugget parameters description
+     * View nugget parameters description.
      */
     public static function view_nugget_parameters() {
         return new \external_function_parameters(
@@ -130,10 +130,19 @@ class naas_api extends  \external_api {
         );
     }
 
+    /**
+     * View nugget returns description.
+     * @return \external_value
+     */
     public static function view_nugget_returns() {
         return new \external_value(PARAM_RAW, 'API response');
     }
 
+    /**
+     * View nugget method.
+     * @param $cmid
+     * @return string JSON encoded response.
+     */
     public static function view_nugget($cmid) {
         global $CFG, $DB;
 
@@ -160,7 +169,7 @@ class naas_api extends  \external_api {
 
 
     /**
-     * Get nugget preview parameters description
+     * Get nugget preview parameters description.
      */
     public static function get_nugget_preview_parameters() {
         return new \external_function_parameters(
@@ -171,10 +180,20 @@ class naas_api extends  \external_api {
         );
     }
 
+    /**
+     * Get nugget preview returns description.
+     * @return \external_value
+     */
     public static function get_nugget_preview_returns() {
         return new \external_value(PARAM_RAW, 'API response');
     }
 
+    /**
+     * Get nugget preview method.
+     * @param $courseid
+     * @param $versionid
+     * @return string the JSON encoded response.
+     */
     public static function get_nugget_preview($courseid, $versionid) {
         global $CFG;
 
@@ -196,7 +215,7 @@ class naas_api extends  \external_api {
     }
 
     /**
-     * Get domain parameters description
+     * Get domain parameters description.
      */
     public static function get_domain_parameters() {
         return new \external_function_parameters(
@@ -207,10 +226,20 @@ class naas_api extends  \external_api {
         );
     }
 
+    /**
+     * Get domain returns description.
+     * @return \external_value
+     */
     public static function get_domain_returns() {
         return new \external_value(PARAM_RAW, 'API response');
     }
 
+    /**
+     * Get domain method.
+     * @param $courseid
+     * @param $domainkey
+     * @return string the JSON encoded response.
+     */
     public static function get_domain($courseid, $domainkey) {
         global $CFG;
 
@@ -232,7 +261,7 @@ class naas_api extends  \external_api {
     }
 
     /**
-     * Get structure parameters description
+     * Get structure parameters description.
      */
     public static function get_structure_parameters() {
         return new \external_function_parameters(
@@ -243,10 +272,20 @@ class naas_api extends  \external_api {
         );
     }
 
+    /**
+     * Get structure returns description.
+     * @return \external_value
+     */
     public static function get_structure_returns() {
         return new \external_value(PARAM_RAW, 'API response');
     }
 
+    /**
+     * Get structure method.
+     * @param $courseid
+     * @param $structurekey
+     * @return string the JSON encoded response.
+     */
     public static function get_structure($courseid, $structurekey) {
         global $CFG;
 
@@ -268,7 +307,7 @@ class naas_api extends  \external_api {
     }
 
     /**
-     * Get person parameters description
+     * Get person parameters description.
      */
     public static function get_person_parameters() {
         return new \external_function_parameters(
@@ -279,10 +318,20 @@ class naas_api extends  \external_api {
         );
     }
 
+    /**
+     * Get person returns description.
+     * @return \external_value
+     */
     public static function get_person_returns() {
         return new \external_value(PARAM_RAW, 'API response');
     }
 
+    /**
+     * Get person method.
+     * @param $courseid
+     * @param $personkey
+     * @return string the JSON encoded response.
+     */
     public static function get_person($courseid, $personkey) {
         global $CFG;
 
@@ -304,7 +353,7 @@ class naas_api extends  \external_api {
     }
 
     /**
-     * Search nuggets parameters description
+     * Search nuggets parameters description.
      */
     public static function search_nuggets_parameters() {
         return new \external_function_parameters(
@@ -360,10 +409,20 @@ class naas_api extends  \external_api {
 
     }
 
+    /**
+     * Search nuggets returns description.
+     * @return \external_value
+     */
     public static function search_nuggets_returns() {
         return new \external_value(PARAM_RAW, 'API response');
     }
 
+    /**
+     * Search nuggets method.
+     * @param $courseid
+     * @param $searchoptions
+     * @return string the JSON encoded response.
+     */
     public static function search_nuggets($courseid, $searchoptions = '{}') {
         global $CFG;
 
@@ -398,5 +457,4 @@ class naas_api extends  \external_api {
         $response = $naas->request_raw('GET', $url);
         return $response->build_client_response();
     }
-
 }
