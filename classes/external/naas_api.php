@@ -308,10 +308,18 @@ class naas_api extends  \external_api {
                             VALUE_OPTIONAL
                         ),
                         'structure' => new \external_value(PARAM_TEXT, 'Structure filter', VALUE_OPTIONAL),
-                        'language' => new \external_value(PARAM_TEXT, 'Language filter', VALUE_OPTIONAL),
+                        'language' => new \external_multiple_structure(
+                            new \external_value(PARAM_TEXT, 'Single language value'),
+                            'Language filter', VALUE_OPTIONAL
+                        ),
                         'level' => new \external_multiple_structure(
                             new \external_value(PARAM_TEXT, 'Single level value', VALUE_OPTIONAL),
                             'Level filter',
+                            VALUE_OPTIONAL
+                        ),
+                        'tags' => new \external_multiple_structure(
+                            new \external_value(PARAM_TEXT, 'Single tag value'),
+                            'Tags filter',
                             VALUE_OPTIONAL
                         )
                     ),
