@@ -97,8 +97,8 @@ class naas_api extends  \external_api {
 
     /**
      * Get nugget method.
-     * @param $courseid int
-     * @param $nuggetid int
+     * @param int $courseid
+     * @param int $nuggetid
      */
     public static function get_nugget(int $courseid, int $nuggetid) {
         global $CFG;
@@ -142,7 +142,7 @@ class naas_api extends  \external_api {
 
     /**
      * View nugget method.
-     * @param $cmid int
+     * @param int $cmid
      * @return string the JSON encoded response.
      */
     public static function view_nugget(int $cmid) {
@@ -192,11 +192,11 @@ class naas_api extends  \external_api {
 
     /**
      * Get nugget preview method.
-     * @param $courseid int
-     * @param $versionid string
+     * @param int $courseid
+     * @param string $versionid
      * @return string the JSON encoded response.
      */
-    public static function get_nugget_preview($courseid, $versionid) {
+    public static function get_nugget_preview(int $courseid, string $versionid) {
         global $CFG;
 
         $params = self::validate_parameters(
@@ -238,8 +238,8 @@ class naas_api extends  \external_api {
 
     /**
      * Get domain method.
-     * @param $courseid int
-     * @param $domainkey string
+     * @param int $courseid
+     * @param string $domainkey
      * @return string the JSON encoded response.
      */
     public static function get_domain(int $courseid, string $domainkey) {
@@ -284,8 +284,8 @@ class naas_api extends  \external_api {
 
     /**
      * Get structure method.
-     * @param $courseid int
-     * @param $structurekey string
+     * @param int $courseid
+     * @param string $structurekey
      * @return string the JSON encoded response.
      */
     public static function get_structure(int $courseid, string $structurekey) {
@@ -330,8 +330,8 @@ class naas_api extends  \external_api {
 
     /**
      * Get person method.
-     * @param $courseid int
-     * @param $personkey string
+     * @param int $courseid
+     * @param string $personkey
      * @return string the JSON encoded response.
      */
     public static function get_person(int $courseid, string $personkey) {
@@ -421,8 +421,8 @@ class naas_api extends  \external_api {
 
     /**
      * Search nuggets method.
-     * @param $courseid int
-     * @param $searchoptions array
+     * @param int $courseid
+     * @param array $searchoptions
      * @return string the JSON encoded response.
      */
     public static function search_nuggets(int $courseid, array $searchoptions) {
