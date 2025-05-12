@@ -332,6 +332,11 @@ class naas_api extends  \external_api {
                             new \external_value(PARAM_TEXT, 'Single author value'),
                             'Authors filter',
                             VALUE_OPTIONAL
+                        ),
+                        'type' => new \external_multiple_structure(
+                            new \external_value(PARAM_TEXT, 'Single type value'),
+                            'Type filter',
+                            VALUE_OPTIONAL
                         )
                     ),
                     'Search options',
