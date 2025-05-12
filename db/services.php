@@ -95,5 +95,5 @@ $services = [
         'functions' => array_keys($functions),
         'restrictedusers' => 0,
         'enabled' => 1,
-    ]
+    ],
 ];

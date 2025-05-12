@@ -405,7 +405,7 @@ class naas_api extends  \external_api {
                     'Search options',
                     VALUE_DEFAULT,
                     []
-                )
+                ),
             ]
         );
 
