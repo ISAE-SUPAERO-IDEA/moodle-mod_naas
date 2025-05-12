@@ -100,7 +100,7 @@ class naas_api extends  \external_api {
      * @param $courseid int
      * @param $nuggetid int
      */
-    public static function get_nugget($courseid, $nuggetid) {
+    public static function get_nugget(int $courseid, int $nuggetid) {
         global $CFG;
 
         $params = self::validate_parameters(
@@ -145,7 +145,7 @@ class naas_api extends  \external_api {
      * @param $cmid int
      * @return string the JSON encoded response.
      */
-    public static function view_nugget($cmid) {
+    public static function view_nugget(int $cmid) {
         global $CFG, $DB;
 
         $params = self::validate_parameters(
@@ -242,7 +242,7 @@ class naas_api extends  \external_api {
      * @param $domainkey string
      * @return string the JSON encoded response.
      */
-    public static function get_domain($courseid, $domainkey) {
+    public static function get_domain(int $courseid, string $domainkey) {
         global $CFG;
 
         $params = self::validate_parameters(
@@ -288,7 +288,7 @@ class naas_api extends  \external_api {
      * @param $structurekey string
      * @return string the JSON encoded response.
      */
-    public static function get_structure($courseid, $structurekey) {
+    public static function get_structure(int $courseid, string $structurekey) {
         global $CFG;
 
         $params = self::validate_parameters(
@@ -334,7 +334,7 @@ class naas_api extends  \external_api {
      * @param $personkey string
      * @return string the JSON encoded response.
      */
-    public static function get_person($courseid, $personkey) {
+    public static function get_person(int $courseid, string $personkey) {
         global $CFG;
 
         $params = self::validate_parameters(
@@ -404,7 +404,7 @@ class naas_api extends  \external_api {
                     ],
                     'Search options',
                     VALUE_DEFAULT,
-                    [],
+                    []
                 )
             ]
         );
@@ -425,7 +425,7 @@ class naas_api extends  \external_api {
      * @param $searchoptions array
      * @return string the JSON encoded response.
      */
-    public static function search_nuggets($courseid, $searchoptions) {
+    public static function search_nuggets(int $courseid, array $searchoptions) {
         global $CFG;
 
         $params = self::validate_parameters(
