@@ -321,6 +321,11 @@ class naas_api extends  \external_api {
                             new \external_value(PARAM_TEXT, 'Single tag value'),
                             'Tags filter',
                             VALUE_OPTIONAL
+                        ),
+                        'producers' => new \external_multiple_structure(
+                            new \external_value(PARAM_TEXT, 'Single producer value'),
+                            'Producers filter',
+                            VALUE_OPTIONAL
                         )
                     ),
                     'Search options',
