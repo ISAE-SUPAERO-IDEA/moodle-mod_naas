@@ -78,7 +78,7 @@ export default {
   methods: {
     initialize() {
       if (!this.initialized) {
-        this.proxy("get-nugget-preview", { versionId: this.nugget.version_id, courseId: this.courseId}).then(
+        this.proxy("mod_naas_get_nugget_preview", { versionId: this.nugget.version_id, courseId: this.courseId}).then(
           (payload) => {
             this.NuggetView = payload;
             this.initialized = true;
