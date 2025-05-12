@@ -44,7 +44,6 @@ class naas_widget {
 
         $PAGE->requires->js_call_amd('core/first', null, true);
 
-
         $widgetconfig = json_encode([
             "moodle_url" => $CFG->wwwroot,
             "mount_point" => "#naas_widget",

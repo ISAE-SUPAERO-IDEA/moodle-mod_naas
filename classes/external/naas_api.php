@@ -97,6 +97,8 @@ class naas_api extends  \external_api {
 
     /**
      * Get nugget method.
+     * @param $courseid int
+     * @param $nuggetid int
      */
     public static function get_nugget($courseid, $nuggetid) {
         global $CFG;
@@ -140,8 +142,8 @@ class naas_api extends  \external_api {
 
     /**
      * View nugget method.
-     * @param $cmid
-     * @return string JSON encoded response.
+     * @param $cmid int
+     * @return string the JSON encoded response.
      */
     public static function view_nugget($cmid) {
         global $CFG, $DB;
@@ -155,7 +157,7 @@ class naas_api extends  \external_api {
         self::validate_context($context);
         require_capability('mod/naas:view', $context);
 
-        // Get course module and instance
+        // Get course module and instance.
         $cm = get_coursemodule_from_id('naas', $params['cmId'], 0, false, MUST_EXIST);
         $naasinstance = $DB->get_record('naas', ['id' => $cm->instance], '*', MUST_EXIST);
 
@@ -190,8 +192,8 @@ class naas_api extends  \external_api {
 
     /**
      * Get nugget preview method.
-     * @param $courseid
-     * @param $versionid
+     * @param $courseid int
+     * @param $versionid string
      * @return string the JSON encoded response.
      */
     public static function get_nugget_preview($courseid, $versionid) {
@@ -236,8 +238,8 @@ class naas_api extends  \external_api {
 
     /**
      * Get domain method.
-     * @param $courseid
-     * @param $domainkey
+     * @param $courseid int
+     * @param $domainkey string
      * @return string the JSON encoded response.
      */
     public static function get_domain($courseid, $domainkey) {
@@ -282,8 +284,8 @@ class naas_api extends  \external_api {
 
     /**
      * Get structure method.
-     * @param $courseid
-     * @param $structurekey
+     * @param $courseid int
+     * @param $structurekey string
      * @return string the JSON encoded response.
      */
     public static function get_structure($courseid, $structurekey) {
@@ -328,8 +330,8 @@ class naas_api extends  \external_api {
 
     /**
      * Get person method.
-     * @param $courseid
-     * @param $personkey
+     * @param $courseid int
+     * @param $personkey string
      * @return string the JSON encoded response.
      */
     public static function get_person($courseid, $personkey) {
@@ -398,7 +400,7 @@ class naas_api extends  \external_api {
                             new \external_value(PARAM_TEXT, 'Single type value'),
                             'Type filter',
                             VALUE_OPTIONAL
-                        )
+                        ),
                     ],
                     'Search options',
                     VALUE_DEFAULT,
@@ -419,11 +421,11 @@ class naas_api extends  \external_api {
 
     /**
      * Search nuggets method.
-     * @param $courseid
-     * @param $searchoptions
+     * @param $courseid int
+     * @param $searchoptions array
      * @return string the JSON encoded response.
      */
-    public static function search_nuggets($courseid, $searchoptions = '{}') {
+    public static function search_nuggets($courseid, $searchoptions) {
         global $CFG;
 
         $params = self::validate_parameters(
@@ -440,13 +442,13 @@ class naas_api extends  \external_api {
 
         $searchoptionsarray = $params['searchOptions'];
 
-        // Set default search options
+        // Set default search options.
         $searchoptionsarray['is_default_version'] = true;
         if (!isset($searchoptionsarray['page_size'])) {
             $searchoptionsarray['page_size'] = 6;
         }
 
-        // Add nql filter
+        // Add nql filter.
         if (!empty($config->naas_filter)) {
             $searchoptionsarray['nql'] = urlencode($config->naas_filter);
         }
