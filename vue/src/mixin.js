@@ -69,13 +69,8 @@ export default {
       }
       this.proxyError = null
 
-      console.log(`*** action=${action}, params=${JSON.stringify(params)}`)
       return moodleService.callWebservice(action, params)
-      // axiosClient
-        // .get("/mod/naas/proxy.php", { params: { action, ...params } })
         .then((response) => {
-          console.info(response)
-
           if(!response.success) {
             throw new NaasHttpError(response.error.code, response.error.message)
           }
@@ -85,8 +80,6 @@ export default {
           return payload;
         })
           .catch((error) => {
-            console.info(error) // TODO ***
-
             handleAxiosError(error)
 
             if(error instanceof NaasHttpError) {
