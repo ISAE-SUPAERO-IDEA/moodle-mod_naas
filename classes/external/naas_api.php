@@ -21,7 +21,8 @@
  * @package mod_naas/external
  * @author John Tranier
  * @author Bruno Ilponse
- */namespace mod_naas\external;
+ */
+namespace mod_naas\external;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
