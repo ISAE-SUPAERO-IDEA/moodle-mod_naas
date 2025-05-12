@@ -304,8 +304,12 @@ class naas_api extends  \external_api {
                         'page' => new \external_value(PARAM_INT, 'Page number', VALUE_OPTIONAL),
                         'domain' => new \external_value(PARAM_TEXT, 'Domain filter', VALUE_OPTIONAL),
                         'structure' => new \external_value(PARAM_TEXT, 'Structure filter', VALUE_OPTIONAL),
-                        'language' => new \external_value(PARAM_TEXT, 'Language filter', VALUE_OPTIONAL)
-                        // Ajoutez ici tous les champs possibles de vos options de recherche
+                        'language' => new \external_value(PARAM_TEXT, 'Language filter', VALUE_OPTIONAL),
+                        'level' => new \external_multiple_structure(
+                            new \external_value(PARAM_TEXT, 'Single level value', VALUE_OPTIONAL),
+                            'Level filter',
+                            VALUE_OPTIONAL
+                        )
                     ),
                     'Search options',
                     VALUE_DEFAULT,
