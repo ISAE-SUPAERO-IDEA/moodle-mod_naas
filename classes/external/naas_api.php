@@ -73,7 +73,10 @@ class naas_api extends  \external_api {
             ]);
 
         $response = $naas->request_raw('GET', $url);
-        return $response->build_client_response();
+
+        //throw new \moodle_exception('json', 'naas', '', null, $response); // TODO *** include error info
+
+        return $response;
     }
 
     /**
