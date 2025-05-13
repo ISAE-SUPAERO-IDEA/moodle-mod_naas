@@ -88,6 +88,14 @@ $functions = [
         'ajax' => true,
         'capabilities' => 'mod/naas:addinstance',
     ],
+    'mod_naas_post_xapi_statement' => [
+        'classname' => 'mod_naas\external\xapi',
+        'methodname' => 'post_xapi_statement',
+        'description' => 'Post an xAPI statement',
+        'type' => 'write',
+        'ajax' => true,
+        'capabilities' => 'mod/naas:view',
+    ],
 ];
 
 $services = [

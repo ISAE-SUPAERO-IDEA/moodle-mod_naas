@@ -23,8 +23,6 @@
 // Global functions
 import moodleService from "./http/moodleService";
 
-import axios from "axios";
-const axiosClient = axios.create({ baseURL: NAAS.moodle_url });
 /*global NAAS*/
 
 export default {
@@ -66,12 +64,7 @@ export default {
           });
     },
     xapi(params) {
-      let info = axiosClient
-        .get("/mod/naas/xapi.php", { params })
-        .then((response) => {
-          info = response.payload;
-        });
-      return info;
+      return this.proxy("mod_naas_post_xapi_statement", params)
     },
     // Make promises for an array of keys
     make_data_array_load_promises(nugget, field, handler) {
