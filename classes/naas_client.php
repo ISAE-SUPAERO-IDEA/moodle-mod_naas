@@ -145,6 +145,7 @@ class naas_client {
                 json_encode([
                     "errno" => $errno,
                     "error" => $error,
+                    "url" => $url
                 ])
             );
         }
