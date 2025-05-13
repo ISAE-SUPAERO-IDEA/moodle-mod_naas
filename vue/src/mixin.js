@@ -21,14 +21,11 @@
  */
 
 // Global functions
-import handleAxiosError from "./http/axios-error-handler";
 import moodleService from "./http/moodleService";
 import cache from "./cache-service";
 
 import axios from "axios";
 const axiosClient = axios.create({ baseURL: NAAS.moodle_url });
-import NaasHttpError from "./http/NaasHttpError";
-import ProxyHttpError from "./http/ProxyHttpError";
 import translateError from "./error-message";
 /*global NAAS*/
 
@@ -71,25 +68,23 @@ export default {
 
       return moodleService.callWebservice(action, params)
         .then((response) => {
-          if(!response.success) {
-            throw new NaasHttpError(response.error.code, response.error.message)
-          }
-
           const payload = response.payload;
           cache.set( { action, params }, payload );
           return payload;
         })
-          .catch((error) => {
-            handleAxiosError(error)
-
-            if(error instanceof NaasHttpError) {
-                this.proxyError = error
-            } else {
-              this.proxyError = new ProxyHttpError(error.statusCode, error.message)
-            }
-
-            return Promise.reject(this.proxyError)
-          });
+          // .catch((error) => {
+          //   console.info(error)
+          //
+          //   handleAxiosError(error)
+          //
+          //   if(error instanceof NaasHttpError) {
+          //       this.proxyError = error
+          //   } else {
+          //     this.proxyError = new ProxyHttpError(error.statusCode, error.message)
+          //   }
+          //
+          //   return Promise.reject(this.proxyError)
+          // });
     },
     xapi(params) {
       let info = axiosClient

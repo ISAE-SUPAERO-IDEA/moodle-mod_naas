@@ -72,11 +72,7 @@ class naas_api extends  \external_api {
                 'page_size' => 2,
             ]);
 
-        $response = $naas->request_raw('GET', $url);
-
-        //throw new \moodle_exception('json', 'naas', '', null, $response); // TODO *** include error info
-
-        return $response;
+        return $naas->request_raw('GET', $url);
     }
 
     /**
@@ -120,8 +116,7 @@ class naas_api extends  \external_api {
         $naas = new \mod_naas\naas_client($config);
 
         $url = "/nuggets/{$params['nuggetId']}/default_version";
-        $response = $naas->request_raw('GET', $url);
-        return $response->build_client_response();
+        return $naas->request_raw('GET', $url);
     }
 
     /**
@@ -168,8 +163,7 @@ class naas_api extends  \external_api {
         $naas = new \mod_naas\naas_client($config);
 
         $url = "/nuggets/{$naasinstance->nugget_id}/default_version";
-        $response = $naas->request_raw('GET', $url);
-        return $response->build_client_response();
+        return $naas->request_raw('GET', $url);
     }
 
 
@@ -215,8 +209,7 @@ class naas_api extends  \external_api {
         $naas = new \mod_naas\naas_client($config);
 
         $url = "/versions/{$params['versionId']}/preview_url";
-        $response = $naas->request_raw('GET', $url);
-        return $response->build_client_response();
+        return $naas->request_raw('GET', $url);
     }
 
     /**
@@ -261,8 +254,7 @@ class naas_api extends  \external_api {
         $naas = new \mod_naas\naas_client($config);
 
         $url = "/vocabularies/nugget_domains_vocabulary/{$params['domainKey']}";
-        $response = $naas->request_raw('GET', $url);
-        return $response->build_client_response();
+        return $naas->request_raw('GET', $url);
     }
 
     /**
@@ -307,8 +299,7 @@ class naas_api extends  \external_api {
         $naas = new \mod_naas\naas_client($config);
 
         $url = "/structures/{$params['structureKey']}";
-        $response = $naas->request_raw('GET', $url);
-        return $response->build_client_response();
+        return $naas->request_raw('GET', $url);
     }
 
     /**
@@ -353,8 +344,7 @@ class naas_api extends  \external_api {
         $naas = new \mod_naas\naas_client($config);
 
         $url = "/persons/{$params['personKey']}";
-        $response = $naas->request_raw('GET', $url);
-        return $response->build_client_response();
+        return $naas->request_raw('GET', $url);
     }
 
     /**
@@ -459,7 +449,6 @@ class naas_api extends  \external_api {
         $url = '/nuggets/search?' . http_build_query($searchoptionsarray, '', '&');
         $url = preg_replace('/\%5B\d+\%5D/', '', $url);
 
-        $response = $naas->request_raw('GET', $url);
-        return $response->build_client_response();
+        return $naas->request_raw('GET', $url);
     }
 }
