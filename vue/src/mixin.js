@@ -72,19 +72,10 @@ export default {
           cache.set( { action, params }, payload );
           return payload;
         })
-          // .catch((error) => {
-          //   console.info(error)
-          //
-          //   handleAxiosError(error)
-          //
-          //   if(error instanceof NaasHttpError) {
-          //       this.proxyError = error
-          //   } else {
-          //     this.proxyError = new ProxyHttpError(error.statusCode, error.message)
-          //   }
-          //
-          //   return Promise.reject(this.proxyError)
-          // });
+          .catch((error) => {
+            this.proxyError = error;
+            return Promise.reject(this.proxyError)
+          });
     },
     xapi(params) {
       let info = axiosClient
