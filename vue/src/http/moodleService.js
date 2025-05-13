@@ -20,6 +20,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+import cache from "../cache-service";
+
 class MoodleService {
     async waitForRequirejs() {
         return new Promise((resolve) => {
@@ -37,6 +39,12 @@ class MoodleService {
     }
 
     async callWebservice(methodname, args = {}) {
+        if (cache.has( { methodname, args })) {
+            return Promise.resolve(
+                cache.get({ methodname, args })
+            );
+        }
+
         const require = await this.waitForRequirejs();
 
         return new Promise((resolve, reject) => {
@@ -44,7 +52,9 @@ class MoodleService {
                 ajax.call([{ methodname, args }])[0]
                     .then(response => {
                         const parsedResponse = JSON.parse(response);
-                        resolve(parsedResponse);
+                        const payload = parsedResponse.payload;
+                        cache.set( { methodname, args }, payload );
+                        resolve(payload);
                     })
                     .catch(reject);
             });

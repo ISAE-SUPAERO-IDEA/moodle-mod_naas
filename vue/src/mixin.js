@@ -22,7 +22,6 @@
 
 // Global functions
 import moodleService from "./http/moodleService";
-import cache from "./cache-service";
 
 import axios from "axios";
 const axiosClient = axios.create({ baseURL: NAAS.moodle_url });
@@ -58,19 +57,9 @@ export default {
 
     // Queries the proxy
     proxy(action, params) {
-      if (cache.has( { action, params })) {
-        return Promise.resolve(
-            cache.get({ action, params })
-        );
-      }
       this.proxyError = null
 
       return moodleService.callWebservice(action, params)
-        .then((response) => {
-          const payload = response.payload;
-          cache.set( { action, params }, payload );
-          return payload;
-        })
           .catch((error) => {
             this.proxyError = error;
             return Promise.reject(this.proxyError)
