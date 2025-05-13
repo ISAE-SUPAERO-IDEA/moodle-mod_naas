@@ -26,7 +26,6 @@ import cache from "./cache-service";
 
 import axios from "axios";
 const axiosClient = axios.create({ baseURL: NAAS.moodle_url });
-import translateError from "./error-message";
 /*global NAAS*/
 
 export default {
@@ -49,7 +48,7 @@ export default {
         return null
       }
 
-      return translateError(this.proxyError)
+      return this.config.labels["error_generic_user_message"];
     }
   },
   methods: {

@@ -52,6 +52,7 @@ class naas_widget {
             "courseId" => $courseid,
             "cm_id" => $cmid, // Course module ID.
             "labels" => [
+                "error_generic_user_message" => get_string("error:generic_user_message", "naas"),
                 "nugget_search_here" => get_string('nugget_search_here', 'naas'),
                 "nugget_search_no_result" => get_string('nugget_search_no_result', 'naas'),
                 "search" => get_string('nugget_search', 'naas'),
