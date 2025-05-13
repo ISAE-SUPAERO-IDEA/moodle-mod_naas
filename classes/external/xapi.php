@@ -46,7 +46,7 @@ class xapi extends \external_api {
             'verb' => new \external_value(PARAM_TEXT, 'XAPI verb'),
             'version_id' => new \external_value(PARAM_TEXT, 'Version ID'),
             'id' => new \external_value(PARAM_INT, 'Course Module ID'),
-            'body' => new \external_value(PARAM_RAW, 'XAPI statement body', VALUE_DEFAULT, null)
+            'body' => new \external_value(PARAM_RAW, 'XAPI statement body', VALUE_DEFAULT, null),
         ]);
     }
 
@@ -71,21 +71,21 @@ class xapi extends \external_api {
             'verb' => $verb,
             'version_id' => $versionid,
             'id' => $id,
-            'body' => $body
+            'body' => $body,
         ]);
 
-        // Get course module and check permissions
+        // Get course module and check permissions.
         $cm = get_coursemodule_from_id('naas', $params['id'], 0, false, MUST_EXIST);
         $context = \context_module::instance($cm->id);
         self::validate_context($context);
         require_capability('mod/naas:view', $context);
 
-        // Get user info
+        // Get user info.
         $user = new \stdClass();
         $user->name = $USER->firstname.' '.$USER->lastname;
         $user->email = $USER->email;
 
-        // Prepare data
+        // Prepare data.
         $data = new \stdClass();
         $data->user = $user;
         if (!$params['body']) {
@@ -98,7 +98,7 @@ class xapi extends \external_api {
             $data->resource_link_id = $_SESSION["resource_link_id"];
         }
 
-        // Send to NaaS
+        // Send to NaaS.
         $config = (object) array_merge((array) get_config('naas'), (array) $CFG);
         $naas = new \mod_naas\naas_client($config);
         return $naas->post_xapi_statement($params['verb'], $params['version_id'], $data);
