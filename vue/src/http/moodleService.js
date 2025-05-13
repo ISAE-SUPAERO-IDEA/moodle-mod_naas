@@ -38,8 +38,8 @@ class MoodleService {
         });
     }
 
-    async callWebservice(methodname, args = {}) {
-        if (cache.has( { methodname, args })) {
+    async callWebservice(methodname, args = {}, useCache = false) {
+        if (useCache && cache.has( { methodname, args })) {
             return Promise.resolve(
                 cache.get({ methodname, args })
             );
@@ -53,7 +53,9 @@ class MoodleService {
                     .then(response => {
                         const parsedResponse = JSON.parse(response);
                         const payload = parsedResponse.payload;
-                        cache.set( { methodname, args }, payload );
+                        if(useCache) {
+                            cache.set( { methodname, args }, payload );
+                        }
                         resolve(payload);
                     })
                     .catch(reject);

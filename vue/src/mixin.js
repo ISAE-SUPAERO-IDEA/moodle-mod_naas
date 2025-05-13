@@ -57,14 +57,14 @@ export default {
     proxy(action, params) {
       this.proxyError = null
 
-      return moodleService.callWebservice(action, params)
+      return moodleService.callWebservice(action, params, true)
           .catch((error) => {
             this.proxyError = error;
             return Promise.reject(this.proxyError)
           });
     },
     xapi(params) {
-      return this.proxy("mod_naas_post_xapi_statement", params)
+      return moodleService.callWebservice("mod_naas_post_xapi_statement", params, false)
     },
     // Make promises for an array of keys
     make_data_array_load_promises(nugget, field, handler) {
