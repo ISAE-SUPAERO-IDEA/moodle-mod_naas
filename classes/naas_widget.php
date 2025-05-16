@@ -40,7 +40,10 @@ class naas_widget {
      * @return string
      */
     public static function naas_widget_html($nuggetid, $courseid, $cmid, $component): string {
-        global $CFG;
+        global $CFG, $PAGE;
+
+        $PAGE->requires->js_call_amd('core/first', null, true);
+
         $widgetconfig = json_encode([
             "moodle_url" => $CFG->wwwroot,
             "mount_point" => "#naas_widget",
@@ -49,6 +52,7 @@ class naas_widget {
             "courseId" => $courseid,
             "cm_id" => $cmid, // Course module ID.
             "labels" => [
+                "error_generic_user_message" => get_string("error:generic_user_message", "naas"),
                 "nugget_search_here" => get_string('nugget_search_here', 'naas'),
                 "nugget_search_no_result" => get_string('nugget_search_no_result', 'naas'),
                 "search" => get_string('nugget_search', 'naas'),
