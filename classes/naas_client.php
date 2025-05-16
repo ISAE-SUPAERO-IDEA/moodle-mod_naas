@@ -100,12 +100,6 @@ class naas_client {
         // Set request method and data.
         $options['CURLOPT_CUSTOMREQUEST'] = $protocol;
 
-        if ($protocol == "PUT" || $protocol == "POST") {
-            $datajson = json_encode($data);
-            $headers[] = 'Content-Length:' . strlen($datajson);
-            $options['CURLOPT_POSTFIELDS'] = $datajson;
-        }
-
         // Set custom headers.
         if (!empty($headers)) {
             $options['CURLOPT_HTTPHEADER'] = $headers;
@@ -118,8 +112,17 @@ class naas_client {
             debugging("NAAS: About to make request.", DEBUG_DEVELOPER);
         }
 
-        // Make the request.
-        $response = $curl->get($url);
+        // Send the request.
+        switch ($protocol) {
+            case "GET":
+                $response = $curl->get($url);
+                break;
+            case "POST":
+                $response = $curl->post($url, json_encode($data));
+                break;
+            default:
+                throw new \invalid_parameter_exception("Unsupported HTTP method: $protocol");
+        }
 
         // Log after making the request.
         if ($this->debug) {
