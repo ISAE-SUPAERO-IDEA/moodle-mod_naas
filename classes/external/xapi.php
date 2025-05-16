@@ -54,7 +54,10 @@ class xapi extends \external_api {
      * Returns description
      */
     public static function post_xapi_statement_returns() {
-        return new \external_value(PARAM_RAW, 'API response');
+        return new \external_single_structure([
+            'statusCode' => new \external_value(PARAM_INT, 'HTTP status code of the response'),
+            'statusMessage' => new \external_value(PARAM_TEXT, 'HTTP status message of the response'),
+        ]);
     }
 
     /**
@@ -101,6 +104,11 @@ class xapi extends \external_api {
         // Send to NaaS.
         $config = (object) array_merge((array) get_config('naas'), (array) $CFG);
         $naas = new \mod_naas\naas_client($config);
-        return $naas->post_xapi_statement($params['verb'], $params['version_id'], $data);
+        $response = $naas->post_xapi_statement($params['verb'], $params['version_id'], $data);
+
+        return [
+          "statusCode" => $response->statusCode,
+          "statusMessage" => $response->statusMessage,
+        ];
     }
 }
