@@ -84,9 +84,10 @@ class xapi extends \external_api {
         require_capability('mod/naas:view', $context);
 
         // Get user info.
+        $config = (object) array_merge((array) \get_config('naas'), (array) $CFG);
         $user = new \stdClass();
-        $user->name = $USER->firstname.' '.$USER->lastname;
-        $user->email = $USER->email;
+        $user->name = $config->naas_privacy_learner_name ? $USER->firstname.' '.$USER->lastname : "Anonymous User";
+        $user->email = $config->naas_privacy_learner_mail ? $USER->email : 'anonymous@naas-edu.eu';
 
         // Prepare data.
         $data = new \stdClass();
