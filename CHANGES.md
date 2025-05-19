@@ -2,6 +2,20 @@
 
 _All notable changes to the NaaS Moodle plugin will be documented in this file._
 
+## Version 2.4.0 (2025-03-24)
+
+### Feature
+- Add support for the Nugget feedback feature
+
+### Fix
+- Fix language loading when starting a Nugget
+- Remove stored Nugget sessions when removing a Nugget activity
+
+### Chore
+- Fix messages for capabilities
+- Provide i18n message for hard-coded content
+
+
 ## Version 2.3.1 (2025-03-04)
 
 ### Fix
