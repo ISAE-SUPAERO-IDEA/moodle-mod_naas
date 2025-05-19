@@ -2,6 +2,23 @@
 
 _All notable changes to the NaaS Moodle plugin will be documented in this file._
 
+## Version 2.4.1 (2025-05-19)
+
+### Fix
+- Fix next activity button
+- Fix index.php to list Nugget activities
+- Fix Incorrect URL in xapi.php call
+
+### Chore
+- Describe the xAPI traces in the Privacy API
+- Reimplement NaaS API and xAPI usages with External Services
+- Don't call curl_init directly
+- Use Access API and enforce context checking
+- Remove unused install.php
+- Add Missing language string for capabilities definitions
+- Add Missing Header and Copyright Information in JS File
+- Replace Hard-coded language string
+
 ## Version 2.4.0 (2025-03-24)
 
 ### Feature
