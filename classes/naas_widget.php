@@ -34,19 +34,25 @@ class naas_widget {
     /**
      * Render this NaaS widget as HTML
      * @param int $nuggetid
+     * @param int $courseid
      * @param int $cmid
      * @param string $component
      * @return string
      */
-    public static function naas_widget_html($nuggetid, $cmid, $component): string {
-        global $CFG;
+    public static function naas_widget_html($nuggetid, $courseid, $cmid, $component): string {
+        global $CFG, $PAGE;
+
+        $PAGE->requires->js_call_amd('core/first', null, true);
+
         $widgetconfig = json_encode([
             "moodle_url" => $CFG->wwwroot,
             "mount_point" => "#naas_widget",
             "component" => $component,
             "nugget_id" => $nuggetid,
+            "courseId" => $courseid,
             "cm_id" => $cmid, // Course module ID.
             "labels" => [
+                "error_generic_user_message" => get_string("error:generic_user_message", "naas"),
                 "nugget_search_here" => get_string('nugget_search_here', 'naas'),
                 "nugget_search_no_result" => get_string('nugget_search_no_result', 'naas'),
                 "search" => get_string('nugget_search', 'naas'),
@@ -107,7 +113,7 @@ class naas_widget {
         ]);
         $html = "<div id='naas_widget'></div>";
         $html .= "<script>NAAS=$widgetconfig</script>";
-        $widgetjsurl = new \moodle_url('/mod/naas/assets/vue/naas_widget-240.js');
+        $widgetjsurl = new \moodle_url('/mod/naas/assets/vue/naas_widget-2025051900.js');
         $html .= "<script src='$widgetjsurl' ></script>";
 
         return $html;

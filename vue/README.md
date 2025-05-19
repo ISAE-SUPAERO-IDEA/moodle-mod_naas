@@ -53,7 +53,6 @@ RewriteRule ^/?(.*) "ws://moodle.local.isae.fr/$1" [P,L]
 ### Development Configuration File
 
 The following file contains the development configuration for the Vue component: `vue/dev_config.js`
-- `proxy_url`: the url where the `proxy.php` of the NaaS module can be reached
 - `nugget_id`: initial nugget_id to simulate the fact that a nugget has already been selected
 - `labels`: translation to be displayed on the interface
 

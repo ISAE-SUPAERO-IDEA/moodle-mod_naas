@@ -1,3 +1,26 @@
+<!--
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * Nugget view component for NAAS Vue application.
+ *
+ * @copyright  2019 ISAE-SUPAERO (https://www.isae-supaero.fr/)
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+-->
 <template>
   <div class="container">
     <div id="nugget-info-button">
@@ -86,7 +109,7 @@ export default {
     this.aboutButton = !navAboutButton;
   },
   async mounted() {
-    this.nugget = await this.get_nugget_default_version(this.config.nugget_id);
+    this.nugget = await this.viewNugget(this.config.cm_id);
     this.language = this.nugget.language
 
     window.setTimeout(() => {

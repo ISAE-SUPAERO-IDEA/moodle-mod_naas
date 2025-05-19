@@ -1,3 +1,26 @@
+<!--
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * Nugget search widget component for NAAS Vue application.
+ *
+ * @copyright  2019 ISAE-SUPAERO (https://www.isae-supaero.fr/)
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+-->
 <template>
   <div>
 
@@ -36,7 +59,7 @@
       <!-- Search filter -->
       <div class="col-md-3">
         <nugget-search-filter
-          :query="filter_query"
+          :query="filter_options"
           v-on:filters="onFilters"
         ></nugget-search-filter>
       </div>
@@ -144,7 +167,6 @@ export default {
       return Object.assign(
         {},
         {
-          is_default_version: true,
           page_size: this.default_page_size,
           fulltext: this.debounced_typed,
         }
@@ -152,12 +174,6 @@ export default {
     },
     search_options() {
       return Object.assign({}, this.filter_options, this.filters);
-    },
-    filter_query() {
-      return this.searchQuery(this.filter_options);
-    },
-    search_query() {
-      return this.searchQuery(this.search_options);
     },
   },
   methods: {
@@ -186,9 +202,10 @@ export default {
     },
     search() {
       this.show_more_nugget_button = false;
-      if (this.search_query) {
+      if (this.search_options) {
         this.loading++;
-        this.proxy(this.search_query)
+
+        this.proxy("mod_naas_search_nuggets",  { searchOptions: this.search_options, courseId: this.config.courseId })
           .then(async (payload) => {
             if (payload) {
               var nuggets = payload.items;
@@ -210,13 +227,6 @@ export default {
             this.loading--;
           });
       } else this.nuggets = this.default_nugget_list;
-    },
-    searchQuery(params) {
-      if (params) {
-        var params_str = new URLSearchParams(params).toString();
-        return `/nuggets/search?${params_str}`;
-      }
-      return null;
     },
     onFilters(filters) {
       this.filters = filters;
