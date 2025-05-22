@@ -116,6 +116,7 @@ $string["name_display"] = "Nom à afficher";
 $string["name_help"] = "Nom du nugget qui apparaitra dans l'espace de cours ";
 $string["next_unit"] = "Ressource suivante";
 $string["no_nugget"] = "Aucun nugget trouvé";
+$string["nonewmodules"] = "Ce cours n'inclut pas le module NaaS.";
 $string["nugget"] = "Nugget";
 $string["nugget_search"] = "Rechercher des nuggets";
 $string["nugget_search_here"] = "Pour commencer, entrez un mot-clé";

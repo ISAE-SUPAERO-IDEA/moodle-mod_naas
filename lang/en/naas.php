@@ -130,6 +130,7 @@ $string["naas_unable_connect"] = "Unable to contact the server ; cannot search t
 $string["name_display"] = "Name to display";
 $string["name_help"] = "Name of the nugget that will appear in the course section";
 $string["next_unit"] = "Next Resource";
+$string["nonewmodules"] = "This course has no NaaS module included.";
 $string["no_nugget"] = "No nugget found";
 $string["nugget"] = "Nugget";
 $string["nugget_search"] = "Search Nuggets";
