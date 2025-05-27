@@ -43,7 +43,7 @@ if ($records) {
         $activityid = $record->activity_id;
     }
 } else {
-    // Send error response as per LTI spec
+    // Send error response as per LTI spec.
     echo '<?xml version="1.0" encoding="UTF-8"?>
 <imsx_POXEnvelopeResponse xmlns="http://www.imsglobal.org/services/ltiv1p1/xsd/imsoms_v1p0">
     <imsx_POXHeader>
@@ -127,7 +127,7 @@ if (!$completion->is_enabled()) {
 $targetstate = COMPLETION_COMPLETE;
 $completion->update_state($cm, $targetstate);
 
-// Send success response as per LTI spec
+// Send success response as per LTI spec.
 echo '<?xml version="1.0" encoding="UTF-8"?>
 <imsx_POXEnvelopeResponse xmlns="http://www.imsglobal.org/services/ltiv1p1/xsd/imsoms_v1p0">
     <imsx_POXHeader>
