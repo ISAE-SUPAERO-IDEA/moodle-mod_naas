@@ -42,8 +42,27 @@ if ($records) {
         $userid = $record->user_id;
         $activityid = $record->activity_id;
     }
+} else {
+    // Send error response as per LTI spec
+    echo '<?xml version="1.0" encoding="UTF-8"?>
+<imsx_POXEnvelopeResponse xmlns="http://www.imsglobal.org/services/ltiv1p1/xsd/imsoms_v1p0">
+    <imsx_POXHeader>
+        <imsx_POXResponseHeaderInfo>
+            <imsx_version>V1.0</imsx_version>
+            <imsx_messageIdentifier>999999123</imsx_messageIdentifier>
+            <imsx_statusInfo>
+                <imsx_codeMajor>failure</imsx_codeMajor>
+                <imsx_severity>status</imsx_severity>
+                <imsx_description>No matching sourced_id found</imsx_description>
+            </imsx_statusInfo>
+        </imsx_POXResponseHeaderInfo>
+    </imsx_POXHeader>
+    <imsx_POXBody>
+        <replaceResultResponse/>
+    </imsx_POXBody>
+</imsx_POXEnvelopeResponse>';
+    exit;
 }
-
 
 // Course data.
 $cm = get_coursemodule_from_id('naas', $activityid, 0, false, MUST_EXIST);
@@ -107,4 +126,22 @@ if (!$completion->is_enabled()) {
 
 $targetstate = COMPLETION_COMPLETE;
 $completion->update_state($cm, $targetstate);
-debugging("completion_complete", DEBUG_DEVELOPER);
+
+// Send success response as per LTI spec
+echo '<?xml version="1.0" encoding="UTF-8"?>
+<imsx_POXEnvelopeResponse xmlns="http://www.imsglobal.org/services/ltiv1p1/xsd/imsoms_v1p0">
+    <imsx_POXHeader>
+        <imsx_POXResponseHeaderInfo>
+            <imsx_version>V1.0</imsx_version>
+            <imsx_messageIdentifier>999999123</imsx_messageIdentifier>
+            <imsx_statusInfo>
+                <imsx_codeMajor>success</imsx_codeMajor>
+                <imsx_severity>status</imsx_severity>
+                <imsx_description>Grade successfully processed</imsx_description>
+            </imsx_statusInfo>
+        </imsx_POXResponseHeaderInfo>
+    </imsx_POXHeader>
+    <imsx_POXBody>
+        <replaceResultResponse/>
+    </imsx_POXBody>
+</imsx_POXEnvelopeResponse>';

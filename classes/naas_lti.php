@@ -107,6 +107,14 @@ HTML;
         // To store in database: user id, activity id, secret.
         $userid = $USER->id;
         $activityid = $cm->id;
+        
+        // Clean up any existing sourced_id records for this user-activity combination
+        // to ensure each new attempt gets a fresh sourced_id
+        $DB->delete_records('naas_activity_outcome', [
+            'user_id' => $userid,
+            'activity_id' => $activityid
+        ]);
+        
         $sourcedid = bin2hex(random_bytes(16)); // 16 bytes to obtain a 32-character hexadecimal string.
 
         // Insert a record in the database.
