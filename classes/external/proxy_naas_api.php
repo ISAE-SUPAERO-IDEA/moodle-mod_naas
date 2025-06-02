@@ -81,8 +81,8 @@ class proxy_naas_api extends  \external_api {
     public static function get_nugget_parameters() {
         return new \external_function_parameters(
             [
-                'courseId' => new external_value(PARAM_INT, 'Course ID'),
-                'nuggetId' => new external_value(PARAM_TEXT, 'Nugget ID'),
+                'courseId' => new \external_value(PARAM_INT, 'Course ID'),
+                'nuggetId' => new \external_value(PARAM_TEXT, 'Nugget ID'),
             ]
         );
     }
@@ -97,9 +97,9 @@ class proxy_naas_api extends  \external_api {
     /**
      * Get nugget method.
      * @param int $courseid
-     * @param int $nuggetid
+     * @param string $nuggetid
      */
-    public static function get_nugget(int $courseid, int $nuggetid) {
+    public static function get_nugget(int $courseid, string $nuggetid) {
         global $CFG;
 
         $params = self::validate_parameters(
@@ -108,7 +108,7 @@ class proxy_naas_api extends  \external_api {
         );
 
         // Context validation.
-        $context = context_course::instance($params['courseId']);
+        $context = \context_course::instance($params['courseId']);
         self::validate_context($context);
         require_capability('mod/naas:addinstance', $context);
 
