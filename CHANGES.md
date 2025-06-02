@@ -2,6 +2,13 @@
 
 _All notable changes to the NaaS Moodle plugin will be documented in this file._
 
+## Version 2.4.2 (2025-06-02)
+
+### Fix
+- Fix incorrect types on get_nugget which break edit Nugget activity
+- Add missing translation
+
+
 ## Version 2.4.1 (2025-05-19)
 
 ### Fix
