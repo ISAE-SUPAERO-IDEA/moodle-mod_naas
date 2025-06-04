@@ -413,7 +413,11 @@ function naas_grade_item_update($nugget, $grades = null) {
     }
 
     $params['gradetype'] = GRADE_TYPE_VALUE;
-    $params['grademax'] = $nugget->maxgrade;
+
+    if(isset($nugget->maxgrade)) {
+        $params['grademax'] = $nugget->maxgrade;
+    }
+    
     $params['grademin'] = 0;
 
     return grade_update('mod/naas', $nugget->course, 'mod', 'naas', $nugget->id, 0, $grades, $params);
