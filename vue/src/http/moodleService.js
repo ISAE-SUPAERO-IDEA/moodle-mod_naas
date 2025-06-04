@@ -51,8 +51,10 @@ class MoodleService {
             require(['core/ajax'], (ajax) => {
                 ajax.call([{ methodname, args }])[0]
                     .then(response => {
-                        const parsedResponse = JSON.parse(response);
-                        const payload = parsedResponse.payload;
+                        const payload = (typeof response === "string") ?
+                            JSON.parse(response).payload :
+                            response;
+
                         if(useCache) {
                             cache.set( { methodname, args }, payload );
                         }
