@@ -2,6 +2,12 @@
 
 _All notable changes to the NaaS Moodle plugin will be documented in this file._
 
+## Version 2.4.3 (2025-06-04)
+
+### Fix
+- Fix hide / show section containing Nuggets
+- Fix xAPI response handling
+
 ## Version 2.4.2 (2025-06-02)
 
 ### Fix
