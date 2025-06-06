@@ -39,7 +39,7 @@ module.exports = {
     if (process.env.NODE_ENV === "production") {
       // Configure output file
       config.optimization.splitChunks = false;
-      config.output.filename = "naas_widget-2025061000.js";
+      config.output.filename = "naas_widget-2025061700.js";
     } else {
       // Inject developpement configuration
       config.plugins.push(

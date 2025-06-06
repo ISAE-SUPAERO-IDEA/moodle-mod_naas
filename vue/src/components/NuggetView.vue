@@ -141,7 +141,6 @@ export default {
   methods: {
     async complete() {
       this.completionModal = true;
-      if (!this.nuggetCompleted) {
         // Sends 'completed' xAPI statement
         this.xapi({
           id: this.config.cm_id,
@@ -149,7 +148,6 @@ export default {
           version_id: this.nugget.version_id,
         });
         this.nuggetCompleted = true;
-      }
     },
   },
 };
