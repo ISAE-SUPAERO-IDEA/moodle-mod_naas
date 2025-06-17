@@ -2,6 +2,15 @@
 
 _All notable changes to the NaaS Moodle plugin will be documented in this file._
 
+## Version 2.4.4 (2025-06-17)
+
+### Chore
+- Use AMOS for French translations
+
+### Fix
+- Submitting a new grade when retrying an activity
+- Nugget preview was incorrect after changing the search criteria
+
 ## Version 2.4.3 (2025-06-04)
 
 ### Fix
