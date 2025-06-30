@@ -71,24 +71,29 @@ Modal style
     background-color: rgba(0, 0, 0, 0.3);
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
     z-index: 999;
+    padding: 40px 0;
 }
 
 .path-mod-naas .nugget-modal {
-    overflow: auto;
-    font-family: Open Sans, proxima-nova, nunito, Arial, sans-serif;
-    max-height: 90%;
-    width: 70%;
+    position: relative;
+    width: 85%;
     max-width: 1140px;
-    position: absolute;
-    left: 50%;
-    top: 50%;
+    margin: 0 auto;
+    margin-bottom: 40px;
     background: #fff;
-    box-shadow: 2px 2px 20px 1px;
-    border-radius: 5px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    border-radius: 8px;
+    display: flex;
     flex-direction: column;
-    transform: translate(-50%, -50%);
+    transform: none;
+    height: auto;
+    max-height: none;
+    overflow: auto;
+    left: auto;
+    top: 50px;
+    font-family: Open Sans, proxima-nova, nunito, Arial, sans-serif;
 }
 
 .path-mod-naas .nugget-modal h2,
@@ -98,8 +103,26 @@ Modal style
 
 @media (max-width: 1250px) {
     .path-mod-naas .nugget-modal {
-        max-height: 75%;
-        width: 75%;
+        width: 90%;
+    }
+}
+
+@media (max-width: 768px) {
+    .path-mod-naas .nugget-modal {
+        width: 95%;
+    }
+
+    .path-mod-naas .nugget-modal-backdrop {
+        padding: 20px 0;
+    }
+
+    .path-mod-naas .nugget-modal-body {
+        max-height: calc(95vh - 100px);
+        padding: 15px 10px;
+    }
+
+    .path-mod-naas .metadata-field {
+        margin: 0 5px;
     }
 }
 
@@ -108,7 +131,10 @@ Modal style
 }
 
 .path-mod-naas .nugget-modal-body {
-    padding-bottom: 15px;
+    padding: 20px 15px;
+    max-height: calc(90vh - 120px);
+    overflow-y: auto;
+    flex-grow: 1;
 }
 
 .path-mod-naas .nugget-modal-footer {
@@ -118,8 +144,9 @@ Modal style
 .path-mod-naas .nugget-modal-description {
     overflow-y: auto;
     display: block;
-    max-height: 200px;
+    max-height: 250px;
     margin-bottom: 20px;
+    padding-right: 10px;
 }
 
 .path-mod-naas .btn-close {
@@ -144,12 +171,12 @@ Modal style
 }
 
 .path-mod-naas .metadata-list-item {
-    margin-left: 30px;
+    margin-right: 10px;
 }
 
 .path-mod-naas .metadata-list-item .badge {
     white-space: normal;
-    max-width: 90%;
+    word-wrap: normal;
 }
 
 .path-mod-naas .nugget-view {
