@@ -72,10 +72,11 @@ Modal style
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 2;
+    z-index: 999;
 }
 
 .path-mod-naas .nugget-modal {
+    overflow: auto;
     font-family: Open Sans, proxima-nova, nunito, Arial, sans-serif;
     max-height: 90%;
     width: 70%;
