@@ -2,6 +2,12 @@
 
 _All notable changes to the NaaS Moodle plugin will be documented in this file._
 
+## Version 2.4.5 (2025-07-16)
+
+### Fix
+- Implement naas_update_grades so that a course containing Nuggets can be reset
+
+
 ## Version 2.4.4 (2025-06-17)
 
 ### Chore
