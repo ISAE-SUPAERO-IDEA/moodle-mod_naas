@@ -83,7 +83,7 @@ function lti_get_jwt_claim_mapping_test() {
 function naas_supports($feature) {
     switch($feature) {
         case FEATURE_MOD_ARCHETYPE:
-            return MOD_ARCHETYPE_RESOURCE;
+            return null;
         case FEATURE_GROUPS:
             return true;
         case FEATURE_GROUPINGS:
