@@ -83,7 +83,7 @@ function lti_get_jwt_claim_mapping_test() {
 function naas_supports($feature) {
     switch($feature) {
         case FEATURE_MOD_ARCHETYPE:
-            return MOD_ARCHETYPE_RESOURCE;
+            return null;
         case FEATURE_GROUPS:
             return true;
         case FEATURE_GROUPINGS:
@@ -394,7 +394,7 @@ function naas_extend_settings_navigation(settings_navigation $settings, navigati
 }
 
 /**
- * Update the grades for a Nugget activity.
+ * Update the grade items for a Nugget activity.
  * @param object $nugget
  * @param object $grades
  * @return mixed
@@ -419,7 +419,32 @@ function naas_grade_item_update($nugget, $grades = null) {
     }
     $params['grademin'] = 0;
 
+    if ($grades === 'reset') {
+        $params['reset'] = true;
+        $grades = null;
+    }
+
     return grade_update('mod/naas', $nugget->course, 'mod', 'naas', $nugget->id, 0, $grades, $params);
+}
+
+/**
+ * Update Nugget activity grades.
+ *
+ * @category grade
+ * @param stdClass $nugget the Nugget activity
+ * @param int $userid specific user only, 0 means all
+ * @param bool $nullifnone If true and the user has no grade then a grade item with rawgrade == null will be inserted
+ */
+function naas_update_grades($nugget, $userid=0, $nullifnone=true) {
+    if ($userid && $nullifnone) {
+        $grade = new stdClass();
+        $grade->userid   = $userid;
+        $grade->rawgrade = null;
+        naas_grade_item_update($nugget, $grade);
+
+    } else {
+        naas_grade_item_update($nugget);
+    }
 }
 
 /**
