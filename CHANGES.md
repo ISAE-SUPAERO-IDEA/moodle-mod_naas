@@ -2,6 +2,13 @@
 
 _All notable changes to the NaaS Moodle plugin will be documented in this file._
 
+## Version 2.4.6 (2025-09-26)
+
+### Improvements
+- Change the plugin type from "resource" to "activity"
+- Improve the responsivity of the "About" pop-up
+- Improve the responsivity of the layout of Nuggets search results
+
 ## Version 2.4.5 (2025-07-16)
 
 ### Fix
