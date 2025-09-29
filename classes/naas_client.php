@@ -163,6 +163,19 @@ class naas_client {
                     $errormessage = "error:naas_api:invalid_credentials";
                     break;
                 case 404:
+                    $this->log_to_file([
+                        'timestamp' => date('c'),
+                        'level' => ($errno || $code >= 400) ? 'ERROR' : 'INFO',
+                        'url' => $url,
+                        'method' => $protocol,
+                        'request_headers' => $headers,
+                        'request_body' => ($protocol === 'POST' ? $data : null),
+                        'http_info' => $info,
+                        'http_code' => $code,
+                        'curl_errno' => $errno,
+                        'curl_error' => $error,
+                        'response' => $response,
+                    ]);
                     $errormessage = "error:naas_api:invalid_endpoint";
                     break;
                 default:
@@ -286,5 +299,42 @@ class naas_client {
         $service = "/versions/{$versionid}/records/{$verb}";
 
         return $this->request($protocol, $service, ((array)$data));
+    }
+
+    private function log_to_file(array $entry) {
+        global $CFG;
+
+        // Nettoyage sécurité: masque éventuels secrets connus.
+        if (!empty($entry['request_headers']) && is_array($entry['request_headers'])) {
+            $entry['request_headers'] = array_values(array_map(function($h) {
+                if (stripos($h, 'authorization:') === 0) {
+                    return 'Authorization: *****';
+                }
+                return $h;
+            }, $entry['request_headers']));
+        }
+
+        // Ne pas exposer le mot de passe Basic (passé via CURLOPT_USERPWD).
+        // Si le body contient des tokens, vous pouvez les masquer ici selon votre schéma:
+        // ex: $entry['request_body']['token'] = '*****';
+
+        $dir = $CFG->tempdir . DIRECTORY_SEPARATOR;
+        $file = $dir . 'naas.log';
+
+        // S’assure que le dossier existe (tempdir existe déjà en Moodle, donc simple vérif).
+        if (!is_dir($dir)) {
+            @mkdir($dir, $CFG->directorypermissions, true);
+        }
+
+        $line = json_encode($entry, JSON_UNESCAPED_SLASHES) . PHP_EOL;
+
+        // Ecriture append + lock pour éviter la corruption en multi-process.
+        $fh = @fopen($file, 'ab');
+        if ($fh) {
+            @flock($fh, LOCK_EX);
+            @fwrite($fh, $line);
+            @flock($fh, LOCK_UN);
+            @fclose($fh);
+        }
     }
 }
