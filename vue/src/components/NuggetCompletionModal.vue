@@ -72,16 +72,20 @@
               </span>
             </div>
           </div>
-          <div class="nugget-modal-footer row justify-content-center">
-            <a :href="backLink" class="btn btn-sm btn-primary"
-              >◀︎ {{ config.labels.back_to_course }}</a
-            >
-            <a 
-              v-if="nextUnitLink" 
-              @click.prevent="goToNextResource" 
-              :href="nextUnitLink" 
-              class="ml-2 btn btn-sm btn-primary"
-            >{{ config.labels.next_unit }} ▶︎</a>
+          <div class="nugget-modal-footer row">
+            <div class="col d-flex justify-content-center align-items-center">
+              <a :href="backLink" class="btn btn-sm btn-primary">
+                ◀︎ {{ config.labels.back_to_course }}
+              </a>
+              <a
+                  v-if="nextUnitLink"
+                  @click.prevent="goToNextResource"
+                  :href="nextUnitLink"
+                  class="ml-2 btn btn-sm btn-primary"
+              >
+                {{ config.labels.next_unit }} ▶︎
+              </a>
+            </div>
           </div>
         </div>
       </div>

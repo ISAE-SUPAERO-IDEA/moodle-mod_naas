@@ -24,15 +24,12 @@
 <template>
   <ul class="related-domains-list">
     <li class="related-domains-list-element">
-      <a
-        href="javascript:;"
-        class="badge badge-pill badge-margin"
-        :class="bucket_class(bucket)"
-        :title="bucket.caption"
-        @click="bucket_click(bucket.query_value)"
-      >
-        {{ truncate_mobile_mode(bucket.caption, 20) }}
-      </a>
+      <NuggetBadge
+          :selected="bucket.selected"
+          :text="bucket.caption"
+          :textLengthMax="20"
+          @click="bucket_click(bucket.query_value)"
+      />
       <span
         v-if="has_children"
         :class="{
@@ -66,8 +63,12 @@
   </ul>
 </template>
 <script>
+
+import NuggetBadge from "./NuggetBadge.vue";
+
 export default {
   name: "RelatedDomain",
+  components: { NuggetBadge },
   props: {
     bucket: {},
     truncate_mobile_mode: {

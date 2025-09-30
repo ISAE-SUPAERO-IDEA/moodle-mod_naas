@@ -2,6 +2,12 @@
 
 _All notable changes to the NaaS Moodle plugin will be documented in this file._
 
+## Version 2.5.0 (2025-09-30)
+
+### Chore
+- This version brings Moodle 5.0 compatibility
+
+
 ## Version 2.4.6 (2025-09-26)
 
 ### Improvements
