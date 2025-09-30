@@ -23,7 +23,7 @@
 -->
 <template>
   <div class="nugget-post h-100">
-    <div class="h-100">
+    <div class="h-100" style="position: relative;">
       <img
         class="w-100"
         :src="nugget.nugget_thumbnail_url.concat('?width=700&height=394')"
@@ -33,33 +33,34 @@
       <h5>{{ authors_names }}</h5>
       <div class="description" v-html="nugget.resume"></div>
       <h5>{{ nugget.displayinfo }}</h5>
+      <div class="nugget-buttons">
+        <a
+            href="javascript:;"
+            class="btn btn-primary nugget-button nugget-button-selection"
+            v-on:click="SelectClickHandler(nugget)"
+            v-show="selection"
+        >
+          {{ config.labels.select_button }}
+        </a>
+        <a
+            href="javascript:;"
+            class="btn btn-primary nugget-button"
+            :class="{ 'nugget-button-selection': selection }"
+            v-on:click="showNuggetViewModal()"
+        >
+          {{ config.labels.preview_button }}
+        </a>
+        <a
+            href="javascript:;"
+            class="btn btn-primary nugget-button"
+            :class="{ 'nugget-button-selection': selection }"
+            v-on:click="showNuggetAboutModal()"
+        >
+          {{ config.labels.about }}
+        </a>
+      </div>
     </div>
-    <div class="nugget-buttons">
-      <a
-        href="javascript:;"
-        class="btn btn-primary nugget-button nugget-button-selection"
-        v-on:click="SelectClickHandler(nugget)"
-        v-show="selection"
-      >
-        {{ config.labels.select_button }}
-      </a>
-      <a
-        href="javascript:;"
-        class="btn btn-primary nugget-button"
-        :class="{ 'nugget-button-selection': selection }"
-        v-on:click="showNuggetViewModal()"
-      >
-        {{ config.labels.preview_button }}
-      </a>
-      <a
-        href="javascript:;"
-        class="btn btn-primary nugget-button"
-        :class="{ 'nugget-button-selection': selection }"
-        v-on:click="showNuggetAboutModal()"
-      >
-        {{ config.labels.about }}
-      </a>
-    </div>
+
     <NuggetAboutModal
       :visible="isNuggetAboutModalVisible"
       :nugget="nugget"
