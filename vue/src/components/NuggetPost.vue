@@ -23,7 +23,7 @@
 -->
 <template>
   <div class="nugget-post h-100">
-    <div class="h-100" style="position: relative;">
+    <div class="h-100" style="position: relative; padding-bottom: 2em">
       <img
         class="w-100"
         :src="nugget.nugget_thumbnail_url.concat('?width=700&height=394')"
