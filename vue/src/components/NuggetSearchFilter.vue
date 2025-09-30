@@ -71,13 +71,11 @@
                 'hide-authors': aggregation_key == 'authors' && index > 5,
               }"
             >
-              <span
-                class="badge badge-pill badge-margin"
-                :class="bucket_class(bucket)"
-                :title="bucket.help"
-                @click="switch_facet(aggregation_key, bucket.query_value)"
-                >{{ truncate_mobile_mode(bucket.caption, 25) }}</span
-              >
+              <NuggetBadge
+                  :selected="bucket.selected"
+                  :text="bucket.caption"
+                  :help="bucket.help"
+                  @click="switch_facet(aggregation_key, bucket.query_value)"  />
             </a>
           </span>
           <div>
@@ -110,6 +108,7 @@
 import RelatedDomain from "./RelatedDomain";
 
 import utils from "@/utils";
+import NuggetBadge from "./NuggetBadge.vue";
 // Useful for aggregation display order
 let aggregations_definitions = [
   {
@@ -166,6 +165,7 @@ export default {
   components: {
     // Loading,
     RelatedDomain,
+    NuggetBadge,
   },
   data() {
     return {
