@@ -29,7 +29,6 @@ namespace mod_naas;
  * @package mod_naas
  */
 class naas_lti {
-
     /**
      * Launch LTI content.
      * @param int $naasinstanceid
@@ -37,7 +36,7 @@ class naas_lti {
      * @return void
      * @throws \Random\RandomException
      */
-    public static function lti_launch($naasinstanceid, $language="") {
+    public static function lti_launch($naasinstanceid, $language = "") {
         global $PAGE;
         global $DB;
         global $CFG;
@@ -52,10 +51,12 @@ class naas_lti {
         $naas = new \mod_naas\naas_client($config);
         $nuggetdata = $naas->get_nugget_data($naasinstance->nugget_id);
         $nuggetconfig = $naas->get_nugget_lti_config($naasinstance->nugget_id);
-        if ($language != ""
+        if (
+            $language != ""
             && isset($nuggetdata)
             && is_object($nuggetdata)
-            && property_exists($nuggetdata, 'multilanguages')) {
+            && property_exists($nuggetdata, 'multilanguages')
+        ) {
             $matchingnugget = null;
             foreach ($nuggetdata->multilanguages as $item) {
                 if (isset($item->language) && $item->language === $language) {
@@ -121,12 +122,12 @@ HTML;
 
         $secret = urlencode($secret) . "&";
         $resourcelinkid = base64_encode(
-                hash_hmac(
-                        "sha1",
-                        $_SERVER['SERVER_NAME'].$USER->email.$nuggetdata->version_id,
-                        $secret,
-                        false
-                )
+            hash_hmac(
+                "sha1",
+                $_SERVER['SERVER_NAME'] . $USER->email . $nuggetdata->version_id,
+                $secret,
+                false
+            )
         );
 
         $custom = [
@@ -150,13 +151,13 @@ HTML;
             "context_id" => $cm->id,
 
             "lis_result_sourcedid" => $sourcedid,
-            "lis_outcome_service_url" => $CFG->wwwroot. "/mod/naas/outcome.php?id=" . $cm->id,
+            "lis_outcome_service_url" => $CFG->wwwroot . "/mod/naas/outcome.php?id=" . $cm->id,
             "resource_link_id" => $resourcelinkid,
             "custom_naas" => json_encode($custom),
         ];
 
         if ($config->naas_privacy_learner_name) {
-            $launchdata["lis_person_name_full"] = $USER->firstname. " ".$USER->lastname;
+            $launchdata["lis_person_name_full"] = $USER->firstname . " " . $USER->lastname;
         }
         if ($config->naas_privacy_learner_mail) {
             $launchdata["lis_person_contact_email_primary"] = $USER->email;

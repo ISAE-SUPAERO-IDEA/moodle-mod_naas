@@ -33,7 +33,6 @@ use naas;
  * @package mod_naas
  */
 class custom_completion extends activity_custom_completion {
-
     /**
      * Check passing grade (or no attempts left) requirement for completion.
      *
