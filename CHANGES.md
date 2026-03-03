@@ -2,6 +2,12 @@
 
 _All notable changes to the NaaS Moodle plugin will be documented in this file._
 
+## Version 2.5.1 (2026-03-09)
+
+### Fix
+- Fix the language change of a Nugget
+
+
 ## Version 2.5.0 (2025-09-30)
 
 ### Chore
