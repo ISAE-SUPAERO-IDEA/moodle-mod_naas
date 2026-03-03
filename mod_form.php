@@ -25,13 +25,14 @@
 
 defined('MOODLE_INTERNAL') || die;
 
-require_once($CFG->dirroot . '/course/moodleform_mod.php');
+require_once($CFG->dirroot.'/course/moodleform_mod.php');
 use core_grades\component_gradeitems;
 
 /**
  * NaaS configuration form
  */
 class mod_naas_mod_form extends moodleform_mod {
+
     /**
      * Form definition
      * @return void

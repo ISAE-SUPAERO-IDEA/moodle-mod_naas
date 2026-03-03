@@ -28,6 +28,7 @@ require_once($CFG->libdir . '/filelib.php');
  * @package mod_naas
  */
 class naas_client {
+
     /**
      * Config
      * @var object
@@ -58,11 +59,11 @@ class naas_client {
      * @return string the JSON response provided by the NaaS API
      */
     public function request_raw($protocol, $service, $data = null, $params = null) {
-        $url = $this->config->naas_endpoint . $service;
+        $url = $this->config->naas_endpoint.$service;
         if ($params != null) {
             // Remove indices from query params.
             $query = preg_replace('/\%5B\d+\%5D/', '', http_build_query($params));
-            $url .= "?" . $query;
+            $url .= "?".$query;
         }
 
         // Log the request and config.
@@ -206,7 +207,7 @@ class naas_client {
         if ($res != null) {
             if (property_exists($res, "payload") && ($res->payload != null || is_array($res->payload))) {
                 if ($this->debug) {
-                    debugging("Payload: " . json_encode($res->payload, JSON_PRETTY_PRINT), DEBUG_DEVELOPER);
+                    debugging("Payload: ".json_encode($res->payload, JSON_PRETTY_PRINT), DEBUG_DEVELOPER);
                 }
                 return $res->payload;
             } else if (property_exists($res, "error")) {
@@ -242,13 +243,13 @@ class naas_client {
      * @param int $structureid
      * @return array|mixed
      */
-    public function get_nugget_lti_config($nuggetid, $structureid = null) {
+    public function get_nugget_lti_config($nuggetid, $structureid=null) {
         if ($structureid == null) {
             $structureid = $this->config->naas_structure_id;
         }
         $protocol = "GET";
         $params = [ "structure_id" => $structureid ];
-        $service = "/nuggets/" . $nuggetid . "/lti";
+        $service = "/nuggets/".$nuggetid."/lti";
         return $this->request($protocol, $service, null, $params);
     }
 
@@ -260,7 +261,7 @@ class naas_client {
     public function get_nugget_data($nuggetid) {
         $protocol = "GET";
         $params = [ "nugget_id" => $nuggetid ];
-        $service = "/nuggets/" . $nuggetid . "/default_version";
+        $service = "/nuggets/".$nuggetid."/default_version";
         return $this->request($protocol, $service, null, $params);
     }
 

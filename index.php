@@ -98,7 +98,7 @@ $table = new html_table();
 $table->attributes['class'] = 'generaltable mod_index';
 
 if ($usesections) {
-    $strsectionname = get_string('sectionname', 'format_' . $course->format);
+    $strsectionname = get_string('sectionname', 'format_'.$course->format);
     $table->head = [$strsectionname, $strname, $strintro, $strlastmodified];
     $table->align = ['center', 'left', 'left', 'left'];
 } else {
