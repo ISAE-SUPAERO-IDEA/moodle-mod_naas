@@ -37,7 +37,8 @@ require_once($CFG->libdir . '/externallib.php');
  * @author John Tranier
  * @author Bruno Ilponse
  */
-class proxy_naas_api extends \external_api {
+class proxy_naas_api extends  \external_api {
+
     /**
      * Test config parameters description.
      */
@@ -366,8 +367,7 @@ class proxy_naas_api extends \external_api {
                         'structure' => new \external_value(PARAM_TEXT, 'Structure filter', VALUE_OPTIONAL),
                         'language' => new \external_multiple_structure(
                             new \external_value(PARAM_TEXT, 'Single language value'),
-                            'Language filter',
-                            VALUE_OPTIONAL
+                            'Language filter', VALUE_OPTIONAL
                         ),
                         'level' => new \external_multiple_structure(
                             new \external_value(PARAM_TEXT, 'Single level value', VALUE_OPTIONAL),
@@ -401,6 +401,7 @@ class proxy_naas_api extends \external_api {
                 ),
             ]
         );
+
     }
 
     /**

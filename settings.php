@@ -34,8 +34,7 @@ if ($hassiteconfig) {
     $resultspan = html_writer::div(
         '',
         'connection-result',
-        ['id' => 'connection-result']
-    );
+        ['id' => 'connection-result']);
     $settings->add(
         new admin_setting_heading(
             'test_connection',
@@ -72,8 +71,8 @@ if ($hassiteconfig) {
         get_string('naas_settings_structure_id', 'naas'),
         get_string('naas_settings_structure_id_help', 'naas'),
         '06d37c13-6ffe-4c4a-a9e3-ac227652f98c',
-        PARAM_TEXT
-    ));
+         PARAM_TEXT
+     ));
 
     $settings->add(new admin_setting_configpasswordunmask(
         'naas/naas_password',

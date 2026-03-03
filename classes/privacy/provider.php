@@ -32,10 +32,10 @@ use core_privacy\local\request\writer;
  * @package mod_naas
  * @author John Tranier
  */
-class provider implements
-    \core_privacy\local\metadata\provider,
+class provider implements \core_privacy\local\metadata\provider,
     \core_privacy\local\request\core_userlist_provider,
     \core_privacy\local\request\plugin\provider {
+
     /**
      * Description of the stored personal data.
      * @param collection $collection
@@ -145,7 +145,7 @@ class provider implements
             // Retrieve the coursemodule.
             $cm = get_coursemodule_from_id('naas', $context->instanceid);
             $activityid = $cm->id;
-            $params = ['user_id' => $userid, 'activity_id' => $activityid];
+            $params = ['user_id' => $userid,   'activity_id' => $activityid];
             $recordset = $DB->get_recordset('naas_activity_outcome', $params);
 
             $nuggetsessiondata = [];
@@ -252,6 +252,7 @@ class provider implements
         $userid = $contextlist->get_user()->id;
 
         foreach ($contextlist->get_contexts() as $context) {
+
             // Retrieve the instance id from the context.
             $cmid = $DB->get_field('course_modules', 'id', ['id' => $context->instanceid], MUST_EXIST);
 
@@ -272,7 +273,7 @@ class provider implements
 
         $cm = $DB->get_record('course_modules', ['id' => $context->instanceid]);
 
-        [$userinsql, $userinparams] = $DB->get_in_or_equal($userlist->get_userids(), SQL_PARAMS_NAMED);
+        list($userinsql, $userinparams) = $DB->get_in_or_equal($userlist->get_userids(), SQL_PARAMS_NAMED);
         $params = array_merge(['activity_id' => $cm->id], $userinparams);
         $sql = "activity_id = :activity_id AND user_id {$userinsql}";
 

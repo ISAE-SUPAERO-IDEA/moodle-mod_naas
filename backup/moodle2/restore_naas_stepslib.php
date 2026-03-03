@@ -21,6 +21,7 @@
  * @package mod_naas
  */
 class restore_naas_activity_structure_step extends restore_activity_structure_step {
+
     /**
      * Define the NaaS activity structure.
      * @return mixed
