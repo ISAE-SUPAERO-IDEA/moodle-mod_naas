@@ -38,7 +38,7 @@ define('NAAS_MAX_Q_DECIMAL_OPTION', 7);
  */
 define('NAAS_GRADEHIGHEST', '1');
 define('NAAS_ATTEMPTFIRST', '3');
-define('NAAS_ATTEMPTLAST',  '4');
+define('NAAS_ATTEMPTLAST', '4');
 /**#@-*/
 
 
@@ -81,7 +81,7 @@ function lti_get_jwt_claim_mapping_test() {
  * @return mixed True if module supports feature, false if not, null if doesn't know
  */
 function naas_supports($feature) {
-    switch($feature) {
+    switch ($feature) {
         case FEATURE_MOD_ARCHETYPE:
             return null;
         case FEATURE_GROUPS:
@@ -386,9 +386,13 @@ function naas_check_updates_since(cm_info $cm, $from, $filter = []) {
  * @since Moodle 4.0
  */
 function naas_extend_settings_navigation(settings_navigation $settings, navigation_node $naasnode) {
-    $naasnode->add(get_string('about', 'naas'),
+    $naasnode->add(
+        get_string('about', 'naas'),
         new moodle_url('#'),
-        navigation_node::TYPE_SETTING, null, 'about');
+        navigation_node::TYPE_SETTING,
+        null,
+        'about'
+    );
 }
 
 /**
@@ -401,7 +405,7 @@ function naas_grade_item_update($nugget, $grades = null) {
     global $CFG;
 
     if (!function_exists('grade_update')) { // Workaround for buggy PHP versions.
-        require_once($CFG->libdir.'/gradelib.php');
+        require_once($CFG->libdir . '/gradelib.php');
     }
 
     if (property_exists($nugget, 'cm_id')) { // It may not be always present.
@@ -433,13 +437,12 @@ function naas_grade_item_update($nugget, $grades = null) {
  * @param int $userid specific user only, 0 means all
  * @param bool $nullifnone If true and the user has no grade then a grade item with rawgrade == null will be inserted
  */
-function naas_update_grades($nugget, $userid=0, $nullifnone=true) {
+function naas_update_grades($nugget, $userid = 0, $nullifnone = true) {
     if ($userid && $nullifnone) {
         $grade = new stdClass();
         $grade->userid   = $userid;
         $grade->rawgrade = null;
         naas_grade_item_update($nugget, $grade);
-
     } else {
         naas_grade_item_update($nugget);
     }

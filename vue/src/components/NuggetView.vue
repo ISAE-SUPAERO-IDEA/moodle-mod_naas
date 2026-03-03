@@ -33,7 +33,7 @@
         >
           {{ config.labels.about }}
         </a>
-        <select class="language-select" @change="language = $event.item.value">
+        <select class="language-select" @change="language = $event.target.value">
           <option selected :value="this.nugget.language">
             {{ config.labels.metadata[nugget.language] }}
           </option>

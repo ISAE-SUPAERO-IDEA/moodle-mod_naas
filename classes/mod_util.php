@@ -33,7 +33,6 @@ namespace mod_naas;
  * @package mod_naas
  */
 class mod_util {
-
     /**
      * Return a link to the next activity
      * @return object|null { link: string, name: string }
@@ -81,7 +80,8 @@ class mod_util {
             }
             if ($mod->sectionnum > 0 && $sectionnum != $mod->sectionnum) {
                 $thissection = $sections[$mod->sectionnum];
-                if ($thissection->visible ||
+                if (
+                    $thissection->visible ||
                     \has_capability('moodle/course:viewhiddensections', $context)
                 ) {
                     $sectionnum = $mod->sectionnum;
@@ -99,7 +99,7 @@ class mod_util {
                 }
             }
             $thismod = (object)[
-                'link' => new \moodle_url('/mod/'.$mod->modname.'/view.php', ['id' => $mod->id]),
+                'link' => new \moodle_url('/mod/' . $mod->modname . '/view.php', ['id' => $mod->id]),
                 'name' => \format_string($mod->name, true),
             ];
             if ($flag) { // Current mod is the 'next' mod.
@@ -123,5 +123,4 @@ class mod_util {
 
         return $next;
     }
-
 }

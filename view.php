@@ -32,7 +32,6 @@ $forceview = optional_param('forceview', 0, PARAM_BOOL);
 if ($u) {  // Two ways to specify the module.
     $naasinstance = $DB->get_record('naas', ['id' => $u], '*', MUST_EXIST);
     $cm = get_coursemodule_from_instance('naas', $naas->id, $naas->course, false, MUST_EXIST);
-
 } else {
     $cm = get_coursemodule_from_id('naas', $id, 0, false, MUST_EXIST);
     $naasinstance = $DB->get_record('naas', ['id' => $cm->instance], '*', MUST_EXIST);
@@ -53,7 +52,7 @@ $PAGE->set_cm($cm, $course); // Set's up global $COURSE.
 $PAGE->set_context($context);
 $url = new moodle_url('/mod/naas/view.php', ['id' => $cm->id]);
 $PAGE->set_url($url);
-$pagetitle = strip_tags($course->shortname.': '.format_string($naasinstance->name));
+$pagetitle = strip_tags($course->shortname . ': ' . format_string($naasinstance->name));
 $PAGE->set_title($pagetitle);
 $PAGE->set_heading($course->fullname);
 
@@ -63,14 +62,14 @@ echo $OUTPUT->header();
 $courseurl = new moodle_url('/course/view.php', ['id' => $COURSE->id]);
 // Back to course button.
 $backcoursebutton = "<div class='course-button'><a class='btn btn-outline-secondary btn-sm'
-    href=".$courseurl.">".get_string('back_to_course', 'naas')."</a></div>";
+    href=" . $courseurl . ">" . get_string('back_to_course', 'naas') . "</a></div>";
 
 echo $backcoursebutton;
 
 $nextactivityurl = \mod_naas\mod_util::get_next_activity_url();
 if ($nextactivityurl) {
     echo "<div class='next-activity hidden'><a class='btn btn-outline-secondary btn-sm'
-    href=".$nextactivityurl->link."&forceview=1>".$nextactivityurl->name."</a></div>";
+    href=" . $nextactivityurl->link . "&forceview=1>" . $nextactivityurl->name . "</a></div>";
 }
 
 // Displays Nugget.

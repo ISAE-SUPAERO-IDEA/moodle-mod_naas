@@ -31,7 +31,6 @@ require_once($CFG->dirroot . '/mod/naas/backup/moodle2/backup_naas_stepslib.php'
  * Provides all the settings and steps to perform one complete backup of the activity
  */
 class backup_naas_activity_task extends backup_activity_task {
-
     /**
      * No specific settings for this activity
      */
