@@ -31,7 +31,6 @@ require_once($CFG->dirroot . '/mod/naas/backup/moodle2/restore_naas_stepslib.php
  * complete restore of the activity
  */
 class restore_naas_activity_task extends restore_activity_task {
-
     /**
      * Define (add) particular settings this activity can have
      */
