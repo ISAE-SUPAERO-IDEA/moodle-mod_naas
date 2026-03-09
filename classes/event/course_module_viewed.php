@@ -28,7 +28,6 @@ namespace mod_naas\event;
  * The course_module_viewed event.
  */
 class course_module_viewed extends \core\event\course_module_viewed {
-
     /**
      * Initialize
      * @return void

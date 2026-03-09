@@ -36,4 +36,3 @@ require_login($course, true, $cm);
 require_capability('mod/naas:view', $context);
 
 \mod_naas\naas_lti::lti_launch($id, $language);
-
