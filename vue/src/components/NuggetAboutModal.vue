@@ -140,6 +140,18 @@
                         {{ nugget.publication_date | formatDate }}
                       </strong>
                     </li>
+                    <li v-show="is_shown(structure_acronym)">
+                      <i class="icon fa fa-university"></i>
+                      {{ config.labels.metadata.producers }}:
+                      <strong>
+                        {{ structure_acronym }}
+                      </strong>
+                    </li>
+                    <li v-show="partner_name">
+                      <i class="icon fa fa-building"></i>
+                      {{ config.labels.metadata.partner_with }}:
+                      <strong>{{ partner_name }}</strong>
+                    </li>
                   </ul>
                 </div>
               </div>
@@ -193,13 +205,55 @@
   </div>
 </template>
 <script>
+import naasMixin from "@/mixin";
+
 export default {
   name: "NuggetAboutModal",
+  mixins: [naasMixin],
   props: ["nugget", "visible"],
+  data() {
+    return {
+      producers: [],
+    };
+  },
+  watch: {
+    nugget: {
+      handler(newVal) {
+        this.loadProducersFromAuthors(newVal);
+      },
+      deep: true,
+      immediate: true,
+    },
+  },
+
   methods: {
+    async loadProducersFromAuthors(nugget) {
+      if (!nugget || !nugget.authors_data) {
+        return;
+      }
+      const ids = Array.from(
+        new Set(
+          nugget.authors_data.flatMap(a => a.managing_structures || [])
+        )
+      );
+      if (ids.length === 0) {
+        return;
+      }
+      try {
+        const results = [];
+        for (const id of ids) {
+          const structure = await this.getStructure(id);
+          results.push(structure);
+        }
+        this.producers = results;
+      } catch (e) {
+        console.error("Error fetching producers", e);
+      }
+    },
     closeNuggetModal() {
       this.$emit("close");
     },
+
     is_shown(val) {
       if (val == undefined) return false;
       if (val == "") return false;
@@ -213,6 +267,7 @@ export default {
       return true;
     },
   },
+
   computed: {
     in_brief_shown() {
       return (
@@ -222,9 +277,28 @@ export default {
         this.is_shown(this.nugget.language)
       );
     },
+
     authors_info() {
       return this.nugget.authors_data
         ? this.nugget.authors_data.join(", ")
+        : "";
+    },
+
+    structure_acronym() {
+      if (!this.producers || this.producers.length === 0) {
+        return "";
+      }
+      return this.producers
+        .map(s => (s && (s.acronym || s.name)) || "")
+        .filter(v => v !== "")
+        .join(" & ");
+    },
+
+    partner_name() {
+      return this.nugget &&
+        this.nugget.partner &&
+        this.nugget.partner.name
+        ? this.nugget.partner.name
         : "";
     },
   },

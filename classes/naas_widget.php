@@ -100,6 +100,7 @@ class naas_widget {
                     "pl" => get_string('pl', 'naas'),
                     "sv" => get_string('sv', 'naas'),
                     "publication_date" => get_string('publication_date', 'naas'),
+                    "partner_with" => get_string('partner_with', 'naas'),
                 ],
                 "rating" => [
                     "title" => get_string('rating_title', 'naas'),
