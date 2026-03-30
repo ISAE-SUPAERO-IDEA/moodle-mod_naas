@@ -134,6 +134,7 @@ $string["nugget"] = "Nugget";
 $string["nugget_search"] = "Search Nuggets";
 $string["nugget_search_here"] = "To get started, enter a keyword";
 $string["nugget_search_no_result"] = "The search returned no results, please use another keyword.";
+$string["partner_with"] = "With";
 $string["pl"] = "Polish";
 $string["pluginadministration"] = "";
 $string["pluginname"] = "Nugget";

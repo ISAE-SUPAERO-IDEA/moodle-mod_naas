@@ -147,8 +147,7 @@
                         {{ structure_acronym }}
                       </strong>
                     </li>
-                    <li v-show="partner_name">
-                      <i class="icon fa fa-building"></i>
+                    <li v-show="partner_name">                   
                       {{ config.labels.metadata.partner_with }}:
                       <strong>{{ partner_name }}</strong>
                     </li>
