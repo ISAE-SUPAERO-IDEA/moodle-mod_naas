@@ -216,15 +216,10 @@ export default {
     };
   },
   watch: {
-    nugget: {
-      handler(newVal) {
-        this.loadProducersFromAuthors(newVal);
-      },
-      deep: true,
-      immediate: true,
-    },
+    'nugget.version_id'() {
+      this.loadProducersFromAuthors(this.nugget);
+  }
   },
-
   methods: {
     async loadProducersFromAuthors(nugget) {
       if (!nugget || !nugget.authors_data) {
@@ -294,11 +289,7 @@ export default {
     },
 
     partner_name() {
-      return this.nugget &&
-        this.nugget.partner &&
-        this.nugget.partner.name
-        ? this.nugget.partner.name
-        : "";
+      return (this.nugget && this.nugget.partner && this.nugget.partner.name) || "";
     },
   },
 };
