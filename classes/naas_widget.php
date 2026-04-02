@@ -100,6 +100,7 @@ class naas_widget {
                     "pl" => get_string('pl', 'naas'),
                     "sv" => get_string('sv', 'naas'),
                     "publication_date" => get_string('publication_date', 'naas'),
+                    "partner_with" => get_string('partner_with', 'naas'),
                 ],
                 "rating" => [
                     "title" => get_string('rating_title', 'naas'),
@@ -113,7 +114,7 @@ class naas_widget {
         ]);
         $html = "<div id='naas_widget'></div>";
         $html .= "<script>NAAS=$widgetconfig</script>";
-        $widgetjsurl = new \moodle_url('/mod/naas/assets/vue/naas_widget-2026030300.js');
+        $widgetjsurl = new \moodle_url('/mod/naas/assets/vue/naas_widget-2026033000.js');
         $html .= "<script src='$widgetjsurl' ></script>";
 
         return $html;
