@@ -41,6 +41,7 @@ class naas_lti {
         global $DB;
         global $CFG;
         global $USER;
+        global $OUTPUT;
         $cm = get_coursemodule_from_id('naas', $naasinstanceid, 0, false, MUST_EXIST);
         $naasinstance = $DB->get_record('naas', ['id' => $cm->instance], '*', MUST_EXIST);
         $context = \context_module::instance($cm->id);
@@ -71,28 +72,7 @@ class naas_lti {
 
         if ($nuggetconfig == null || isset($nuggetconfig->error)) {
             $errormessage = get_string("cannot_get_nugget", "naas");
-            echo <<<HTML
-<style>
-.error-message {
-  color: #721c24;
-  background-color: #f8d7da;
-  border: 1px solid #f5c6cb;
-  padding: 12px;
-  border-radius: 4px;
-  font-size: 14px;
-  font-weight: bold;
-  margin: 10px 0;
-  display: flex;
-  align-items: center;
-}
-
-.error-message::before {
-  content: "⚠️";
-  margin-right: 8px;
-}
-</style>
-    <div class="error-message">$errormessage</div>
-HTML;
+            echo $OUTPUT->notification($errormessage, \core\output\notification::NOTIFY_ERROR);
             return;
         }
 
@@ -101,7 +81,12 @@ HTML;
 
         // See: https://moodle.org/mod/forum/discuss.php?d=335734.
         // Configure launch data.
-        $launchurl = $nuggetconfig->url;
+        $launchurl = clean_param($nuggetconfig->url, PARAM_URL);
+        if (empty($launchurl)) {
+            $errormessage = get_string("cannot_get_nugget", "naas");
+            echo $OUTPUT->notification($errormessage, \core\output\notification::NOTIFY_ERROR);
+            return;
+        }
         $key = $nuggetconfig->key;
         $secret = $nuggetconfig->secret;
 
@@ -183,26 +168,20 @@ HTML;
         // Session php variable avec le resource_link_id.
         $_SESSION["resource_link_id"] = $resourcelinkid;
 
-        // Generate HTML & javascript code to POST request.
-        $html = <<<HTML
-    <form id="ltiLaunchForm" name="ltiLaunchForm" method="POST" action="$launchurl">
-HTML;
+        // Render the LTI launch form
+        $launchdata['oauth_signature'] = $signature;
 
+        $fields = [];
         foreach ($launchdata as $key => $value) {
-            $key = htmlspecialchars($key, ENT_COMPAT);
-            $value = htmlspecialchars($value, ENT_COMPAT);
-            $html .= "  <input type=\"hidden\" name=\"{$key}\" value=\"{$value}\"/>\n";
+            $fields[] = [
+                'name' => $key,
+                'value' => $value,
+            ];
         }
 
-        $html .= <<<HTML
-    <input type="hidden" name="oauth_signature" value="$signature">
-    </form>
-    <script>
-        window.addEventListener("load", () => {
-            document.getElementById("ltiLaunchForm").submit();
-        });
-    </script>
-HTML;
-        echo $html;
+        $form = new \mod_naas\output\lti_launch_form($launchurl, $fields);
+        echo $OUTPUT->render_from_template('mod_naas/lti_launch_form', $form->export_for_template($OUTPUT));
+
+        $PAGE->requires->js_init_code('document.getElementById("ltiLaunchForm").submit();', true);
     }
 }
