@@ -1,0 +1,62 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template mod_naas/index_page
+
+    Provides theme-overridable layout for the course module list page.
+
+    Context variables required for this template:
+    * courseurl (string) - URL to return to the course
+    * backtocourse (string) - Localized "back to course" string
+    * heading (string) - The page heading HTML
+    * usesections (bool) - Whether the course format uses sections
+    * rows (array) - Array of activity rows
+}}
+{{{heading}}}
+
+<div class="course-button mb-3">
+    <a class="btn btn-outline-secondary btn-sm" href="{{courseurl}}">{{backtocourse}}</a>
+</div>
+
+<table class="generaltable mod_index">
+    <thead>
+        <tr>
+            {{#usesections}}
+            <th class="header c0" style="text-align: center;">{{#str}} sectionname {{/str}}</th>
+            {{/usesections}}
+            <th class="header c1" style="text-align: left;">{{#str}} name {{/str}}</th>
+            <th class="header c2" style="text-align: left;">{{#str}} moduleintro {{/str}}</th>
+            <th class="header c3" style="text-align: left;">{{#str}} lastmodified {{/str}}</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{#rows}}
+        <tr class="{{#dimmed}}dimmed{{/dimmed}}">
+            {{#usesections}}
+            <td class="cell c0" style="text-align: center;">{{sectionname}}</td>
+            {{/usesections}}
+            <td class="cell c1"><a class="{{#dimmed}}dimmed{{/dimmed}}" href="{{url}}">{{name}}</a></td>
+            <td class="cell c2">{{{intro}}}</td>
+            <td class="cell c3">{{timemodified}}</td>
+        </tr>
+        {{/rows}}
+    </tbody>
+</table>
+
+<div class="course-button mt-3">
+    <a class="btn btn-outline-secondary btn-sm" href="{{courseurl}}">{{backtocourse}}</a>
+</div>

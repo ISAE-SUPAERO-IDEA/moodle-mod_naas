@@ -17,45 +17,23 @@
 {{!
     @template mod_naas/view_page
 
-    Template for the NaaS view page.
+    Provides theme-overridable layout for the main activity view.
 
-    Example context (json):
-    {
-        "widget": {
-            "config": "{\"moodle_url\":\"https:\\/\\/moodle.example.com\",\"mount_point\":\"#naas_widget\",\"component\":\"mod_naas\",\"nugget_id\":123,\"courseId\":5,\"cm_id\":15,\"labels\":{\"search\":\"Search\"} }",
-            "widgetjsurl": "https://moodle.example.com/mod/naas/assets/vue/naas_widget-2026030300.js"
-        },
-        "backcourseurl": "https://moodle.example.com/course/view.php?id=5",
-        "backcoursetext": "Back to course",
-        "nextactivity": {
-            "url": "https://moodle.example.com/mod/assign/view.php?id=16&forceview=1",
-            "name": "Next assignment"
-        }
-    }
+    Context variables required for this template:
+    * courseurl (string) - URL to return to the course
+    * backtocourse (string) - Localized "back to course" string
+    * hasnextactivity (bool) - True if there is a next activity
+    * nextactivityname (string) - The name of the next activity (optional)
+    * nextactivityurl (string) - The URL of the next activity (optional)
+    * widgethtml (string) - The pre-rendered HTML for the widget
 }}
-<div class="course-button">
-    <a class="btn btn-outline-secondary btn-sm" href="{{{backcourseurl}}}">{{backcoursetext}}</a>
+<div class='course-button'>
+    <a class='btn btn-outline-secondary btn-sm' href="{{courseurl}}">{{backtocourse}}</a>
 </div>
 
 
-{{#widget}}
-    {{> mod_naas/widget }}
-{{/widget}}
+{{{widgethtml}}}
 
-<div class="course-button">
-    <a class="btn btn-outline-secondary btn-sm" href="{{{backcourseurl}}}">{{backcoursetext}}</a>
+<div class='course-button'>
+    <a class='btn btn-outline-secondary btn-sm' href="{{courseurl}}">{{backtocourse}}</a>
 </div>
-
-{{#js}}
-require(['core/first'], function() {
-    var aboutButton = document.querySelector('.secondary-navigation nav ul li[data-key=about]');
-    if (aboutButton) {
-        aboutButton.addEventListener('click', function() {
-            var widgetAboutButton = document.querySelector('#nugget-info-button div a');
-            if (widgetAboutButton) {
-                widgetAboutButton.click();
-            }
-        });
-    }
-});
-{{/js}}
