@@ -1,5 +1,5 @@
 <?php
-// This file is part of Moodle - http://moodle.org
+// This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -15,63 +15,88 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Output for the NaaS view page.
+ * mod_naas view page output component.
  *
- * @package   mod_naas
- * @copyright 2026 ISAE-SUPAERO
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    mod_naas
+ * @copyright  2019 onwards ISAE-SUPAERO (https://www.isae-supaero.fr/)
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 namespace mod_naas\output;
 
+defined('MOODLE_INTERNAL') || die();
+
+use moodle_url;
 use renderable;
-use templatable;
 use renderer_base;
 use stdClass;
-use moodle_url;
+use templatable;
 
 /**
- * Output for the NaaS view page.
+ * Renderable and templatable component for the naas view.php page.
  *
- * @package   mod_naas
- * @copyright 2026 ISAE-SUPAERO
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    mod_naas
+ * @copyright  2019 onwards ISAE-SUPAERO (https://www.isae-supaero.fr/)
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @since      mod_naas 1.0.0
  */
 class view_page implements renderable, templatable {
-    /** @var \mod_naas\output\widget The NaaS widget. */
-    protected $widget;
 
-    /** @var int The course ID. */
-    protected $courseid;
+    /** @var moodle_url The main course URL */
+    public moodle_url $courseurl;
+
+    /** @var string The localized "back to course" string */
+    public string $backtocourse;
+
+    /** @var stdClass|null The next activity details */
+    public ?stdClass $nextactivity;
+
+    /** @var string Pre-rendered widget HTML */
+    public string $widgethtml;
 
     /**
      * Constructor.
      *
-     * @param \mod_naas\output\widget $widget
-     * @param int $courseid
+     * @param moodle_url $courseurl
+     * @param string $backtocourse
+     * @param stdClass|null $nextactivity
+     * @param string $widgethtml
      */
-    public function __construct(widget $widget, $courseid) {
-        $this->widget = $widget;
-        $this->courseid = $courseid;
+    public function __construct(
+        moodle_url $courseurl,
+        string $backtocourse,
+        ?stdClass $nextactivity,
+        string $widgethtml
+    ) {
+        $this->courseurl = $courseurl;
+        $this->backtocourse = $backtocourse;
+        $this->nextactivity = $nextactivity;
+        $this->widgethtml = $widgethtml;
     }
 
     /**
      * Export this data so it can be used as the context for a mustache template.
      *
-     * @param renderer_base $output
-     * @return stdClass
+     * @param renderer_base $output The renderer handling the export
+     * @return stdClass Context available in the template
      */
-    public function export_for_template(renderer_base $output) {
-        $data = new stdClass();
+    public function export_for_template(renderer_base $output): stdClass {
+        $context = new stdClass();
+        $context->courseurl = $this->courseurl->out(false);
+        $context->backtocourse = $this->backtocourse;
+        $context->widgethtml = $this->widgethtml;
+        $context->hasnextactivity = false;
 
-        // Widget.
-        $data->widget = $this->widget->export_for_template($output);
+        if (!empty($this->nextactivity)) {
+            $context->hasnextactivity = true;
+            $context->nextactivityname = $this->nextactivity->name;
 
-        // Back to course button.
-        $courseurl = new moodle_url('/course/view.php', ['id' => $this->courseid]);
-        $data->backcourseurl = $courseurl->out(false);
-        $data->backcoursetext = get_string('back_to_course', 'naas');
+            // Re-parse the link to a proper moodle_url object to safely append parameters.
+            $nexturl = new moodle_url($this->nextactivity->link);
+            $nexturl->param('forceview', 1);
+            $context->nextactivityurl = $nexturl->out(false);
+        }
 
-        return $data;
+        return $context;
     }
 }
