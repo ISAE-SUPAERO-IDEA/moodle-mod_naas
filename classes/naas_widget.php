@@ -40,11 +40,11 @@ class naas_widget {
      * @return string
      */
     public static function naas_widget_html($nuggetid, $courseid, $cmid, $component): string {
-        global $CFG, $PAGE;
+        global $CFG, $PAGE, $OUTPUT;
 
         $PAGE->requires->js_call_amd('core/first', null, true);
 
-        $widgetconfig = json_encode([
+        $widgetconfig = [
             "moodle_url" => $CFG->wwwroot,
             "mount_point" => "#naas_widget",
             "component" => $component,
@@ -110,13 +110,13 @@ class naas_widget {
                 "learning_outcomes_desc" => get_string('learning_outcomes_desc', 'naas'),
                 "complete_nugget" => get_string('complete_nugget', 'naas'),
             ],
-        ]);
-        $html = "<div id='naas_widget'></div>";
-        $html .= "<script>NAAS=$widgetconfig</script>";
-        $widgetjsurl = new \moodle_url('/mod/naas/assets/vue/naas_widget-2026030300.js');
-        $html .= "<script src='$widgetjsurl' ></script>";
+        ];
 
-        return $html;
+        $PAGE->requires->js_call_amd('mod_naas/widget_init', 'init', [$widgetconfig]);
+        $widgetjsurl = new \moodle_url('/mod/naas/assets/vue/naas_widget-2026030300.js');
+        $PAGE->requires->js($widgetjsurl);
+
+        return $OUTPUT->render_from_template('mod_naas/naas_widget', []);
     }
 
     /**
