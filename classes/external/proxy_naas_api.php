@@ -249,11 +249,20 @@ class proxy_naas_api extends \external_api {
         self::validate_context($context);
         require_capability('mod/naas:view', $context);
 
+        $cache = \cache::make('mod_naas', 'vocabulary_entries');
+        $cachekey = 'domain_' . $params['domainKey'];
+        $cached = $cache->get($cachekey);
+        if ($cached !== false) {
+            return $cached;
+        }
+
         $config = (object) array_merge((array) get_config('naas'), (array) $CFG);
         $naas = new \mod_naas\naas_client($config);
 
         $url = "/vocabularies/nugget_domains_vocabulary/{$params['domainKey']}";
-        return $naas->request_raw('GET', $url);
+        $result = $naas->request_raw('GET', $url);
+        $cache->set($cachekey, $result);
+        return $result;
     }
 
     /**
@@ -294,11 +303,20 @@ class proxy_naas_api extends \external_api {
         self::validate_context($context);
         require_capability('mod/naas:view', $context);
 
+        $cache = \cache::make('mod_naas', 'vocabulary_entries');
+        $cachekey = 'structure_' . $params['structureKey'];
+        $cached = $cache->get($cachekey);
+        if ($cached !== false) {
+            return $cached;
+        }
+
         $config = (object) array_merge((array) get_config('naas'), (array) $CFG);
         $naas = new \mod_naas\naas_client($config);
 
         $url = "/structures/{$params['structureKey']}";
-        return $naas->request_raw('GET', $url);
+        $result = $naas->request_raw('GET', $url);
+        $cache->set($cachekey, $result);
+        return $result;
     }
 
     /**
@@ -339,11 +357,20 @@ class proxy_naas_api extends \external_api {
         self::validate_context($context);
         require_capability('mod/naas:view', $context);
 
+        $cache = \cache::make('mod_naas', 'vocabulary_entries');
+        $cachekey = 'person_' . $params['personKey'];
+        $cached = $cache->get($cachekey);
+        if ($cached !== false) {
+            return $cached;
+        }
+
         $config = (object) array_merge((array) get_config('naas'), (array) $CFG);
         $naas = new \mod_naas\naas_client($config);
 
         $url = "/persons/{$params['personKey']}";
-        return $naas->request_raw('GET', $url);
+        $result = $naas->request_raw('GET', $url);
+        $cache->set($cachekey, $result);
+        return $result;
     }
 
     /**
