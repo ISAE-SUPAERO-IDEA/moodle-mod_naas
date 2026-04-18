@@ -171,3 +171,38 @@ function complete() {
   })
 }
 </script>
+
+<style scoped>
+.container {
+  padding: 0;
+}
+
+#nugget-info-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.language-select {
+  margin-left: 5px;
+  padding: 0.3rem 1rem 0.5rem 1rem;
+  cursor: pointer;
+  border: 1px solid var(--primary, #0f6cbf);
+  border-radius: 4px;
+  background: #fff;
+  font-size: 0.875rem;
+}
+
+.gallery {
+  margin: 0;
+}
+
+#completion-modal-button {
+  margin-top: 1.5rem;
+}
+
+#completion-modal-button button {
+  padding: 10px 30px;
+}
+</style>

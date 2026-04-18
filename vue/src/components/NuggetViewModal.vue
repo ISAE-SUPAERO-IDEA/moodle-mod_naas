@@ -85,3 +85,97 @@ function close() {
   emit('close')
 }
 </script>
+
+<style scoped>
+.nugget-modal-backdrop {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(3px);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  z-index: 999;
+  padding: 40px 0;
+}
+
+.nugget-modal {
+  position: relative;
+  width: 85%;
+  max-width: 1140px;
+  margin: 0 auto 40px;
+  background: #fff;
+  box-shadow: var(--naas-shadow-md, 0 4px 20px rgba(0, 0, 0, 0.15));
+  border-radius: var(--naas-radius, 6px);
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+  top: 50px;
+}
+
+#nugget-preview-modal {
+  height: 85%;
+}
+
+#nugget-preview-modal .nugget-modal-body {
+  height: 85%;
+}
+
+.nugget-modal-header {
+  border-bottom: 1px solid #e9ecef;
+}
+
+.nugget-modal-header h2 {
+  padding: 18px 0 14px 28px;
+  font-size: 1.25rem;
+}
+
+.nugget-modal-body {
+  padding: 20px 15px;
+  max-height: calc(90vh - 120px);
+  overflow-y: auto;
+  flex-grow: 1;
+}
+
+.btn-close {
+  position: relative;
+  float: right;
+  padding: 12px 16px;
+  top: 0;
+  color: #6c757d;
+  font-size: 22px;
+  font-weight: bold;
+  border: none;
+  background: transparent;
+  line-height: 1;
+  border-radius: var(--naas-radius, 6px);
+  transition: color var(--naas-transition, 0.18s ease), background var(--naas-transition, 0.18s ease);
+}
+
+.btn-close:hover {
+  color: #212529;
+  background: #f0f0f0;
+}
+
+.preview-iframe {
+  border: none;
+}
+
+.nugget-view {
+  margin: 0;
+  padding: 0;
+}
+
+.modal-fade-enter-active,
+.modal-fade-leave-active {
+  transition: opacity 0.25s ease;
+}
+
+.modal-fade-enter-from,
+.modal-fade-leave-to {
+  opacity: 0;
+}
+</style>

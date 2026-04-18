@@ -93,3 +93,37 @@ function truncate(text: string, length: number): string {
   return text && text.length > length ? text.substring(0, length) + '...' : text
 }
 </script>
+
+
+<style scoped>
+.nugget-post {
+  border-radius: var(--naas-radius, 6px);
+  box-shadow: var(--naas-shadow-sm, 0 2px 6px rgba(0, 0, 0, 0.12));
+  padding: 10px;
+  margin: 10px 10px 25px 10px;
+  transition: box-shadow var(--naas-transition, 0.18s ease);
+}
+
+.nugget-post:hover {
+  box-shadow: var(--naas-shadow-md, 0 4px 16px rgba(0, 0, 0, 0.15));
+}
+
+.nugget-buttons {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+}
+
+.nugget-button {
+  margin-right: 5px;
+}
+
+.nugget-button-selection {
+  padding: 0 5px 0 5px;
+}
+
+.nugget-button:focus {
+  outline: none;
+  box-shadow: none;
+}
+</style>

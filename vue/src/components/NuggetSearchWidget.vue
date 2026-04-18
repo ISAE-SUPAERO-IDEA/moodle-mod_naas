@@ -230,3 +230,33 @@ onMounted(async () => {
   }
 })
 </script>
+
+<style scoped>
+.nugget-selected {
+  margin-bottom: 75px;
+}
+
+.nugget-post-selection {
+  margin-bottom: 20px;
+}
+
+.nugget-post-selected :deep(.nugget-post) {
+  background: var(--primary-light, #dce9fa);
+  outline: 2px solid var(--primary, #0f6cbf);
+}
+
+.show-more-nugget {
+  margin-left: 25px;
+  margin-bottom: 20px;
+}
+
+.search-center {
+  display: block;
+  margin: auto 0 auto 10px;
+  border: 1px solid;
+}
+
+.btn-replace {
+  margin-left: 10px;
+}
+</style>

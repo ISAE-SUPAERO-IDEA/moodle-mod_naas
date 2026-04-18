@@ -156,3 +156,119 @@ const inBriefShown = computed(() => {
   return true // resolved reactively inside template via v-if guards above
 })
 </script>
+
+<style scoped>
+.nugget-modal-backdrop {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(3px);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  z-index: 999;
+  padding: 40px 0;
+}
+
+.nugget-modal {
+  position: relative;
+  width: 85%;
+  max-width: 1140px;
+  margin: 0 auto 40px;
+  background: #fff;
+  box-shadow: var(--naas-shadow-md, 0 4px 20px rgba(0, 0, 0, 0.15));
+  border-radius: var(--naas-radius, 6px);
+  display: flex;
+  flex-direction: column;
+  height: auto;
+  max-height: none;
+  overflow: auto;
+  top: 50px;
+}
+
+.nugget-modal-header {
+  border-bottom: 1px solid #e9ecef;
+}
+
+.nugget-modal-header h2 {
+  padding: 18px 0 14px 28px;
+  font-size: 1.25rem;
+}
+
+.nugget-modal-body {
+  padding: 20px 15px;
+  max-height: calc(90vh - 120px);
+  overflow-y: auto;
+  flex-grow: 1;
+}
+
+.nugget-modal-description {
+  overflow-y: auto;
+  display: block;
+  max-height: 250px;
+  margin-bottom: 20px;
+  padding-right: 10px;
+}
+
+.btn-close {
+  position: relative;
+  float: right;
+  padding: 12px 16px;
+  top: 0;
+  color: #6c757d;
+  font-size: 22px;
+  font-weight: bold;
+  border: none;
+  background: transparent;
+  line-height: 1;
+  border-radius: var(--naas-radius, 6px);
+  transition: color var(--naas-transition, 0.18s ease), background var(--naas-transition, 0.18s ease);
+}
+
+.btn-close:hover {
+  color: #212529;
+  background: #f0f0f0;
+}
+
+.metadata-field {
+  margin: 0 15px;
+}
+
+.metadata-list {
+  list-style: none;
+  padding-left: 5px;
+}
+
+.metadata-list-item {
+  margin-right: 10px;
+}
+
+.metadata-list-item :deep(.badge) {
+  white-space: normal;
+  word-wrap: normal;
+}
+
+.modal-fade-enter-active,
+.modal-fade-leave-active {
+  transition: opacity 0.25s ease;
+}
+
+.modal-fade-enter-from,
+.modal-fade-leave-to {
+  opacity: 0;
+}
+
+@media (max-width: 1250px) {
+  .nugget-modal { width: 90%; }
+}
+
+@media (max-width: 768px) {
+  .nugget-modal { width: 95%; }
+  .nugget-modal-backdrop { padding: 20px 0; }
+  .nugget-modal-body { max-height: calc(95vh - 100px); padding: 15px 10px; }
+  .metadata-field { margin: 0 5px; }
+}
+</style>

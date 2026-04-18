@@ -1,344 +1,69 @@
-/******************************
-Nugget Post
-******************************/
-.path-mod-naas .nugget-selected {
-    margin-bottom: 75px;
+/*
+ * NaaS plugin — global stylesheet.
+ *
+ * Component-level rules live in <style scoped> inside each Vue component.
+ * This file only contains page-level layout, Moodle theme integration,
+ * and Bootstrap override fixes.
+ */
+
+/* -----------------------------------------------------------------------
+   Inherit Moodle / Boost theme colours so the widget blends in naturally.
+   Boost exposes --primary and --secondary; Classic / older themes don't,
+   so we fall back to sensible defaults.
+   ----------------------------------------------------------------------- */
+.path-mod-naas {
+    --naas-primary:        var(--primary,       #0f6cbf);
+    --naas-primary-hover:  var(--primary-hover,  #0a4a8f);
+    --naas-primary-light:  var(--primary-light,  #dce9fa);
+    --naas-radius:         6px;
+    --naas-shadow-sm:      0 2px 6px rgba(0, 0, 0, 0.12);
+    --naas-shadow-md:      0 4px 16px rgba(0, 0, 0, 0.15);
+    --naas-transition:     0.18s ease;
 }
 
-.path-mod-naas .nugget-post-selection {
-    margin-bottom: 20px;
+/* -----------------------------------------------------------------------
+   Activity icon colour token (Moodle 4 nav uses this).
+   ----------------------------------------------------------------------- */
+:root {
+    --activityother: #399be2;
 }
 
-.path-mod-naas .nugget-post-selected {
-    background: #a6c3fe;
+/* -----------------------------------------------------------------------
+   Boost theme z-index fix (Moodle 3).
+   ----------------------------------------------------------------------- */
+#nav-drawer {
+    z-index: inherit !important; /* stylelint-disable-line declaration-no-important */
 }
 
-.path-mod-naas .nugget-post {
-    border-radius: 5px;
-    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
-    padding: 10px;
-    margin: 10px 10px 25px 10px;
+/* -----------------------------------------------------------------------
+   Shared button polish — applies to all .btn.btn-primary inside the plugin.
+   ----------------------------------------------------------------------- */
+.path-mod-naas .btn-primary {
+    background-color: var(--naas-primary);
+    border-color: var(--naas-primary);
+    border-radius: var(--naas-radius);
+    transition: background-color var(--naas-transition), box-shadow var(--naas-transition);
 }
 
-.path-mod-naas .nugget-post:hover {
-    box-shadow: 0 10px 20px 0 rgba(0, 0, 0, 0.2);
-}
-
-.path-mod-naas .nugget-buttons {
-    position: absolute;
-    right: 0;
-    bottom: 0;
-}
-
-.path-mod-naas .nugget-button {
-    margin-right: 5px;
-}
-
-.path-mod-naas .nugget-button-selection {
-    padding: 0 5px 0 5px;
-}
-
-.path-mod-naas .nugget-button:focus {
+.path-mod-naas .btn-primary:hover,
+.path-mod-naas .btn-primary:focus {
+    background-color: var(--naas-primary-hover);
+    border-color: var(--naas-primary-hover);
+    box-shadow: 0 0 0 3px rgba(15, 108, 191, 0.25);
     outline: none;
-    box-shadow: none;
 }
 
-/* Load more nugget */
-.path-mod-naas .show-more-nugget {
-    margin-left: 25px;
-    margin-bottom: 20px;
-}
+/* -----------------------------------------------------------------------
+   Page-level layout helpers used across multiple components.
+   ----------------------------------------------------------------------- */
+.path-mod-naas .h-100 { height: 100%; }
+.path-mod-naas .w-100 { width: 100%; }
+.path-mod-naas .word-break { word-break: break-word; }
 
-/******************************
-Modal style
-******************************/
-.path-mod-naas .modal-fade-enter,
-.path-mod-naas .modal-fade-leave-to {
-    opacity: 0;
-}
-
-.path-mod-naas .modal-fade-enter-active,
-.path-mod-naas.modal-fade-leave-active {
-    transition: opacity .3s ease;
-}
-
-.path-mod-naas .nugget-modal-backdrop {
-    position: fixed;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background-color: rgba(0, 0, 0, 0.3);
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    z-index: 999;
-    padding: 40px 0;
-}
-
-.path-mod-naas .nugget-modal {
-    position: relative;
-    width: 85%;
-    max-width: 1140px;
-    margin: 0 auto;
-    margin-bottom: 40px;
-    background: #fff;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-    border-radius: 8px;
-    display: flex;
-    flex-direction: column;
-    transform: none;
-    height: auto;
-    max-height: none;
-    overflow: auto;
-    left: auto;
-    top: 50px;
-    font-family: Open Sans, proxima-nova, nunito, Arial, sans-serif;
-}
-
-.path-mod-naas .nugget-modal h2,
-.path-mod-naas .nugget-modal h3 {
-    font-family: Open Sans Condensed, Open Sans, proxima-nova, nunito, Arial, sans-serif;
-}
-
-@media (max-width: 1250px) {
-    .path-mod-naas .nugget-modal {
-        width: 90%;
-    }
-}
-
-@media (max-width: 768px) {
-    .path-mod-naas .nugget-modal {
-        width: 95%;
-    }
-
-    .path-mod-naas .nugget-modal-backdrop {
-        padding: 20px 0;
-    }
-
-    .path-mod-naas .nugget-modal-body {
-        max-height: calc(95vh - 100px);
-        padding: 15px 10px;
-    }
-
-    .path-mod-naas .metadata-field {
-        margin: 0 5px;
-    }
-}
-
-.path-mod-naas .nugget-modal-header h2 {
-    padding: 20px 0 15px 30px;
-}
-
-.path-mod-naas .nugget-modal-body {
-    padding: 20px 15px;
-    max-height: calc(90vh - 120px);
-    overflow-y: auto;
-    flex-grow: 1;
-}
-
-.path-mod-naas .nugget-modal-footer {
-    padding: 10px;
-}
-
-.path-mod-naas .nugget-modal-description {
-    overflow-y: auto;
-    display: block;
-    max-height: 250px;
-    margin-bottom: 20px;
-    padding-right: 10px;
-}
-
-.path-mod-naas .btn-close {
-    position: relative;
-    float: right;
-    padding: 15px;
-    top: -10px;
-    color: #999;
-    font-size: 24px;
-    font-weight: bold;
-    border: none;
-    background: transparent;
-}
-
-.path-mod-naas .metadata-field {
-    margin: 0 15px; /* stylelint-disable-line declaration-no-important */
-}
-
-.path-mod-naas .metadata-list {
-    list-style: none;
-    padding-left: 5px;
-}
-
-.path-mod-naas .metadata-list-item {
-    margin-right: 10px;
-}
-
-.path-mod-naas .metadata-list-item .badge {
-    white-space: normal;
-    word-wrap: normal;
-}
-
-.path-mod-naas .nugget-view {
+.path-mod-naas .md-layout {
     margin: 0;
-    padding: 0;
 }
 
-.path-mod-naas #nugget-preview-modal {
-    height: 85%;
-}
-
-.path-mod-naas #nugget-preview-modal .nugget-modal-body {
-    height: 85%;
-}
-
-.path-mod-naas .preview-iframe {
-    border: none;
-}
-
-/******************************
-Aggregations
-******************************/
-.path-mod-naas div.filters {
-    float: left;
-    width: 200px;
-}
-
-.path-mod-naas div.filters-inner {
-    background-color: white;
-    display: table-cell;
-    padding: 10px;
-    margin-bottom: 10px;
-}
-
-.path-mod-naas div.separator {
-    height: 15px;
-}
-
-.path-mod-naas .filters-title {
-    margin-top: 10px;
-    margin-bottom: 0;
-    padding-top: 0;
-}
-
-.path-mod-naas a.aggregation-title {
-    color: #000;
-    font-weight: 400;
-}
-
-.path-mod-naas a.aggregation-title:hover {
-    text-decoration: none;
-}
-
-.path-mod-naas .hide-authors {
-    display: none;
-}
-
-.path-mod-naas .show-more {
-    margin-left: 10px;
-}
-
-.path-mod-naas .clear-filters {
-    font-size: 13px;
-    margin-top: 15px;
-}
-
-.path-mod-naas div.filters img {
-    margin-left: 40px;
-}
-
-/******************************
-facets badge
-******************************/
-.path-mod-naas .badge-margin {
-    margin: 1px;
-}
-
-
-/******************************
-facets tree-view
-******************************/
-.path-mod-naas .related-domains-list {
-    margin: 0;
-    padding: 0;
-}
-
-.path-mod-naas .related-domains-list-element {
-    list-style-type: none;
-}
-
-/* Style the caret */
-.path-mod-naas .tree-view-caret {
-    cursor: pointer;
-    user-select: none;
-}
-
-.path-mod-naas .tree-view-caret::after {
-    content: "\25BC";
-    color: black;
-    display: inline-block;
-    margin-right: 6px;
-    transform: rotate(-90deg);
-}
-
-.path-mod-naas .tree-view-caret-down::after {
-    transform: rotate(0deg);
-}
-
-
-/******************************
-Completion modal
-******************************/
-.path-mod-naas #completion-modal-button button {
-    padding: 10px 30px;
-    margin: 30px;
-}
-
-.path-mod-naas .rating {
-    display: flex;
-    flex-direction: row-reverse;
-    justify-content: center;
-    height: 40px;
-    margin-bottom: 0;
-}
-
-.path-mod-naas .star {
-    color: lightgrey;
-    padding: 0 4px;
-}
-
-.path-mod-naas .star i {
-    font-size: 32px;
-}
-
-.path-mod-naas .star:hover,
-.path-mod-naas .star:hover ~ .star {
-    color: orange;
-}
-
-.path-mod-naas .star.checked,
-.path-mod-naas .star.checked ~ span {
-    color: orange;
-}
-
-.path-mod-naas .rating-description {
-    color: #999;
-    font-size: 14px;
-    margin: 10px 0;
-}
-
-.path-mod-naas .finish-learning-outcomes {
-    margin: 50px 0;
-}
-
-.path-mod-naas .finish-learning-outcomes span {
-    display: block;
-}
-
-
-/******************************
-Other style
-******************************/
 .path-mod-naas .course-button {
     margin: 0 18px;
     height: 40px;
@@ -348,46 +73,6 @@ Other style
     float: right;
 }
 
-.path-mod-naas .language-select {
-    margin-left: 5px;
-    padding: 0.3rem 1rem 0.5rem 1rem;
-    cursor: pointer;
-}
-
-.path-mod-naas .search-center {
-    display: block;
-    margin-top: auto;
-    margin-bottom: auto;
-    margin-left: 10px;
-    border: 1px solid;
-}
-
-.path-mod-naas .md-layout {
-    margin: 0;
-}
-
-.path-mod-naas .btn-replace {
-    margin-left: 10px;
-}
-
 .path-mod-naas .nugget-display {
     width: 100%;
-}
-
-.path-mod-naas .h-100 {
-    height: 100%;
-}
-
-.path-mod-naas .w-100 {
-    width: 100%;
-}
-
-/* Logo fix (for Moodle 4) */
-:root {
-    --activityother: #399be2;
-}
-
-/* Fix for Boost theme (Moodle 3) */
-#nav-drawer {
-    z-index: inherit !important; /* stylelint-disable-line declaration-no-important */
 }

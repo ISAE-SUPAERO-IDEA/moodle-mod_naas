@@ -314,3 +314,53 @@ function showMoreAuthors() {
   }
 }
 </script>
+
+<style scoped>
+.filters {
+  float: left;
+  width: 200px;
+}
+
+.filters-inner {
+  background-color: white;
+  display: table-cell;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+.filters-title {
+  margin-top: 10px;
+  margin-bottom: 0;
+  padding-top: 0;
+}
+
+.aggregation-title {
+  color: #000;
+  font-weight: 400;
+}
+
+.aggregation-title:hover {
+  text-decoration: none;
+}
+
+.hide-authors {
+  display: none;
+}
+
+.show-more {
+  margin-left: 10px;
+}
+
+.clear-filters {
+  font-size: 13px;
+  margin-top: 15px;
+}
+
+.filters img {
+  margin-left: 40px;
+}
+
+.separator {
+  height: 15px;
+}
+</style>
