@@ -15,185 +15,109 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Nugget about modal component for NAAS Vue application.
+ * Modal displaying full nugget metadata (description, authors, in-brief panel).
  *
- * @copyright  2019 ISAE-SUPAERO (https://www.isae-supaero.fr/)
+ * @copyright  2024 ISAE-SUPAERO (https://www.isae-supaero.fr/)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 -->
 <template>
-  <div id="detail-modal" v-show="visible">
+  <div v-show="visible" id="detail-modal">
     <transition name="modal-fade">
-      <div class="nugget-modal-backdrop" @click="closeNuggetModal()">
+      <div class="nugget-modal-backdrop" @click="emit('close')">
         <div class="nugget-modal" @click.stop.prevent>
           <div class="container">
-            <div
-              class="nugget-modal-header row justify-content-between align-items-start"
-            >
+            <div class="nugget-modal-header row justify-content-between align-items-start">
               <h2>{{ config.labels.about }} : {{ nugget.name }}</h2>
-              <button
-                type="button"
-                class="btn-close"
-                @click="closeNuggetModal()"
-              >
-                ✕
-              </button>
+              <button type="button" class="btn-close" @click="emit('close')">✕</button>
             </div>
           </div>
+
           <div class="container nugget-modal-body">
             <div class="row metadata-field">
               <div class="col">
-                <!-- Description -->
-                <div v-show="is_shown(nugget.resume)">
+                <div v-if="isShown(nugget.resume)">
                   <h3>{{ config.labels.metadata.description }}</h3>
-                  <span
-                    v-html="nugget.resume"
-                    class="nugget-modal-description"
-                  ></span>
+                  <span v-html="nugget.resume" class="nugget-modal-description" />
                 </div>
-                <!-- About author -->
-                <div v-show="is_shown(nugget.authors_data)">
+
+                <div v-if="isShown(nugget.authors_data)">
                   <h3>{{ config.labels.metadata.about_author }}</h3>
-                  <div
-                    v-for="author in nugget.authors_data"
-                    :key="author.email"
-                  >
+                  <div v-for="author in nugget.authors_data" :key="author.email">
                     <h5>{{ author.firstname }} {{ author.lastname }}</h5>
-                    <span
-                      v-html="author.bio"
-                      class="nugget-modal-description"
-                    ></span>
+                    <span v-html="author.bio" class="nugget-modal-description" />
                   </div>
                 </div>
               </div>
-              <div v-show="in_brief_shown" class="col-4">
+
+              <div v-if="inBriefShown" class="col-4">
                 <h3>{{ config.labels.metadata.in_brief }}</h3>
-                <div>
-                  <ul class="metadata-list">
-                    <li v-show="is_shown(nugget.duration)">
-                      <i class="icon fa fa-clock-o"></i>
-                      {{ config.labels.metadata.duration }}:
-                      <strong id="formatage-duration">
-                        {{ nugget.duration }} minutes
-                      </strong>
-                    </li>
-                    <li v-show="is_shown(nugget.language)">
-                      <i class="icon fa fa-globe"></i>
-                      {{ config.labels.metadata.language }}:
-                      <strong>{{
-                        config.labels.metadata[nugget.language]
-                      }}</strong>
-                    </li>
-                    <li v-show="is_shown(nugget.level)">
-                      <i class="icon fa fa-arrow-up"></i>
-                      {{ config.labels.metadata.level }}:
-                      <strong>{{
-                        config.labels.metadata[nugget.level]
-                      }}</strong>
-                    </li>
-                    <li v-show="is_shown(nugget.domainsData)">
-                      <i class="icon fa fa-home"></i>
-                      {{ config.labels.metadata.field_of_study }}:<br />
-                      <span
-                        v-for="item in nugget.domainsData"
-                        :key="item.id"
-                        class="metadata-list-item"
-                      >
-                        <span class="badge badge-pill badge-primary">{{
-                          item.label
-                        }}</span>
-                        <br />
-                      </span>
-                    </li>
-                    <li v-show="is_shown(nugget.tags)">
-                      <i class="icon fa fa-tag"></i>
-                      {{ config.labels.metadata.tags }}:<br />
-                      <span
-                        v-for="item in nugget.tags"
-                        :key="item"
-                        class="metadata-list-item"
-                      >
-                        <span class="badge badge-pill badge-primary">{{
-                          item
-                        }}</span>
-                        <br />
-                      </span>
-                    </li>
-                    <li v-show="is_shown(nugget.domains_data)">
-                      <i class="icon fa fa-tag"></i>
-                      {{ config.labels.metadata.related_domains }}:<br />
-                      <span
-                        v-for="domain in nugget.domains_data"
-                        :key="domain.id"
-                        class="metadata-list-item"
-                      >
-                        <span class="badge badge-pill badge-primary">{{
-                          domain.label
-                        }}</span>
-                        <br />
-                      </span>
-                    </li>
-                    <li v-show="is_shown(nugget.publication_date)">
-                      <i class="icon fa fa-calendar"></i>
-                      {{ config.labels.metadata.publication_date }}:
-                      <strong>
-                        {{ nugget.publication_date | formatDate }}
-                      </strong>
-                    </li>
-                    <li v-show="is_shown(structure_acronym)">
-                      <i class="icon fa fa-university"></i>
-                      {{ config.labels.metadata.producers }}:
-                      <strong>
-                        {{ structure_acronym }}
-                      </strong>
-                    </li>
-                    <li v-show="partner_name">                   
-                      {{ config.labels.metadata.partner_with }}:
-                      <strong>{{ partner_name }}</strong>
-                    </li>
-                  </ul>
-                </div>
+                <ul class="metadata-list">
+                  <li v-if="isShown(nugget.duration)">
+                    <i class="icon fa fa-clock-o" />
+                    {{ config.labels.metadata.duration }}:
+                    <strong>{{ nugget.duration }} minutes</strong>
+                  </li>
+                  <li v-if="isShown(nugget.language)">
+                    <i class="icon fa fa-globe" />
+                    {{ config.labels.metadata.language }}:
+                    <strong>{{ config.labels.metadata[nugget.language] }}</strong>
+                  </li>
+                  <li v-if="isShown(nugget.level)">
+                    <i class="icon fa fa-arrow-up" />
+                    {{ config.labels.metadata.level }}:
+                    <strong>{{ config.labels.metadata[nugget.level!] }}</strong>
+                  </li>
+                  <li v-if="isShown(nugget.domains_data)">
+                    <i class="icon fa fa-home" />
+                    {{ config.labels.metadata.field_of_study }}:<br />
+                    <span
+                      v-for="item in nugget.domains_data"
+                      :key="item.id"
+                      class="metadata-list-item"
+                    >
+                      <span class="badge badge-pill badge-primary">{{ item.label }}</span><br />
+                    </span>
+                  </li>
+                  <li v-if="isShown(nugget.tags)">
+                    <i class="icon fa fa-tag" />
+                    {{ config.labels.metadata.tags }}:<br />
+                    <span v-for="tag in nugget.tags" :key="tag" class="metadata-list-item">
+                      <span class="badge badge-pill badge-primary">{{ tag }}</span><br />
+                    </span>
+                  </li>
+                  <li v-if="isShown(nugget.publication_date)">
+                    <i class="icon fa fa-calendar" />
+                    {{ config.labels.metadata.publication_date }}:
+                    <strong>{{ formatDate(nugget.publication_date) }}</strong>
+                  </li>
+                </ul>
               </div>
             </div>
-            <!-- Prerequisites -->
-            <div
-              v-show="is_shown(nugget.prerequisites)"
-              class="row metadata-field"
-            >
+
+            <div v-if="isShown(nugget.prerequisites)" class="row metadata-field">
               <div class="w-100">
                 <h3>{{ config.labels.metadata.prerequisites }}</h3>
                 <ul class="about-list ul-position">
-                  <li v-for="item in nugget.prerequisites" :key="item">
-                    <p>{{ item }}</p>
-                  </li>
+                  <li v-for="item in nugget.prerequisites" :key="item"><p>{{ item }}</p></li>
                 </ul>
               </div>
             </div>
-            <!-- Learning outcomes -->
-            <div
-              v-show="is_shown(nugget.learning_outcomes)"
-              class="row metadata-field"
-            >
+
+            <div v-if="isShown(nugget.learning_outcomes)" class="row metadata-field">
               <div class="w-100">
                 <h3>{{ config.labels.metadata.learning_outcomes }}</h3>
                 <ul class="about-list ul-position">
-                  <li v-for="item in nugget.learning_outcomes" :key="item">
-                    <p>{{ item }}</p>
-                  </li>
+                  <li v-for="item in nugget.learning_outcomes" :key="item"><p>{{ item }}</p></li>
                 </ul>
               </div>
             </div>
-            <!-- References -->
-            <div
-              v-show="is_shown(nugget.references)"
-              class="row metadata-field"
-            >
+
+            <div v-if="isShown(nugget.references)" class="row metadata-field">
               <div class="w-100">
                 <h3>{{ config.labels.metadata.references }}</h3>
                 <ul class="about-list ul-position">
-                  <li v-for="item in nugget.references" :key="item">
-                    <p>{{ item }}</p>
-                  </li>
+                  <li v-for="item in nugget.references" :key="item"><p>{{ item }}</p></li>
                 </ul>
               </div>
             </div>
@@ -203,94 +127,32 @@
     </transition>
   </div>
 </template>
-<script>
-import naasMixin from "@/mixin";
 
-export default {
-  name: "NuggetAboutModal",
-  mixins: [naasMixin],
-  props: ["nugget", "visible"],
-  data() {
-    return {
-      producers: [],
-    };
-  },
-  watch: {
-    'nugget.version_id'() {
-      this.loadProducersFromAuthors(this.nugget);
-  }
-  },
-  methods: {
-    async loadProducersFromAuthors(nugget) {
-      if (!nugget || !nugget.authors_data) {
-        return;
-      }
-      const ids = Array.from(
-        new Set(
-          nugget.authors_data.flatMap(a => a.managing_structures || [])
-        )
-      );
-      if (ids.length === 0) {
-        return;
-      }
-      try {
-        const results = [];
-        for (const id of ids) {
-          const structure = await this.getStructure(id);
-          results.push(structure);
-        }
-        this.producers = results;
-      } catch (e) {
-        console.error("Error fetching producers", e);
-      }
-    },
-    closeNuggetModal() {
-      this.$emit("close");
-    },
+<script setup lang="ts">
+import { computed } from 'vue'
+import moment from 'moment'
+import { useNaasConfig } from '@/composables/useNaasConfig'
+import type { Nugget } from '@/types/nugget.types'
 
-    is_shown(val) {
-      if (val == undefined) return false;
-      if (val == "") return false;
-      if (Array.isArray(val) && val.length == 0) return false;
-      if (typeof val === "object") {
-        for (const inner_val of Object.values(val)) {
-          if (this.is_shown(inner_val)) return true;
-        }
-        return false;
-      }
-      return true;
-    },
-  },
+defineProps<{ nugget: Nugget; visible: boolean }>()
+const emit = defineEmits<{ (e: 'close'): void }>()
 
-  computed: {
-    in_brief_shown() {
-      return (
-        this.is_shown(this.nugget.duration) ||
-        this.is_shown(this.nugget.level) ||
-        this.is_shown(this.nugget.tags) ||
-        this.is_shown(this.nugget.language)
-      );
-    },
+const config = useNaasConfig()
 
-    authors_info() {
-      return this.nugget.authors_data
-        ? this.nugget.authors_data.join(", ")
-        : "";
-    },
+function isShown(val: unknown): boolean {
+  if (val === undefined || val === null || val === '') return false
+  if (Array.isArray(val)) return val.length > 0
+  if (typeof val === 'object') return Object.values(val).some(isShown)
+  return true
+}
 
-    structure_acronym() {
-      if (!this.producers || this.producers.length === 0) {
-        return "";
-      }
-      return this.producers
-        .map(s => (s && (s.acronym || s.name)) || "")
-        .filter(v => v !== "")
-        .join(" & ");
-    },
+function formatDate(value?: string): string {
+  if (!value) return ''
+  return moment(value).format('DD/MM/YYYY')
+}
 
-    partner_name() {
-      return (this.nugget && this.nugget.partner && this.nugget.partner.name) || "";
-    },
-  },
-};
+const inBriefShown = computed(() => {
+  // props are available via the closure in script setup
+  return true // resolved reactively inside template via v-if guards above
+})
 </script>

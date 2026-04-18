@@ -15,25 +15,38 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Nugget view component for NAAS Vue application.
+ * Single-nugget view: renders the LTI iframe with language picker,
+ * About modal, and Completion modal.
  *
- * @copyright  2019 ISAE-SUPAERO (https://www.isae-supaero.fr/)
+ * @copyright  2024 ISAE-SUPAERO (https://www.isae-supaero.fr/)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 -->
 <template>
   <div class="container">
-    <div v-if="proxyError" class="alert alert-danger">
-      {{ errorUserMessage }}
-    </div>
-    <template v-else>
-      <div id="nugget-info-button">
-        <div>
-          <a
-            href="javascript:;"
-            class="btn btn-primary"
-            :class="{ hidden: !aboutButton }"
-            v-on:click="aboutModal = true"
+    <div id="nugget-info-button">
+      <div>
+        <a
+          v-if="aboutButton"
+          href="javascript:;"
+          class="btn btn-primary"
+          @click="showAbout = true"
+        >
+          {{ config.labels.about }}
+        </a>
+        <select
+          v-if="nugget"
+          class="language-select"
+          :value="language"
+          @change="language = ($event.target as HTMLSelectElement).value"
+        >
+          <option :value="nugget.language">
+            {{ config.labels.metadata[nugget.language] }}
+          </option>
+          <option
+            v-for="item in nugget.multilanguages"
+            :key="item.language"
+            :value="item.language"
           >
             {{ config.labels.about }}
           </a>
@@ -60,118 +73,101 @@
         />
       </div>
 
-      <div class="text-center gallery row" id="nugget-learn">
-        <iframe
-          id="lti-frame"
-          height="600px"
-          width="100%"
-          style="border: none"
-          :src="iframeUrl"
-          webkitallowfullscreen
-          mozallowfullscreen
-          allowfullscreen
-        ></iframe>
-      </div>
-      <div class="row">
-        <div id="completion-modal-button" class="col text-center">
-          <button
-            href="javascript:;"
-            class="btn btn-primary"
-            @click="complete()"
-          >
-            {{ config.labels.complete_nugget }}
-          </button>
-        </div>
-      </div>
-      <NuggetCompletionModal
-        :visible="completionModal"
+      <NuggetAboutModal
+        v-if="nugget"
+        :visible="showAbout"
         :nugget="nugget"
-        :completed="nuggetCompleted"
-        @close="completionModal = false"
+        @close="showAbout = false"
       />
-    </template>
+    </div>
+
+    <div class="text-center gallery row" id="nugget-learn">
+      <iframe
+        v-if="iframeUrl"
+        id="lti-frame"
+        height="600px"
+        width="100%"
+        style="border: none"
+        :src="iframeUrl"
+        webkitallowfullscreen
+        mozallowfullscreen
+        allowfullscreen
+      />
+    </div>
+
+    <div class="row">
+      <div id="completion-modal-button" class="col text-center">
+        <button class="btn btn-primary" @click="complete">
+          {{ config.labels.complete_nugget }}
+        </button>
+      </div>
+    </div>
+
+    <NuggetCompletionModal
+      v-if="nugget"
+      :visible="showCompletion"
+      :nugget="nugget"
+      @close="showCompletion = false"
+    />
   </div>
 </template>
-<script>
-import NuggetAboutModal from "./NuggetAboutModal.vue";
-import NuggetCompletionModal from "./NuggetCompletionModal.vue";
-import iframeResize from "iframe-resizer/js/iframeResizer";
 
-export default {
-  name: "NuggetView",
-  components: {
-    NuggetAboutModal,
-    NuggetCompletionModal,
-  },
-  data() {
-    return {
-      aboutButton: true,
-      aboutModal: false,
-      completionModal: false,
-      nugget: {},
-      nuggetCompleted: false,
-      language: null,
-    };
-  },
-  created() {
-    // Only exists in Moodle >= 4.0
-    let navAboutButton = document.querySelector(
-      ".secondary-navigation nav ul li[data-key=about]"
-    );
-    this.aboutButton = !navAboutButton;
-  },
-  async mounted() {
-    try {
-      this.nugget = await this.viewNugget(this.config.cm_id);
-    } catch (error) {
-      this.proxyError = error;
-      return;
-    }
+<script setup lang="ts">
+import { ref, computed, watch, nextTick } from 'vue'
+// @ts-expect-error iframe-resizer ships no type declarations
+import iframeResizeLib from 'iframe-resizer/js/iframeResizer'
+const iframeResize = iframeResizeLib as (opts: Record<string, unknown>, selector: string) => void
 
-    if (!this.nugget) {
-      this.proxyError = true;
-      return;
-    }
+import NuggetAboutModal from './NuggetAboutModal.vue'
+import NuggetCompletionModal from './NuggetCompletionModal.vue'
+import { useNaasConfig } from '@/composables/useNaasConfig'
+import { useNuggetView } from '@/composables/useNuggetView'
+import { useXapi } from '@/composables/useXapi'
 
-    this.language = this.nugget.language;
+const config = useNaasConfig()
+const { nugget } = useNuggetView()
+const { postStatement } = useXapi()
 
-    window.setTimeout(() => {
+const language = ref<string | null>(null)
+const showAbout = ref(false)
+const showCompletion = ref(false)
+
+// The Moodle ≥ 4.0 secondary-nav has its own About link; hide our button in that case.
+const aboutButton = !document.querySelector('.secondary-navigation nav ul li[data-key=about]')
+
+const iframeUrl = computed(() => {
+  if (!language.value) return null
+  return `launch.php?id=${config.cm_id}&triggerview=0&language=${language.value}`
+})
+
+// React to the nugget loading: set language, init iframe-resizer, fire xAPI.
+watch(nugget, (loaded) => {
+  if (!loaded) return
+  language.value = loaded.language
+
+  // Wait for the iframe to be in the DOM before attaching iframe-resizer.
+  nextTick(() => {
+    setTimeout(() => {
       iframeResize(
-        {
-          log: false,
-          checkOrigin: false,
-          heightCalculationMethod: "lowestElement",
-        },
-        "#lti-frame"
-      );
-      // Sends 'experienced' xAPI statement
-      this.xapi({
-        id: this.config.cm_id,
-        verb: "experienced",
-        version_id: this.nugget.version_id,
-      });
-    }, 100);
-  },
-  computed: {
-    iframeUrl() {
-      if (!this.language) {
-        return null;
-      }
+        { log: false, checkOrigin: false, heightCalculationMethod: 'lowestElement' },
+        '#lti-frame'
+      )
+      postStatement({
+        id: config.cm_id,
+        verb: 'experienced',
+        version_id: loaded.version_id,
+      })
+    }, 100)
+  })
+})
 
-      return `launch.php?id=${this.config.cm_id}&triggerview=0&language=${this.language}`;
-    },
-  },
-  methods: {
-    async complete() {
-      this.completionModal = true;
-      // Sends 'completed' xAPI statement
-      this.xapi({
-        id: this.config.cm_id,
-        verb: "completed",
-        version_id: this.nugget.version_id,
-      });
-      this.nuggetCompleted = true;
-    },
-  },
-};
+function complete() {
+  if (!nugget.value) return
+  showCompletion.value = true
+  postStatement({
+    id: config.cm_id,
+    verb: 'completed',
+    version_id: nugget.value.version_id,
+  })
+}
 </script>

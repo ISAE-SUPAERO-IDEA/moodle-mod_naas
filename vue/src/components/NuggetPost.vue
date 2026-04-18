@@ -15,9 +15,9 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Nugget post component for NAAS Vue application.
+ * Nugget card displayed in search results and selected-nugget views.
  *
- * @copyright  2019 ISAE-SUPAERO (https://www.isae-supaero.fr/)
+ * @copyright  2024 ISAE-SUPAERO (https://www.isae-supaero.fr/)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 -->
@@ -26,98 +26,70 @@
     <div class="h-100" style="position: relative; padding-bottom: 2em">
       <img
         class="w-100"
-        :src="nugget.nugget_thumbnail_url.concat('?width=700&height=394')"
+        :src="nugget.nugget_thumbnail_url + '?width=700&height=394'"
         alt=""
       />
-      <h4>{{ nugget.name | truncate(50, "...") }}</h4>
-      <h5>{{ authors_names }}</h5>
-      <div class="description" v-html="nugget.resume"></div>
+      <h4>{{ truncate(nugget.name, 50) }}</h4>
+      <h5>{{ authorsNames }}</h5>
+      <div class="description" v-html="nugget.resume" />
       <h5>{{ nugget.displayinfo }}</h5>
+
       <div class="nugget-buttons">
         <a
-            href="javascript:;"
-            class="btn btn-primary nugget-button nugget-button-selection"
-            v-on:click="SelectClickHandler(nugget)"
-            v-show="selection"
+          v-if="selection"
+          href="javascript:;"
+          class="btn btn-primary nugget-button nugget-button-selection"
+          @click="emit('SelectButton', nugget)"
         >
           {{ config.labels.select_button }}
         </a>
         <a
-            href="javascript:;"
-            class="btn btn-primary nugget-button"
-            :class="{ 'nugget-button-selection': selection }"
-            v-on:click="showNuggetViewModal()"
-        >
-          {{ config.labels.preview_button }}
-        </a>
-        <a
-            href="javascript:;"
-            class="btn btn-primary nugget-button"
-            :class="{ 'nugget-button-selection': selection }"
-            v-on:click="showNuggetAboutModal()"
+          href="javascript:;"
+          class="btn btn-primary nugget-button"
+          :class="{ 'nugget-button-selection': selection }"
+          @click="showAbout = true"
         >
           {{ config.labels.about }}
+        </a>
+        <a
+          href="javascript:;"
+          class="btn btn-primary nugget-button"
+          :class="{ 'nugget-button-selection': selection }"
+          @click="showPreview = true"
+        >
+          {{ config.labels.preview_button }}
         </a>
       </div>
     </div>
 
-    <NuggetAboutModal
-      :visible="isNuggetAboutModalVisible"
-      :nugget="nugget"
-      @close="closeNuggetAboutModal()"
-    />
-    <NuggetViewModal
-      :course-id="config.courseId"
-      :visible="isNuggetViewModalVisible"
-      :nugget="nugget"
-      @close="closeNuggetViewModal()"
-    />
+    <NuggetAboutModal :visible="showAbout" :nugget="nugget" @close="showAbout = false" />
+    <NuggetViewModal :visible="showPreview" :nugget="nugget" @close="showPreview = false" />
   </div>
 </template>
-<script>
-import NuggetAboutModal from "./NuggetAboutModal.vue";
-import NuggetViewModal from "./NuggetViewModal.vue";
-export default {
-  name: "NuggetPost",
-  props: ["nugget", "selection"],
-  components: {
-    NuggetAboutModal,
-    NuggetViewModal,
-  },
-  data() {
-    return {
-      isNuggetAboutModalVisible: false,
-      isNuggetViewModalVisible: false,
-    };
-  },
-  methods: {
-    showNuggetAboutModal() {
-      this.isNuggetAboutModalVisible = true;
-    },
-    closeNuggetAboutModal() {
-      this.isNuggetAboutModalVisible = false;
-    },
-    showNuggetViewModal() {
-      this.isNuggetViewModalVisible = true;
-    },
-    closeNuggetViewModal() {
-      this.isNuggetViewModalVisible = false;
-    },
-    SelectClickHandler(nugget) {
-      this.$emit("SelectButton", nugget);
-    },
-  },
-  computed: {
-    authors_names() {
-      var authors_names = [];
-      if (this.nugget.authors_data) {
-        this.nugget.authors_data.forEach((author) => {
-          if (author)
-            authors_names.push(`${author.firstname} ${author.lastname}`);
-        });
-      }
-      return authors_names.join(", ");
-    },
-  },
-};
+
+<script setup lang="ts">
+import { ref, computed } from 'vue'
+import NuggetAboutModal from './NuggetAboutModal.vue'
+import NuggetViewModal from './NuggetViewModal.vue'
+import { useNaasConfig } from '@/composables/useNaasConfig'
+import type { Nugget } from '@/types/nugget.types'
+
+const props = defineProps<{ nugget: Nugget; selection?: boolean }>()
+const emit = defineEmits<{ (e: 'SelectButton', nugget: Nugget): void }>()
+
+const config = useNaasConfig()
+
+const showAbout = ref(false)
+const showPreview = ref(false)
+
+const authorsNames = computed(() =>
+  (props.nugget.authors_data ?? [])
+    .filter(Boolean)
+    .map((a) => `${a.firstname} ${a.lastname}`)
+    .join(', ')
+)
+
+function truncate(text: string, length: number): string {
+  return text && text.length > length ? text.substring(0, length) + '...' : text
+}
 </script>

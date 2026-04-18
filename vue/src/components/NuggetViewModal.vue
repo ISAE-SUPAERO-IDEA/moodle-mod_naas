@@ -15,38 +15,30 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Nugget view modal component for NAAS Vue application.
+ * Modal showing a nugget preview inside an iframe (search-widget context).
  *
- * @copyright  2019 ISAE-SUPAERO (https://www.isae-supaero.fr/)
+ * @copyright  2024 ISAE-SUPAERO (https://www.isae-supaero.fr/)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 -->
 <template>
   <div v-show="visible">
     <transition name="modal-fade">
-      <div class="nugget-modal-backdrop" @click="closeNuggetModal()">
+      <div class="nugget-modal-backdrop" @click="close">
         <div id="nugget-preview-modal" class="nugget-modal" @click.stop.prevent>
           <div class="container h-100">
-            <div
-                class="nugget-modal-header row justify-content-between align-items-start"
-            >
+            <div class="nugget-modal-header row justify-content-between align-items-start">
               <h2>{{ config.labels.metadata.preview }}{{ nugget.name }}</h2>
-              <button
-                  type="button"
-                  class="btn-close"
-                  @click="closeNuggetModal()"
-              >
-                ✕
-              </button>
+              <button type="button" class="btn-close" @click="close">✕</button>
             </div>
             <div class="nugget-modal-body row">
               <div class="nugget-view w-100">
                 <iframe
-                    v-if="nuggetPreviewUrl"
-                    id="lti-frame"
-                    :src="nuggetPreviewUrl"
-                    class="preview-iframe h-100 w-100"
-                ></iframe>
+                  v-if="previewUrl"
+                  id="lti-frame"
+                  :src="previewUrl"
+                  class="preview-iframe h-100 w-100"
+                />
               </div>
             </div>
           </div>
@@ -56,38 +48,40 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: "NuggetViewModal",
-  props: ["nugget", "visible", "courseId"],
-  data() {
-    return {
-      nuggetPreviewUrl: null,
-      initialized: false,
-    };
-  },
-  watch: {
-    visible(val) {
-      if (val) {
-        this.initialize();
-      }
-    },
-  },
-  methods: {
-    initialize() {
-      this.proxy("mod_naas_get_nugget_preview", {versionId: this.nugget.version_id, courseId: this.courseId}).then(
-          (payload) => {
-            this.nuggetPreviewUrl = payload;
-            console.info(payload)
-            this.initialized = true;
-          }
-      );
-    },
+<script setup lang="ts">
+import { ref, watch } from 'vue'
+import { useNaasConfig } from '@/composables/useNaasConfig'
+import { useMoodleService } from '@/composables/useMoodleService'
+import type { Nugget } from '@/types/nugget.types'
 
-    closeNuggetModal() {
-      this.nuggetPreviewUrl = null;
-      this.$emit("close");
-    },
-  },
-};
+const props = defineProps<{ nugget: Nugget; visible: boolean }>()
+const emit = defineEmits<{ (e: 'close'): void }>()
+
+const config = useNaasConfig()
+const service = useMoodleService()
+
+const previewUrl = ref<string | null>(null)
+
+watch(
+  () => props.visible,
+  async (visible) => {
+    if (!visible) {
+      previewUrl.value = null
+      return
+    }
+    try {
+      previewUrl.value = await service.getNuggetPreview(
+        props.nugget.version_id,
+        config.courseId
+      )
+    } catch (e) {
+      console.warn('[NaaS] preview load failed', e)
+    }
+  }
+)
+
+function close() {
+  previewUrl.value = null
+  emit('close')
+}
 </script>

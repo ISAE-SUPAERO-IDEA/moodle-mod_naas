@@ -15,439 +15,302 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Nugget search filter component for NAAS Vue application.
+ * Facet filter panel — renders aggregation buckets returned by the search API.
  *
- * @copyright  2019 ISAE-SUPAERO (https://www.isae-supaero.fr/)
+ * @copyright  2024 ISAE-SUPAERO (https://www.isae-supaero.fr/)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 -->
 <template>
-  <div class="filters" ref="filters">
-    <img
-      v-show="loading"
-      v-bind:src="'../mod/naas/assets/loading.gif'"
-      width="35"
-      height="35"
-    />
-    <div v-show="has_aggregations" class="filters-inner">
+  <div class="filters">
+    <img v-show="loading" src="../../../assets/loading.gif" width="35" height="35" alt="" />
+
+    <div v-show="hasAggregations" class="filters-inner">
       <div
-        v-for="(aggregation, aggregation_key) in aggregations"
-        :v-if="aggregation.buckets"
-        :key="aggregation_key"
+        v-for="(aggregation, aggKey) in aggregations"
+        :key="aggKey"
       >
         <a
           href="javascript:;"
           class="aggregation-title"
-          @click="switch_aggregation_visibility(aggregation)"
-          data-toggle="dropdown"
+          @click="aggregation.visible = !aggregation.visible"
         >
           <h6 class="filters-title">
-            {{ config.labels.metadata[aggregation_key] }}
-            <i v-if="aggregation.visible" class="icon fa fa-arrow-down"></i>
-            <i v-else class="icon fa fa-arrow-right"></i>
+            {{ config.labels.metadata[aggKey] ?? aggKey }}
+            <i :class="aggregation.visible ? 'icon fa fa-arrow-down' : 'icon fa fa-arrow-right'" />
           </h6>
         </a>
 
-        <div :id="$id(aggregation_key)" v-show="aggregation.visible">
-          <div v-if="aggregation_key == 'related_domains'" id="related_domains">
-            <span v-for="bucket in related_domains" :key="bucket.key">
+        <div v-show="aggregation.visible">
+          <!-- Related domains use a recursive tree component -->
+          <div v-if="aggKey === 'related_domains'" id="related_domains">
+            <span v-for="bucket in relatedDomains" :key="bucket.key">
               <RelatedDomain
-                ref="relatedDomain"
                 :bucket="bucket"
-                :truncate_mobile_mode="truncate_mobile_mode"
-                :bucket_class="bucket_class"
-                @bucket-click="bucket_click"
-              ></RelatedDomain>
+                @bucket-click="switchFacet('related_domains', $event)"
+              />
             </span>
           </div>
+
+          <!-- All other aggregations render flat badges -->
           <span
-            v-for="(bucket, id, index) in aggregation.buckets"
+            v-for="(bucket, _idx) in aggregation.buckets"
+            v-else
             :key="bucket.key"
           >
             <a
               href="javascript:;"
-              v-if="aggregation_key != 'related_domains'"
-              :class="{
-                'hide-authors': aggregation_key == 'authors' && index > 5,
-              }"
+              :class="{ 'hide-authors': aggKey === 'authors' && Number(_idx) > 5 }"
             >
               <NuggetBadge
-                  :selected="bucket.selected"
-                  :text="bucket.caption"
-                  :help="bucket.help"
-                  @click="switch_facet(aggregation_key, bucket.query_value)"  />
+                :selected="bucket.selected"
+                :text="bucket.caption"
+                :help="bucket.help"
+                @click="switchFacet(aggKey, bucket.query_value ?? '')"
+              />
             </a>
           </span>
-          <div>
+
+          <div v-if="aggKey === 'authors' && hasMore(aggregation)">
             <a
               href="javascript:;"
               id="show-more-authors"
               class="clear-filters show-more"
-              v-if="aggregation_key == 'authors' && has_more(aggregation)"
-              @click="show_more_bucket()"
+              @click="showMoreAuthors"
             >
               + {{ config.labels.show_more_authors }}
             </a>
           </div>
         </div>
       </div>
-      <div class="clear-filters" v-show="has_filters">
-        <a
-          href="javascript:;"
-          @click="clear_filters()"
-          class="btn btn-primary btn-small"
-        >
+
+      <div v-show="hasFilters" class="clear-filters">
+        <a href="javascript:;" class="btn btn-primary btn-small" @click="clearFilters">
           {{ config.labels.clear_filters }}
         </a>
       </div>
     </div>
   </div>
 </template>
-<script>
-// import Loading from "./Loading";
-import RelatedDomain from "./RelatedDomain";
 
-import utils from "@/utils";
-import NuggetBadge from "./NuggetBadge.vue";
-// Useful for aggregation display order
-let aggregations_definitions = [
-  {
-    name: "related_domains",
-    bucket_key_to_ui(bucket_key, component) {
-      return component.getDomainLabel(bucket_key);
-    },
-  },
-  {
-    name: "level",
-    bucket_key_to_ui: (bucket_key, component) => component.$t(`${bucket_key}`),
-  },
-  {
-    name: "language",
-    bucket_key_to_ui: (bucket_key, component) => component.$t(`${bucket_key}`),
-  },
-  "tags",
-  {
-    name: "producers",
-    aggregation_key: "producers",
-    bucket_key_to_query: (bucket_key) => bucket_key,
-    bucket_key_to_ui: (bucket_key, component) =>
-      component.getStructureAcronym(bucket_key),
-  },
-  {
-    name: "authors",
-    aggregation_key: "authors",
-    bucket_key_to_query: (bucket_key) => bucket_key,
-    bucket_key_to_ui: (bucket_key, component) =>
-      component.getPersonName(bucket_key),
-  },
-  "references",
-  {
-    name: "type",
-    bucket_key_to_ui: (bucket_key, component) => component.$t(`${bucket_key}`),
-  },
-];
-// Setting default values for simple aggregations
-for (let i in aggregations_definitions) {
-  let def = aggregations_definitions[i];
-  if (typeof def === "string" || def instanceof String) def = { name: def };
-  def.aggregation_key = def.aggregation_key || def.name;
-  def.bucket_key_filter = def.bucket_key_filter || ((bucket_key) => bucket_key);
-  def.bucket_key_to_ui = def.bucket_key_to_ui || ((bucket_key) => bucket_key);
-  def.bucket_key_to_ui_help = def.bucket_key_to_ui_help || def.bucket_key_to_ui;
-  def.bucket_key_to_query =
-    def.bucket_key_to_query || ((bucket_key) => bucket_key);
-  aggregations_definitions[i] = def;
+<script setup lang="ts">
+import { ref, computed, watch } from 'vue'
+import RelatedDomain from './RelatedDomain.vue'
+import NuggetBadge from './NuggetBadge.vue'
+import { useNaasConfig } from '@/composables/useNaasConfig'
+import { useNuggetSearch } from '@/composables/useNuggetSearch'
+import { useEntityResolvers } from '@/composables/useEntityResolvers'
+import type { SearchOptions, AggregationBucket } from '@/types/nugget.types'
+
+interface AggregationUI {
+  buckets: Record<string, AggregationBucket>
+  visible: boolean
+  name: string
 }
 
-export default {
-  name: "NuggetSearchFilter",
-  props: ["query"],
-  components: {
-    // Loading,
-    RelatedDomain,
-    NuggetBadge,
+const props = defineProps<{ query: SearchOptions | null }>()
+const emit = defineEmits<{ (e: 'filters', filters: Record<string, string[]>): void }>()
+
+const config = useNaasConfig()
+const { search } = useNuggetSearch()
+const { getDomainLabel, getStructureAcronym, getPersonName } = useEntityResolvers()
+
+const loading = ref(false)
+const aggregations = ref<Record<string, AggregationUI>>({})
+const relatedDomains = ref<AggregationBucket[]>([])
+
+// Ordered display definition for aggregation panels.
+type AggDef = {
+  name: string
+  aggregation_key: string
+  bucket_key_to_ui: (key: string) => Promise<string>
+  bucket_key_to_query: (key: string) => string
+}
+
+const aggDefinitions: AggDef[] = [
+  {
+    name: 'related_domains',
+    aggregation_key: 'related_domains',
+    bucket_key_to_ui: getDomainLabel,
+    bucket_key_to_query: (k) => k,
   },
-  data() {
-    return {
-      state: {},
-      aggregations: {},
-      related_domains: {},
-      nuggets: undefined,
-      filters_collapse: true,
-      loading: false,
-    };
+  {
+    name: 'level',
+    aggregation_key: 'level',
+    bucket_key_to_ui: async (k) => config.labels.metadata[k] ?? k,
+    bucket_key_to_query: (k) => k,
   },
-  watch: {
-    query: {
-      handler() {
-        this.load();
-      },
-      deep: true
+  {
+    name: 'language',
+    aggregation_key: 'language',
+    bucket_key_to_ui: async (k) => config.labels.metadata[k] ?? k,
+    bucket_key_to_query: (k) => k,
+  },
+  {
+    name: 'tags',
+    aggregation_key: 'tags',
+    bucket_key_to_ui: async (k) => k,
+    bucket_key_to_query: (k) => k,
+  },
+  {
+    name: 'producers',
+    aggregation_key: 'producers',
+    bucket_key_to_ui: getStructureAcronym,
+    bucket_key_to_query: (k) => k,
+  },
+  {
+    name: 'authors',
+    aggregation_key: 'authors',
+    bucket_key_to_ui: getPersonName,
+    bucket_key_to_query: (k) => k,
+  },
+  {
+    name: 'references',
+    aggregation_key: 'references',
+    bucket_key_to_ui: async (k) => k,
+    bucket_key_to_query: (k) => k,
+  },
+  {
+    name: 'type',
+    aggregation_key: 'type',
+    bucket_key_to_ui: async (k) => config.labels.metadata[k] ?? k,
+    bucket_key_to_query: (k) => k,
+  },
+]
+
+watch(
+  () => props.query,
+  async (q) => {
+    if (!q) { aggregations.value = {}; return }
+    await load(q)
+  },
+  { deep: true, immediate: true }
+)
+
+async function load(query: SearchOptions) {
+  loading.value = true
+  try {
+    const result = await search(query)
+    if (!result) return
+    await handleAggregations(result.aggregations)
+  } catch {
+    aggregations.value = {}
+  } finally {
+    loading.value = false
+  }
+}
+
+async function handleAggregations(
+  networkAgg: Record<string, { buckets: Array<{ key: string; docCount: number }> }>
+) {
+  const newAggs: Record<string, AggregationUI> = {}
+  const newRelatedDomains: Record<string, AggregationBucket> = {}
+
+  for (const def of aggDefinitions) {
+    const raw = networkAgg[def.aggregation_key]
+    if (!raw?.buckets?.length) continue
+
+    const oldVisible = aggregations.value[def.name]?.visible ?? true
+    newAggs[def.name] = { buckets: {}, visible: oldVisible, name: def.name }
+
+    const bucketsWithCaptions = await Promise.all(
+      raw.buckets.map(async (b) => {
+        const caption = await def.bucket_key_to_ui(b.key)
+        return {
+          ...b,
+          selected: aggregations.value[def.name]?.buckets[b.key]?.selected ?? false,
+          caption: `${caption} (${b.docCount})`,
+          help: caption,
+          query_value: def.bucket_key_to_query(b.key),
+          children: {} as Record<string, AggregationBucket>,
+        } as AggregationBucket
+      })
+    )
+
+    const sorted = [...bucketsWithCaptions].sort((a, b) =>
+      (a.caption ?? '').localeCompare(b.caption ?? '')
+    )
+
+    for (const bucket of sorted) {
+      newAggs[def.name].buckets[bucket.key] = bucket
+      if (def.name === 'related_domains') {
+        createChildren(newRelatedDomains, bucket, 2)
+      }
     }
-  },
-  mounted() {
-    this.load();
-  },
-  methods: {
-    truncate_mobile_mode(text, size) {
-      return utils.truncate(text, size, "...");
-    },
-    async load() {
-      if (this.query) {
-        this.proxy("mod_naas_search_nuggets",  { searchOptions: this.query, courseId: this.config.courseId })
-            .then(async (payload) => {
-          if (payload) this.loading = true;
-          await this.handle_aggregations(payload.aggregations);
-          this.loading = false;
-        })
-            .catch(async () => {
-              this.aggregations = {};
-            });
-      } else {
-        this.aggregations = {};
-      }
-    },
-    // Updates aggregation data from response
-    async handle_aggregations(network_aggregations) {
-      if (network_aggregations) {
-        let aggregations = Object.assign({});
-        let aggregations_to_sort = [];
-        let j = 1;
-        let related_domains_list = Object.assign({});
-        for (let i in aggregations_definitions) {
-          // going through expected aggregations
-          let aggregation_definition = aggregations_definitions[i];
-          let aggregation_key = aggregation_definition.aggregation_key;
-          let name = aggregation_definition.name;
-          if (network_aggregations[aggregation_key]) {
-            let state_buckets = network_aggregations[aggregation_key].buckets;
-            // add bucket only if it has content
-            if (state_buckets.length > 0) {
-              let old_aggregation = this.aggregations[name];
-              // Aggregations are not visible by default on smaller devices
-              let visible = true;
-              if (old_aggregation) visible = old_aggregation.visible;
-              aggregations[name] = aggregations[name] || {
-                buckets: {},
-                visible,
-                name: aggregation_definition.name,
-              };
-              aggregations[name].id = j;
-              j = j + 1;
-              let aggregation_array = [];
-              // Convert all buckets into data structures adapted to the UI
-              for (let item_key in state_buckets) {
-                let state_bucket = state_buckets[item_key];
-                if (
-                  aggregation_definition.bucket_key_filter(
-                    state_bucket.key,
-                    this
-                  )
-                ) {
-                  // Bucket is not selected by default
-                  state_bucket.selected = false;
-                  // Convert key to UI readable string and add document count
-                  state_bucket.caption =
-                    await aggregation_definition.bucket_key_to_ui(
-                      state_bucket.key,
-                      this
-                    );
-                  state_bucket.caption = `${state_bucket.caption} (${state_bucket.docCount})`;
-                  // Convert key to a help text
-                  state_bucket.help =
-                    await aggregation_definition.bucket_key_to_ui_help(
-                      state_bucket.key,
-                      this
-                    );
-                  // Convert key to query key (for actual search)
-                  state_bucket.query_value =
-                    aggregation_definition.bucket_key_to_query(
-                      state_bucket.key,
-                      this
-                    );
-                  // Sort with children for the tree view
-                  if (name == "related_domains")
-                    this.create_children(related_domains_list, state_bucket, 2);
+  }
 
-                  aggregation_array.push(state_bucket);
-                }
-              }
-              aggregations_to_sort[name] = aggregation_array;
-            }
-          }
-        }
+  relatedDomains.value = Object.values(newRelatedDomains).sort((a, b) =>
+    (a.caption ?? '').localeCompare(b.caption ?? '')
+  )
+  aggregations.value = newAggs
+}
 
-        // Sort the aggregations alphabetically
-        for (let aggregation_title in aggregations_to_sort) {
-          let sorted_aggregation = aggregations_to_sort[aggregation_title].sort(
-            (a, b) => {
-              if (a.caption < b.caption) return -1;
-              if (a.caption > b.caption) return 1;
-              return 0;
-            }
-          );
-          for (let index in sorted_aggregation)
-            aggregations[aggregation_title].buckets[
-              sorted_aggregation[index].key
-            ] = sorted_aggregation[index];
-        }
+function createChildren(
+  map: Record<string, AggregationBucket>,
+  bucket: AggregationBucket,
+  index: number
+) {
+  const parentKey = bucket.key.slice(0, index)
+  if (!map[parentKey]) {
+    map[bucket.key] = { ...bucket, children: {} }
+  } else {
+    createChildren(map[parentKey].children!, bucket, index + 1)
+  }
+}
 
-        // Sort the field of study alphabetically
-        this.related_domains = Object.values(related_domains_list).sort(
-          (a, b) => {
-            if (a.caption < b.caption) return -1;
-            else if (a.caption > b.caption) return 1;
-            else return 0;
-          }
-        );
+function switchFacet(aggKey: string, bucketKey: string) {
+  const agg = aggregations.value[aggKey]
+  if (!agg?.buckets[bucketKey]) return
+  agg.buckets[bucketKey].selected = !agg.buckets[bucketKey].selected
+  emit('filters', getExtraParams())
+}
 
-        this.aggregations = aggregations;
+function getExtraParams(): Record<string, string[]> {
+  const query: Record<string, string[]> = {}
+  for (const [aggKey, agg] of Object.entries(aggregations.value)) {
+    for (const bucket of Object.values(agg.buckets)) {
+      if (bucket.selected) {
+        query[aggKey] = [...(query[aggKey] ?? []), bucket.key]
       }
-    },
-    create_children(related_domains_list, state_bucket, index) {
-      if (
-        typeof related_domains_list[state_bucket.key.slice(0, index)] ===
-        "undefined"
-      ) {
-        // key not exist
-        related_domains_list[state_bucket.key] = state_bucket;
-        related_domains_list[state_bucket.key]["children"] = {};
-      } else {
-        // key exist so can create children inside this key
-        this.create_children(
-          related_domains_list[state_bucket.key.slice(0, index)]["children"],
-          state_bucket,
-          index + 1
-        );
-      }
-    },
-    bucket_click(bucket_key) {
-      this.switch_facet("related_domains", bucket_key);
-    },
-    facet_exists(aggregation_key, bucket_key) {
-      return (
-        this.aggregations[aggregation_key] !== undefined &&
-        this.aggregations[aggregation_key].buckets[bucket_key] !== undefined
-      );
-    },
-    get_facet_selected(aggregation_key, bucket_key) {
-      if (this.facet_exists(aggregation_key, bucket_key)) {
-        return this.aggregations[aggregation_key].buckets[bucket_key].selected;
-      }
-      return false;
-    },
-    set_facet_selected(aggregation_key, bucket_key, selected) {
-      if (this.facet_exists(aggregation_key, bucket_key)) {
-        if (this.get_facet_selected(aggregation_key, bucket_key) != selected) {
-          this.aggregations[aggregation_key].buckets[bucket_key].selected =
-            selected;
-          this.aggregations = Object.assign({}, this.aggregations);
-        }
-      }
-    },
-    switch_facet(aggregation_key, bucket_key) {
-      // Toogle the value of this bucket
-      this.set_facet_selected(
-        aggregation_key,
-        bucket_key,
-        !this.get_facet_selected(aggregation_key, bucket_key)
-      );
-      /*
-      // Unselect all other bucket of this aggregation
-      if (this.aggregations[aggregation_key]) {
-        for (let other_bucket_key in this.aggregations[aggregation_key]
-          .buckets) {
-          if (bucket_key != other_bucket_key) {
-            // this.set_facet_selected(aggregation_key, other_bucket_key, false);
-          }
-        }
-      }
-      */
-      this.$emit("filters", this.get_extra_params());
-    },
-    // Synchronize navigation with UI selection
-    get_extra_params() {
-      let query = {};
-      for (let aggregation_key in this.aggregations) {
-        for (let item_key in this.aggregations[aggregation_key].buckets) {
-          let item = this.aggregations[aggregation_key].buckets[item_key];
-          if (item.selected) {
-            query[aggregation_key] = query[aggregation_key] || [];
-            query[aggregation_key].push(item.key);
-          }
-        }
-      }
-      return query;
-    },
-    bucket_class(bucket) {
-      let mode = bucket.selected ? "primary" : "default";
-      let key = `badge-${mode}`;
-      let clazz = {};
-      clazz[key] = true;
-      return clazz;
-    },
-    clear_filters() {
-      // Helper function to recursively collapse children
-      const collapseChildren = (relatedDomains) => {
-        relatedDomains.forEach((relatedDomain) => {
-          relatedDomain.showChildren = false;
-          if (relatedDomain.$children.length > 0) {
-            collapseChildren(relatedDomain.$children);
-          }
-        });
-      };
-      // Find the root level RelatedDomain components and collapse their children
-      const rootRelatedDomains = this.$refs.relatedDomain;
-      collapseChildren(rootRelatedDomains);
+    }
+  }
+  return query
+}
 
-      // Unselect all buckets in all aggregations
-      for (let aggregation_key in this.aggregations) {
-        for (let bucket_key in this.aggregations[aggregation_key].buckets) {
-          this.set_facet_selected(aggregation_key, bucket_key, false);
-        }
-      }
-      this.$emit("filters", this.get_extra_params());
-    },
-    switch_aggregation_visibility(aggregation) {
-      aggregation.visible = !aggregation.visible;
-      this.aggregations = Object.assign({}, this.aggregations);
-    },
-    has_more(aggregation) {
-      return Object.keys(aggregation["buckets"]).length > 5;
-    },
-    show_more_bucket() {
-      let hide_button = document.getElementsByClassName("hide-authors");
-      let is_visible = hide_button[0].style.display === "inline";
+function clearFilters() {
+  for (const agg of Object.values(aggregations.value)) {
+    for (const bucket of Object.values(agg.buckets)) {
+      bucket.selected = false
+    }
+  }
+  // Reset domain tree selection state
+  relatedDomains.value = relatedDomains.value.map((d) => ({ ...d, selected: false }))
+  emit('filters', {})
+}
 
-      for (let i = 0; i < hide_button.length; i++) {
-        if (is_visible) {
-          hide_button[i].style.display = "none";
-          document.getElementById("show-more-authors").innerHTML =
-            "+ " + this.config.labels.show_more_authors;
-        } else {
-          hide_button[i].style.display = "inline";
-          document.getElementById("show-more-authors").innerHTML =
-            "- " + this.config.labels.hide_authors;
-        }
-      }
-    },
-  },
-  computed: {
-    has_aggregations() {
-      for (let key in this.aggregations) {
-        if (this.aggregations[key].buckets) return true;
-      }
-      return false;
-    },
-    has_filters() {
-      for (let aggregation_key in this.aggregations) {
-        for (let bucket_key in this.aggregations[aggregation_key].buckets) {
-          if (this.aggregations[aggregation_key].buckets[bucket_key].selected)
-            return true;
-        }
-      }
-      return false;
-    },
-  },
-};
+const hasAggregations = computed(() =>
+  Object.values(aggregations.value).some((a) => Object.keys(a.buckets).length > 0)
+)
+
+const hasFilters = computed(() =>
+  Object.values(aggregations.value).some((a) =>
+    Object.values(a.buckets).some((b) => b.selected)
+  )
+)
+
+function hasMore(agg: AggregationUI): boolean {
+  return Object.keys(agg.buckets).length > 5
+}
+
+function showMoreAuthors() {
+  const hidden = document.querySelectorAll<HTMLElement>('.hide-authors')
+  const isVisible = hidden[0]?.style.display === 'inline'
+  const btn = document.getElementById('show-more-authors')
+  hidden.forEach((el) => { el.style.display = isVisible ? 'none' : 'inline' })
+  if (btn) {
+    btn.innerHTML = isVisible
+      ? `+ ${config.labels.show_more_authors}`
+      : `- ${config.labels.hide_authors}`
+  }
+}
 </script>

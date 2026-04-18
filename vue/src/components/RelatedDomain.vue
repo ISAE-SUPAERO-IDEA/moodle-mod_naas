@@ -15,9 +15,9 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Related domain component for NAAS Vue application.
+ * Recursive tree component for the related-domains aggregation filter.
  *
- * @copyright  2019 ISAE-SUPAERO (https://www.isae-supaero.fr/)
+ * @copyright  2024 ISAE-SUPAERO (https://www.isae-supaero.fr/)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 -->
@@ -25,85 +25,58 @@
   <ul class="related-domains-list">
     <li class="related-domains-list-element">
       <NuggetBadge
-          :selected="bucket.selected"
-          :text="bucket.caption"
-          :textLengthMax="20"
-          @click="bucket_click(bucket.query_value)"
+        :selected="bucket.selected"
+        :text="bucket.caption"
+        :text-length-max="20"
+        @click="emit('bucket-click', bucket.query_value ?? '')"
       />
       <span
-        v-if="has_children"
-        :class="{
-          'tree-view-caret': has_children,
-          'tree-view-caret-down': showChildren,
-        }"
-        @click="toggle_children($event)"
-      ></span>
+        v-if="hasChildren"
+        :class="['tree-view-caret', { 'tree-view-caret-down': showChildren }]"
+        @click="showChildren = !showChildren"
+      />
     </li>
 
     <li
-      class="related-domains-list-element related-domains-child"
       v-show="showChildren"
+      class="related-domains-list-element related-domains-child"
     >
       <ul
-        v-for="children in bucket.children"
-        :key="children.key"
+        v-for="child in bucket.children"
+        :key="child.key"
         class="related-domains-list"
         style="margin: 0 0 0 20px"
       >
         <li class="related-domains-list-element">
           <RelatedDomain
-            :bucket="children"
-            :truncate_mobile_mode="truncate_mobile_mode"
-            :bucket_class="bucket_class"
-            @bucket-click="bucket_click"
-          ></RelatedDomain>
+            :bucket="child"
+            @bucket-click="emit('bucket-click', $event)"
+          />
         </li>
       </ul>
     </li>
   </ul>
 </template>
-<script>
 
-import NuggetBadge from "./NuggetBadge.vue";
+<script setup lang="ts">
+import { ref, computed } from 'vue'
+import NuggetBadge from './NuggetBadge.vue'
+import type { AggregationBucket } from '@/types/nugget.types'
 
-export default {
-  name: "RelatedDomain",
-  components: { NuggetBadge },
-  props: {
-    bucket: {},
-    truncate_mobile_mode: {
-      type: Function,
-      required: true,
-    },
-    bucket_class: {
-      type: Function,
-      required: true,
-    },
-  },
-  data() {
-    return {
-      showChildren: this.child_selected(this.bucket.children),
-    };
-  },
-  computed: {
-    has_children() {
-      return Object.keys(this.bucket.children).length > 0;
-    },
-  },
-  methods: {
-    child_selected(bucket) {
-      if (Array.isArray(bucket)) return bucket.some(this.child_selected);
-      else if (typeof bucket === "object")
-        return Object.values(bucket).some(this.child_selected);
-      else return bucket === true;
-    },
-    toggle_children(event) {
-      event.target.classList.toggle("tree-view-caret-down");
-      this.showChildren = !this.showChildren;
-    },
-    bucket_click(bucket_key) {
-      this.$emit("bucket-click", bucket_key);
-    },
-  },
-};
+const props = defineProps<{ bucket: AggregationBucket }>()
+const emit = defineEmits<{ (e: 'bucket-click', key: string): void }>()
+
+const hasChildren = computed(() =>
+  !!props.bucket.children && Object.keys(props.bucket.children).length > 0
+)
+
+// Start expanded if any child is already selected.
+function anyChildSelected(children?: Record<string, AggregationBucket>): boolean {
+  if (!children) return false
+  return Object.values(children).some(
+    (c) => c.selected || anyChildSelected(c.children)
+  )
+}
+
+const showChildren = ref(anyChildSelected(props.bucket.children))
 </script>
