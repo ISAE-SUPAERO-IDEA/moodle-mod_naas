@@ -106,13 +106,6 @@
       />
     </div>
 
-    <!-- Brief success toast after clicking Complete -->
-    <transition name="toast-fade">
-      <div v-if="showToast" class="naas-toast" role="status">
-        {{ config.labels.completion_toast || 'Marked as complete ✓' }}
-      </div>
-    </transition>
-
     <div class="row">
       <div id="completion-modal-button" class="col text-center">
         <button class="btn btn-primary" @click="complete">
@@ -150,8 +143,6 @@ const { postStatement } = useXapi()
 const language = ref<string | null>(null)
 const showAbout = ref(false)
 const showCompletion = ref(false)
-const showToast = ref(false)
-let toastTimer: ReturnType<typeof setTimeout> | null = null
 
 // The Moodle ≥ 4.0 secondary-nav has its own About link; hide our button in that case.
 const aboutButton = !document.querySelector('.secondary-navigation nav ul li[data-key=about]')
