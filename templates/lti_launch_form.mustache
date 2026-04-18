@@ -28,3 +28,12 @@
     <input type="hidden" name="{{name}}" value="{{value}}"/>
     {{/fields}}
 </form>
+
+<script>
+    (function() {
+        var form = document.getElementById("ltiLaunchForm");
+        if (form) {
+            form.submit();
+        }
+    })();
+</script>

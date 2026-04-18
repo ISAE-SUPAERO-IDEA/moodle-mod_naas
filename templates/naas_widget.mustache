@@ -19,6 +19,12 @@
 
     The mount point for the NaaS Vue widget.
 
-    Context variables: none
+    * configjson (string) - JSON encoded configuration for the widget
 }}
+<script>
+    window.NAAS = {{{configjson}}};
+</script>
+
 <div id="naas_widget"></div>
+
+<script src="{{moodle_url}}/mod/naas/assets/vue/naas_widget-2026030300.js"></script>

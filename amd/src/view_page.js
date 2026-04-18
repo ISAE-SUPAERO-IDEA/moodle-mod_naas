@@ -20,7 +20,7 @@
  * @copyright  2019 ISAE-SUPAERO (https://www.isae-supaero.fr/)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-define([], function() {
+define('mod_naas/view_page', [], function() {
     return {
         /**
          * Initialize the view page DOM interactions.

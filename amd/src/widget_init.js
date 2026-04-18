@@ -20,15 +20,24 @@
  * @copyright  2019 ISAE-SUPAERO (https://www.isae-supaero.fr/)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-define([], function() {
+define('mod_naas/widget_init', [], function() {
     return {
         /**
          * Initialize the Widget with configuration.
-         *
-         * @param {Object} config The widget configuration object passed from PHP's js_call_amd.
          */
-        init: function(config) {
-            window.NAAS = config;
+        init: function() {
+            let widgetHost = document.getElementById('naas_widget');
+            if (widgetHost) {
+                let configStr = widgetHost.getAttribute('data-config');
+                if (configStr) {
+                    let config = JSON.parse(configStr);
+                    window.NAAS = config;
+
+                    let script = document.createElement('script');
+                    script.src = config.moodle_url + '/mod/naas/assets/vue/naas_widget-2026030300.js';
+                    document.body.appendChild(script);
+                }
+            }
         }
     };
 });
