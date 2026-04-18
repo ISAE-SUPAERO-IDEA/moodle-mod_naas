@@ -75,6 +75,14 @@
 
       <!-- Nugget grid -->
       <div class="col-md-9">
+        <!-- Active filter chips -->
+        <FilterChips
+          :filters="filters"
+          :labels="config.labels.metadata"
+          @remove="removeFilter"
+          @clear="clearAllFilters"
+        />
+
         <div
           class="row"
           role="listbox"
@@ -171,6 +179,7 @@ import debounce from 'debounce'
 import NuggetSearchFilter from './NuggetSearchFilter.vue'
 import NuggetPost from './NuggetPost.vue'
 import NuggetSkeleton from './NuggetSkeleton.vue'
+import FilterChips from './FilterChips.vue'
 import { useNaasConfig } from '@/composables/useNaasConfig'
 import { useNuggetSearch } from '@/composables/useNuggetSearch'
 import type { Nugget, SearchOptions } from '@/types/nugget.types'
@@ -244,6 +253,25 @@ const onInput = debounce(() => {
 
 function onFilters(newFilters: Record<string, string[]>) {
   filters.value = newFilters
+  page.value = 1
+  doSearch()
+}
+
+function removeFilter(key: string, value: string) {
+  const current = filters.value[key] ?? []
+  const updated = current.filter((v) => v !== value)
+  if (updated.length) {
+    filters.value = { ...filters.value, [key]: updated }
+  } else {
+    const { [key]: _, ...rest } = filters.value
+    filters.value = rest
+  }
+  page.value = 1
+  doSearch()
+}
+
+function clearAllFilters() {
+  filters.value = {}
   page.value = 1
   doSearch()
 }
