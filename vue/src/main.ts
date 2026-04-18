@@ -21,7 +21,6 @@
  */
 
 import { createApp } from 'vue'
-import { createPinia } from 'pinia'
 import Main from '@/Main.vue'
 import { naasApiPlugin } from '@/plugins/naas-api.plugin'
 import { createNaasI18n } from '@/plugins/i18n'
@@ -30,7 +29,6 @@ const config = window.NAAS
 
 const app = createApp(Main)
 
-app.use(createPinia())
 app.use(naasApiPlugin)
 app.use(createNaasI18n(config))
 
