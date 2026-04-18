@@ -93,13 +93,18 @@
     <NuggetViewSkeleton v-if="loading" />
 
     <div class="text-center gallery row" id="nugget-learn">
+      <!--
+        src starts as the preload URL (no language) so the browser opens the TCP
+        connection immediately. It is replaced with the full URL once the nugget
+        loads and the language is known.
+      -->
       <iframe
-        v-if="iframeUrl"
+        v-if="!loading && !error"
         id="lti-frame"
         height="600px"
         width="100%"
         style="border: none"
-        :src="iframeUrl"
+        :src="iframeUrl ?? preloadUrl"
         webkitallowfullscreen
         mozallowfullscreen
         allowfullscreen
@@ -147,12 +152,18 @@ const showCompletion = ref(false)
 // The Moodle ≥ 4.0 secondary-nav has its own About link; hide our button in that case.
 const aboutButton = !document.querySelector('.secondary-navigation nav ul li[data-key=about]')
 
+// Available synchronously — lets the browser open the TCP connection before the nugget API resolves.
+const preloadUrl = `launch.php?id=${config.cm_id}&triggerview=0`
+
 const iframeUrl = computed(() => {
   if (!language.value) return null
   return `launch.php?id=${config.cm_id}&triggerview=0&language=${language.value}`
 })
 
-// React to the nugget loading: set language, init iframe-resizer, fire xAPI.
+let experiencedTimer: ReturnType<typeof setTimeout> | null = null
+let visibilityObserver: IntersectionObserver | null = null
+
+// React to the nugget loading: set language, init iframe-resizer, schedule xAPI.
 watch(nugget, (loaded) => {
   if (!loaded) return
   language.value = loaded.language
@@ -164,11 +175,30 @@ watch(nugget, (loaded) => {
         { log: false, checkOrigin: false, heightCalculationMethod: 'lowestElement' },
         '#lti-frame'
       )
-      postStatement({
-        id: config.cm_id,
-        verb: 'experienced',
-        version_id: loaded.version_id,
-      })
+
+      // Delay "experienced" by 30 s of confirmed iframe visibility so accidental
+      // landings do not pollute xAPI records.
+      const iframe = document.getElementById('lti-frame')
+      if (!iframe) return
+
+      visibilityObserver = new IntersectionObserver((entries) => {
+        const visible = entries[0]?.isIntersecting ?? false
+        if (visible && !experiencedTimer) {
+          experiencedTimer = setTimeout(() => {
+            postStatement({
+              id: config.cm_id,
+              verb: 'experienced',
+              version_id: loaded.version_id,
+            })
+            visibilityObserver?.disconnect()
+          }, 10000)
+        } else if (!visible && experiencedTimer) {
+          clearTimeout(experiencedTimer)
+          experiencedTimer = null
+        }
+      }, { threshold: 0.5 })
+
+      visibilityObserver.observe(iframe)
     }, 100)
   })
 })
