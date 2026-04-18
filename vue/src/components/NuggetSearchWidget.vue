@@ -75,7 +75,13 @@
 
       <!-- Nugget grid -->
       <div class="col-md-9">
-        <div class="row">
+        <div
+          class="row"
+          role="listbox"
+          :aria-label="config.labels.search"
+          aria-multiselectable="false"
+          @keydown="onGridKeydown"
+        >
           <!-- Skeleton cards while loading -->
           <template v-if="loading">
             <div
@@ -94,6 +100,12 @@
               :key="index"
               class="col-6 col-lg-4 col-xl-3 nugget-post-selection"
               style="min-width: 400px"
+              role="option"
+              :aria-selected="nugget.nugget_id === selectedId"
+              :tabindex="focusedIndex === index ? 0 : -1"
+              :ref="(el) => setItemRef(el, index)"
+              @focus="focusedIndex = index"
+              @keydown.enter.prevent="clickOnNugget(nugget)"
             >
               <NuggetPost
                 :nugget="nugget"
@@ -112,17 +124,23 @@
           </template>
         </div>
 
-        <div class="row">
-          <div class="show-more-nugget">
-            <a
-              v-if="showMoreButton"
-              href="javascript:;"
-              class="btn btn-primary nugget-button"
-              @click="showMore"
-            >
-              {{ config.labels.show_more_nugget_button }}
-            </a>
-          </div>
+        <!-- Pagination controls -->
+        <div v-if="totalPages > 1" class="pagination-bar">
+          <button
+            class="btn btn-sm btn-outline-primary"
+            :disabled="page === 1"
+            @click="goToPage(page - 1)"
+          >
+            ◀ {{ config.labels.previous_page || 'Previous' }}
+          </button>
+          <span class="pagination-info">{{ page }} / {{ totalPages }}</span>
+          <button
+            class="btn btn-sm btn-outline-primary"
+            :disabled="page === totalPages"
+            @click="goToPage(page + 1)"
+          >
+            {{ config.labels.next_page || 'Next' }} ▶
+          </button>
         </div>
       </div>
     </div>
@@ -161,50 +179,72 @@ const config = useNaasConfig()
 const { nuggets, loading, error, search, getNuggetById } = useNuggetSearch()
 
 const skeletonCount = 6
+const PAGE_SIZE = 6
 
 const typed = ref('')
 const debouncedTyped = ref('')
 const filters = ref<Record<string, string[]>>({})
 const selectedNugget = ref<Nugget | null>(null)
+const focusedIndex = ref(0)
+const itemRefs: HTMLElement[] = []
+
+function setItemRef(el: unknown, index: number) {
+  if (el instanceof HTMLElement) itemRefs[index] = el
+}
+
+function onGridKeydown(e: KeyboardEvent) {
+  if (!nuggets.value.length) return
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+    e.preventDefault()
+    focusedIndex.value = Math.min(focusedIndex.value + 1, nuggets.value.length - 1)
+    itemRefs[focusedIndex.value]?.focus()
+  } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+    e.preventDefault()
+    focusedIndex.value = Math.max(focusedIndex.value - 1, 0)
+    itemRefs[focusedIndex.value]?.focus()
+  }
+}
 const selectedNuggetLoading = ref(false)
 const selectedId = ref<string | null>(null)
-const showMoreButton = ref(false)
-const pageSize = ref(6)
-const ADD_PAGE = 6
+const page = ref(1)
+const totalPages = ref(1)
 
 // Query object forwarded to NuggetSearchFilter for aggregation display.
 const filterQuery = computed<SearchOptions>(() => ({
-  page_size: pageSize.value,
+  page_size: PAGE_SIZE,
   fulltext: debouncedTyped.value,
 }))
 
-// Full search options including active facet filters.
+// Full search options including active facet filters and current page.
 const searchOptions = computed<SearchOptions>(() => ({
   ...filterQuery.value,
   ...filters.value,
+  page: page.value,
 }))
 
 async function doSearch() {
-  showMoreButton.value = false
   const result = await search(searchOptions.value)
-  if (result && result.results_count > pageSize.value) {
-    showMoreButton.value = true
+  if (result) {
+    totalPages.value = Math.max(1, Math.ceil(result.results_count / PAGE_SIZE))
   }
+  focusedIndex.value = 0
+  itemRefs.length = 0
+}
+
+function goToPage(n: number) {
+  page.value = n
+  doSearch()
 }
 
 const onInput = debounce(() => {
   debouncedTyped.value = typed.value
-  pageSize.value = 6
+  page.value = 1
   doSearch()
 }, 500)
 
 function onFilters(newFilters: Record<string, string[]>) {
   filters.value = newFilters
-  doSearch()
-}
-
-function showMore() {
-  pageSize.value += ADD_PAGE
+  page.value = 1
   doSearch()
 }
 
@@ -288,5 +328,19 @@ onMounted(async () => {
   border: 1px solid #ffc107;
   border-radius: var(--naas-radius, 6px);
   color: #856404;
+}
+
+.pagination-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0.75rem 0 1rem 25px;
+}
+
+.pagination-info {
+  font-size: 0.875rem;
+  color: #6c757d;
+  min-width: 4rem;
+  text-align: center;
 }
 </style>

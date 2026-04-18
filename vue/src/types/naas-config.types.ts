@@ -74,6 +74,8 @@ export interface NaasLabels {
   learning_outcomes_desc: string
   error_generic_user_message: string
   retry?: string
+  previous_page?: string
+  next_page?: string
   rating: {
     title: string
     send: string
