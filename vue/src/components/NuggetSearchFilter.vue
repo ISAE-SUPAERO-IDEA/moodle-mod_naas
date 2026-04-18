@@ -23,7 +23,7 @@
 -->
 <template>
   <div class="filters">
-    <img v-show="loading" src="../../../assets/loading.gif" width="35" height="35" alt="" />
+    <FilterSkeleton v-if="loading && !hasAggregations" />
 
     <div v-show="hasAggregations" class="filters-inner">
       <div
@@ -97,6 +97,7 @@
 import { ref, computed, watch } from 'vue'
 import RelatedDomain from './RelatedDomain.vue'
 import NuggetBadge from './NuggetBadge.vue'
+import FilterSkeleton from './FilterSkeleton.vue'
 import { useNaasConfig } from '@/composables/useNaasConfig'
 import { useNuggetSearch } from '@/composables/useNuggetSearch'
 import { useEntityResolvers } from '@/composables/useEntityResolvers'
