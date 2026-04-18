@@ -73,6 +73,7 @@ export interface NaasLabels {
   next_unit: string
   learning_outcomes_desc: string
   error_generic_user_message: string
+  retry?: string
   rating: {
     title: string
     send: string

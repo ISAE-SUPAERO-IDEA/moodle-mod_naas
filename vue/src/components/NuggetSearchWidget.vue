@@ -24,8 +24,11 @@
 -->
 <template>
   <div>
-    <div v-if="error" class="alert alert-danger">
-      {{ config.labels.error_generic_user_message }}
+    <div v-if="error" class="naas-error-banner" role="alert">
+      <span>{{ config.labels.error_generic_user_message }}</span>
+      <button class="btn btn-sm btn-outline-danger" @click="doSearch">
+        {{ config.labels.retry || 'Retry' }}
+      </button>
     </div>
 
     <!-- Search + filter + results grid -->
@@ -60,7 +63,6 @@
           height="35"
           alt=""
         />
-        <Loading :loading="loading" />
       </div>
 
       <!-- Filter panel -->
@@ -74,26 +76,40 @@
       <!-- Nugget grid -->
       <div class="col-md-9">
         <div class="row">
-          <div
-            v-for="(nugget, index) in nuggets"
-            :key="index"
-            class="col-6 col-lg-4 col-xl-3 nugget-post-selection"
-            style="min-width: 400px"
-          >
-            <NuggetPost
-              :nugget="nugget"
-              :selection="true"
-              :class="{ 'nugget-post-selected': nugget.nugget_id === selectedId }"
-              @SelectButton="clickOnNugget"
-            />
-          </div>
+          <!-- Skeleton cards while loading -->
+          <template v-if="loading">
+            <div
+              v-for="n in skeletonCount"
+              :key="`skel-${n}`"
+              class="col-6 col-lg-4 col-xl-3 nugget-post-selection"
+              style="min-width: 400px"
+            >
+              <NuggetSkeleton />
+            </div>
+          </template>
 
-          <div
-            v-if="nuggets.length === 0 && !loading"
-            class="col-md-9 form-inline align-items-start felement"
-          >
-            {{ config.labels.nugget_search_no_result }}
-          </div>
+          <template v-else>
+            <div
+              v-for="(nugget, index) in nuggets"
+              :key="index"
+              class="col-6 col-lg-4 col-xl-3 nugget-post-selection"
+              style="min-width: 400px"
+            >
+              <NuggetPost
+                :nugget="nugget"
+                :selection="true"
+                :class="{ 'nugget-post-selected': nugget.nugget_id === selectedId }"
+                @SelectButton="clickOnNugget"
+              />
+            </div>
+
+            <div
+              v-if="nuggets.length === 0"
+              class="col-md-9 form-inline align-items-start felement"
+            >
+              {{ config.labels.nugget_search_no_result }}
+            </div>
+          </template>
         </div>
 
         <div class="row">
@@ -115,7 +131,7 @@
     <div v-else class="row">
       <div class="col-md-3" />
       <div class="col-md-9 nugget-selected">
-        <Loading :loading="selectedNuggetLoading" />
+        <NuggetSkeleton v-if="selectedNuggetLoading" />
         <div v-if="!selectedNuggetLoading && selectedNugget">
           <NuggetPost :nugget="selectedNugget" />
           <a
@@ -136,13 +152,15 @@ import { ref, computed, onMounted } from 'vue'
 import debounce from 'debounce'
 import NuggetSearchFilter from './NuggetSearchFilter.vue'
 import NuggetPost from './NuggetPost.vue'
-import Loading from './Loading.vue'
+import NuggetSkeleton from './NuggetSkeleton.vue'
 import { useNaasConfig } from '@/composables/useNaasConfig'
 import { useNuggetSearch } from '@/composables/useNuggetSearch'
 import type { Nugget, SearchOptions } from '@/types/nugget.types'
 
 const config = useNaasConfig()
 const { nuggets, loading, error, search, getNuggetById } = useNuggetSearch()
+
+const skeletonCount = 6
 
 const typed = ref('')
 const debouncedTyped = ref('')
@@ -258,5 +276,17 @@ onMounted(async () => {
 
 .btn-replace {
   margin-left: 10px;
+}
+
+.naas-error-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  background: #fff3cd;
+  border: 1px solid #ffc107;
+  border-radius: var(--naas-radius, 6px);
+  color: #856404;
 }
 </style>

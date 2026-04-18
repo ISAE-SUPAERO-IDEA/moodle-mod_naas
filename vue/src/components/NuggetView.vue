@@ -24,6 +24,14 @@
 -->
 <template>
   <div class="container">
+    <!-- Error banner with retry -->
+    <div v-if="error" class="naas-error-banner" role="alert">
+      <span>{{ config.labels.error_generic_user_message }}</span>
+      <button class="btn btn-sm btn-outline-danger" @click="load">
+        {{ config.labels.retry || 'Retry' }}
+      </button>
+    </div>
+
     <div id="nugget-info-button">
       <div>
         <a
@@ -81,6 +89,9 @@
       />
     </div>
 
+    <!-- Skeleton while the nugget API call is in flight -->
+    <NuggetViewSkeleton v-if="loading" />
+
     <div class="text-center gallery row" id="nugget-learn">
       <iframe
         v-if="iframeUrl"
@@ -94,6 +105,13 @@
         allowfullscreen
       />
     </div>
+
+    <!-- Brief success toast after clicking Complete -->
+    <transition name="toast-fade">
+      <div v-if="showToast" class="naas-toast" role="status">
+        {{ config.labels.completion_toast || 'Marked as complete ✓' }}
+      </div>
+    </transition>
 
     <div class="row">
       <div id="completion-modal-button" class="col text-center">
@@ -120,17 +138,20 @@ const iframeResize = iframeResizeLib as (opts: Record<string, unknown>, selector
 
 import NuggetAboutModal from './NuggetAboutModal.vue'
 import NuggetCompletionModal from './NuggetCompletionModal.vue'
+import NuggetViewSkeleton from './NuggetViewSkeleton.vue'
 import { useNaasConfig } from '@/composables/useNaasConfig'
 import { useNuggetView } from '@/composables/useNuggetView'
 import { useXapi } from '@/composables/useXapi'
 
 const config = useNaasConfig()
-const { nugget } = useNuggetView()
+const { nugget, loading, error, load } = useNuggetView()
 const { postStatement } = useXapi()
 
 const language = ref<string | null>(null)
 const showAbout = ref(false)
 const showCompletion = ref(false)
+const showToast = ref(false)
+let toastTimer: ReturnType<typeof setTimeout> | null = null
 
 // The Moodle ≥ 4.0 secondary-nav has its own About link; hide our button in that case.
 const aboutButton = !document.querySelector('.secondary-navigation nav ul li[data-key=about]')
@@ -192,6 +213,18 @@ function complete() {
   border-radius: 4px;
   background: #fff;
   font-size: 0.875rem;
+}
+
+.naas-error-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  background: #fff3cd;
+  border: 1px solid #ffc107;
+  border-radius: var(--naas-radius, 6px);
+  color: #856404;
 }
 
 .gallery {

@@ -58,5 +58,5 @@ export function useNuggetView() {
     load()
   })
 
-  return { nugget, loading, error }
+  return { nugget, loading, error, load }
 }
