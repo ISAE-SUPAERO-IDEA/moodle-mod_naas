@@ -112,11 +112,10 @@ class naas_widget {
             ],
         ];
 
-        $PAGE->requires->js_call_amd('mod_naas/widget_init', 'init', [$widgetconfig]);
-        $widgetjsurl = new \moodle_url('/mod/naas/assets/vue/naas_widget-2026030300.js');
-        $PAGE->requires->js($widgetjsurl);
-
-        return $OUTPUT->render_from_template('mod_naas/naas_widget', []);
+        return $OUTPUT->render_from_template('mod_naas/naas_widget', [
+            'configjson' => json_encode($widgetconfig),
+            'moodle_url' => $CFG->wwwroot,
+        ]);
     }
 
     /**

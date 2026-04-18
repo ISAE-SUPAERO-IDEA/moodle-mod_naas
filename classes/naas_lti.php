@@ -181,7 +181,5 @@ class naas_lti {
 
         $form = new \mod_naas\output\lti_launch_form($launchurl, $fields);
         echo $OUTPUT->render_from_template('mod_naas/lti_launch_form', $form->export_for_template($OUTPUT));
-
-        $PAGE->requires->js_init_code('document.getElementById("ltiLaunchForm").submit();', true);
     }
 }
