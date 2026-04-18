@@ -29,6 +29,12 @@ const config = window.NAAS
 
 const app = createApp(Main)
 
+// In dev builds, allow Vue DevTools browser extension to connect to this IIFE app.
+if (process.env.NODE_ENV === 'development') {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ;(window as any).__VUE_DEVTOOLS_GLOBAL_HOOK__?.emit?.('app:init', app, app.version, {})
+}
+
 app.use(naasApiPlugin)
 app.use(createNaasI18n(config))
 
