@@ -103,6 +103,12 @@ class xapi extends \external_api {
         self::validate_context($context);
         require_capability('mod/naas:view', $context);
 
+        // Verify the calling user is enrolled in the module's course.
+        $coursecontext = \context_course::instance($cm->course);
+        if (!is_enrolled($coursecontext, null, '', true)) {
+            throw new \moodle_exception('error:not_enrolled', 'naas');
+        }
+
         // Get user info.
         $config = (object) array_merge((array) \get_config('naas'), (array) $CFG);
         $user = new \stdClass();

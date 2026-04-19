@@ -172,6 +172,13 @@ class proxy_naas_api extends \external_api {
 
         // Get course module and instance.
         $cm = get_coursemodule_from_id('naas', $params['cmId'], 0, false, MUST_EXIST);
+
+        // Verify the calling user is actually enrolled in the module's course.
+        $coursecontext = \context_course::instance($cm->course);
+        if (!is_enrolled($coursecontext, null, '', true)) {
+            throw new \moodle_exception('error:not_enrolled', 'naas');
+        }
+
         $naasinstance = $DB->get_record('naas', ['id' => $cm->instance], '*', MUST_EXIST);
 
         $config = (object) array_merge((array) get_config('naas'), (array) $CFG);
