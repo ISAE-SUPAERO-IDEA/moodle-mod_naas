@@ -53,6 +53,19 @@ class proxy_naas_api extends \external_api {
     }
 
     /**
+     * Re-encode a raw JSON string to strip unexpected fields and control characters.
+     * @param string $json
+     * @return string
+     */
+    private static function sanitise_json_response(string $json): string {
+        $decoded = json_decode($json);
+        if ($decoded === null) {
+            return $json;
+        }
+        return json_encode($decoded, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    }
+
+    /**
      * Test config parameters description.
      */
     public static function test_config_parameters(): \external_function_parameters {
@@ -85,7 +98,7 @@ class proxy_naas_api extends \external_api {
                 'page_size' => 2,
             ]);
 
-        return $naas->request_raw('GET', $url);
+        return self::sanitise_json_response($naas->request_raw('GET', $url));
     }
 
     /**
@@ -131,7 +144,7 @@ class proxy_naas_api extends \external_api {
         $naas = new \mod_naas\naas_client($config);
 
         $url = "/nuggets/{$params['nuggetId']}/default_version";
-        return $naas->request_raw('GET', $url);
+        return self::sanitise_json_response($naas->request_raw('GET', $url));
     }
 
     /**
@@ -185,7 +198,7 @@ class proxy_naas_api extends \external_api {
         $naas = new \mod_naas\naas_client($config);
 
         $url = "/nuggets/{$naasinstance->nugget_id}/default_version";
-        return $naas->request_raw('GET', $url);
+        return self::sanitise_json_response($naas->request_raw('GET', $url));
     }
 
 
@@ -233,7 +246,7 @@ class proxy_naas_api extends \external_api {
         $naas = new \mod_naas\naas_client($config);
 
         $url = "/versions/{$params['versionId']}/preview_url";
-        return $naas->request_raw('GET', $url);
+        return self::sanitise_json_response($naas->request_raw('GET', $url));
     }
 
     /**
@@ -287,7 +300,7 @@ class proxy_naas_api extends \external_api {
         $naas = new \mod_naas\naas_client($config);
 
         $url = "/vocabularies/nugget_domains_vocabulary/{$params['domainKey']}";
-        $result = $naas->request_raw('GET', $url);
+        $result = self::sanitise_json_response($naas->request_raw('GET', $url));
         $cache->set($cachekey, $result);
         return $result;
     }
@@ -343,7 +356,7 @@ class proxy_naas_api extends \external_api {
         $naas = new \mod_naas\naas_client($config);
 
         $url = "/structures/{$params['structureKey']}";
-        $result = $naas->request_raw('GET', $url);
+        $result = self::sanitise_json_response($naas->request_raw('GET', $url));
         $cache->set($cachekey, $result);
         return $result;
     }
@@ -399,7 +412,7 @@ class proxy_naas_api extends \external_api {
         $naas = new \mod_naas\naas_client($config);
 
         $url = "/persons/{$params['personKey']}";
-        $result = $naas->request_raw('GET', $url);
+        $result = self::sanitise_json_response($naas->request_raw('GET', $url));
         $cache->set($cachekey, $result);
         return $result;
     }
@@ -506,6 +519,6 @@ class proxy_naas_api extends \external_api {
         $url = '/nuggets/search?' . http_build_query($searchoptionsarray, '', '&');
         $url = preg_replace('/\%5B\d+\%5D/', '', $url);
 
-        return $naas->request_raw('GET', $url);
+        return self::sanitise_json_response($naas->request_raw('GET', $url));
     }
 }
