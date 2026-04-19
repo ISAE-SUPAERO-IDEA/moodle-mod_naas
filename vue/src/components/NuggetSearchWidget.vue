@@ -47,13 +47,9 @@
             class="form-control search-input"
             :placeholder="config.labels.nugget_search_here"
           />
-          <img
-            src="../../../assets/search_icon.png"
-            class="search-icon"
-            width="35"
-            height="35"
-            alt=""
-          />
+          <button type="button" class="filters-toggle-btn" @click="doSearch()">
+            <i class="icon fa fa-search" />
+          </button>
           <button type="button" class="filters-toggle-btn" @click="filtersOpen = true">
             <i class="icon fa fa-sliders" />
             {{ config.labels.metadata.filters ?? 'Filters' }}
@@ -367,11 +363,6 @@ onMounted(async () => {
   flex: 1;
 }
 
-.search-icon {
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  flex-shrink: 0;
-}
 
 .search-results {
   width: 100%;
