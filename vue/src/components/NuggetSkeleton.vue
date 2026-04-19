@@ -24,48 +24,75 @@
 <template>
   <div class="nugget-skeleton" aria-hidden="true">
     <div class="skel-thumb" />
-    <div class="skel-line skel-title" />
-    <div class="skel-line skel-author" />
-    <div class="skel-line skel-desc" />
-    <div class="skel-line skel-desc skel-desc--short" />
+    <div class="skel-body">
+      <div class="skel-line skel-title" />
+      <div class="skel-line skel-author" />
+      <div class="skel-line skel-desc" />
+      <div class="skel-line skel-desc skel-desc--short" />
+    </div>
+    <div class="skel-footer">
+      <div class="skel-btn" />
+      <div class="skel-btn" />
+      <div class="skel-btn" />
+    </div>
   </div>
 </template>
 
 <style scoped>
-.nugget-skeleton {
-  border-radius: var(--naas-radius, 6px);
-  box-shadow: var(--naas-shadow-sm, 0 2px 6px rgba(0, 0, 0, 0.12));
-  padding: 10px;
-  margin: 10px 10px 25px 10px;
-  overflow: hidden;
-}
-
 @keyframes shimmer {
-  0%   { background-position: -400px 0; }
-  100% { background-position: 400px 0; }
+  0%   { background-position: -600px 0; }
+  100% { background-position: 600px 0; }
 }
 
-.skel-thumb,
-.skel-line {
-  background: linear-gradient(90deg, #e8e8e8 25%, #f5f5f5 50%, #e8e8e8 75%);
-  background-size: 800px 100%;
-  animation: shimmer 1.4s infinite linear;
-  border-radius: 4px;
+.nugget-skeleton {
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border-radius: var(--naas-radius, 6px);
+  box-shadow: var(--naas-shadow-sm, 0 2px 8px rgba(0, 0, 0, 0.10));
+  overflow: hidden;
+  height: 100%;
 }
 
 .skel-thumb {
   width: 100%;
   aspect-ratio: 16 / 9;
-  margin-bottom: 10px;
+  background: linear-gradient(90deg, #e8e8e8 25%, #f5f5f5 50%, #e8e8e8 75%);
+  background-size: 1200px 100%;
+  animation: shimmer 1.4s infinite linear;
 }
 
-.skel-line {
-  height: 14px;
+.skel-body {
+  flex: 1;
+  padding: 0.875rem 1rem 0.5rem;
+}
+
+.skel-footer {
+  display: flex;
+  gap: 0.4rem;
+  padding: 0.625rem 1rem;
+  border-top: 1px solid #f0f2f5;
+  background: #fafafa;
+}
+
+.skel-line,
+.skel-btn {
+  background: linear-gradient(90deg, #e8e8e8 25%, #f5f5f5 50%, #e8e8e8 75%);
+  background-size: 1200px 100%;
+  animation: shimmer 1.4s infinite linear;
+  border-radius: 4px;
   margin-bottom: 8px;
 }
 
-.skel-title  { width: 70%; height: 18px; }
-.skel-author { width: 45%; }
-.skel-desc   { width: 90%; }
-.skel-desc--short { width: 60%; }
+.skel-title  { height: 16px; width: 75%; margin-bottom: 10px; }
+.skel-author { height: 12px; width: 50%; margin-bottom: 10px; }
+.skel-desc   { height: 12px; width: 95%; }
+.skel-desc--short { width: 65%; margin-bottom: 0; }
+
+.skel-btn {
+  flex: 1;
+  height: 28px;
+  border-radius: var(--naas-radius, 6px);
+  margin-bottom: 0;
+}
 </style>

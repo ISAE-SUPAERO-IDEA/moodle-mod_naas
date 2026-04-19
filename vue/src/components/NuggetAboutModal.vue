@@ -22,9 +22,9 @@
  */
 -->
 <template>
-  <div v-show="visible" id="detail-modal">
+  <Teleport to="body">
     <transition name="modal-fade">
-      <div class="nugget-modal-backdrop" @click="emit('close')">
+      <div v-if="visible" class="nugget-modal-backdrop" @click="emit('close')">
         <div class="nugget-modal" @click.stop.prevent>
           <div class="container">
             <div class="nugget-modal-header row justify-content-between align-items-start">
@@ -125,7 +125,7 @@
         </div>
       </div>
     </transition>
-  </div>
+  </Teleport>
 </template>
 
 <script setup lang="ts">

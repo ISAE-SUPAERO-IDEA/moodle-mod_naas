@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Search widget: text input, facet filters, nugget grid, and load-more.
+ * Search widget: text input, facet filters, nugget grid, and pagination.
  * Used in Moodle activity-creation forms to let teachers pick a nugget.
  *
  * @copyright  2024 ISAE-SUPAERO (https://www.isae-supaero.fr/)
@@ -25,138 +25,146 @@
 <template>
   <div>
     <div v-if="error" class="naas-error-banner" role="alert">
-      <span>{{ config.labels.error_generic_user_message }}</span>
-      <button class="btn btn-sm btn-outline-danger" @click="doSearch">
+      <span>{{ config.labels.error_generic_user_message }} — {{ error.message }}</span>
+      <button class="btn btn-sm btn-outline-danger" @click="doSearch()">
         {{ config.labels.retry || 'Retry' }}
       </button>
     </div>
 
     <!-- Search + filter + results grid -->
-    <div
-      v-if="selectedNugget === null && !selectedNuggetLoading"
-      class="row"
-    >
-      <!-- Label -->
-      <div class="col-md-3 col-form-label d-flex pb-0 pr-md-0">
-        <label class="d-inline word-break" id="nugget_search">
+    <div v-if="selectedNugget === null && !selectedNuggetLoading">
+
+      <!-- Search bar row -->
+      <div class="search-bar-row">
+        <label class="search-label" id="nugget_search">
           {{ config.labels.search }}
         </label>
-      </div>
-
-      <!-- Search input -->
-      <div
-        class="col-md-9 form-inline align-items-start felement"
-        data-fieldtype="text"
-      >
-        <input
-          v-model="typed"
-          @input="onInput"
-          @keydown="$event.keyCode === 13 ? $event.preventDefault() : false"
-          size="43"
-          class="form-control"
-          :placeholder="config.labels.nugget_search_here"
-        />
-        <img
-          src="../../../assets/search_icon.png"
-          class="search-center"
-          width="35"
-          height="35"
-          alt=""
-        />
-      </div>
-
-      <!-- Filter panel -->
-      <div class="col-md-3">
-        <NuggetSearchFilter
-          :query="filterQuery"
-          @filters="onFilters"
-        />
-      </div>
-
-      <!-- Nugget grid -->
-      <div class="col-md-9">
-        <!-- Active filter chips -->
-        <FilterChips
-          :filters="filters"
-          :labels="config.labels.metadata"
-          @remove="removeFilter"
-          @clear="clearAllFilters"
-        />
-
-        <div
-          class="row"
-          role="listbox"
-          :aria-label="config.labels.search"
-          aria-multiselectable="false"
-          @keydown="onGridKeydown"
-        >
-          <!-- Skeleton cards while loading -->
-          <template v-if="loading">
-            <div
-              v-for="n in skeletonCount"
-              :key="`skel-${n}`"
-              class="col-6 col-lg-4 col-xl-3 nugget-post-selection"
-              style="min-width: 400px"
-            >
-              <NuggetSkeleton />
-            </div>
-          </template>
-
-          <template v-else>
-            <div
-              v-for="(nugget, index) in nuggets"
-              :key="index"
-              class="col-6 col-lg-4 col-xl-3 nugget-post-selection"
-              style="min-width: 400px"
-              role="option"
-              :aria-selected="nugget.nugget_id === selectedId"
-              :tabindex="focusedIndex === index ? 0 : -1"
-              :ref="(el) => setItemRef(el, index)"
-              @focus="focusedIndex = index"
-              @keydown.enter.prevent="clickOnNugget(nugget)"
-            >
-              <NuggetPost
-                :nugget="nugget"
-                :selection="true"
-                :class="{ 'nugget-post-selected': nugget.nugget_id === selectedId }"
-                @SelectButton="clickOnNugget"
-              />
-            </div>
-
-            <div
-              v-if="nuggets.length === 0"
-              class="col-md-9 form-inline align-items-start felement"
-            >
-              {{ config.labels.nugget_search_no_result }}
-            </div>
-          </template>
+        <div class="search-input-wrap">
+          <input
+            v-model="typed"
+            @input="onInput"
+            @keydown.enter.prevent
+            class="form-control search-input"
+            :placeholder="config.labels.nugget_search_here"
+          />
+          <img
+            src="../../../assets/search_icon.png"
+            class="search-icon"
+            width="35"
+            height="35"
+            alt=""
+          />
+          <button type="button" class="filters-toggle-btn" @click="filtersOpen = true">
+            <i class="icon fa fa-sliders" />
+            {{ config.labels.metadata.filters ?? 'Filters' }}
+            <span v-if="activeFilterCount > 0" class="filters-toggle-badge">{{ activeFilterCount }}</span>
+          </button>
         </div>
+      </div>
 
-        <!-- Pagination controls -->
-        <div v-if="totalPages > 1" class="pagination-bar">
-          <button
-            class="btn btn-sm btn-outline-primary"
-            :disabled="page === 1"
-            @click="goToPage(page - 1)"
+      <!-- Filters modal panel (teleported to body to escape Moodle stacking) -->
+      <Teleport to="body">
+        <transition name="panel-slide">
+          <div v-if="filtersOpen" class="filters-panel-backdrop" @click.self="filtersOpen = false">
+            <div class="filters-panel">
+              <div class="filters-panel-header">
+                <span class="filters-panel-title">{{ config.labels.metadata.filters ?? 'Filters' }}</span>
+                <button type="button" class="filters-panel-close" @click="filtersOpen = false">✕</button>
+              </div>
+              <div class="filters-panel-body">
+                <NuggetSearchFilter
+                  :query="filterQuery"
+                  :active-filters="filters"
+                  @filters="onFilters"
+                />
+              </div>
+            </div>
+          </div>
+        </transition>
+      </Teleport>
+
+      <!-- Filter chips + nugget grid -->
+      <div class="search-results">
+          <!-- Active filter chips -->
+          <FilterChips
+            :filters="filters"
+            :labels="config.labels.metadata"
+            :bucket-captions="bucketCaptions"
+            @remove="removeFilter"
+            @clear="clearAllFilters"
+          />
+
+          <div
+            class="nugget-grid"
+            role="listbox"
+            :aria-label="config.labels.search"
+            aria-multiselectable="false"
+            @keydown="onGridKeydown"
           >
-            ◀ {{ config.labels.previous_page || 'Previous' }}
-          </button>
-          <span class="pagination-info">{{ page }} / {{ totalPages }}</span>
-          <button
-            class="btn btn-sm btn-outline-primary"
-            :disabled="page === totalPages"
-            @click="goToPage(page + 1)"
-          >
-            {{ config.labels.next_page || 'Next' }} ▶
-          </button>
+            <!-- Skeleton cards on initial load -->
+            <template v-if="loading">
+              <div
+                v-for="n in skeletonCount"
+                :key="`skel-${n}`"
+                class="nugget-grid-item"
+              >
+                <NuggetSkeleton />
+              </div>
+            </template>
+
+            <template v-else>
+              <div
+                v-for="(nugget, index) in nuggets"
+                :key="nugget.nugget_id"
+                class="nugget-grid-item"
+                role="option"
+                :aria-selected="nugget.nugget_id === selectedId"
+                :tabindex="focusedIndex === index ? 0 : -1"
+                :ref="(el) => setItemRef(el, index)"
+                @focus="focusedIndex = index"
+                @keydown.enter.prevent="clickOnNugget(nugget)"
+              >
+                <NuggetPost
+                  :nugget="nugget"
+                  :selection="true"
+                  :class="{ 'nugget-post-selected': nugget.nugget_id === selectedId }"
+                  @SelectButton="clickOnNugget"
+                />
+              </div>
+
+              <!-- Skeleton row appended while loading more -->
+              <template v-if="loadingMore">
+                <div
+                  v-for="n in 3"
+                  :key="`more-skel-${n}`"
+                  class="nugget-grid-item"
+                >
+                  <NuggetSkeleton />
+                </div>
+              </template>
+
+              <div v-if="nuggets.length === 0" class="no-results">
+                {{ config.labels.nugget_search_no_result }}
+              </div>
+            </template>
+          </div>
+
+          <!-- Load more -->
+          <div v-if="hasMore" class="load-more-bar">
+            <button
+              class="btn btn-sm btn-outline-primary"
+              :disabled="loadingMore"
+              @click="loadMore"
+            >
+              {{ config.labels.load_more || 'Load more' }}
+            </button>
         </div>
       </div>
     </div>
 
     <!-- Selected nugget display -->
-    <div v-else class="row">
-      <div class="col-md-3" />
-      <div class="col-md-9 nugget-selected">
+    <div v-else class="selected-nugget-wrap">
+      <div class="selected-nugget-inner">
         <NuggetSkeleton v-if="selectedNuggetLoading" />
         <div v-if="!selectedNuggetLoading && selectedNugget">
           <NuggetPost :nugget="selectedNugget" />
@@ -185,14 +193,19 @@ import { useNuggetSearch } from '@/composables/useNuggetSearch'
 import type { Nugget, SearchOptions } from '@/types/nugget.types'
 
 const config = useNaasConfig()
-const { nuggets, loading, error, search, getNuggetById } = useNuggetSearch()
+const { nuggets, loading, loadingMore, error, search, getNuggetById } = useNuggetSearch({ initialLoading: true })
 
-const skeletonCount = 6
-const PAGE_SIZE = 6
+const skeletonCount = 9
+const PAGE_SIZE = 9
 
 const typed = ref('')
 const debouncedTyped = ref('')
 const filters = ref<Record<string, string[]>>({})
+const bucketCaptions = ref<Record<string, string>>({})
+const filtersOpen = ref(false)
+const activeFilterCount = computed(() =>
+  Object.values(filters.value).reduce((sum, arr) => sum + arr.length, 0)
+)
 const selectedNugget = ref<Nugget | null>(null)
 const focusedIndex = ref(0)
 const itemRefs: HTMLElement[] = []
@@ -213,10 +226,11 @@ function onGridKeydown(e: KeyboardEvent) {
     itemRefs[focusedIndex.value]?.focus()
   }
 }
+
 const selectedNuggetLoading = ref(false)
 const selectedId = ref<string | null>(null)
 const page = ref(1)
-const totalPages = ref(1)
+const hasMore = ref(false)
 
 // Query object forwarded to NuggetSearchFilter for aggregation display.
 const filterQuery = computed<SearchOptions>(() => ({
@@ -231,18 +245,23 @@ const searchOptions = computed<SearchOptions>(() => ({
   page: page.value,
 }))
 
-async function doSearch() {
-  const result = await search(searchOptions.value)
+async function doSearch(append = false) {
+  const result = await search(searchOptions.value, append)
   if (result) {
-    totalPages.value = Math.max(1, Math.ceil(result.results_count / PAGE_SIZE))
+    const loaded = append
+      ? nuggets.value.length
+      : (result.items?.length ?? 0)
+    hasMore.value = loaded < result.results_count
   }
-  focusedIndex.value = 0
-  itemRefs.length = 0
+  if (!append) {
+    focusedIndex.value = 0
+    itemRefs.length = 0
+  }
 }
 
-function goToPage(n: number) {
-  page.value = n
-  doSearch()
+async function loadMore() {
+  page.value += 1
+  await doSearch(true)
 }
 
 const onInput = debounce(() => {
@@ -251,8 +270,9 @@ const onInput = debounce(() => {
   doSearch()
 }, 500)
 
-function onFilters(newFilters: Record<string, string[]>) {
+function onFilters(newFilters: Record<string, string[]>, captions?: Record<string, string>) {
   filters.value = newFilters
+  if (captions) bucketCaptions.value = { ...bucketCaptions.value, ...captions }
   page.value = 1
   doSearch()
 }
@@ -272,6 +292,7 @@ function removeFilter(key: string, value: string) {
 
 function clearAllFilters() {
   filters.value = {}
+  bucketCaptions.value = {}
   page.value = 1
   doSearch()
 }
@@ -279,9 +300,11 @@ function clearAllFilters() {
 function clickOnNugget(nugget: Nugget) {
   if (selectedId.value === nugget.nugget_id) {
     selectedId.value = null
+    selectedNugget.value = null
     syncMoodleForm(null)
   } else {
     selectedId.value = nugget.nugget_id
+    selectedNugget.value = nugget
     syncMoodleForm(nugget)
   }
 }
@@ -318,34 +341,84 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.nugget-selected {
+/* ── Search bar ─────────────────────────────────────────────────────────── */
+.search-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.search-label {
+  flex-shrink: 0;
+  font-weight: 500;
+  white-space: nowrap;
+  margin: 0;
+}
+
+.search-input-wrap {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  gap: 0.5rem;
+}
+
+.search-input {
+  flex: 1;
+}
+
+.search-icon {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.search-results {
+  width: 100%;
+}
+
+/* ── Nugget grid: 3 cards per row ──────────────────────────────────────── */
+.nugget-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.25rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.nugget-grid-item {
+  min-width: 0;
+}
+
+.no-results {
+  grid-column: 1 / -1;
+  padding: 1.5rem 0;
+  color: #6c757d;
+  text-align: center;
+}
+
+/* ── Selected state ────────────────────────────────────────────────────── */
+.nugget-post-selected :deep(.nugget-post) {
+  box-shadow: 0 0 0 2px var(--primary, #0f6cbf);
+}
+
+/* ── Selected nugget view ──────────────────────────────────────────────── */
+.selected-nugget-wrap {
+  display: flex;
+  justify-content: flex-end;
   margin-bottom: 75px;
 }
 
-.nugget-post-selection {
-  margin-bottom: 20px;
-}
-
-.nugget-post-selected :deep(.nugget-post) {
-  background: var(--primary-light, #dce9fa);
-  outline: 2px solid var(--primary, #0f6cbf);
-}
-
-.show-more-nugget {
-  margin-left: 25px;
-  margin-bottom: 20px;
-}
-
-.search-center {
-  display: block;
-  margin: auto 0 auto 10px;
-  border: 1px solid;
+.selected-nugget-inner {
+  width: 75%;
 }
 
 .btn-replace {
-  margin-left: 10px;
+  margin-top: 0.75rem;
+  display: inline-block;
 }
 
+/* ── Error banner ──────────────────────────────────────────────────────── */
 .naas-error-banner {
   display: flex;
   align-items: center;
@@ -358,17 +431,129 @@ onMounted(async () => {
   color: #856404;
 }
 
-.pagination-bar {
+/* ── Load more ─────────────────────────────────────────────────────────── */
+.load-more-bar {
   display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin: 0.75rem 0 1rem 25px;
+  justify-content: center;
+  margin: 1.25rem 0 0.5rem;
 }
 
-.pagination-info {
+/* ── Filters toggle button ─────────────────────────────────────────────── */
+.filters-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.375rem 0.85rem;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  background: #fff;
   font-size: 0.875rem;
+  font-weight: 500;
+  color: #495057;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color 0.15s, color 0.15s;
+  flex-shrink: 0;
+}
+
+.filters-toggle-btn:hover {
+  border-color: var(--primary, #0f6cbf);
+  color: var(--primary, #0f6cbf);
+}
+
+.filters-toggle-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.1rem;
+  height: 1.1rem;
+  padding: 0 0.2rem;
+  border-radius: 50%;
+  background: var(--primary, #0f6cbf);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* ── Filters panel backdrop ────────────────────────────────────────────── */
+.filters-panel-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  z-index: 1050;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 60px;
+}
+
+/* ── Filters panel ─────────────────────────────────────────────────────── */
+.filters-panel {
+  width: 100%;
+  max-width: 900px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100vh - 80px);
+  overflow: hidden;
+}
+
+.filters-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid #e9ecef;
+  flex-shrink: 0;
+}
+
+.filters-panel-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #343a40;
+}
+
+.filters-panel-close {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  line-height: 1;
   color: #6c757d;
-  min-width: 4rem;
-  text-align: center;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  transition: color 0.15s, background 0.15s;
+}
+
+.filters-panel-close:hover {
+  color: #212529;
+  background: #f0f0f0;
+}
+
+.filters-panel-body {
+  padding: 1.25rem;
+  overflow-y: auto;
+}
+
+/* ── Panel slide transition ────────────────────────────────────────────── */
+.panel-slide-enter-active,
+.panel-slide-leave-active {
+  transition: opacity 0.2s ease;
+}
+.panel-slide-enter-active .filters-panel,
+.panel-slide-leave-active .filters-panel {
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+.panel-slide-enter-from,
+.panel-slide-leave-to {
+  opacity: 0;
+}
+.panel-slide-enter-from .filters-panel,
+.panel-slide-leave-to .filters-panel {
+  transform: translateY(-12px);
+  opacity: 0;
 }
 </style>

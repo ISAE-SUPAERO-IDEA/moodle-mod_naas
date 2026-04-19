@@ -23,11 +23,10 @@
 -->
 <template>
   <div class="filter-skeleton" aria-hidden="true">
-    <div v-for="n in 4" :key="n" class="skel-group">
+    <div class="skel-group">
       <div class="skel-line skel-heading" />
       <div class="skel-line skel-badge" />
       <div class="skel-line skel-badge skel-badge--short" />
-      <div class="skel-line skel-badge" />
     </div>
   </div>
 </template>
@@ -48,7 +47,7 @@
 
 .filter-skeleton {
   padding: 10px;
-  width: 200px;
+  width: 100%;
 }
 
 .skel-group {

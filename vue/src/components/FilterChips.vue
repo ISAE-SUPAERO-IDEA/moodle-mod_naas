@@ -55,6 +55,7 @@ import { useNaasConfig } from '@/composables/useNaasConfig'
 const props = defineProps<{
   filters: Record<string, string[]>
   labels: Record<string, string>
+  bucketCaptions?: Record<string, string>
 }>()
 
 const emit = defineEmits<{
@@ -71,7 +72,7 @@ const chips = computed(() => {
       result.push({
         key,
         value,
-        label: props.labels[value] ?? props.labels[key] ?? value,
+        label: props.bucketCaptions?.[value] ?? value,
       })
     }
   }
@@ -83,48 +84,59 @@ const chips = computed(() => {
 .filter-chips {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.4rem;
-  margin-bottom: 0.75rem;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
 }
 
 .filter-chip {
   display: inline-flex;
   align-items: center;
-  gap: 0.25rem;
-  padding: 0.2rem 0.6rem;
+  gap: 0.3rem;
+  padding: 0.3rem 0.75rem;
   background: var(--naas-primary-light, #dce9fa);
   color: var(--naas-primary, #0f6cbf);
-  border: 1px solid var(--naas-primary, #0f6cbf);
+  border: 1.5px solid var(--naas-primary, #0f6cbf);
   border-radius: 50px;
   font-size: 0.8rem;
-  font-weight: 500;
+  font-weight: 600;
   white-space: nowrap;
+  line-height: 1.2;
 }
 
 .filter-chip-remove {
-  background: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--naas-primary, #0f6cbf);
+  color: #fff;
   border: none;
-  color: inherit;
-  font-size: 1rem;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  font-size: 0.75rem;
   line-height: 1;
-  padding: 0 0 0 0.15rem;
+  padding: 0;
   cursor: pointer;
-  opacity: 0.7;
-  transition: opacity 0.15s ease;
+  flex-shrink: 0;
+  transition: background var(--naas-transition, 0.18s ease);
 }
 
 .filter-chip-remove:hover {
-  opacity: 1;
+  background: var(--naas-primary-hover, #0a58ca);
 }
 
 .filter-chip-clear {
-  background: #f8d7da;
+  background: transparent;
   color: #842029;
-  border-color: #f5c2c7;
+  border: 1.5px solid #f5c2c7;
   cursor: pointer;
+  font-weight: 500;
+  transition: background var(--naas-transition, 0.18s ease), border-color var(--naas-transition, 0.18s ease);
 }
 
 .filter-chip-clear:hover {
-  background: #f5c2c7;
+  background: #f8d7da;
+  border-color: #f1aeb5;
 }
 </style>

@@ -22,28 +22,50 @@
  */
 -->
 <template>
-  <div class="filters">
-    <FilterSkeleton v-if="loading && !hasAggregations" />
+  <div class="filter-bar" v-click-outside="closeAll">
+    <div class="filter-bar-header">
+      <h3 class="filter-title">{{ config.labels.metadata.filters ?? 'Filters' }}</h3>
+      <button
+        v-show="hasFilters"
+        type="button"
+        class="filter-clear-btn"
+        @click="clearFilters"
+      >
+        {{ config.labels.clear_filters }}
+      </button>
+    </div>
 
-    <div v-show="hasAggregations" class="filters-inner">
+    <!-- 3-column grid: one column per aggregation + skeleton placeholders while loading -->
+    <div class="filter-columns">
+      <!-- Skeleton columns while loading -->
+      <template v-if="loading && !hasAggregations">
+        <div v-for="n in 3" :key="`skel-col-${n}`" class="filter-column">
+          <FilterSkeleton />
+        </div>
+      </template>
+
+      <!-- Aggregation columns -->
       <div
         v-for="(aggregation, aggKey) in aggregations"
         :key="aggKey"
+        class="filter-column"
       >
-        <a
-          href="javascript:;"
-          class="aggregation-title"
-          @click="aggregation.visible = !aggregation.visible"
+        <button
+          type="button"
+          class="filter-pill"
+          :class="{ 'filter-pill--active': hasSelected(aggregation), 'filter-pill--open': aggregation.visible }"
+          @click="toggle(aggKey)"
         >
-          <h6 class="filters-title">
-            {{ config.labels.metadata[aggKey] ?? aggKey }}
-            <i :class="aggregation.visible ? 'icon fa fa-arrow-down' : 'icon fa fa-arrow-right'" />
-          </h6>
-        </a>
+          {{ config.labels.metadata[aggKey] ?? aggKey }}
+          <span v-if="hasSelected(aggregation)" class="filter-pill-count">
+            {{ selectedCount(aggregation) }}
+          </span>
+          <i class="filter-pill-chevron icon fa" :class="aggregation.visible ? 'fa-chevron-up' : 'fa-chevron-down'" />
+        </button>
 
-        <div v-show="aggregation.visible">
-          <!-- Related domains use a recursive tree component -->
-          <div v-if="aggKey === 'related_domains'" id="related_domains">
+        <div v-show="aggregation.visible" class="filter-dropdown">
+          <!-- Related domains -->
+          <div v-if="aggKey === 'related_domains'">
             <span v-for="bucket in relatedDomains" :key="bucket.key">
               <RelatedDomain
                 :bucket="bucket"
@@ -52,42 +74,32 @@
             </span>
           </div>
 
-          <!-- All other aggregations render flat badges -->
-          <span
-            v-for="(bucket, _idx) in aggregation.buckets"
-            v-else
-            :key="bucket.key"
-          >
-            <a
-              href="javascript:;"
-              :class="{ 'hide-authors': aggKey === 'authors' && Number(_idx) > 5 }"
+          <!-- All other aggregations -->
+          <div v-else class="filter-dropdown-list">
+            <label
+              v-for="(bucket, _idx) in aggregation.buckets"
+              :key="bucket.key"
+              class="filter-option"
+              :class="{ 'filter-option--hidden': aggKey === 'authors' && Number(_idx) > 5 && !aggregation.showAll }"
             >
-              <NuggetBadge
-                :selected="bucket.selected"
-                :text="bucket.caption"
-                :help="bucket.help"
-                @click="switchFacet(aggKey, bucket.query_value ?? '')"
+              <input
+                type="checkbox"
+                :checked="bucket.selected"
+                @change="switchFacet(aggKey, bucket.query_value ?? '')"
               />
-            </a>
-          </span>
+              <span>{{ bucket.caption }}</span>
+            </label>
 
-          <div v-if="aggKey === 'authors' && hasMore(aggregation)">
-            <a
-              href="javascript:;"
-              id="show-more-authors"
-              class="clear-filters show-more"
-              @click="showMoreAuthors"
+            <button
+              v-if="aggKey === 'authors' && hasMore(aggregation)"
+              type="button"
+              class="show-more-btn"
+              @click="aggregation.showAll = !aggregation.showAll"
             >
-              + {{ config.labels.show_more_authors }}
-            </a>
+              {{ aggregation.showAll ? `− ${config.labels.hide_authors}` : `+ ${config.labels.show_more_authors}` }}
+            </button>
           </div>
         </div>
-      </div>
-
-      <div v-show="hasFilters" class="clear-filters">
-        <a href="javascript:;" class="btn btn-primary btn-small" @click="clearFilters">
-          {{ config.labels.clear_filters }}
-        </a>
       </div>
     </div>
   </div>
@@ -96,7 +108,6 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import RelatedDomain from './RelatedDomain.vue'
-import NuggetBadge from './NuggetBadge.vue'
 import FilterSkeleton from './FilterSkeleton.vue'
 import { useNaasConfig } from '@/composables/useNaasConfig'
 import { useNuggetSearch } from '@/composables/useNuggetSearch'
@@ -106,17 +117,38 @@ import type { SearchOptions, AggregationBucket } from '@/types/nugget.types'
 interface AggregationUI {
   buckets: Record<string, AggregationBucket>
   visible: boolean
+  showAll: boolean
   name: string
 }
 
-const props = defineProps<{ query: SearchOptions | null }>()
-const emit = defineEmits<{ (e: 'filters', filters: Record<string, string[]>): void }>()
+type ElWithHandler = HTMLElement & { __coh__: (e: Event) => void }
+
+const vClickOutside = {
+  mounted(el: HTMLElement, binding: { value: () => void }) {
+    const handler = (e: Event) => {
+      if (!el.contains(e.target as Node)) binding.value()
+    }
+    ;(el as ElWithHandler).__coh__ = handler
+    document.addEventListener('click', handler)
+  },
+  unmounted(el: HTMLElement) {
+    document.removeEventListener('click', (el as ElWithHandler).__coh__)
+  },
+}
+
+const props = defineProps<{
+  query: SearchOptions | null
+  activeFilters: Record<string, string[]>
+}>()
+const emit = defineEmits<{
+  (e: 'filters', filters: Record<string, string[]>, captions: Record<string, string>): void
+}>()
 
 const config = useNaasConfig()
 const { search } = useNuggetSearch()
 const { getDomainLabel, getStructureAcronym, getPersonName } = useEntityResolvers()
 
-const loading = ref(false)
+const loading = ref(true)
 const aggregations = ref<Record<string, AggregationUI>>({})
 const relatedDomains = ref<AggregationBucket[]>([])
 
@@ -188,6 +220,19 @@ watch(
   { deep: true, immediate: true }
 )
 
+// When the widget removes a chip, sync bucket selected state from the prop.
+watch(
+  () => props.activeFilters,
+  (active) => {
+    for (const [aggKey, agg] of Object.entries(aggregations.value)) {
+      for (const [bucketKey, bucket] of Object.entries(agg.buckets)) {
+        bucket.selected = (active[aggKey] ?? []).includes(bucketKey)
+      }
+    }
+  },
+  { deep: true }
+)
+
 async function load(query: SearchOptions) {
   loading.value = true
   try {
@@ -211,15 +256,16 @@ async function handleAggregations(
     const raw = networkAgg[def.aggregation_key]
     if (!raw?.buckets?.length) continue
 
-    const oldVisible = aggregations.value[def.name]?.visible ?? true
-    newAggs[def.name] = { buckets: {}, visible: oldVisible, name: def.name }
+    const oldVisible = aggregations.value[def.name]?.visible ?? false
+    const oldShowAll = aggregations.value[def.name]?.showAll ?? false
+    newAggs[def.name] = { buckets: {}, visible: oldVisible, showAll: oldShowAll, name: def.name }
 
     const bucketsWithCaptions = await Promise.all(
       raw.buckets.map(async (b) => {
         const caption = await def.bucket_key_to_ui(b.key)
         return {
           ...b,
-          selected: aggregations.value[def.name]?.buckets[b.key]?.selected ?? false,
+          selected: (props.activeFilters[def.name] ?? []).includes(b.key),
           caption: `${caption} (${b.docCount})`,
           help: caption,
           query_value: def.bucket_key_to_query(b.key),
@@ -263,19 +309,22 @@ function switchFacet(aggKey: string, bucketKey: string) {
   const agg = aggregations.value[aggKey]
   if (!agg?.buckets[bucketKey]) return
   agg.buckets[bucketKey].selected = !agg.buckets[bucketKey].selected
-  emit('filters', getExtraParams())
+  const { filters, captions } = getExtraParams()
+  emit('filters', filters, captions)
 }
 
-function getExtraParams(): Record<string, string[]> {
-  const query: Record<string, string[]> = {}
+function getExtraParams(): { filters: Record<string, string[]>; captions: Record<string, string> } {
+  const filters: Record<string, string[]> = {}
+  const captions: Record<string, string> = {}
   for (const [aggKey, agg] of Object.entries(aggregations.value)) {
     for (const bucket of Object.values(agg.buckets)) {
       if (bucket.selected) {
-        query[aggKey] = [...(query[aggKey] ?? []), bucket.key]
+        filters[aggKey] = [...(filters[aggKey] ?? []), bucket.key]
+        captions[bucket.key] = bucket.help ?? bucket.caption ?? bucket.key
       }
     }
   }
-  return query
+  return { filters, captions }
 }
 
 function clearFilters() {
@@ -284,9 +333,8 @@ function clearFilters() {
       bucket.selected = false
     }
   }
-  // Reset domain tree selection state
   relatedDomains.value = relatedDomains.value.map((d) => ({ ...d, selected: false }))
-  emit('filters', {})
+  emit('filters', {}, {})
 }
 
 const hasAggregations = computed(() =>
@@ -303,65 +351,203 @@ function hasMore(agg: AggregationUI): boolean {
   return Object.keys(agg.buckets).length > 5
 }
 
-function showMoreAuthors() {
-  const hidden = document.querySelectorAll<HTMLElement>('.hide-authors')
-  const isVisible = hidden[0]?.style.display === 'inline'
-  const btn = document.getElementById('show-more-authors')
-  hidden.forEach((el) => { el.style.display = isVisible ? 'none' : 'inline' })
-  if (btn) {
-    btn.innerHTML = isVisible
-      ? `+ ${config.labels.show_more_authors}`
-      : `- ${config.labels.hide_authors}`
+function hasSelected(agg: AggregationUI): boolean {
+  return Object.values(agg.buckets).some((b) => b.selected)
+}
+
+function selectedCount(agg: AggregationUI): number {
+  return Object.values(agg.buckets).filter((b) => b.selected).length
+}
+
+function toggle(aggKey: string) {
+  const opening = !aggregations.value[aggKey].visible
+  for (const key of Object.keys(aggregations.value)) {
+    aggregations.value[key].visible = false
+  }
+  if (opening) aggregations.value[aggKey].visible = true
+}
+
+function closeAll() {
+  for (const key of Object.keys(aggregations.value)) {
+    aggregations.value[key].visible = false
   }
 }
 </script>
 
 <style scoped>
-.filters {
-  float: left;
-  width: 200px;
+/* ── Bar wrapper ── */
+.filter-bar {
+  width: 100%;
+  margin-bottom: 1.25rem;
 }
 
-.filters-inner {
-  background-color: white;
-  display: table-cell;
-  padding: 10px;
-  margin-bottom: 10px;
+.filter-bar-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
 }
 
-.filters-title {
-  margin-top: 10px;
-  margin-bottom: 0;
-  padding-top: 0;
+.filter-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #343a40;
 }
 
-.aggregation-title {
-  color: #000;
-  font-weight: 400;
+/* ── 3-column grid ── */
+.filter-columns {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
 }
 
-.aggregation-title:hover {
-  text-decoration: none;
+.filter-column {
+  position: relative;
+  min-width: 0;
 }
 
-.hide-authors {
+/* ── Pill button (full-width inside its column) ── */
+.filter-pill {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 0.35rem;
+  padding: 0.4rem 0.75rem;
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  background: #fff;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #495057;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+  line-height: 1.4;
+  text-align: left;
+}
+
+.filter-pill:hover {
+  border-color: var(--primary, #0f6cbf);
+  color: var(--primary, #0f6cbf);
+}
+
+.filter-pill--active {
+  background: var(--primary, #0f6cbf);
+  border-color: var(--primary, #0f6cbf);
+  color: #fff;
+}
+
+.filter-pill--active:hover {
+  background: var(--primary-dark, #0a5499);
+  color: #fff;
+}
+
+.filter-pill--open {
+  border-color: var(--primary, #0f6cbf);
+  color: var(--primary, #0f6cbf);
+}
+
+.filter-pill--active.filter-pill--open {
+  color: #fff;
+}
+
+.filter-pill-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.1rem;
+  height: 1.1rem;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.3);
+  font-size: 0.7rem;
+  font-weight: 700;
+  line-height: 1;
+  padding: 0 0.2rem;
+}
+
+.filter-pill-chevron {
+  font-size: 0.65rem;
+  flex-shrink: 0;
+}
+
+/* ── Dropdown panel ── */
+.filter-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  z-index: 200;
+  width: 100%;
+  min-width: 180px;
+  background: #fff;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  padding: 0.25rem 0;
+}
+
+.filter-dropdown-list {
+  display: flex;
+  flex-direction: column;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+/* ── Checkbox option row ── */
+.filter-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.75rem;
+  cursor: pointer;
+  font-size: 0.8125rem;
+  color: #343a40;
+  transition: background 0.12s;
+  margin: 0;
+}
+
+.filter-option:hover {
+  background: #f0f4ff;
+}
+
+.filter-option input[type="checkbox"] {
+  flex-shrink: 0;
+  margin: 0;
+  accent-color: var(--primary, #0f6cbf);
+}
+
+.filter-option--hidden {
   display: none;
 }
 
-.show-more {
-  margin-left: 10px;
+/* ── Show more ── */
+.show-more-btn {
+  background: none;
+  border: none;
+  padding: 0.3rem 0.75rem;
+  font-size: 0.8rem;
+  color: var(--primary, #0f6cbf);
+  cursor: pointer;
+  text-align: left;
 }
 
-.clear-filters {
-  font-size: 13px;
-  margin-top: 15px;
+.show-more-btn:hover { text-decoration: underline; }
+
+/* ── Clear all ── */
+.filter-clear-btn {
+  background: none;
+  border: 1px solid #dc3545;
+  border-radius: 20px;
+  padding: 0.25rem 0.65rem;
+  font-size: 0.8125rem;
+  color: #dc3545;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, color 0.15s;
 }
 
-.filters img {
-  margin-left: 40px;
-}
-
-.separator {
-  height: 15px;
+.filter-clear-btn:hover {
+  background: #dc3545;
+  color: #fff;
 }
 </style>

@@ -199,7 +199,7 @@ watch(nugget, (loaded) => {
       }, { threshold: 0.5 })
 
       visibilityObserver.observe(iframe)
-    }, 100)
+    }, 500)
   })
 })
 

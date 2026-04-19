@@ -24,14 +24,36 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { resolve } from 'path'
 import { readFileSync } from 'fs'
+import type { OutputBundle, NormalizedOutputOptions } from 'rollup'
 
 // Bump this when releasing — mirrors the AMD widget_init.js reference.
 const BUNDLE_VERSION = '2026030300'
+
+// Reads the emitted style.css and prepends a self-injecting <style> block
+// into the IIFE JS so Moodle pages get the styles without a separate link tag.
+function inlineCssPlugin() {
+  return {
+    name: 'inline-css-into-iife',
+    enforce: 'post' as const,
+    apply: 'build' as const,
+    generateBundle(_opts: NormalizedOutputOptions, bundle: OutputBundle) {
+      const cssChunk = Object.values(bundle).find((c) => c.type === 'asset' && c.fileName.endsWith('.css'))
+      const jsChunk  = Object.values(bundle).find((c) => c.type === 'chunk' && c.fileName.endsWith('.js'))
+      if (!cssChunk || cssChunk.type !== 'asset' || !jsChunk || jsChunk.type !== 'chunk') return
+      const raw = cssChunk.source
+      const cssStr = (raw instanceof Uint8Array ? new TextDecoder().decode(raw) : raw)
+        .replace(/\\/g, '\\\\')
+        .replace(/`/g, '\\`')
+      jsChunk.code = `;(function(){var s=document.createElement('style');s.textContent=\`${cssStr}\`;document.head.appendChild(s);})();` + jsChunk.code
+    },
+  }
+}
 
 export default defineConfig(({ mode }) => ({
   root: __dirname,
   plugins: [
     vue(),
+    inlineCssPlugin(),
     // Inject window.NAAS dev config into the HTML served locally.
     mode === 'development'
       ? {
