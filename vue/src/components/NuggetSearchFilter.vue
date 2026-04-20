@@ -63,6 +63,7 @@
           <i class="filter-pill-chevron icon fa" :class="aggregation.visible ? 'fa-chevron-up' : 'fa-chevron-down'" />
         </button>
 
+        <transition name="dropdown-fade">
         <div v-show="aggregation.visible" class="filter-dropdown">
           <!-- Related domains -->
           <div v-if="aggKey === 'related_domains'">
@@ -100,6 +101,7 @@
             </button>
           </div>
         </div>
+        </transition>
       </div>
     </div>
   </div>
@@ -392,7 +394,7 @@ function closeAll() {
   margin: 0;
   font-size: 1rem;
   font-weight: 600;
-  color: #343a40;
+  color: var(--naas-text, #1f2937);
 }
 
 /* ── 3-column grid ── */
@@ -415,37 +417,40 @@ function closeAll() {
   width: 100%;
   gap: 0.35rem;
   padding: 0.4rem 0.75rem;
-  border: 1px solid #ced4da;
-  border-radius: 6px;
-  background: #fff;
+  border: 1.5px solid var(--naas-border, #dee2e6);
+  border-radius: var(--naas-radius, 8px);
+  background: var(--naas-surface, #fff);
   font-size: 0.8125rem;
   font-weight: 500;
-  color: #495057;
+  color: var(--naas-text, #1f2937);
   cursor: pointer;
-  transition: border-color 0.15s, background 0.15s, color 0.15s;
+  transition: border-color var(--naas-transition, 0.18s ease),
+              background   var(--naas-transition, 0.18s ease),
+              color        var(--naas-transition, 0.18s ease);
   line-height: 1.4;
   text-align: left;
 }
 
 .filter-pill:hover {
-  border-color: var(--primary, #0f6cbf);
-  color: var(--primary, #0f6cbf);
+  border-color: var(--naas-primary, #0f6cbf);
+  color: var(--naas-primary, #0f6cbf);
+  background: var(--naas-surface-hover, #f0f4ff);
 }
 
 .filter-pill--active {
-  background: var(--primary, #0f6cbf);
-  border-color: var(--primary, #0f6cbf);
+  background: var(--naas-primary, #0f6cbf);
+  border-color: var(--naas-primary, #0f6cbf);
   color: #fff;
 }
 
 .filter-pill--active:hover {
-  background: var(--primary-dark, #0a5499);
+  background: var(--naas-primary-dark, #0a4a8f);
   color: #fff;
 }
 
 .filter-pill--open {
-  border-color: var(--primary, #0f6cbf);
-  color: var(--primary, #0f6cbf);
+  border-color: var(--naas-primary, #0f6cbf);
+  color: var(--naas-primary, #0f6cbf);
 }
 
 .filter-pill--active.filter-pill--open {
@@ -536,18 +541,30 @@ function closeAll() {
 /* ── Clear all ── */
 .filter-clear-btn {
   background: none;
-  border: 1px solid #dc3545;
-  border-radius: 20px;
+  border: 1.5px solid #dc3545;
+  border-radius: var(--naas-radius-pill, 999px);
   padding: 0.25rem 0.65rem;
   font-size: 0.8125rem;
   color: #dc3545;
   cursor: pointer;
   white-space: nowrap;
-  transition: background 0.15s, color 0.15s;
+  transition: background var(--naas-transition, 0.18s ease),
+              color     var(--naas-transition, 0.18s ease);
 }
 
 .filter-clear-btn:hover {
   background: #dc3545;
   color: #fff;
+}
+
+/* ── Dropdown slide-down transition ── */
+.dropdown-fade-enter-active,
+.dropdown-fade-leave-active {
+  transition: opacity 0.16s ease, transform 0.16s ease;
+}
+.dropdown-fade-enter-from,
+.dropdown-fade-leave-to {
+  opacity: 0;
+  transform: translateY(-6px);
 }
 </style>

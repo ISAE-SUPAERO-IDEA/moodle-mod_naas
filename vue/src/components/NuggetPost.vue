@@ -23,21 +23,30 @@
 -->
 <template>
   <div class="nugget-post">
-    <!-- Thumbnail -->
+    <!-- Thumbnail with overlay badges -->
     <div class="nugget-thumb-wrap">
       <img
         class="nugget-thumb"
         :src="nugget.nugget_thumbnail_url + '?width=700&height=394'"
         alt=""
+        loading="lazy"
       />
+      <div class="nugget-thumb-badges">
+        <span v-if="nugget.duration" class="nugget-badge nugget-badge-duration">
+          <i class="icon fa fa-clock-o" />
+          {{ nugget.duration }}&thinsp;min
+        </span>
+        <span v-if="nugget.level" class="nugget-badge nugget-badge-level">
+          {{ config.labels.metadata[nugget.level] ?? nugget.level }}
+        </span>
+      </div>
     </div>
 
     <!-- Body -->
     <div class="nugget-body">
-      <h4 class="nugget-title">{{ truncate(nugget.name, 60) }}</h4>
+      <h4 class="nugget-title" :title="nugget.name">{{ truncate(nugget.name, 60) }}</h4>
       <p v-if="authorsNames" class="nugget-authors">{{ authorsNames }}</p>
-      <div class="nugget-desc">{{ truncatedResume }}</div>
-      <p v-if="nugget.displayinfo" class="nugget-displayinfo">{{ nugget.displayinfo }}</p>
+      <p class="nugget-desc">{{ truncatedResume }}</p>
     </div>
 
     <!-- Footer actions -->
@@ -62,6 +71,7 @@
         class="nugget-btn nugget-btn-ghost"
         @click="showPreview = true"
       >
+        <i class="icon fa fa-play-circle" />
         {{ config.labels.preview_button }}
       </button>
     </div>
@@ -100,35 +110,39 @@ function truncate(text: string, length: number): string {
 const truncatedResume = computed(() => {
   const raw = props.nugget.resume ?? ''
   const text = new DOMParser().parseFromString(raw, 'text/html').body.textContent ?? ''
-  return truncate(text, 100)
+  return truncate(text, 110)
 })
 </script>
 
 <style scoped>
+/* ── Card shell ── */
 .nugget-post {
   display: flex;
   flex-direction: column;
   height: 100%;
-  width: 100%;
-  box-sizing: border-box;
-  background: #fff;
-  border-radius: var(--naas-radius, 6px);
-  box-shadow: var(--naas-shadow-sm, 0 2px 8px rgba(0, 0, 0, 0.10));
+  background: var(--naas-surface, #fff);
+  border-radius: var(--naas-radius, 8px);
+  box-shadow: var(--naas-shadow-sm, 0 2px 8px rgba(0,0,0,.10));
   overflow: hidden;
-  transition: box-shadow var(--naas-transition, 0.18s ease), transform var(--naas-transition, 0.18s ease);
+  transition:
+    box-shadow var(--naas-transition-slow, 0.28s ease),
+    transform  var(--naas-transition-slow, 0.28s ease);
+  will-change: transform;
 }
 
 .nugget-post:hover {
-  box-shadow: var(--naas-shadow-md, 0 6px 20px rgba(0, 0, 0, 0.14));
-  transform: translateY(-2px);
+  box-shadow: var(--naas-shadow-md, 0 6px 20px rgba(0,0,0,.14));
+  transform: translateY(-3px);
 }
 
 /* ── Thumbnail ── */
 .nugget-thumb-wrap {
+  position: relative;
   width: 100%;
   aspect-ratio: 16 / 9;
   overflow: hidden;
-  background: #f0f2f5;
+  background: var(--naas-surface-muted, #f8f9fa);
+  flex-shrink: 0;
 }
 
 .nugget-thumb {
@@ -136,106 +150,155 @@ const truncatedResume = computed(() => {
   height: 100%;
   object-fit: cover;
   display: block;
-  transition: transform 0.3s ease;
+  transition: transform 0.35s ease;
 }
 
 .nugget-post:hover .nugget-thumb {
-  transform: scale(1.03);
+  transform: scale(1.04);
+}
+
+/* Overlay badges bottom-left of thumbnail */
+.nugget-thumb-badges {
+  position: absolute;
+  bottom: 0.5rem;
+  left: 0.5rem;
+  display: flex;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.nugget-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.18rem 0.55rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  border-radius: var(--naas-radius-pill, 999px);
+  line-height: 1.4;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.nugget-badge-duration {
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+}
+
+.nugget-badge-level {
+  background: var(--naas-primary, #0f6cbf);
+  color: #fff;
+  text-transform: capitalize;
 }
 
 /* ── Body ── */
 .nugget-body {
   flex: 1;
-  padding: 0.875rem 1rem 0.5rem;
+  padding: 0.875rem 1rem 0.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-height: 0;
 }
 
 .nugget-title {
-  font-size: 0.95rem;
-  font-weight: 600;
+  font-size: 0.9rem;
+  font-weight: 700;
   line-height: 1.35;
-  margin: 0 0 0.35rem;
-  color: #1a1a2e;
+  margin: 0;
+  color: var(--naas-text, #1f2937);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .nugget-authors {
-  font-size: 0.78rem;
-  color: #6c757d;
-  margin: 0 0 0.4rem;
+  font-size: 0.775rem;
+  color: var(--naas-text-muted, #6c757d);
+  margin: 0;
   font-style: italic;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .nugget-desc {
   font-size: 0.8rem;
-  color: #495057;
-  line-height: 1.45;
+  color: var(--naas-text-muted, #6c757d);
+  line-height: 1.5;
   margin: 0;
-}
-
-.nugget-displayinfo {
-  font-size: 0.75rem;
-  color: #adb5bd;
-  margin: 0.35rem 0 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 /* ── Footer ── */
 .nugget-footer {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
-  padding: 0.625rem 1rem;
-  border-top: 1px solid #f0f2f5;
-  background: #fafafa;
+  gap: 0.35rem;
+  padding: 0.6rem 0.875rem;
+  border-top: 1px solid var(--naas-border-light, #e9ecef);
+  background: var(--naas-surface-muted, #f8f9fa);
+  flex-shrink: 0;
 }
 
 .nugget-btn {
   flex: 1;
-  padding: 0.35rem 0.5rem;
-  font-size: 0.78rem;
+  padding: 0.32rem 0.4rem;
+  font-size: 0.77rem;
   font-weight: 600;
-  border-radius: var(--naas-radius, 6px);
-  border: none;
+  border-radius: var(--naas-radius, 8px);
+  border: 1.5px solid transparent;
   cursor: pointer;
   white-space: nowrap;
-  transition: background var(--naas-transition, 0.18s ease),
-              color var(--naas-transition, 0.18s ease),
-              box-shadow var(--naas-transition, 0.18s ease);
-  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  transition:
+    background var(--naas-transition, 0.18s ease),
+    color      var(--naas-transition, 0.18s ease),
+    box-shadow var(--naas-transition, 0.18s ease);
 }
 
-/* Select — filled primary */
 .nugget-btn-select {
   background: var(--naas-primary, #0f6cbf);
   color: #fff;
-  border: 1.5px solid var(--naas-primary, #0f6cbf);
+  border-color: var(--naas-primary, #0f6cbf);
 }
 
 .nugget-btn-select:hover {
   background: var(--naas-primary-hover, #0a58ca);
   border-color: var(--naas-primary-hover, #0a58ca);
-  box-shadow: 0 2px 8px rgba(15, 108, 191, 0.35);
+  box-shadow: 0 2px 8px rgba(15, 108, 191, 0.3);
 }
 
-/* About — outlined primary */
 .nugget-btn-outline {
   background: transparent;
   color: var(--naas-primary, #0f6cbf);
-  border: 1.5px solid var(--naas-primary, #0f6cbf);
+  border-color: var(--naas-primary, #0f6cbf);
 }
 
 .nugget-btn-outline:hover {
   background: var(--naas-primary-light, #dce9fa);
 }
 
-/* Preview — ghost */
 .nugget-btn-ghost {
   background: transparent;
-  color: #6c757d;
-  border: 1.5px solid #dee2e6;
+  color: var(--naas-text-muted, #6c757d);
+  border-color: var(--naas-border, #dee2e6);
 }
 
 .nugget-btn-ghost:hover {
-  background: #f0f2f5;
-  color: #495057;
-  border-color: #ced4da;
+  background: var(--naas-surface-hover, #f0f4ff);
+  color: var(--naas-text, #1f2937);
+  border-color: var(--naas-text-muted, #6c757d);
 }
 </style>

@@ -40,16 +40,16 @@
 
 <style scoped>
 @keyframes shimmer {
-  0%   { background-position: -600px 0; }
-  100% { background-position: 600px 0; }
+  0%   { background-position: -700px 0; }
+  100% { background-position: 700px 0; }
 }
 
 .nugget-skeleton {
   display: flex;
   flex-direction: column;
-  background: #fff;
-  border-radius: var(--naas-radius, 6px);
-  box-shadow: var(--naas-shadow-sm, 0 2px 8px rgba(0, 0, 0, 0.10));
+  background: var(--naas-surface, #fff);
+  border-radius: var(--naas-radius, 8px);
+  box-shadow: var(--naas-shadow-sm, 0 2px 8px rgba(0,0,0,.10));
   overflow: hidden;
   height: 100%;
 }
@@ -57,9 +57,10 @@
 .skel-thumb {
   width: 100%;
   aspect-ratio: 16 / 9;
-  background: linear-gradient(90deg, #e8e8e8 25%, #f5f5f5 50%, #e8e8e8 75%);
-  background-size: 1200px 100%;
-  animation: shimmer 1.4s infinite linear;
+  background: linear-gradient(90deg, #ececec 25%, #f7f7f7 50%, #ececec 75%);
+  background-size: 1400px 100%;
+  animation: shimmer 1.5s infinite linear;
+  flex-shrink: 0;
 }
 
 .skel-body {
@@ -69,30 +70,36 @@
 
 .skel-footer {
   display: flex;
-  gap: 0.4rem;
-  padding: 0.625rem 1rem;
-  border-top: 1px solid #f0f2f5;
-  background: #fafafa;
+  gap: 0.35rem;
+  padding: 0.6rem 0.875rem;
+  border-top: 1px solid var(--naas-border-light, #e9ecef);
+  background: var(--naas-surface-muted, #f8f9fa);
+  flex-shrink: 0;
 }
 
 .skel-line,
 .skel-btn {
-  background: linear-gradient(90deg, #e8e8e8 25%, #f5f5f5 50%, #e8e8e8 75%);
-  background-size: 1200px 100%;
-  animation: shimmer 1.4s infinite linear;
+  background: linear-gradient(90deg, #ececec 25%, #f7f7f7 50%, #ececec 75%);
+  background-size: 1400px 100%;
+  animation: shimmer 1.5s infinite linear;
   border-radius: 4px;
   margin-bottom: 8px;
 }
 
-.skel-title  { height: 16px; width: 75%; margin-bottom: 10px; }
-.skel-author { height: 12px; width: 50%; margin-bottom: 10px; }
-.skel-desc   { height: 12px; width: 95%; }
-.skel-desc--short { width: 65%; margin-bottom: 0; }
+/* Stagger lines so they pulse offset from each other */
+.skel-title        { height: 15px; width: 72%; margin-bottom: 10px; animation-delay: 0s; }
+.skel-author       { height: 11px; width: 48%; margin-bottom: 10px; animation-delay: 0.1s; }
+.skel-desc         { height: 11px; width: 95%; animation-delay: 0.2s; }
+.skel-desc--short  { width: 62%; margin-bottom: 0; animation-delay: 0.3s; }
 
 .skel-btn {
   flex: 1;
-  height: 28px;
-  border-radius: var(--naas-radius, 6px);
+  height: 27px;
+  border-radius: var(--naas-radius, 8px);
   margin-bottom: 0;
+  animation-delay: 0.15s;
 }
+
+.skel-btn:nth-child(2) { animation-delay: 0.25s; }
+.skel-btn:nth-child(3) { animation-delay: 0.35s; }
 </style>
