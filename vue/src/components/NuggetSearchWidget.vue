@@ -72,7 +72,12 @@
             <div class="filters-panel">
               <div class="filters-panel-header">
                 <span class="filters-panel-title">{{ config.labels.metadata.filters ?? 'Filters' }}</span>
-                <button type="button" class="filters-panel-close" @click="filtersOpen = false">✕</button>
+                <div style="display: flex; gap: 1rem; align-items: center;">
+                  <button v-if="activeFilterCount > 0" class="btn btn-sm btn-outline-danger" @click="clearAllFilters">
+                    {{ config.labels.clear_filters || 'Clear filters' }}
+                  </button>
+                  <button type="button" class="filters-panel-close" @click="filtersOpen = false">✕</button>
+                </div>
               </div>
               <div class="filters-panel-body">
                 <NuggetSearchFilter
@@ -193,10 +198,12 @@ import NuggetSkeleton from './NuggetSkeleton.vue'
 import FilterChips from './FilterChips.vue'
 import { useNaasConfig } from '@/composables/useNaasConfig'
 import { useNuggetSearch } from '@/composables/useNuggetSearch'
+import { useEntityResolvers } from '@/composables/useEntityResolvers'
 import type { Nugget, SearchOptions } from '@/types/nugget.types'
 
 const config = useNaasConfig()
 const { nuggets, loading, loadingMore, error, search, getNuggetById } = useNuggetSearch({ initialLoading: true })
+const { getStructureAcronym } = useEntityResolvers()
 
 const skeletonCount = 9
 const PAGE_SIZE = 9
@@ -319,11 +326,37 @@ function clearSelection() {
 
 // Writes the selected nugget_id into the hidden Moodle form field so
 // the form submission carries the correct value.
-function syncMoodleForm(nugget: Nugget | null) {
+async function syncMoodleForm(nugget: Nugget | null) {
   const nameField = document.getElementById('id_name') as HTMLInputElement | null
   const nuggetIdField = document.getElementsByName('nugget_id')[0] as HTMLInputElement | null
 
-  if (nameField) nameField.value = nugget?.name ?? ''
+  if (nameField) {
+    if (nugget) {
+      const authors = (nugget.authors_data ?? []).map(a => `${a.firstname} ${a.lastname}`).join(', ')
+      let producers = ''
+      if (nugget.producers && nugget.producers.length > 0) {
+         const producerNames = await Promise.all(nugget.producers.map(p => getStructureAcronym(p)))
+         producers = producerNames.join(', ')
+      }
+      
+      const durationStr = nugget.duration ? ` (${nugget.duration} minutes)` : ''
+      const parts = [nugget.name, authors, producers].filter(Boolean)
+      
+      let baseName = parts[0]
+      if (parts.length > 1) {
+        if (parts.length === 3) {
+          baseName = `${parts[0]} - ${parts[1]} - ${parts[2]}` 
+        } else {
+          baseName = parts.join(' - ')
+        }
+      }
+      
+      nameField.value = `${baseName}${durationStr}`
+    } else {
+      nameField.value = ''
+    }
+  }
+
   if (nuggetIdField) nuggetIdField.value = nugget?.nugget_id ?? ''
 }
 
