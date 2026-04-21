@@ -55,7 +55,7 @@
 require(['core/first'], function() {
     var aboutButton = document.querySelector('.secondary-navigation nav ul li[data-key=about]');
     if (aboutButton) {
-        aboutButton.addEventListener('click', function(e) {
+        aboutButton.addEventListener('click', function() {
             var widgetAboutButton = document.querySelector('#nugget-info-button div a');
             if (widgetAboutButton) {
                 widgetAboutButton.click();
