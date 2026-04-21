@@ -23,6 +23,7 @@
  */
 
 use mod_naas\output\widget;
+use mod_naas\output\view_page;
 
 /**
  * Renderer for the NaaS module.
@@ -40,5 +41,15 @@ class mod_naas_renderer extends plugin_renderer_base {
      */
     public function render_widget(widget $widget) {
         return $this->render_from_template('mod_naas/widget', $widget->export_for_template($this));
+    }
+
+    /**
+     * Render the NaaS view page.
+     *
+     * @param view_page $viewpage
+     * @return string
+     */
+    public function render_view_page(view_page $viewpage) {
+        return $this->render_from_template('mod_naas/view_page', $viewpage->export_for_template($this));
     }
 }
