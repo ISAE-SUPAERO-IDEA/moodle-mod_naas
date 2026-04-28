@@ -1,0 +1,66 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template mod_naas/view_page
+
+    Template for the NaaS view page.
+
+    Example context (json):
+    {
+        "widget": {
+            "config": "{\"moodle_url\":\"https:\\/\\/moodle.example.com\",\"mount_point\":\"#naas_widget\",\"component\":\"mod_naas\",\"nugget_id\":123,\"courseId\":5,\"cm_id\":15,\"labels\":{\"search\":\"Search\"} }",
+            "widgetjsurl": "https://moodle.example.com/mod/naas/assets/vue/naas_widget-2026030300.js"
+        },
+        "backcourseurl": "https://moodle.example.com/course/view.php?id=5",
+        "backcoursetext": "Back to course",
+        "nextactivity": {
+            "url": "https://moodle.example.com/mod/assign/view.php?id=16&forceview=1",
+            "name": "Next assignment"
+        }
+    }
+}}
+<div class="course-button">
+    <a class="btn btn-outline-secondary btn-sm" href="{{{backcourseurl}}}">{{backcoursetext}}</a>
+</div>
+
+{{#nextactivity}}
+<div class="next-activity hidden">
+    <a class="btn btn-outline-secondary btn-sm" href="{{{url}}}">{{name}}</a>
+</div>
+{{/nextactivity}}
+
+{{#widget}}
+    {{> mod_naas/widget }}
+{{/widget}}
+
+<div class="course-button">
+    <a class="btn btn-outline-secondary btn-sm" href="{{{backcourseurl}}}">{{backcoursetext}}</a>
+</div>
+
+{{#js}}
+require(['core/first'], function() {
+    var aboutButton = document.querySelector('.secondary-navigation nav ul li[data-key=about]');
+    if (aboutButton) {
+        aboutButton.addEventListener('click', function() {
+            var widgetAboutButton = document.querySelector('#nugget-info-button div a');
+            if (widgetAboutButton) {
+                widgetAboutButton.click();
+            }
+        });
+    }
+});
+{{/js}}
