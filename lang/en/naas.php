@@ -54,6 +54,7 @@ $string["error:must_be_strictly_positive"] = "This must be a strictly positive n
 $string['error:naas_api:bad_request'] = 'We couldn\'t process your request. Please contact support for assistance.';
 $string['error:naas_api:invalid_credentials'] = 'The credentials are incorrect.';
 $string['error:naas_api:invalid_endpoint'] = 'The configured NaaS API endpoint is invalid.';
+$string['error:naas_api:invalid_structure'] = 'The NaaS institute (structure) configured for this activity is invalid. Please ask your platform administrator to check the plugin configuration.';
 $string["error:naas_server"] = "An error occurred on the NaaS server";
 $string["error:naas_server_unexpected"] = "Unexpected error occurred on the NaaS server";
 $string["error:proxy_naas_api:curl"] = 'The attempt to communicate with NaaS has failed : {$a}.';

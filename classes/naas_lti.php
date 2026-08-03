@@ -49,50 +49,37 @@ class naas_lti {
         // Retrieve LTI config from NaaS server.
         $config = (object) array_merge((array) \get_config('naas'), (array) $CFG);
         $naas = new \mod_naas\naas_client($config);
-        $nuggetdata = $naas->get_nugget_data($naasinstance->nugget_id);
-        $nuggetconfig = $naas->get_nugget_lti_config($naasinstance->nugget_id);
-        if (
-            $language != ""
-            && isset($nuggetdata)
-            && is_object($nuggetdata)
-            && property_exists($nuggetdata, 'multilanguages')
-        ) {
-            $matchingnugget = null;
-            foreach ($nuggetdata->multilanguages as $item) {
-                if (isset($item->language) && $item->language === $language) {
-                    $matchingnugget = $item;
-                    break;
+        // Any NaaS API failure here (eg. an invalid institute / structure_id) must be
+        // rendered as a clean inline message in place of the nugget, not bubble up as
+        // Moodle's raw exception page.
+        try {
+            $nuggetdata = $naas->get_nugget_data($naasinstance->nugget_id);
+            $nuggetconfig = $naas->get_nugget_lti_config($naasinstance->nugget_id);
+            if (
+                $language != ""
+                && isset($nuggetdata)
+                && is_object($nuggetdata)
+                && property_exists($nuggetdata, 'multilanguages')
+            ) {
+                $matchingnugget = null;
+                foreach ($nuggetdata->multilanguages as $item) {
+                    if (isset($item->language) && $item->language === $language) {
+                        $matchingnugget = $item;
+                        break;
+                    }
+                }
+                if ($matchingnugget != null && isset($matchingnugget->nugget_id)) {
+                    $nuggetconfig = $naas->get_nugget_lti_config($matchingnugget->nugget_id);
                 }
             }
-            if ($matchingnugget != null && isset($matchingnugget->nugget_id)) {
-                $nuggetconfig = $naas->get_nugget_lti_config($matchingnugget->nugget_id);
-            }
+        } catch (\moodle_exception $e) {
+            debugging("NAAS: could not load nugget: " . $e->getMessage(), DEBUG_DEVELOPER);
+            self::render_launch_error($e->getMessage());
+            return;
         }
 
         if ($nuggetconfig == null || isset($nuggetconfig->error)) {
-            $errormessage = get_string("cannot_get_nugget", "naas");
-            echo <<<HTML
-<style>
-.error-message {
-  color: #721c24;
-  background-color: #f8d7da;
-  border: 1px solid #f5c6cb;
-  padding: 12px;
-  border-radius: 4px;
-  font-size: 14px;
-  font-weight: bold;
-  margin: 10px 0;
-  display: flex;
-  align-items: center;
-}
-
-.error-message::before {
-  content: "⚠️";
-  margin-right: 8px;
-}
-</style>
-    <div class="error-message">$errormessage</div>
-HTML;
+            self::render_launch_error(get_string("cannot_get_nugget", "naas"));
             return;
         }
 
@@ -204,5 +191,36 @@ HTML;
     </script>
 HTML;
         echo $html;
+    }
+
+    /**
+     * Render a clean inline error message in place of the nugget.
+     * @param string $message
+     * @return void
+     */
+    private static function render_launch_error($message) {
+        $message = htmlspecialchars($message, ENT_QUOTES);
+        echo <<<HTML
+<style>
+.error-message {
+  color: #721c24;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  padding: 12px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: bold;
+  margin: 10px 0;
+  display: flex;
+  align-items: center;
+}
+
+.error-message::before {
+  content: "⚠️";
+  margin-right: 8px;
+}
+</style>
+    <div class="error-message">$message</div>
+HTML;
     }
 }
