@@ -178,7 +178,6 @@ class naas_client {
                         $errormessage = "error:naas_api:unknown";
                 }
             } else {
-
                 $errormessage = "error:naas_api:invalid_endpoint";
             }
 
