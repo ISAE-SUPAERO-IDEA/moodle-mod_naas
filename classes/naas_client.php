@@ -132,6 +132,15 @@ class naas_client {
         $code = $info['http_code'] ?? 0;
         $errno = $curl->get_errno();
         $error = $curl->error;
+        $responseheaders = $curl->getResponse();
+
+        $isnaasapi = false;
+        foreach ($responseheaders as $name => $value) {
+            if (strtolower((string)$name) === 'x-naas-api') {
+                $isnaasapi = true;
+                break;
+            }
+        }
 
         if ($errno || $error) {
             $message = "Curl error: $error";
@@ -153,19 +162,23 @@ class naas_client {
         }
 
         if ($code < 200 || $code > 299) {
-            switch ($code) {
-                case 400:
-                    $errormessage = "error:naas_api:bad_request";
-                    break;
-                case 401:
-                case 403:
-                    $errormessage = "error:naas_api:invalid_credentials";
-                    break;
-                case 404:
-                    $errormessage = "error:naas_api:invalid_endpoint";
-                    break;
-                default:
-                    $errormessage = "error:naas_api:unknown";
+            if ($isnaasapi) {
+                switch ($code) {
+                    case 400:
+                        $errormessage = "error:naas_api:bad_request";
+                        break;
+                    case 401:
+                    case 403:
+                        $errormessage = "error:naas_api:invalid_credentials";
+                        break;
+                    case 404:
+                        $errormessage = "error:naas_api:not_found";
+                        break;
+                    default:
+                        $errormessage = "error:naas_api:unknown";
+                }
+            } else {
+                $errormessage = "error:naas_api:invalid_endpoint";
             }
 
             throw new \moodle_exception(
@@ -176,6 +189,7 @@ class naas_client {
                 json_encode([
                     "code" => $code,
                     "error" => $response,
+                    "is_naas_api" => $isnaasapi,
                 ])
             );
         }
