@@ -140,6 +140,8 @@ class naas_lti {
             "lis_result_sourcedid" => $sourcedid,
             "lis_outcome_service_url" => $CFG->wwwroot . "/mod/naas/outcome.php?id=" . $cm->id,
             "resource_link_id" => $resourcelinkid,
+            // Learner interface language, so naas_api can resolve ui_language.
+            "launch_presentation_locale" => current_language(),
             "custom_naas" => json_encode($custom),
         ];
 

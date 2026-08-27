@@ -45,6 +45,10 @@ export default {
         return null
       }
 
+      if (this.proxyError.errorcode === "error:naas_api:not_found") {
+        return this.config.labels["error_nugget_not_found"];
+      }
+
       return this.config.labels["error_generic_user_message"];
     }
   },

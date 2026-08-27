@@ -23,61 +23,73 @@
 -->
 <template>
   <div class="container">
-    <div id="nugget-info-button">
-      <div>
-        <a
-          href="javascript:;"
-          class="btn btn-primary"
-          :class="{ hidden: !aboutButton }"
-          v-on:click="aboutModal = true"
-        >
-          {{ config.labels.about }}
-        </a>
-        <select class="language-select" @change="language = $event.target.value">
-          <option selected :value="this.nugget.language">
-            {{ config.labels.metadata[nugget.language] }}
-          </option>
-          <option
-            v-for="item in this.nugget.multilanguages"
-            :key="item.language"
-            :value="item.language"
+    <div v-if="proxyError" class="alert alert-danger">
+      {{ errorUserMessage }}
+    </div>
+    <template v-else>
+      <div id="nugget-info-button">
+        <div>
+          <a
+            href="javascript:;"
+            class="btn btn-primary"
+            :class="{ hidden: !aboutButton }"
+            v-on:click="aboutModal = true"
           >
-            {{ config.labels.metadata[item.language] }}
-          </option>
-        </select>
+            {{ config.labels.about }}
+          </a>
+          <select
+            class="language-select"
+            @change="language = $event.target.value"
+          >
+            <option selected :value="this.nugget.language">
+              {{ config.labels.metadata[nugget.language] }}
+            </option>
+            <option
+              v-for="item in this.nugget.multilanguages"
+              :key="item.language"
+              :value="item.language"
+            >
+              {{ config.labels.metadata[item.language] }}
+            </option>
+          </select>
+        </div>
+        <NuggetAboutModal
+          :visible="aboutModal"
+          :nugget="nugget"
+          @close="aboutModal = false"
+        />
       </div>
-      <NuggetAboutModal
-        :visible="aboutModal"
-        :nugget="nugget"
-        @close="aboutModal = false"
-      />
-    </div>
 
-    <div class="text-center gallery row" id="nugget-learn">
-      <iframe
-        id="lti-frame"
-        height="600px"
-        width="100%"
-        style="border: none"
-        :src="iframeUrl"
-        webkitallowfullscreen
-        mozallowfullscreen
-        allowfullscreen
-      ></iframe>
-    </div>
-    <div class="row">
-      <div id="completion-modal-button" class="col text-center">
-        <button href="javascript:;" class="btn btn-primary" @click="complete()">
-          {{ config.labels.complete_nugget }}
-        </button>
+      <div class="text-center gallery row" id="nugget-learn">
+        <iframe
+          id="lti-frame"
+          height="600px"
+          width="100%"
+          style="border: none"
+          :src="iframeUrl"
+          webkitallowfullscreen
+          mozallowfullscreen
+          allowfullscreen
+        ></iframe>
       </div>
-    </div>
-    <NuggetCompletionModal
-      :visible="completionModal"
-      :nugget="nugget"
-      :completed="nuggetCompleted"
-      @close="completionModal = false"
-    />
+      <div class="row">
+        <div id="completion-modal-button" class="col text-center">
+          <button
+            href="javascript:;"
+            class="btn btn-primary"
+            @click="complete()"
+          >
+            {{ config.labels.complete_nugget }}
+          </button>
+        </div>
+      </div>
+      <NuggetCompletionModal
+        :visible="completionModal"
+        :nugget="nugget"
+        :completed="nuggetCompleted"
+        @close="completionModal = false"
+      />
+    </template>
   </div>
 </template>
 <script>
@@ -109,8 +121,19 @@ export default {
     this.aboutButton = !navAboutButton;
   },
   async mounted() {
-    this.nugget = await this.viewNugget(this.config.cm_id);
-    this.language = this.nugget.language
+    try {
+      this.nugget = await this.viewNugget(this.config.cm_id);
+    } catch (error) {
+      this.proxyError = error;
+      return;
+    }
+
+    if (!this.nugget) {
+      this.proxyError = true;
+      return;
+    }
+
+    this.language = this.nugget.language;
 
     window.setTimeout(() => {
       iframeResize(
@@ -131,23 +154,23 @@ export default {
   },
   computed: {
     iframeUrl() {
-      if(!this.language) {
-        return null
+      if (!this.language) {
+        return null;
       }
 
-      return `launch.php?id=${this.config.cm_id}&triggerview=0&language=${this.language}`
-    }
+      return `launch.php?id=${this.config.cm_id}&triggerview=0&language=${this.language}`;
+    },
   },
   methods: {
     async complete() {
       this.completionModal = true;
-        // Sends 'completed' xAPI statement
-        this.xapi({
-          id: this.config.cm_id,
-          verb: "completed",
-          version_id: this.nugget.version_id,
-        });
-        this.nuggetCompleted = true;
+      // Sends 'completed' xAPI statement
+      this.xapi({
+        id: this.config.cm_id,
+        verb: "completed",
+        version_id: this.nugget.version_id,
+      });
+      this.nuggetCompleted = true;
     },
   },
 };

@@ -40,84 +40,12 @@ class naas_widget {
      * @return string
      */
     public static function naas_widget_html($nuggetid, $courseid, $cmid, $component): string {
-        global $CFG, $PAGE;
+        global $PAGE;
 
-        $PAGE->requires->js_call_amd('core/first', null, true);
+        $widget = new \mod_naas\output\widget($nuggetid, $courseid, $cmid, $component);
+        $renderer = $PAGE->get_renderer('mod_naas');
 
-        $widgetconfig = json_encode([
-            "moodle_url" => $CFG->wwwroot,
-            "mount_point" => "#naas_widget",
-            "component" => $component,
-            "nugget_id" => $nuggetid,
-            "courseId" => $courseid,
-            "cm_id" => $cmid, // Course module ID.
-            "labels" => [
-                "error_generic_user_message" => get_string("error:generic_user_message", "naas"),
-                "nugget_search_here" => get_string('nugget_search_here', 'naas'),
-                "nugget_search_no_result" => get_string('nugget_search_no_result', 'naas'),
-                "search" => get_string('nugget_search', 'naas'),
-                "click_to_replace" => get_string('click_to_replace', 'naas'),
-                "clear_filters" => get_string('clear_filters', 'naas'),
-                "show_more_authors" => get_string('show_more_authors', 'naas'),
-                "hide_authors" => get_string('hide_authors', 'naas'),
-                "no_nugget" => get_string('no_nugget', 'naas'),
-                "about" => get_string('about', 'naas'),
-                "back_to_course" => get_string('back_to_course', 'naas'),
-                "next_unit" => get_string('next_unit', 'naas'),
-                "show_more_nugget_button" => get_string('show_more_nugget_button', 'naas'),
-                "select_button" => get_string('select_button', 'naas'),
-                "preview_button" => get_string('preview_button', 'naas'),
-                "loading" => get_string('loading', 'naas'),
-                "metadata" => [
-                    "preview" => get_string('preview', 'naas'),
-                    "description" => get_string('description', 'naas'),
-                    "in_brief" => get_string('in_brief', 'naas'),
-                    "about_author" => get_string('about_author', 'naas'),
-                    "learning_outcomes" => get_string('learning_outcomes', 'naas'),
-                    "prerequisites" => get_string('prerequisites', 'naas'),
-                    "references" => get_string('references', 'naas'),
-                    "field_of_study" => get_string('field_of_study', 'naas'),
-                    "language" => get_string('language', 'naas'),
-                    "duration" => get_string('duration', 'naas'),
-                    "level" => get_string('level', 'naas'),
-                    "structure_id" => get_string('structure_id', 'naas'),
-                    "advanced" => get_string('advanced', 'naas'),
-                    "intermediate" => get_string('intermediate', 'naas'),
-                    "beginner" => get_string('beginner', 'naas'),
-                    "tags" => get_string('tags', 'naas'),
-                    "producers" => get_string('producers', 'naas'),
-                    "authors" => get_string('authors', 'naas'),
-                    "related_domains" => get_string('field_of_study', 'naas'),
-                    "type" => get_string('type', 'naas'),
-                    "lesson" => get_string('lesson', 'naas'),
-                    "demo" => get_string('demo', 'naas'),
-                    "tutorial" => get_string('tutorial', 'naas'),
-                    "en" => get_string('en', 'naas'),
-                    "fr" => get_string('fr', 'naas'),
-                    "de" => get_string('de', 'naas'),
-                    "es" => get_string('es', 'naas'),
-                    "it" => get_string('it', 'naas'),
-                    "pl" => get_string('pl', 'naas'),
-                    "sv" => get_string('sv', 'naas'),
-                    "publication_date" => get_string('publication_date', 'naas'),
-                    "partner_with" => get_string('partner_with', 'naas'),
-                ],
-                "rating" => [
-                    "title" => get_string('rating_title', 'naas'),
-                    "description" => get_string('rating_description', 'naas'),
-                    "send" => get_string('rating_send', 'naas'),
-                    "sent" => get_string('rating_sent', 'naas'),
-                ],
-                "learning_outcomes_desc" => get_string('learning_outcomes_desc', 'naas'),
-                "complete_nugget" => get_string('complete_nugget', 'naas'),
-            ],
-        ]);
-        $html = "<div id='naas_widget'></div>";
-        $html .= "<script>NAAS=$widgetconfig</script>";
-        $widgetjsurl = new \moodle_url('/mod/naas/assets/vue/naas_widget-2026033000.js');
-        $html .= "<script src='$widgetjsurl' ></script>";
-
-        return $html;
+        return $renderer->render($widget);
     }
 
     /**
