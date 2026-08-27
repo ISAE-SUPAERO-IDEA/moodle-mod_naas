@@ -24,8 +24,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version        = 2026030900;                  // The current module version (Date: YYYYMMDDXX).
-$plugin->release        = "2.5.1";
+$plugin->version        = 2026080300;                  // The current module version (Date: YYYYMMDDXX).
+$plugin->release        = "2.5.2";
 $plugin->requires       = 2022041900;                  // Requires this Moodle version.
 $plugin->component      = 'mod_naas';                  // Full name of the plugin (used for diagnostics).
 $plugin->cron           = 0;                           // Frequency of the plugin's cron task.
