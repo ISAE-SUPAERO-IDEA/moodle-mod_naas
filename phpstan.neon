@@ -1,0 +1,19 @@
+parameters:
+    level: 0
+    paths:
+        - lib.php
+        - index.php
+        - view.php
+        - launch.php
+        - settings.php
+        - mod_form.php
+        - outcome.php
+        - renderer.php
+        - version.php
+        - classes
+    scanDirectories:
+        - vendor/michaelmeneses/moodle-stubs/stubs
+    excludePaths:
+        - vue
+        - assets
+        - .git
