@@ -92,8 +92,7 @@ class widget implements renderable, templatable {
                 "hide_authors" => get_string('hide_authors', 'naas'),
                 "no_nugget" => get_string('no_nugget', 'naas'),
                 "about" => get_string('about', 'naas'),
-                "back_to_course" => get_string('back_to_course', 'naas'),
-                "next_unit" => get_string('next_unit', 'naas'),
+
                 "show_more_nugget_button" => get_string('show_more_nugget_button', 'naas'),
                 "select_button" => get_string('select_button', 'naas'),
                 "preview_button" => get_string('preview_button', 'naas'),
