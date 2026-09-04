@@ -1,0 +1,41 @@
+name: "PHPStan (PHP SAST)"
+
+on:
+  push:
+    branches: [ "develop", "master" ]
+  pull_request:
+  schedule:
+    - cron: "0 3 * * 0"
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  phpstan:
+    name: PHPStan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.2
+
+      - name: Install PHPStan + Moodle stubs + SARIF formatter
+        run: |
+          composer require --dev phpstan/phpstan
+          composer require --dev michaelmeneses/moodle-stubs:^4.3
+          composer require --dev jbelien/phpstan-sarif-formatter
+
+      - name: Run PHPStan
+        continue-on-error: true
+        run: vendor/bin/phpstan analyse --no-progress --error-format=sarif > phpstan-results.sarif
+
+      - name: Upload SARIF to Code Scanning
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: phpstan-results.sarif
+          wait-for-processing: true

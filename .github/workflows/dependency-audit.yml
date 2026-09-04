@@ -1,0 +1,35 @@
+name: "Dependency Audit (npm)"
+
+on:
+  push:
+    branches: [ "develop", "master" ]
+  pull_request:
+  schedule:
+    - cron: "0 3 * * 0"
+
+permissions:
+  contents: read
+
+jobs:
+  npm-audit:
+    name: npm audit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: yarn
+          cache-dependency-path: vue/yarn.lock
+
+      - name: Install dependencies
+        working-directory: vue
+        run: yarn --frozen-lockfile
+
+      - name: Run npm audit
+        working-directory: vue
+        continue-on-error: true
+        run: yarn audit --groups dependencies --level high
