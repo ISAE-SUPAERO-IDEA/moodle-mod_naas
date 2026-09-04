@@ -37,21 +37,21 @@
               <h2>{{ config.labels.rating.title }}</h2>
               <p class="rating saved">
                 <span
-                  v-for="i in max"
-                  v-bind:key="i"
-                  @click="savedRating = max + 1 - i"
-                  class="star"
-                  :class="{ checked: savedRating === max + 1 - i }"
+                    v-for="i in max"
+                    v-bind:key="i"
+                    @click="savedRating = max + 1 - i"
+                    class="star"
+                    :class="{ checked: savedRating === max + 1 - i }"
                 >
                   <i class="icon fa fa-star"></i>
                 </span>
               </p>
               <button
-                id="send-rating"
-                type="button"
-                class="btn btn-sm btn-outline-success mt-2"
-                :disabled="ratingSent"
-                @click="rate(savedRating, $event)"
+                  id="send-rating"
+                  type="button"
+                  class="btn btn-sm btn-outline-success mt-2"
+                  :disabled="ratingSent"
+                  @click="rate(savedRating, $event)"
               >
                 {{ config.labels.rating.send }}
               </button>
@@ -62,29 +62,14 @@
           </div>
           <!-- Learning Outcomes -->
           <div
-            v-if="nugget.learning_outcomes && nugget.learning_outcomes.length"
-            class="finish-learning-outcomes row"
+              v-if="nugget.learning_outcomes && nugget.learning_outcomes.length"
+              class="finish-learning-outcomes row"
           >
             <div class="col text-center">
               {{ config.labels.learning_outcomes_desc }}
               <span v-for="item in nugget.learning_outcomes" :key="item"
-                >• {{ item }}
+              >• {{ item }}
               </span>
-            </div>
-          </div>
-          <div class="nugget-modal-footer row">
-            <div class="col d-flex justify-content-center align-items-center">
-              <a :href="backLink" class="btn btn-sm btn-primary">
-                ◀︎ {{ config.labels.back_to_course }}
-              </a>
-              <a
-                  v-if="nextUnitLink"
-                  @click.prevent="goToNextResource"
-                  :href="nextUnitLink"
-                  class="ml-2 btn btn-sm btn-primary"
-              >
-                {{ config.labels.next_unit }} ▶︎
-              </a>
             </div>
           </div>
         </div>
@@ -105,66 +90,11 @@ export default {
       max: MaxScore,
       ratingSent: false,
       savedRating: null,
-      backLink: "#",
-      nextUnitLink: null,
     };
-  },
-  mounted() {
-    // On récupère les liens 'back to course' et 'next activity' depuis d'autres éléments du DOM.
-    this.backLink = document.querySelector(".course-button a").href;
-
-    if (document.querySelector(".next-activity a, #next-activity-link")) {
-      this.nextUnitLink = document.querySelector(
-        ".next-activity a, #next-activity-link"
-      ).href;
-    }
   },
   methods: {
     closeModal() {
       this.$emit("close");
-    },
-    goToNextResource() {
-      // On ferme d'abord le modal.
-      this.closeModal();
-      
-      // Récupération de l'URL de la ressource suivante.
-      const nextUrl = this.nextUnitLink;
-      
-      // Extraction de l'identifiant de l'activité suivante.
-      let anchorId = '';
-      
-      // Essayons d'extraire l'ID du module de l'URL.
-      const idMatch = nextUrl.match(/id=(\d+)/);
-      if (idMatch && idMatch[1]) {
-        anchorId = 'module-' + idMatch[1];
-      } else {
-        // Si nous ne pouvons pas extraire l'ID, essayons de voir s'il y a une ancre.
-        const hashMatch = nextUrl.match(/#([^&]*)/);
-        if (hashMatch && hashMatch[1]) {
-          anchorId = hashMatch[1];
-        }
-      }
-      
-      // Fermer le Nugget (cela devrait nous ramener à la page du cours).
-      // Si on a trouvé une ancre, naviguer vers elle.
-      if (anchorId) {
-        // Petit délai pour s'assurer que le Nugget est bien fermé.
-        setTimeout(() => {
-          // Obtenir l'élément par ID.
-          const targetElement = document.getElementById(anchorId);
-          
-          if (targetElement) {
-            // Faire défiler jusqu'à l'élément.
-            targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          } else {
-            // Si l'élément n'existe pas, essayer de naviguer vers l'ancre via l'URL.
-            window.location.hash = '#' + anchorId;
-          }
-        }, 100);
-      } else {
-        // Si nous ne pouvons pas trouver d'ancre, revenir à la page du cours.
-        window.location.href = this.backLink;
-      }
     },
     rate(score, event) {
       event.target.innerHTML = this.config.labels.rating.sent;

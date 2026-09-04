@@ -72,14 +72,6 @@ class view_page implements renderable, templatable {
         $data->backcourseurl = $courseurl->out(false);
         $data->backcoursetext = get_string('back_to_course', 'naas');
 
-        // Next activity.
-        $nextactivity = \mod_naas\mod_util::get_next_activity_url();
-        if ($nextactivity) {
-            $data->nextactivity = new stdClass();
-            $data->nextactivity->url = $nextactivity->link->out(false) . '&forceview=1';
-            $data->nextactivity->name = $nextactivity->name;
-        }
-
         return $data;
     }
 }

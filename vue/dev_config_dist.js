@@ -35,7 +35,6 @@ module.exports = {
     hide_authors: "hide_authors",
     no_nugget: "no_nugget",
     about: "about",
-    back_to_course: "back_to_course",
     show_more_nugget_button: "show_more_nugget_button",
     select_button: "select_button",
     preview_button: "preview_button",
