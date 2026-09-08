@@ -59,11 +59,32 @@ $PAGE->set_heading($course->fullname);
 // Print the page header.
 echo $OUTPUT->header();
 
-$renderer = $PAGE->get_renderer('mod_naas');
-$widget = new \mod_naas\output\widget($naasinstance->nugget_id, $cm->course, $cm->id, "NuggetView");
-$viewpage = new \mod_naas\output\view_page($widget, $cm->course);
+$courseurl = new moodle_url('/course/view.php', ['id' => $COURSE->id]);
+// Back to course button.
+$backcoursebutton = "<div class='course-button'><a class='btn btn-outline-secondary btn-sm'
+    href=" . $courseurl . ">" . get_string('back_to_course', 'naas') . "</a></div>";
 
-echo $renderer->render($viewpage);
+echo $backcoursebutton;
+
+$nextactivityurl = \mod_naas\mod_util::get_next_activity_url();
+if ($nextactivityurl) {
+    echo "<div class='next-activity hidden'><a class='btn btn-outline-secondary btn-sm'
+    href=" . $nextactivityurl->link . "&forceview=1>" . $nextactivityurl->name . "</a></div>";
+}
+
+// Displays Nugget.
+echo \mod_naas\naas_widget::naas_widget_html($naasinstance->nugget_id, $cm->course, $cm->id, "NuggetView");
+
+// Toggles the Nugget 'About' Modal.
+echo "<script>
+let about_button = document.querySelector('.secondary-navigation nav ul li[data-key=about]');
+if (about_button){
+    let widget = document.querySelector('#nugget-info-button div a');
+    about_button.onclick = function() { widget.click(); };
+}
+</script>";
+
+echo $backcoursebutton;
 
 // Finish the page.
 echo $OUTPUT->footer();
