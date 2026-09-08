@@ -52,7 +52,7 @@ $PAGE->set_cm($cm, $course); // Set's up global $COURSE.
 $PAGE->set_context($context);
 $url = new moodle_url('/mod/naas/view.php', ['id' => $cm->id]);
 $PAGE->set_url($url);
-$pagetitle = strip_tags($course->shortname.': '.format_string($naasinstance->name));
+$pagetitle = strip_tags($course->shortname . ': ' . format_string($naasinstance->name));
 $PAGE->set_title($pagetitle);
 $PAGE->set_heading($course->fullname);
 
@@ -62,14 +62,14 @@ echo $OUTPUT->header();
 $courseurl = new moodle_url('/course/view.php', ['id' => $COURSE->id]);
 // Back to course button.
 $backcoursebutton = "<div class='course-button'><a class='btn btn-outline-secondary btn-sm'
-    href=".$courseurl.">".get_string('back_to_course', 'naas')."</a></div>";
+    href=" . $courseurl . ">" . get_string('back_to_course', 'naas') . "</a></div>";
 
 echo $backcoursebutton;
 
 $nextactivityurl = \mod_naas\mod_util::get_next_activity_url();
 if ($nextactivityurl) {
     echo "<div class='next-activity hidden'><a class='btn btn-outline-secondary btn-sm'
-    href=".$nextactivityurl->link."&forceview=1>".$nextactivityurl->name."</a></div>";
+    href=" . $nextactivityurl->link . "&forceview=1>" . $nextactivityurl->name . "</a></div>";
 }
 
 // Displays Nugget.
