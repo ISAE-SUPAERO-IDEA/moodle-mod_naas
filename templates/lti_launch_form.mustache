@@ -22,6 +22,15 @@
     Context variables required for this template:
     * launchurl - The validated LTI launch URL
     * fields - Array containing 'name' and 'value' for each hidden form input
+
+    Example context (json):
+    {
+        "launchurl": "https://naas.example.com/lti/launch",
+        "fields": [
+            {"name": "lti_message_type", "value": "basic-lti-launch-request"},
+            {"name": "oauth_consumer_key", "value": "example-key"}
+        ]
+    }
 }}
 <form id="ltiLaunchForm" name="ltiLaunchForm" method="POST" action="{{launchurl}}">
     {{#fields}}

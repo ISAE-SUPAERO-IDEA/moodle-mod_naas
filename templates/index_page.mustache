@@ -25,6 +25,24 @@
     * heading (string) - The page heading HTML
     * usesections (bool) - Whether the course format uses sections
     * rows (array) - Array of activity rows
+
+    Example context (json):
+    {
+        "courseurl": "https://moodle.example.com/course/view.php?id=2",
+        "backtocourse": "Back to course",
+        "heading": "<h2>Nuggets</h2>",
+        "usesections": true,
+        "rows": [
+            {
+                "dimmed": false,
+                "sectionname": "Topic 1",
+                "url": "https://moodle.example.com/mod/naas/view.php?id=15",
+                "name": "Example nugget",
+                "intro": "<p>Short description</p>",
+                "timemodified": "1 January 2026, 10:00 AM"
+            }
+        ]
+    }
 }}
 {{{heading}}}
 

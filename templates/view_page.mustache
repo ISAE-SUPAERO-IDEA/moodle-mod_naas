@@ -26,6 +26,16 @@
     * nextactivityname (string) - The name of the next activity (optional)
     * nextactivityurl (string) - The URL of the next activity (optional)
     * widgethtml (string) - The pre-rendered HTML for the widget
+
+    Example context (json):
+    {
+        "courseurl": "https://moodle.example.com/course/view.php?id=2",
+        "backtocourse": "Back to course",
+        "hasnextactivity": true,
+        "nextactivityname": "Next activity",
+        "nextactivityurl": "https://moodle.example.com/mod/page/view.php?id=16",
+        "widgethtml": "<div id='naas_widget'></div>"
+    }
 }}
 <div class='course-button'>
     <a class='btn btn-outline-secondary btn-sm' href="{{courseurl}}">{{backtocourse}}</a>

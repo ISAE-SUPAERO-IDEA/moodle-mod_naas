@@ -20,6 +20,13 @@
     The mount point for the NaaS Vue widget.
 
     * configjson (string) - JSON encoded configuration for the widget
+    * moodle_url (string) - Moodle wwwroot used to load the widget script
+
+    Example context (json):
+    {
+        "configjson": "{\"moodle_url\":\"https://moodle.example.com\",\"mount_point\":\"#naas_widget\",\"component\":\"NuggetView\"}",
+        "moodle_url": "https://moodle.example.com"
+    }
 }}
 <script>
     window.NAAS = {{{configjson}}};
