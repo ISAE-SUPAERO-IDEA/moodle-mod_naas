@@ -93,7 +93,7 @@ $rows = [];
 foreach ($naasmodules as $naasmodule) {
     $dimmed = !$naasmodule->visible;
     $url = new moodle_url('/mod/naas/view.php', ['id' => $naasmodule->coursemodule]);
-    
+
     $row = [
         'dimmed' => $dimmed,
         'url' => $url->out(false),
@@ -101,11 +101,11 @@ foreach ($naasmodules as $naasmodule) {
         'intro' => format_module_intro('naas', $naasmodule, $naasmodule->coursemodule),
         'timemodified' => userdate($naasmodule->timemodified),
     ];
-    
+
     if ($usesections) {
         $row['sectionname'] = get_section_name($course, $naasmodule->section);
     }
-    
+
     $rows[] = $row;
 }
 

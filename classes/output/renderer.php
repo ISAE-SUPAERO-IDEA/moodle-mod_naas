@@ -24,8 +24,6 @@
 
 namespace mod_naas\output;
 
-defined('MOODLE_INTERNAL') || die();
-
 use plugin_renderer_base;
 
 /**
@@ -37,7 +35,6 @@ use plugin_renderer_base;
  * @since      mod_naas 1.0.0
  */
 class renderer extends plugin_renderer_base {
-
     /**
      * Render the naas view page.
      *

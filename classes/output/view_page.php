@@ -24,8 +24,6 @@
 
 namespace mod_naas\output;
 
-defined('MOODLE_INTERNAL') || die();
-
 use moodle_url;
 use core\output\renderer_base;
 use renderable;
@@ -41,7 +39,6 @@ use templatable;
  * @since      mod_naas 1.0.0
  */
 class view_page implements renderable, templatable {
-
     /** @var moodle_url The main course URL */
     public moodle_url $courseurl;
 

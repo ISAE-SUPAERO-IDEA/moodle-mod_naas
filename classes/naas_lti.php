@@ -179,7 +179,7 @@ class naas_lti {
         // Session php variable avec le resource_link_id.
         $_SESSION["resource_link_id"] = $resourcelinkid;
 
-        // Render the LTI launch form
+        // Render the LTI launch form.
         $launchdata['oauth_signature'] = $signature;
 
         $fields = [];

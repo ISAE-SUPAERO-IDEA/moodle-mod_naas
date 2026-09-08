@@ -24,8 +24,6 @@
 
 namespace mod_naas\output;
 
-defined('MOODLE_INTERNAL') || die();
-
 use core\output\renderer_base;
 use renderable;
 use stdClass;
@@ -40,7 +38,6 @@ use templatable;
  * @since      mod_naas 1.0.0
  */
 class lti_launch_form implements renderable, templatable {
-
     /** @var string The validated LTI launch URL */
     public string $launchurl;
 
