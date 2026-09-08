@@ -27,8 +27,8 @@ namespace mod_naas\output;
 defined('MOODLE_INTERNAL') || die();
 
 use moodle_url;
+use core\output\renderer_base;
 use renderable;
-use renderer_base;
 use stdClass;
 use templatable;
 

@@ -24,10 +24,10 @@
 
 namespace mod_naas\output;
 
+use core\output\renderer_base;
 use renderable;
-use templatable;
-use renderer_base;
 use stdClass;
+use templatable;
 
 /**
  * Output for the NaaS widget.
