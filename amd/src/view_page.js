@@ -26,10 +26,10 @@ define('mod_naas/view_page', [], function() {
          * Initialize the view page DOM interactions.
          */
         init: function() {
-            let about_button = document.querySelector('.secondary-navigation nav ul li[data-key=about]');
-            if (about_button) {
+            let aboutButton = document.querySelector('.secondary-navigation nav ul li[data-key=about]');
+            if (aboutButton) {
                 let widget = document.querySelector('#nugget-info-button div a');
-                about_button.onclick = function() {
+                aboutButton.onclick = function() {
                     if (widget) {
                         widget.click();
                     }
