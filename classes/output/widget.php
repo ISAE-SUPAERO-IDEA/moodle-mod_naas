@@ -24,7 +24,6 @@
 
 namespace mod_naas\output;
 
-use renderer_base;
 use renderable;
 use stdClass;
 use templatable;
@@ -67,10 +66,10 @@ class widget implements renderable, templatable {
     /**
      * Export this data so it can be used as the context for a mustache template.
      *
-     * @param renderer_base $output
+     * @param \renderer_base $output
      * @return stdClass
      */
-    public function export_for_template(renderer_base $output): stdClass {
+    public function export_for_template($output): stdClass {
         global $CFG;
 
         $widgetconfig = [

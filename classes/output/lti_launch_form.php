@@ -24,7 +24,6 @@
 
 namespace mod_naas\output;
 
-use renderer_base;
 use renderable;
 use stdClass;
 use templatable;
@@ -58,10 +57,10 @@ class lti_launch_form implements renderable, templatable {
     /**
      * Export this data so it can be used as the context for a mustache template.
      *
-     * @param renderer_base $output The renderer handling the export
+     * @param \renderer_base $output The renderer handling the export
      * @return stdClass Context available in the template
      */
-    public function export_for_template(renderer_base $output): stdClass {
+    public function export_for_template($output): stdClass {
         $context = new stdClass();
         // The launchurl is expected to be validated via clean_param before
         // instantiating this class, so it's safe to pass to the template here.

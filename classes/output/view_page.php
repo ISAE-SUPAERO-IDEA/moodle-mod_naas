@@ -25,7 +25,6 @@
 namespace mod_naas\output;
 
 use moodle_url;
-use renderer_base;
 use renderable;
 use stdClass;
 use templatable;
@@ -74,10 +73,10 @@ class view_page implements renderable, templatable {
     /**
      * Export this data so it can be used as the context for a mustache template.
      *
-     * @param renderer_base $output The renderer handling the export
+     * @param \renderer_base $output The renderer handling the export
      * @return stdClass Context available in the template
      */
-    public function export_for_template(renderer_base $output): stdClass {
+    public function export_for_template($output): stdClass {
         $context = new stdClass();
         $context->courseurl = $this->courseurl->out(false);
         $context->backtocourse = $this->backtocourse;
