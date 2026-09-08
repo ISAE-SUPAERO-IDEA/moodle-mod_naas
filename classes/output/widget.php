@@ -24,7 +24,7 @@
 
 namespace mod_naas\output;
 
-use core\output\renderer_base;
+use renderer_base;
 use renderable;
 use stdClass;
 use templatable;
@@ -70,7 +70,7 @@ class widget implements renderable, templatable {
      * @param renderer_base $output
      * @return stdClass
      */
-    public function export_for_template(renderer_base $output) {
+    public function export_for_template(renderer_base $output): stdClass {
         global $CFG;
 
         $widgetconfig = [
@@ -92,6 +92,8 @@ class widget implements renderable, templatable {
                 "hide_authors" => get_string('hide_authors', 'naas'),
                 "no_nugget" => get_string('no_nugget', 'naas'),
                 "about" => get_string('about', 'naas'),
+                "back_to_course" => get_string('back_to_course', 'naas'),
+                "next_unit" => get_string('next_unit', 'naas'),
 
                 "show_more_nugget_button" => get_string('show_more_nugget_button', 'naas'),
                 "select_button" => get_string('select_button', 'naas'),
@@ -144,7 +146,7 @@ class widget implements renderable, templatable {
 
         $data = new stdClass();
         $data->config = json_encode($widgetconfig);
-        $widgetjsurl = new \moodle_url('/mod/naas/assets/vue/naas_widget-2026033000.js');
+        $widgetjsurl = new \moodle_url('/mod/naas/assets/vue/naas_widget-2026030300.js');
         $data->widgetjsurl = $widgetjsurl->out(false);
 
         return $data;

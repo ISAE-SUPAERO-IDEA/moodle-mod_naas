@@ -24,7 +24,7 @@
 
 namespace mod_naas\output;
 
-use core\output\renderer_base;
+use renderer_base;
 use renderable;
 use stdClass;
 use templatable;
