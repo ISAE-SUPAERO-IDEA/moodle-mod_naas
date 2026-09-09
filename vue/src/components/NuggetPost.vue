@@ -99,8 +99,8 @@ function truncate(text: string, length: number): string {
 
 const truncatedResume = computed(() => {
   const raw = props.nugget.resume ?? ''
-  const stripped = raw.replace(/<[^>]*>/g, '')
-  return stripped.length > 100 ? stripped.substring(0, 100) + '…' : stripped
+  const text = new DOMParser().parseFromString(raw, 'text/html').body.textContent ?? ''
+  return truncate(text, 100)
 })
 </script>
 
