@@ -182,6 +182,21 @@ const aggDefinitions: AggDef[] = [
     bucket_key_to_query: (k) => k,
   },
   {
+    name: 'license',
+    aggregation_key: '__license_static',
+    bucket_key_to_ui: async (k) => config.labels.metadata[`license_${k}`] ?? k,
+    bucket_key_to_query: (k) => k,
+  },
+  {
+    name: 'is_public',
+    aggregation_key: '__is_public_static',
+    bucket_key_to_ui: async (k) => {
+      const mapped = k === 'true' ? 'public' : (k === 'false' ? 'private' : k);
+      return config.labels.metadata[mapped] ?? k;
+    },
+    bucket_key_to_query: (k) => k,
+  },
+  {
     name: 'tags',
     aggregation_key: 'tags',
     bucket_key_to_ui: async (k) => k,
@@ -251,11 +266,31 @@ async function load(query: SearchOptions) {
 async function handleAggregations(
   networkAgg: Record<string, { buckets: Array<{ key: string; docCount: number }> }>
 ) {
+  const localAgg = { ...networkAgg }
+  if (!localAgg['__license_static']) {
+    localAgg['__license_static'] = {
+      buckets: [
+        { key: '1', docCount: 0 },
+        { key: '2', docCount: 0 },
+        { key: '3', docCount: 0 },
+        { key: '4', docCount: 0 }
+      ]
+    }
+  }
+  if (!localAgg['__is_public_static']) {
+    localAgg['__is_public_static'] = {
+      buckets: [
+        { key: 'true', docCount: 0 },
+        { key: 'false', docCount: 0 }
+      ]
+    }
+  }
+
   const newAggs: Record<string, AggregationUI> = {}
   const newRelatedDomains: Record<string, AggregationBucket> = {}
 
   for (const def of aggDefinitions) {
-    const raw = networkAgg[def.aggregation_key]
+    const raw = localAgg[def.aggregation_key]
     if (!raw?.buckets?.length) continue
 
     const oldVisible = aggregations.value[def.name]?.visible ?? false

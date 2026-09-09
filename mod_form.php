@@ -159,7 +159,9 @@ class mod_naas_mod_form extends moodleform_mod {
     public function validation($data, $files) {
         $errors = parent::validation($data, $files);
 
-        // TODO Ensure a nugget has been selected.
+        if (empty($data['nugget_id'])) {
+            $errors['name'] = get_string('required');
+        }
 
         if ($data['maxgrade'] <= 0) {
             $errors['maxgrade'] = get_string('error:must_be_strictly_positive', 'naas');

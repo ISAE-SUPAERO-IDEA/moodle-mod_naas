@@ -40,6 +40,8 @@ export interface Nugget {
   multilanguages: NuggetLanguage[]
   version_id: string
   duration?: number
+  license?: string | number
+  producers?: string[]
   level?: string
   tags?: string[]
   references?: string[]

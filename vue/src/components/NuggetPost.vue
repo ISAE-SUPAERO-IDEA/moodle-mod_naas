@@ -36,8 +36,8 @@
           <i class="icon fa fa-clock-o" />
           {{ nugget.duration }}&thinsp;min
         </span>
-        <span v-if="nugget.level" class="nugget-badge nugget-badge-level">
-          {{ config.labels.metadata[nugget.level] ?? nugget.level }}
+        <span v-if="nugget.license" class="nugget-badge nugget-badge-level">
+          {{ config.labels.metadata[`license_${nugget.license}`] ?? nugget.license }}
         </span>
       </div>
     </div>

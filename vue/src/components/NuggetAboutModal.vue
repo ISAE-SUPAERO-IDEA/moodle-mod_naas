@@ -66,6 +66,11 @@
                     {{ config.labels.metadata.level }}:
                     <strong>{{ config.labels.metadata[nugget.level!] }}</strong>
                   </li>
+                  <li v-if="isShown(nugget.license)">
+                    <i class="icon fa fa-id-card-o" />
+                    {{ config.labels.metadata.license }}:
+                    <strong>{{ config.labels.metadata[`license_${nugget.license}`] ?? nugget.license }}</strong>
+                  </li>
                   <li v-if="isShown(nugget.domains_data)" class="metadata-list-item-wrap">
                     <i class="icon fa fa-home" />
                     <span>
