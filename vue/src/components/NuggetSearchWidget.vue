@@ -15,23 +15,28 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Nugget search widget component for NAAS Vue application.
+ * Search widget: text input, facet filters, nugget grid, and load-more.
+ * Used in Moodle activity-creation forms to let teachers pick a nugget.
  *
- * @copyright  2019 ISAE-SUPAERO (https://www.isae-supaero.fr/)
+ * @copyright  2024 ISAE-SUPAERO (https://www.isae-supaero.fr/)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 -->
 <template>
   <div>
+    <div v-if="error" class="alert alert-danger">
+      {{ config.labels.error_generic_user_message }}
+    </div>
 
-    <div v-if="proxyError" class="alert alert-danger">{{ errorUserMessage }}</div>
+    <!-- Search + filter + results grid -->
     <div
+      v-if="selectedNugget === null && !selectedNuggetLoading"
       class="row"
-      v-if="selected_nugget == null && selected_nugget_loading == 0"
     >
+      <!-- Label -->
       <div class="col-md-3 col-form-label d-flex pb-0 pr-md-0">
-        <label class="d-inline word-break" id="nugget_search"
-          >{{ config.labels.search }}
+        <label class="d-inline word-break" id="nugget_search">
+          {{ config.labels.search }}
         </label>
       </div>
 
@@ -49,52 +54,55 @@
           :placeholder="config.labels.nugget_search_here"
         />
         <img
-          v-bind:src="'../mod/naas/assets/search_icon.png'"
+          src="../../../assets/search_icon.png"
           class="search-center"
           width="35"
           height="35"
-        /><br />
-        <loading :loading="loading"></loading>
+          alt=""
+        />
+        <Loading :loading="loading" />
       </div>
-      <!-- Search filter -->
+
+      <!-- Filter panel -->
       <div class="col-md-3">
-        <nugget-search-filter
-          :query="filter_options"
-          v-on:filters="onFilters"
-        ></nugget-search-filter>
+        <NuggetSearchFilter
+          :query="filterQuery"
+          @filters="onFilters"
+        />
       </div>
-      <!-- Nugget list -->
+
+      <!-- Nugget grid -->
       <div class="col-md-9">
         <div class="row">
           <div
-            class="col-6 col-lg-4 col-xl-3 nugget-post-selection" style="min-width: 400px"
             v-for="(nugget, index) in nuggets"
             :key="index"
+            class="col-6 col-lg-4 col-xl-3 nugget-post-selection"
+            style="min-width: 400px"
           >
-            <nugget-post
-              v-bind:key="index"
-              v-bind:nugget="nugget"
+            <NuggetPost
+              :nugget="nugget"
               :selection="true"
-              v-bind:class="{
-                'nugget-post-selected': nugget.nugget_id == selected_id,
-              }"
+              :class="{ 'nugget-post-selected': nugget.nugget_id === selectedId }"
               @SelectButton="clickOnNugget"
-            ></nugget-post>
+            />
           </div>
+
           <div
+            v-if="nuggets.length === 0 && !loading"
             class="col-md-9 form-inline align-items-start felement"
-            v-if="nuggets.length == 0"
           >
             {{ config.labels.nugget_search_no_result }}
           </div>
         </div>
+
         <div class="row">
           <div class="show-more-nugget">
             <a
+              v-if="showMoreButton"
               href="javascript:;"
-              v-if="show_more_nugget_button"
-              v-on:click="show_more_nugget()"
               class="btn btn-primary nugget-button"
+              @click="showMore"
             >
               {{ config.labels.show_more_nugget_button }}
             </a>
@@ -102,23 +110,18 @@
         </div>
       </div>
     </div>
-    <!-- Selected nugget -->
-    <div class="row" v-else>
-      <div class="col-md-3"></div>
+
+    <!-- Selected nugget display -->
+    <div v-else class="row">
+      <div class="col-md-3" />
       <div class="col-md-9 nugget-selected">
-        <loading :loading="selected_nugget_loading"></loading>
-        <div v-if="!selected_nugget_loading">
-          <nugget-post
-            v-bind:nugget="selected_nugget"
-            v-bind:class="{ 'nugget-post-selected': false }"
-          ></nugget-post>
+        <Loading :loading="selectedNuggetLoading" />
+        <div v-if="!selectedNuggetLoading && selectedNugget">
+          <NuggetPost :nugget="selectedNugget" />
           <a
             href="javascript:;"
-            v-on:click="
-              selected_nugget = null;
-              search();
-            "
             class="btn btn-primary btn-replace"
+            @click="clearSelection"
           >
             {{ config.labels.click_to_replace }}
           </a>
@@ -127,135 +130,103 @@
     </div>
   </div>
 </template>
-<script>
-import NuggetSearchFilter from "./NuggetSearchFilter";
-import NuggetPost from "./NuggetPost";
-import Loading from "./Loading";
-import debounce from "debounce";
-export default {
-  name: "NuggetSearchWidget",
-  components: { NuggetSearchFilter, NuggetPost, Loading },
-  data() {
-    return {
-      typed: "",
-      debounced_typed: "",
-      nuggets: [],
-      selected_nugget: null,
-      default_nugget_list: [],
-      filters: {},
-      selected_id: null,
-      show_more_nugget_button: false,
-      default_page_size: 6,
-      add_page_item: 6,
-      loading: 0,
-      selected_nugget_loading: 0,
-    };
-  },
-  watch: {
-    selected_id() {
-      this.checkSelected();
-    },
-    debounced_typed() {
-      this.search();
-    },
-    filters() {
-      this.search();
-    },
-  },
-  computed: {
-    filter_options() {
-      return Object.assign(
-        {},
-        {
-          page_size: this.default_page_size,
-          fulltext: this.debounced_typed,
-        }
-      );
-    },
-    search_options() {
-      return Object.assign({}, this.filter_options, this.filters);
-    },
-  },
-  methods: {
-    async initialize() {
-      this.selected_id = document.getElementsByName("nugget_id")[0].value;
-      if (this.selected_id != "" && this.selected_id != "nugget_id") {
-        // Nugget_id in memory -> Retrieve from id
-        this.selected_nugget_loading++;
-        try {
-          this.selected_nugget = await this.get_nugget_default_version(
-            this.selected_id
-          );
-          this.default_nugget_list = [this.selected_nugget];
-        } catch (e) {
-          this.selected_nugget_loading--;
-          throw e;
-        }
-        this.selected_nugget_loading--;
-      } else {
-        this.search();
-      }
-    },
-    show_more_nugget() {
-      this.default_page_size = this.default_page_size + this.add_page_item;
-      this.search();
-    },
-    search() {
-      this.show_more_nugget_button = false;
-      if (this.search_options) {
-        this.loading++;
 
-        this.proxy("mod_naas_search_nuggets",  { searchOptions: this.search_options, courseId: this.config.courseId })
-          .then(async (payload) => {
-            if (payload) {
-              var nuggets = payload.items;
-              var promises = [];
-              for (var i = 0; i < nuggets.length; i++) {
-                const nugget = nuggets[i];
-                promises = promises.concat(this.make_nugget_promises(nugget));
-              }
-              await Promise.all(promises);
-              this.nuggets = [...nuggets];
-              if (payload.results_count > this.default_page_size)
-                this.show_more_nugget_button = true;
-            } else {
-              this.nuggets = [];
-            }
-            this.loading--;
-          })
-          .catch(() => {
-            this.loading--;
-          });
-      } else this.nuggets = this.default_nugget_list;
-    },
-    onFilters(filters) {
-      this.filters = filters;
-    },
-    onInput: debounce(function () {
-      this.debounced_typed = this.typed;
-      this.default_page_size = 6;
-    }, 500),
-    clickOnNugget: function (nugget) {
-      event.preventDefault();
-      this.selected_id =
-        this.selected_id == nugget.nugget_id ? null : nugget.nugget_id;
-    },
-    checkSelected() {
-      for (let nugget of this.nuggets) {
-        if (nugget.nugget_id == this.selected_id) {
-          document.getElementById("id_name").value = nugget.name;
-          document.getElementsByName("nugget_id")[0].value = nugget.nugget_id;
-          break;
-        } else {
-          document.getElementById("id_name").value = "";
-          document.getElementsByName("nugget_id")[0].value = "";
-        }
-      }
-    },
-  },
-  mounted: function () {
-    this.initialize();
+<script setup lang="ts">
+import { ref, computed, onMounted } from 'vue'
+import debounce from 'debounce'
+import NuggetSearchFilter from './NuggetSearchFilter.vue'
+import NuggetPost from './NuggetPost.vue'
+import Loading from './Loading.vue'
+import { useNaasConfig } from '@/composables/useNaasConfig'
+import { useNuggetSearch } from '@/composables/useNuggetSearch'
+import type { Nugget, SearchOptions } from '@/types/nugget.types'
 
-  },
-};
+const config = useNaasConfig()
+const { nuggets, loading, error, search, getNuggetById } = useNuggetSearch()
+
+const typed = ref('')
+const debouncedTyped = ref('')
+const filters = ref<Record<string, string[]>>({})
+const selectedNugget = ref<Nugget | null>(null)
+const selectedNuggetLoading = ref(false)
+const selectedId = ref<string | null>(null)
+const showMoreButton = ref(false)
+const pageSize = ref(6)
+const ADD_PAGE = 6
+
+// Query object forwarded to NuggetSearchFilter for aggregation display.
+const filterQuery = computed<SearchOptions>(() => ({
+  page_size: pageSize.value,
+  fulltext: debouncedTyped.value,
+}))
+
+// Full search options including active facet filters.
+const searchOptions = computed<SearchOptions>(() => ({
+  ...filterQuery.value,
+  ...filters.value,
+}))
+
+async function doSearch() {
+  showMoreButton.value = false
+  const result = await search(searchOptions.value)
+  if (result && result.results_count > pageSize.value) {
+    showMoreButton.value = true
+  }
+}
+
+const onInput = debounce(() => {
+  debouncedTyped.value = typed.value
+  pageSize.value = 6
+  doSearch()
+}, 500)
+
+function onFilters(newFilters: Record<string, string[]>) {
+  filters.value = newFilters
+  doSearch()
+}
+
+function showMore() {
+  pageSize.value += ADD_PAGE
+  doSearch()
+}
+
+function clickOnNugget(nugget: Nugget) {
+  if (selectedId.value === nugget.nugget_id) {
+    selectedId.value = null
+    syncMoodleForm(null)
+  } else {
+    selectedId.value = nugget.nugget_id
+    syncMoodleForm(nugget)
+  }
+}
+
+function clearSelection() {
+  selectedNugget.value = null
+  doSearch()
+}
+
+// Writes the selected nugget_id into the hidden Moodle form field so
+// the form submission carries the correct value.
+function syncMoodleForm(nugget: Nugget | null) {
+  const nameField = document.getElementById('id_name') as HTMLInputElement | null
+  const nuggetIdField = document.getElementsByName('nugget_id')[0] as HTMLInputElement | null
+
+  if (nameField) nameField.value = nugget?.name ?? ''
+  if (nuggetIdField) nuggetIdField.value = nugget?.nugget_id ?? ''
+}
+
+onMounted(async () => {
+  const nuggetIdField = document.getElementsByName('nugget_id')[0] as HTMLInputElement | null
+  const storedId = nuggetIdField?.value
+
+  if (storedId && storedId !== 'nugget_id' && storedId !== '') {
+    selectedNuggetLoading.value = true
+    selectedId.value = storedId
+    const found = await getNuggetById(storedId)
+    selectedNugget.value = found
+    selectedNuggetLoading.value = false
+  } else {
+    doSearch()
+  }
+})
 </script>

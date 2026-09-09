@@ -14,33 +14,16 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Main entry point for NAAS Vue application.
+ * Generates unique element ID suffixes scoped to a component instance.
+ * Replaces the Vue 2 mixin's this.$id() / this._uid pattern.
  *
- * @copyright  2019 ISAE-SUPAERO (https://www.isae-supaero.fr/)
+ * @copyright  2024 ISAE-SUPAERO (https://www.isae-supaero.fr/)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-import Vue from "vue";
-import Main from "@/Main.vue";
-import mixin from "@/mixin";
-import utils from "@/utils";
-import moment from "moment";
-/*global NAAS*/
+let counter = 0
 
-Vue.config.productionTip = false;
-
-// fonction filter pour couper les strings trop longs
-Vue.filter("truncate", utils.truncate);
-
-// formatting date values
-Vue.filter("formatDate", function (value) {
-  if (value) {
-    return moment(String(value)).format("DD/MM/YYYY");
-  }
-});
-
-Vue.mixin(mixin);
-
-new Vue({
-  render: (h) => h(Main),
-}).$mount(NAAS.mount_point);
+export function useComponentId() {
+  const uid = ++counter
+  return (suffix: string) => `naas-${uid}-${suffix}`
+}

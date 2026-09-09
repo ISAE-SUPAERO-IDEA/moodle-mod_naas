@@ -1,4 +1,3 @@
-<!--
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -15,25 +14,22 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Root component — renders NuggetView or NuggetSearchWidget based on NAAS.component.
- * Static imports are intentional: the IIFE bundle inlines everything anyway, so
- * defineAsyncComponent would only add an async tick with no visual benefit.
+ * Vue plugin that registers the Moodle NaaS API adapter via provide/inject.
  *
  * @copyright  2024 ISAE-SUPAERO (https://www.isae-supaero.fr/)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
--->
-<template>
-  <div>
-    <NuggetView v-if="config.component === 'NuggetView'" />
-    <NuggetSearchWidget v-else />
-  </div>
-</template>
 
-<script setup lang="ts">
-import NuggetView from '@/components/NuggetView.vue'
-import NuggetSearchWidget from '@/components/NuggetSearchWidget.vue'
-import { useNaasConfig } from '@/composables/useNaasConfig'
+import type { App } from 'vue'
+import type { INaasApiService } from '../service/naas-api.interface'
+import { moodleNaasApiService } from '../service/moodle-naas-api.service'
 
-const config = useNaasConfig()
-</script>
+export const NAAS_API_KEY = Symbol('naasApi')
+
+export const naasApiPlugin = {
+  install(app: App) {
+    app.provide(NAAS_API_KEY, moodleNaasApiService)
+  },
+}
+
+export type { INaasApiService }

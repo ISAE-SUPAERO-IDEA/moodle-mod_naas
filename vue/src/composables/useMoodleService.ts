@@ -14,12 +14,18 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Babel configuration for NAAS module.
+ * Composable that injects the NaaS API service registered by naasApiPlugin.
  *
- * @copyright  2019 ISAE-SUPAERO (https://www.isae-supaero.fr/)
+ * @copyright  2024 ISAE-SUPAERO (https://www.isae-supaero.fr/)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-module.exports = {
-  presets: ["@vue/cli-plugin-babel/preset"],
-};
+import { inject } from 'vue'
+import { NAAS_API_KEY } from '@/plugins/naas-api.plugin'
+import type { INaasApiService } from '@/service/naas-api.interface'
+
+export function useMoodleService(): INaasApiService {
+  const service = inject<INaasApiService>(NAAS_API_KEY)
+  if (!service) throw new Error('naasApi not provided — ensure naasApiPlugin is installed')
+  return service
+}

@@ -1,4 +1,3 @@
-<!--
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -15,25 +14,24 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Root component — renders NuggetView or NuggetSearchWidget based on NAAS.component.
- * Static imports are intentional: the IIFE bundle inlines everything anyway, so
- * defineAsyncComponent would only add an async tick with no visual benefit.
+ * Composable for posting xAPI statements via the Moodle webservice.
+ * Fire-and-forget: failures are logged but never bubble to the UI.
  *
  * @copyright  2024 ISAE-SUPAERO (https://www.isae-supaero.fr/)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
--->
-<template>
-  <div>
-    <NuggetView v-if="config.component === 'NuggetView'" />
-    <NuggetSearchWidget v-else />
-  </div>
-</template>
 
-<script setup lang="ts">
-import NuggetView from '@/components/NuggetView.vue'
-import NuggetSearchWidget from '@/components/NuggetSearchWidget.vue'
-import { useNaasConfig } from '@/composables/useNaasConfig'
+import { useMoodleService } from './useMoodleService'
+import type { XapiParams } from '@/types/nugget.types'
 
-const config = useNaasConfig()
-</script>
+export function useXapi() {
+  const service = useMoodleService()
+
+  function postStatement(params: XapiParams): void {
+    service.postXapiStatement(params).catch((err) => {
+      console.warn('[NaaS xAPI] failed to post statement', err)
+    })
+  }
+
+  return { postStatement }
+}

@@ -1,4 +1,3 @@
-<!--
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -15,25 +14,17 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Root component — renders NuggetView or NuggetSearchWidget based on NAAS.component.
- * Static imports are intentional: the IIFE bundle inlines everything anyway, so
- * defineAsyncComponent would only add an async tick with no visual benefit.
+ * Composable that injects the window.NAAS config provided in main.ts.
  *
  * @copyright  2024 ISAE-SUPAERO (https://www.isae-supaero.fr/)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
--->
-<template>
-  <div>
-    <NuggetView v-if="config.component === 'NuggetView'" />
-    <NuggetSearchWidget v-else />
-  </div>
-</template>
 
-<script setup lang="ts">
-import NuggetView from '@/components/NuggetView.vue'
-import NuggetSearchWidget from '@/components/NuggetSearchWidget.vue'
-import { useNaasConfig } from '@/composables/useNaasConfig'
+import { inject } from 'vue'
+import type { NaasConfig } from '@/types/naas-config.types'
 
-const config = useNaasConfig()
-</script>
+export function useNaasConfig(): NaasConfig {
+  const config = inject<NaasConfig>('naasConfig')
+  if (!config) throw new Error('naasConfig not provided — ensure app.provide("naasConfig", ...) in main.ts')
+  return config
+}
