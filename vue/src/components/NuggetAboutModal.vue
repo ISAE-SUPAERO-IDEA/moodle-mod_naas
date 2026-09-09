@@ -26,14 +26,12 @@
     <transition name="modal-fade">
       <div v-if="visible" class="nugget-modal-backdrop" @click="emit('close')">
         <div class="nugget-modal" @click.stop.prevent>
-          <div class="container">
-            <div class="nugget-modal-header row justify-content-between align-items-start">
-              <h2>{{ config.labels.about }} : {{ nugget.name }}</h2>
-              <button type="button" class="btn-close" @click="emit('close')">✕</button>
-            </div>
+            <div class="nugget-modal-header">
+            <h2>{{ config.labels.about }} : {{ nugget.name }}</h2>
+            <button type="button" class="btn-close" @click="emit('close')">✕</button>
           </div>
 
-          <div class="container nugget-modal-body">
+          <div class="nugget-modal-body">
             <div class="row metadata-field">
               <div class="col">
                 <div v-if="isShown(nugget.resume)">
@@ -68,22 +66,26 @@
                     {{ config.labels.metadata.level }}:
                     <strong>{{ config.labels.metadata[nugget.level!] }}</strong>
                   </li>
-                  <li v-if="isShown(nugget.domains_data)">
+                  <li v-if="isShown(nugget.domains_data)" class="metadata-list-item-wrap">
                     <i class="icon fa fa-home" />
-                    {{ config.labels.metadata.field_of_study }}:<br />
-                    <span
-                      v-for="item in nugget.domains_data"
-                      :key="item.id"
-                      class="metadata-list-item"
-                    >
-                      <span class="badge badge-pill badge-primary">{{ item.label }}</span><br />
+                    <span>
+                      {{ config.labels.metadata.field_of_study }}:
+                      <span class="meta-tags">
+                        <span v-for="item in nugget.domains_data" :key="item.id" class="meta-tag">
+                          {{ item.label }}
+                        </span>
+                      </span>
                     </span>
                   </li>
-                  <li v-if="isShown(nugget.tags)">
+                  <li v-if="isShown(nugget.tags)" class="metadata-list-item-wrap">
                     <i class="icon fa fa-tag" />
-                    {{ config.labels.metadata.tags }}:<br />
-                    <span v-for="tag in nugget.tags" :key="tag" class="metadata-list-item">
-                      <span class="badge badge-pill badge-primary">{{ tag }}</span><br />
+                    <span>
+                      {{ config.labels.metadata.tags }}:
+                      <span class="meta-tags">
+                        <span v-for="tag in nugget.tags" :key="tag" class="meta-tag">
+                          {{ tag }}
+                        </span>
+                      </span>
                     </span>
                   </li>
                   <li v-if="isShown(nugget.publication_date)">
@@ -162,117 +164,169 @@ const inBriefShown = computed(() => {
 </script>
 
 <style scoped>
+/* ── Backdrop ── */
 .nugget-modal-backdrop {
   position: fixed;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background-color: rgba(0, 0, 0, 0.45);
-  backdrop-filter: blur(3px);
+  inset: 0;
+  background-color: rgba(15, 20, 30, 0.5);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  z-index: 999;
-  padding: 40px 0;
+  z-index: 1060;
+  padding: 3vh 1rem 2rem;
+  overflow-y: auto;
 }
 
+/* ── Modal panel ── */
 .nugget-modal {
-  position: relative;
-  width: 85%;
-  max-width: 1140px;
-  margin: 0 auto 40px;
-  background: #fff;
-  box-shadow: var(--naas-shadow-md, 0 4px 20px rgba(0, 0, 0, 0.15));
-  border-radius: var(--naas-radius, 6px);
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  background: var(--naas-surface, #fff);
+  box-shadow: var(--naas-shadow-lg, 0 12px 40px rgba(0,0,0,.18));
+  border-radius: var(--naas-radius-xl, 16px);
   display: flex;
   flex-direction: column;
-  height: auto;
-  max-height: none;
-  overflow: auto;
-  top: 50px;
+  overflow: hidden;
 }
 
+/* ── Header ── */
 .nugget-modal-header {
-  border-bottom: 1px solid #e9ecef;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem 1rem;
+  border-bottom: 1px solid var(--naas-border-light, #e9ecef);
+  flex-shrink: 0;
 }
 
 .nugget-modal-header h2 {
-  padding: 18px 0 14px 28px;
-  font-size: 1.25rem;
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin: 0;
+  padding: 0;
+  color: var(--naas-text, #1f2937);
+  line-height: 1.3;
 }
 
+/* ── Close button ── */
+.btn-close {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  color: var(--naas-text-muted, #6c757d);
+  font-size: 1.1rem;
+  font-weight: 700;
+  border: none;
+  background: transparent;
+  line-height: 1;
+  border-radius: var(--naas-radius, 8px);
+  cursor: pointer;
+  transition: color var(--naas-transition, 0.18s ease),
+              background var(--naas-transition, 0.18s ease);
+}
+
+.btn-close:hover {
+  color: var(--naas-text, #1f2937);
+  background: var(--naas-surface-muted, #f8f9fa);
+}
+
+/* ── Body ── */
 .nugget-modal-body {
-  padding: 20px 15px;
-  max-height: calc(90vh - 120px);
+  padding: 1.5rem;
+  max-height: calc(88vh - 100px);
   overflow-y: auto;
   flex-grow: 1;
 }
 
 .nugget-modal-description {
-  overflow-y: auto;
   display: block;
-  max-height: 250px;
-  margin-bottom: 20px;
-  padding-right: 10px;
+  margin-bottom: 1.5rem;
+  color: var(--naas-text, #1f2937);
+  line-height: 1.65;
+  font-size: 0.9rem;
 }
 
-.btn-close {
-  position: relative;
-  float: right;
-  padding: 12px 16px;
-  top: 0;
-  color: #6c757d;
-  font-size: 22px;
-  font-weight: bold;
-  border: none;
-  background: transparent;
-  line-height: 1;
-  border-radius: var(--naas-radius, 6px);
-  transition: color var(--naas-transition, 0.18s ease), background var(--naas-transition, 0.18s ease);
-}
-
-.btn-close:hover {
-  color: #212529;
-  background: #f0f0f0;
-}
-
+/* ── In-brief sidebar ── */
 .metadata-field {
-  margin: 0 15px;
+  margin: 0;
 }
 
 .metadata-list {
   list-style: none;
-  padding-left: 5px;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
 }
 
-.metadata-list-item {
-  margin-right: 10px;
+.metadata-list li {
+  font-size: 0.875rem;
+  color: var(--naas-text, #1f2937);
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
 }
 
-.metadata-list-item :deep(.badge) {
-  white-space: normal;
-  word-wrap: normal;
+.metadata-list li .icon {
+  color: var(--naas-primary, #0f6cbf);
+  width: 1rem;
+  flex-shrink: 0;
+  margin-top: 0.1rem;
 }
 
-.modal-fade-enter-active,
+.metadata-list-item-wrap {
+  align-items: flex-start !important; /* stylelint-disable-line declaration-no-important */
+}
+
+/* Flex-wrap row of pill tags */
+.meta-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-top: 0.35rem;
+}
+
+.meta-tag {
+  display: inline-block;
+  padding: 0.18rem 0.6rem;
+  background: var(--naas-primary-light, #dce9fa);
+  color: var(--naas-primary, #0f6cbf);
+  border: 1px solid var(--naas-primary, #0f6cbf);
+  border-radius: var(--naas-radius-pill, 999px);
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+  line-height: 1.4;
+}
+
+/* ── Animation: fade + slide up ── */
+.modal-fade-enter-active {
+  transition: opacity 0.22s ease, transform 0.22s ease;
+}
 .modal-fade-leave-active {
-  transition: opacity 0.25s ease;
+  transition: opacity 0.18s ease, transform 0.18s ease;
 }
-
-.modal-fade-enter-from,
+.modal-fade-enter-from {
+  opacity: 0;
+  transform: translateY(16px);
+}
 .modal-fade-leave-to {
   opacity: 0;
+  transform: translateY(8px);
 }
 
-@media (max-width: 1250px) {
-  .nugget-modal { width: 90%; }
-}
-
+/* ── Responsive ── */
 @media (max-width: 768px) {
-  .nugget-modal { width: 95%; }
-  .nugget-modal-backdrop { padding: 20px 0; }
-  .nugget-modal-body { max-height: calc(95vh - 100px); padding: 15px 10px; }
-  .metadata-field { margin: 0 5px; }
+  .nugget-modal-backdrop { padding: 1rem 0.5rem; }
+  .nugget-modal-body { max-height: calc(92vh - 80px); padding: 1rem; }
 }
 </style>

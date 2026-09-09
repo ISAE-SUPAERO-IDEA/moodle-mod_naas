@@ -31,13 +31,14 @@
               <h2>{{ config.labels.metadata.preview }}{{ nugget.name }}</h2>
               <button type="button" class="btn-close" @click="close">✕</button>
             </div>
-            <div class="nugget-modal-body row">
-              <div class="nugget-view w-100">
+            <div class="nugget-modal-body">
+              <div class="nugget-view">
                 <iframe
                   v-if="previewUrl"
                   id="lti-frame"
                   :src="previewUrl"
-                  class="preview-iframe h-100 w-100"
+                  class="preview-iframe"
+                  allowfullscreen
                 />
               </div>
             </div>
@@ -87,95 +88,114 @@ function close() {
 </script>
 
 <style scoped>
+/* ── Backdrop ── */
 .nugget-modal-backdrop {
   position: fixed;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background-color: rgba(0, 0, 0, 0.45);
-  backdrop-filter: blur(3px);
+  inset: 0;
+  background-color: rgba(15, 20, 30, 0.55);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  z-index: 999;
-  padding: 40px 0;
+  z-index: 1060;
+  padding: 3vh 1rem 2rem;
 }
 
+/* ── Modal panel ── */
 .nugget-modal {
-  position: relative;
-  width: 85%;
-  max-width: 1140px;
-  margin: 0 auto 40px;
-  background: #fff;
-  box-shadow: var(--naas-shadow-md, 0 4px 20px rgba(0, 0, 0, 0.15));
-  border-radius: var(--naas-radius, 6px);
+  width: 100%;
+  max-width: 1100px;
+  height: 88vh;
+  background: var(--naas-surface, #fff);
+  box-shadow: var(--naas-shadow-lg, 0 12px 40px rgba(0,0,0,.18));
+  border-radius: var(--naas-radius-xl, 16px);
   display: flex;
   flex-direction: column;
-  overflow: auto;
-  top: 50px;
+  overflow: hidden;
 }
 
-#nugget-preview-modal {
-  height: 85%;
-}
-
-#nugget-preview-modal .nugget-modal-body {
-  height: 85%;
-}
-
+/* ── Header ── */
 .nugget-modal-header {
-  border-bottom: 1px solid #e9ecef;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.1rem 1.5rem 0.9rem;
+  border-bottom: 1px solid var(--naas-border-light, #e9ecef);
+  flex-shrink: 0;
 }
 
 .nugget-modal-header h2 {
-  padding: 18px 0 14px 28px;
-  font-size: 1.25rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin: 0;
+  padding: 0;
+  color: var(--naas-text, #1f2937);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.nugget-modal-body {
-  padding: 20px 15px;
-  max-height: calc(90vh - 120px);
-  overflow-y: auto;
-  flex-grow: 1;
-}
-
+/* ── Close button ── */
 .btn-close {
-  position: relative;
-  float: right;
-  padding: 12px 16px;
-  top: 0;
-  color: #6c757d;
-  font-size: 22px;
-  font-weight: bold;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  color: var(--naas-text-muted, #6c757d);
+  font-size: 1.1rem;
+  font-weight: 700;
   border: none;
   background: transparent;
-  line-height: 1;
-  border-radius: var(--naas-radius, 6px);
-  transition: color var(--naas-transition, 0.18s ease), background var(--naas-transition, 0.18s ease);
+  border-radius: var(--naas-radius, 8px);
+  cursor: pointer;
+  transition: color var(--naas-transition, 0.18s ease),
+              background var(--naas-transition, 0.18s ease);
 }
 
 .btn-close:hover {
-  color: #212529;
-  background: #f0f0f0;
+  color: var(--naas-text, #1f2937);
+  background: var(--naas-surface-muted, #f8f9fa);
 }
 
-.preview-iframe {
-  border: none;
+/* ── Body (iframe fills it) ── */
+.nugget-modal-body {
+  flex: 1;
+  overflow: hidden;
+  padding: 0;
+  margin: 0;
 }
 
 .nugget-view {
+  height: 100%;
   margin: 0;
   padding: 0;
 }
 
-.modal-fade-enter-active,
-.modal-fade-leave-active {
-  transition: opacity 0.25s ease;
+.preview-iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: none;
 }
 
-.modal-fade-enter-from,
+/* ── Animation: fade + slide up ── */
+.modal-fade-enter-active {
+  transition: opacity 0.22s ease, transform 0.22s ease;
+}
+.modal-fade-leave-active {
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+.modal-fade-enter-from {
+  opacity: 0;
+  transform: translateY(18px);
+}
 .modal-fade-leave-to {
   opacity: 0;
+  transform: translateY(8px);
 }
 </style>

@@ -2,23 +2,49 @@
  * NaaS plugin — global stylesheet.
  *
  * Component-level rules live in <style scoped> inside each Vue component.
- * This file only contains page-level layout, Moodle theme integration,
- * and Bootstrap override fixes.
+ * This file contains page-level layout, Moodle theme integration,
+ * Bootstrap override fixes, and shared design tokens.
  */
 
 /* -----------------------------------------------------------------------
-   Inherit Moodle / Boost theme colours so the widget blends in naturally.
-   Boost exposes --primary and --secondary; Classic / older themes don't,
-   so we fall back to sensible defaults.
+   Design tokens — inherit Moodle / Boost theme colours where available.
+   Fallbacks keep the plugin working on Classic / older themes.
    ----------------------------------------------------------------------- */
 .path-mod-naas {
+    /* Brand */
     --naas-primary: var(--primary, #0f6cbf);
-    --naas-primary-hover: var(--primary-hover, #0a4a8f);
+    --naas-primary-hover: var(--primary-hover, #0a58ca);
+    --naas-primary-dark: var(--primary-dark, #0a4a8f);
     --naas-primary-light: var(--primary-light, #dce9fa);
-    --naas-radius: 6px;
-    --naas-shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.12);
-    --naas-shadow-md: 0 4px 16px rgba(0, 0, 0, 0.15);
+
+    /* Surfaces & borders */
+    --naas-surface: #fff;
+    --naas-surface-muted: #f8f9fa;
+    --naas-surface-hover: #f0f4ff;
+    --naas-border: #dee2e6;
+    --naas-border-light: #e9ecef;
+
+    /* Text */
+    --naas-text: #1f2937;
+    --naas-text-muted: #6c757d;
+    --naas-text-subtle: #adb5bd;
+
+    /* Elevation */
+    --naas-shadow-xs: 0 1px 3px rgba(0, 0, 0, 0.08);
+    --naas-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.10);
+    --naas-shadow-md: 0 6px 20px rgba(0, 0, 0, 0.14);
+    --naas-shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.18);
+
+    /* Shape */
+    --naas-radius-sm: 4px;
+    --naas-radius: 8px;
+    --naas-radius-lg: 12px;
+    --naas-radius-xl: 16px;
+    --naas-radius-pill: 999px;
+
+    /* Motion */
     --naas-transition: 0.18s ease;
+    --naas-transition-slow: 0.28s ease;
 }
 
 /* -----------------------------------------------------------------------
@@ -36,20 +62,22 @@
 }
 
 /* -----------------------------------------------------------------------
-   Shared button polish — applies to all .btn.btn-primary inside the plugin.
+   Shared button polish — .btn-primary inside the plugin.
    ----------------------------------------------------------------------- */
 .path-mod-naas .btn-primary {
     background-color: var(--naas-primary);
     border-color: var(--naas-primary);
     border-radius: var(--naas-radius);
-    transition: background-color var(--naas-transition), box-shadow var(--naas-transition);
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    transition: background-color var(--naas-transition), border-color var(--naas-transition), box-shadow var(--naas-transition);
 }
 
 .path-mod-naas .btn-primary:hover,
 .path-mod-naas .btn-primary:focus {
     background-color: var(--naas-primary-hover);
     border-color: var(--naas-primary-hover);
-    box-shadow: 0 0 0 3px rgba(15, 108, 191, 0.25);
+    box-shadow: 0 0 0 3px rgba(15, 108, 191, 0.22);
     outline: none;
 }
 

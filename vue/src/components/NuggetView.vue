@@ -219,44 +219,75 @@ function complete() {
   padding: 0;
 }
 
+/* ── Toolbar ── */
 #nugget-info-button {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.75rem;
+  gap: 0.625rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
 }
 
 .language-select {
-  margin-left: 5px;
-  padding: 0.3rem 1rem 0.5rem 1rem;
+  padding: 0.38rem 2rem 0.38rem 0.875rem;
   cursor: pointer;
-  border: 1px solid var(--primary, #0f6cbf);
-  border-radius: 4px;
-  background: #fff;
+  border: 1.5px solid var(--naas-border, #dee2e6);
+  border-radius: var(--naas-radius-pill, 999px);
+  background: var(--naas-surface, #fff)
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%236c757d' d='M0 0l5 6 5-6z'/%3E%3C/svg%3E")
+    no-repeat right 0.75rem center;
+  -webkit-appearance: none;
+  appearance: none;
   font-size: 0.875rem;
+  color: var(--naas-text, #1f2937);
+  transition: border-color var(--naas-transition, 0.18s ease),
+              box-shadow   var(--naas-transition, 0.18s ease);
+  outline: none;
 }
 
+.language-select:focus {
+  border-color: var(--naas-primary, #0f6cbf);
+  box-shadow: 0 0 0 3px rgba(15, 108, 191, 0.15);
+}
+
+/* ── Error banner ── */
 .naas-error-banner {
   display: flex;
   align-items: center;
   gap: 0.75rem;
   padding: 0.75rem 1rem;
   margin-bottom: 1rem;
-  background: #fff3cd;
-  border: 1px solid #ffc107;
-  border-radius: var(--naas-radius, 6px);
-  color: #856404;
+  background: #fffbeb;
+  border: 1.5px solid #fcd34d;
+  border-radius: var(--naas-radius, 8px);
+  color: #92400e;
+  font-size: 0.875rem;
 }
 
 .gallery {
   margin: 0;
 }
 
+/* ── Complete button row ── */
 #completion-modal-button {
-  margin-top: 1.5rem;
+  margin-top: 1.75rem;
+  text-align: center;
 }
 
 #completion-modal-button button {
-  padding: 10px 30px;
+  padding: 0.6rem 2.5rem;
+  font-size: 1rem;
+  font-weight: 700;
+  border-radius: var(--naas-radius-pill, 999px);
+  letter-spacing: 0.02em;
+  box-shadow: var(--naas-shadow-sm, 0 2px 8px rgba(0,0,0,.10));
+  transition: background var(--naas-transition, 0.18s ease),
+              box-shadow var(--naas-transition, 0.18s ease),
+              transform  var(--naas-transition, 0.18s ease);
+}
+
+#completion-modal-button button:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--naas-shadow-md, 0 6px 20px rgba(0,0,0,.14));
 }
 </style>

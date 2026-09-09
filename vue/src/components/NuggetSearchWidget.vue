@@ -40,20 +40,23 @@
           {{ config.labels.search }}
         </label>
         <div class="search-input-wrap">
-          <input
-            v-model="typed"
-            @input="onInput"
-            @keydown.enter.prevent
-            class="form-control search-input"
-            :placeholder="config.labels.nugget_search_here"
-          />
-          <img
-            src="../../../assets/search_icon.png"
-            class="search-icon"
-            width="35"
-            height="35"
-            alt=""
-          />
+          <div class="search-field">
+            <i class="search-field-icon icon fa fa-search" />
+            <input
+              v-model="typed"
+              @input="onInput"
+              @keydown.enter.prevent
+              class="search-field-input"
+              :placeholder="config.labels.nugget_search_here"
+            />
+            <button
+              v-if="typed"
+              type="button"
+              class="search-field-clear"
+              aria-label="Clear search"
+              @click="typed = ''; debouncedTyped = ''; page = 1; doSearch()"
+            >×</button>
+          </div>
           <button type="button" class="filters-toggle-btn" @click="filtersOpen = true">
             <i class="icon fa fa-sliders" />
             {{ config.labels.metadata.filters ?? 'Filters' }}
@@ -351,9 +354,10 @@ onMounted(async () => {
 
 .search-label {
   flex-shrink: 0;
-  font-weight: 500;
+  font-weight: 600;
   white-space: nowrap;
   margin: 0;
+  color: var(--naas-text, #1f2937);
 }
 
 .search-input-wrap {
@@ -363,14 +367,67 @@ onMounted(async () => {
   gap: 0.5rem;
 }
 
-.search-input {
+/* Pill-shaped search field */
+.search-field {
+  position: relative;
   flex: 1;
+  display: flex;
+  align-items: center;
 }
 
-.search-icon {
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  flex-shrink: 0;
+.search-field-icon {
+  position: absolute;
+  left: 0.85rem;
+  color: var(--naas-text-muted, #6c757d);
+  font-size: 0.875rem;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.search-field-input {
+  width: 100%;
+  padding: 0.5rem 2.25rem 0.5rem 2.25rem;
+  border: 1.5px solid var(--naas-border, #dee2e6);
+  border-radius: var(--naas-radius-pill, 999px);
+  background: var(--naas-surface, #fff);
+  font-size: 0.875rem;
+  color: var(--naas-text, #1f2937);
+  transition: border-color var(--naas-transition, 0.18s ease),
+              box-shadow   var(--naas-transition, 0.18s ease);
+  outline: none;
+  line-height: 1.5;
+}
+
+.search-field-input::placeholder {
+  color: var(--naas-text-subtle, #adb5bd);
+}
+
+.search-field-input:focus {
+  border-color: var(--naas-primary, #0f6cbf);
+  box-shadow: 0 0 0 3px rgba(15, 108, 191, 0.15);
+}
+
+.search-field-clear {
+  position: absolute;
+  right: 0.75rem;
+  background: var(--naas-text-subtle, #adb5bd);
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 1.1rem;
+  height: 1.1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+  transition: background var(--naas-transition, 0.18s ease);
+}
+
+.search-field-clear:hover {
+  background: var(--naas-text-muted, #6c757d);
 }
 
 .search-results {
