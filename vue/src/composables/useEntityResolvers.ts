@@ -40,7 +40,7 @@ export function useEntityResolvers() {
   async function getStructureAcronym(key: string): Promise<string> {
     try {
       const structure = await service.getStructure(key, config.courseId)
-      return structure?.acronym ?? key
+      return structure?.acronym || structure?.name || key
     } catch {
       return key
     }

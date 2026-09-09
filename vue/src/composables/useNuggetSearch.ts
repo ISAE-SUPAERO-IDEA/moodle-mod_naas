@@ -27,23 +27,33 @@ import { useNaasConfig } from './useNaasConfig'
 import { useNuggetEnricher } from './useNuggetEnricher'
 import type { Nugget, SearchOptions, SearchResult } from '@/types/nugget.types'
 
-export function useNuggetSearch() {
+export function useNuggetSearch(opts: { initialLoading?: boolean } = {}) {
   const service = useMoodleService()
   const config = useNaasConfig()
   const { enrichMany } = useNuggetEnricher()
 
   const nuggets = ref<Nugget[]>([])
   const searchResult = ref<SearchResult | null>(null)
-  const loading = ref(false)
+  const loading = ref(opts.initialLoading ?? false)
+  const loadingMore = ref(false)
   const error = ref<Error | null>(null)
 
-  async function search(options: SearchOptions): Promise<SearchResult | null> {
+  async function search(options: SearchOptions, append = false): Promise<SearchResult | null> {
     try {
-      loading.value = true
+      if (append) {
+        loadingMore.value = true
+      } else {
+        loading.value = true
+      }
       error.value = null
       const result = await service.searchNuggets(options, config.courseId)
-      const enriched = await enrichMany(result.items)
-      nuggets.value = enriched
+      const items = Array.isArray(result?.items) ? result.items : []
+      const enriched = await enrichMany(items)
+      if (append) {
+        nuggets.value.push(...enriched)
+      } else {
+        nuggets.value = enriched
+      }
       searchResult.value = { ...result, items: enriched }
       return searchResult.value
     } catch (e) {
@@ -51,6 +61,7 @@ export function useNuggetSearch() {
       return null
     } finally {
       loading.value = false
+      loadingMore.value = false
     }
   }
 
@@ -65,5 +76,5 @@ export function useNuggetSearch() {
     }
   }
 
-  return { nuggets, searchResult, loading, error, search, getNuggetById }
+  return { nuggets, searchResult, loading, loadingMore, error, search, getNuggetById }
 }

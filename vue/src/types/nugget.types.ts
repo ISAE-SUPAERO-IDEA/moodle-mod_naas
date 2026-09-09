@@ -71,6 +71,7 @@ export interface SearchResult {
 }
 
 export interface SearchOptions {
+  page?: number
   page_size: number
   fulltext?: string
   related_domains?: string[]

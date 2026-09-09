@@ -21,7 +21,6 @@
  */
 
 import { createApp } from 'vue'
-import { createPinia } from 'pinia'
 import Main from '@/Main.vue'
 import { naasApiPlugin } from '@/plugins/naas-api.plugin'
 import { createNaasI18n } from '@/plugins/i18n'
@@ -30,7 +29,12 @@ const config = window.NAAS
 
 const app = createApp(Main)
 
-app.use(createPinia())
+// In dev builds, allow Vue DevTools browser extension to connect to this IIFE app.
+if (process.env.NODE_ENV === 'development') {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ;(window as any).__VUE_DEVTOOLS_GLOBAL_HOOK__?.emit?.('app:init', app, app.version, {})
+}
+
 app.use(naasApiPlugin)
 app.use(createNaasI18n(config))
 

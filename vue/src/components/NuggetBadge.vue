@@ -54,3 +54,9 @@ const truncated = computed(() => {
     : props.text
 })
 </script>
+
+<style scoped>
+.badge-margin {
+  margin: 1px;
+}
+</style>

@@ -7,13 +7,13 @@
     "dev": "vite",
     "build": "vue-tsc --noEmit && vite build",
     "type-check": "vue-tsc --noEmit",
-    "lint": "prettier --write ."
+    "lint": "prettier --write .",
+    "bump-version": "node scripts/bump-version.js"
   },
   "dependencies": {
     "debounce": "^1.2.1",
     "iframe-resizer": "^4.3.6",
     "moment": "^2.29.4",
-    "pinia": "^2.1.7",
     "vue": "^3.4.0",
     "vue-i18n": "^9.13.1"
   },

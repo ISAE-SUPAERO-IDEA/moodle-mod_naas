@@ -80,3 +80,31 @@ function anyChildSelected(children?: Record<string, AggregationBucket>): boolean
 
 const showChildren = ref(anyChildSelected(props.bucket.children))
 </script>
+
+<style scoped>
+.related-domains-list {
+  margin: 0;
+  padding: 0;
+}
+
+.related-domains-list-element {
+  list-style-type: none;
+}
+
+.tree-view-caret {
+  cursor: pointer;
+  user-select: none;
+}
+
+.tree-view-caret::after {
+  content: "\25BC";
+  color: black;
+  display: inline-block;
+  margin-right: 6px;
+  transform: rotate(-90deg);
+}
+
+.tree-view-caret-down::after {
+  transform: rotate(0deg);
+}
+</style>
