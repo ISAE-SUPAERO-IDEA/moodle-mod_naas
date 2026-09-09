@@ -36,7 +36,7 @@
     <div class="nugget-body">
       <h4 class="nugget-title">{{ truncate(nugget.name, 60) }}</h4>
       <p v-if="authorsNames" class="nugget-authors">{{ authorsNames }}</p>
-      <div class="nugget-desc" v-html="truncatedResume" />
+      <div class="nugget-desc">{{ truncatedResume }}</div>
       <p v-if="nugget.displayinfo" class="nugget-displayinfo">{{ nugget.displayinfo }}</p>
     </div>
 
