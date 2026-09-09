@@ -140,7 +140,7 @@ const emit = defineEmits<{ (e: 'close'): void }>()
 const config = useNaasConfig()
 
 function stripHtml(value?: string): string {
-  return (value ?? '').replace(/<[^>]*>/g, '')
+  return new DOMParser().parseFromString(value ?? '', 'text/html').body.textContent ?? ''
 }
 
 function isShown(val: unknown): boolean {
