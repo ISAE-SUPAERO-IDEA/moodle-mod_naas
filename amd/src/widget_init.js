@@ -20,7 +20,7 @@
  * @copyright  2019 ISAE-SUPAERO (https://www.isae-supaero.fr/)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-define('mod_naas/widget_init', [], function() {
+define('mod_naas/widget_init', ['core/config'], function(mdlcfg) {
     return {
         /**
          * Initialize the Widget with configuration.
@@ -30,11 +30,11 @@ define('mod_naas/widget_init', [], function() {
             if (widgetHost) {
                 let configStr = widgetHost.getAttribute('data-config');
                 if (configStr) {
-                    let config = JSON.parse(configStr);
-                    window.NAAS = config;
+                    window.NAAS = JSON.parse(configStr);
 
+                    // Load the widget from Moodle wwwroot, not from DOM-supplied JSON.
                     let script = document.createElement('script');
-                    script.src = config.moodle_url + '/mod/naas/assets/vue/naas_widget-2026030300.js';
+                    script.src = mdlcfg.wwwroot + '/mod/naas/assets/vue/naas_widget-2026030300.js';
                     document.body.appendChild(script);
                 }
             }
