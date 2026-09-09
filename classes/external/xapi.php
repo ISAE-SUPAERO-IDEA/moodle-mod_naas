@@ -37,6 +37,12 @@ require_once($CFG->libdir . '/externallib.php');
  * @author Bruno Ilponse
  */
 class xapi extends \external_api {
+    /** Allowed xAPI verbs forwarded to the NaaS API. */
+    private const ALLOWED_VERBS = ['experienced', 'completed', 'rated'];
+
+    /** Maximum allowed size of the JSON body in bytes (4 kB). */
+    private const MAX_BODY_BYTES = 4096;
+
     /**
      * Parameters definition for post_xapi_statement
      */
@@ -76,11 +82,32 @@ class xapi extends \external_api {
             'body' => $body,
         ]);
 
+        // Validate verb against allowlist.
+        if (!in_array($params['verb'], self::ALLOWED_VERBS, true)) {
+            throw new \invalid_parameter_exception(get_string('error:invalid_xapi_verb', 'naas', $params['verb']));
+        }
+
+        // Validate version_id format.
+        if (!preg_match('/^[a-zA-Z0-9_\-]{1,128}$/', $params['version_id'])) {
+            throw new \invalid_parameter_exception(get_string('error:invalid_param', 'naas', 'version_id'));
+        }
+
+        // Validate body size.
+        if ($params['body'] !== null && strlen($params['body']) > self::MAX_BODY_BYTES) {
+            throw new \invalid_parameter_exception(get_string('error:xapi_body_too_large', 'naas'));
+        }
+
         // Get course module and check permissions.
         $cm = get_coursemodule_from_id('naas', $params['id'], 0, false, MUST_EXIST);
         $context = \context_module::instance($cm->id);
         self::validate_context($context);
         require_capability('mod/naas:view', $context);
+
+        // Verify the calling user is enrolled in the module's course.
+        $coursecontext = \context_course::instance($cm->course);
+        if (!is_enrolled($coursecontext, null, '', true)) {
+            throw new \moodle_exception('error:not_enrolled', 'naas');
+        }
 
         // Get user info.
         $config = (object) array_merge((array) \get_config('naas'), (array) $CFG);

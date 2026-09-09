@@ -38,14 +38,14 @@
               <div class="col">
                 <div v-if="isShown(nugget.resume)">
                   <h3>{{ config.labels.metadata.description }}</h3>
-                  <span v-html="nugget.resume" class="nugget-modal-description" />
+                  <span class="nugget-modal-description">{{ stripHtml(nugget.resume) }}</span>
                 </div>
 
                 <div v-if="isShown(nugget.authors_data)">
                   <h3>{{ config.labels.metadata.about_author }}</h3>
                   <div v-for="author in nugget.authors_data" :key="author.email">
                     <h5>{{ author.firstname }} {{ author.lastname }}</h5>
-                    <span v-html="author.bio" class="nugget-modal-description" />
+                    <span class="nugget-modal-description">{{ stripHtml(author.bio) }}</span>
                   </div>
                 </div>
               </div>
@@ -138,6 +138,10 @@ defineProps<{ nugget: Nugget; visible: boolean }>()
 const emit = defineEmits<{ (e: 'close'): void }>()
 
 const config = useNaasConfig()
+
+function stripHtml(value?: string): string {
+  return new DOMParser().parseFromString(value ?? '', 'text/html').body.textContent ?? ''
+}
 
 function isShown(val: unknown): boolean {
   if (val === undefined || val === null || val === '') return false

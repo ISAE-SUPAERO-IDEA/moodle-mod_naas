@@ -91,6 +91,13 @@ if ($hassiteconfig) {
         PARAM_INT
     ));
 
+    $settings->add(new admin_setting_configcheckbox(
+        'naas/naas_ssl_noverify',
+        get_string('naas_settings_ssl_noverify', 'naas'),
+        get_string('naas_settings_ssl_noverify_help', 'naas'),
+        0
+    ));
+
     $settings->add(new admin_setting_configtextarea(
         'naas/naas_css',
         get_string('naas_settings_css', 'naas'),
