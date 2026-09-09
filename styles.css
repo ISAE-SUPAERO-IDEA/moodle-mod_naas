@@ -18,7 +18,7 @@
     --naas-primary-light: var(--primary-light, #dce9fa);
 
     /* Surfaces & borders */
-    --naas-surface: #ffffff;
+    --naas-surface: #fff;
     --naas-surface-muted: #f8f9fa;
     --naas-surface-hover: #f0f4ff;
     --naas-border: #dee2e6;
@@ -70,9 +70,7 @@
     border-radius: var(--naas-radius);
     font-weight: 600;
     letter-spacing: 0.01em;
-    transition: background-color var(--naas-transition),
-                border-color var(--naas-transition),
-                box-shadow var(--naas-transition);
+    transition: background-color var(--naas-transition), border-color var(--naas-transition), box-shadow var(--naas-transition);
 }
 
 .path-mod-naas .btn-primary:hover,
