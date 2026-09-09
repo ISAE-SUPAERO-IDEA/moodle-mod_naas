@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * mod_naas view page output component.
+ * mod_naas index page output component.
  *
  * @package    mod_naas
  * @copyright  2019 onwards ISAE-SUPAERO (https://www.isae-supaero.fr/)
@@ -31,44 +31,50 @@ use stdClass;
 use templatable;
 
 /**
- * Renderable and templatable component for the naas view.php page.
+ * Renderable and templatable component for the naas index.php page.
  *
  * @package    mod_naas
  * @copyright  2019 onwards ISAE-SUPAERO (https://www.isae-supaero.fr/)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @since      mod_naas 1.0.0
  */
-class view_page implements renderable, templatable {
+class index_page implements renderable, templatable {
     /** @var moodle_url The main course URL */
     public moodle_url $courseurl;
 
     /** @var string The localized "back to course" string */
     public string $backtocourse;
 
-    /** @var stdClass|null The next activity details */
-    public ?stdClass $nextactivity;
+    /** @var string The heading to display */
+    public string $heading;
 
-    /** @var string Pre-rendered widget HTML */
-    public string $widgethtml;
+    /** @var bool Whether the course format uses sections */
+    public bool $usesections;
+
+    /** @var array List of row objects mapping to naas modules */
+    public array $rows;
 
     /**
      * Constructor.
      *
      * @param moodle_url $courseurl
      * @param string $backtocourse
-     * @param stdClass|null $nextactivity
-     * @param string $widgethtml
+     * @param string $heading
+     * @param bool $usesections
+     * @param array $rows
      */
     public function __construct(
         moodle_url $courseurl,
         string $backtocourse,
-        ?stdClass $nextactivity,
-        string $widgethtml
+        string $heading,
+        bool $usesections,
+        array $rows
     ) {
         $this->courseurl = $courseurl;
         $this->backtocourse = $backtocourse;
-        $this->nextactivity = $nextactivity;
-        $this->widgethtml = $widgethtml;
+        $this->heading = $heading;
+        $this->usesections = $usesections;
+        $this->rows = $rows;
     }
 
     /**
@@ -81,19 +87,9 @@ class view_page implements renderable, templatable {
         $context = new stdClass();
         $context->courseurl = $this->courseurl->out(false);
         $context->backtocourse = $this->backtocourse;
-        $context->widgethtml = $this->widgethtml;
-        $context->hasnextactivity = false;
-
-        if (!empty($this->nextactivity)) {
-            $context->hasnextactivity = true;
-            $context->nextactivityname = $this->nextactivity->name;
-
-            // Re-parse the link to a proper moodle_url object to safely append parameters.
-            $nexturl = new moodle_url($this->nextactivity->link);
-            $nexturl->param('forceview', 1);
-            $context->nextactivityurl = $nexturl->out(false);
-        }
-
+        $context->heading = $this->heading;
+        $context->usesections = $this->usesections;
+        $context->rows = $this->rows;
         return $context;
     }
 }

@@ -105,5 +105,5 @@ if (!$completion->is_enabled()) {
 }
 
 $targetstate = COMPLETION_COMPLETE;
-$completion->update_state($cm, $targetstate);
+$completion->update_state($cm, $targetstate, $userid);
 debugging("completion_complete", DEBUG_DEVELOPER);
