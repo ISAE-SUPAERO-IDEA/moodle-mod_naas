@@ -12,13 +12,13 @@
    so we fall back to sensible defaults.
    ----------------------------------------------------------------------- */
 .path-mod-naas {
-    --naas-primary:        var(--primary,       #0f6cbf);
-    --naas-primary-hover:  var(--primary-hover,  #0a4a8f);
-    --naas-primary-light:  var(--primary-light,  #dce9fa);
-    --naas-radius:         6px;
-    --naas-shadow-sm:      0 2px 6px rgba(0, 0, 0, 0.12);
-    --naas-shadow-md:      0 4px 16px rgba(0, 0, 0, 0.15);
-    --naas-transition:     0.18s ease;
+    --naas-primary: var(--primary, #0f6cbf);
+    --naas-primary-hover: var(--primary-hover, #0a4a8f);
+    --naas-primary-light: var(--primary-light, #dce9fa);
+    --naas-radius: 6px;
+    --naas-shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.12);
+    --naas-shadow-md: 0 4px 16px rgba(0, 0, 0, 0.15);
+    --naas-transition: 0.18s ease;
 }
 
 /* -----------------------------------------------------------------------
@@ -56,9 +56,17 @@
 /* -----------------------------------------------------------------------
    Page-level layout helpers used across multiple components.
    ----------------------------------------------------------------------- */
-.path-mod-naas .h-100 { height: 100%; }
-.path-mod-naas .w-100 { width: 100%; }
-.path-mod-naas .word-break { word-break: break-word; }
+.path-mod-naas .h-100 {
+    height: 100%;
+}
+
+.path-mod-naas .w-100 {
+    width: 100%;
+}
+
+.path-mod-naas .word-break {
+    word-break: break-word;
+}
 
 .path-mod-naas .md-layout {
     margin: 0;
