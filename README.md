@@ -55,31 +55,31 @@ The main features of the Nuggets plugin are as follows:
 
 The plugin settings allow an administrator to configure the options and specific access keys for accessing Nuggets via the Moodle platform.
 
-By default, the plugin is configured with open education keys, so that Nuggets with this type of licence can be integrated. 
-To access all the Nuggets available to your school, you need to retrieve the NaaS API keys for your school. You can
-contact `idea.lab@isae-supaero.fr` to get your private keys.
+The username and institute ID default to public Open Education (OER) credentials so openly licensed Nuggets can be searched. The API password is not shipped in the plugin: enter it on the settings page, or set the `NAAS_API_PASSWORD` environment variable. To access all the Nuggets available to your school, retrieve the NaaS API keys for your institute from `idea.lab@isae-supaero.fr`.
 
 
-🛠️ **Access** the Moodle administration page : `Administration > Plugins > Nugget`.
+🛠️ **Access** the Moodle administration page : `Administration > Plugins > Activity modules > Nugget`.
 
 ![setup-naas-plugin](https://t2594656.p.clickup-attachments.com/t2594656/457711f5-b548-4ce7-b483-863b2aaef71c/image.png)
 
-📝 Those parameters allow you to connect to your distribution space on the NaaS platform :
-- `NaaS API access point `
-- `NaaS API user name `
-- `NaaS API institute ID `
-- `NaaS API password `
+📝 Connection parameters:
+- `NaaS API URL`
+- `API username`
+- `API password`
+- `Institute ID`
 
-Other optional parameters are :
-- NaaS CSS : a CSS file to adapt the display of Nuggets from NaaS to your local style.
-- Search filter: a filter limiting the Nuggets that can be integrated.
+Save the form, then use **Test connection** (it always uses the saved values, not unsaved edits).
 
-The NaaS privacy section provides a way to select the personal information that is sent from the Moodle LMS Platform to the NaaS for learning analytics purposes.
-- Learner email: if this checkbox is selected, the learner's email address associated with the Moodle account is communicated to the NaaS platform when he accesses a nugget. 
-- Learner name: if this checkbox is selected, the learner's name associated with the Moodle account is communicated to the NaaS platform when he accesses a nugget.
+Other optional parameters are:
+- Extra CSS for Nugget player: CSS sent to the Nugget player, not the Moodle theme.
+- Catalogue search filter: an NQL query that limits which Nuggets teachers can pick (example: `type:video`).
 
-Anonymous mode: If either name or email is not selected, personal data transfer is globally not allowed, and no personal information is sent to the NaaS infrastructure when the 
-learner access and learns with a nugget.
+The Privacy section controls personal information sent from Moodle to NaaS for learning analytics:
+- Send learner email to NaaS: if selected, the Moodle account email is sent when the learner opens a nugget.
+- Send learner name to NaaS: if selected, the Moodle account name is sent when the learner opens a nugget.
+
+Anonymous mode: if either name or email is not selected, personal data transfer is not allowed, and no personal information is sent to NaaS when the
+learner accesses a nugget.
 
 Then, in any case, when the learner access and interacts with the Digital Nugget, his learning usages (e.g., video views, interaction and results in quizzes, etc.) 
 are collected through learning traces. Nevertheless, depending on the transfer of the learner's email or not, the traces are either anonymous or associated with the learner.

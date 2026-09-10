@@ -25,29 +25,17 @@
 defined('MOODLE_INTERNAL') || die();
 
 if ($hassiteconfig) {
-    // Test connection button.
-    $PAGE->requires->js_call_amd('mod_naas/test_connection', 'init');
-    $link = html_writer::tag(
-        'p',
-        html_writer::link('#', get_string('test_connection', 'naas'), ['class' => 'btn btn-secondary', 'id' => 'testconnection'])
-    );
-    $resultspan = html_writer::div(
-        '',
-        'connection-result',
-        ['id' => 'connection-result']
-    );
-    $settings->add(
-        new admin_setting_heading(
-            'test_connection',
-            get_string('test_connection', 'naas'),
-            get_string('test_connection_information', 'naas') . $link . $resultspan
-        )
-    );
-
-    // NaaS settings.
+    // About.
     $settings->add(new admin_setting_heading(
-        'naas',
-        get_string('naas_settings', 'naas'),
+        'naas/heading_about',
+        get_string('naas_settings_about', 'naas'),
+        get_string('naas_settings_about_information', 'naas')
+    ));
+
+    // Connection.
+    $settings->add(new admin_setting_heading(
+        'naas/heading_connection',
+        get_string('naas_settings_connection', 'naas'),
         get_string('naas_settings_information', 'naas')
     ));
 
@@ -67,6 +55,14 @@ if ($hassiteconfig) {
         PARAM_TEXT
     ));
 
+    $settings->add(new admin_setting_configpasswordunmask(
+        'naas/naas_password',
+        get_string('naas_settings_password', 'naas'),
+        get_string('naas_settings_password_help', 'naas'),
+        '',
+        PARAM_TEXT
+    ));
+
     $settings->add(new admin_setting_configtext(
         'naas/naas_structure_id',
         get_string('naas_settings_structure_id', 'naas'),
@@ -75,54 +71,15 @@ if ($hassiteconfig) {
         PARAM_TEXT
     ));
 
-    $settings->add(new admin_setting_configpasswordunmask(
-        'naas/naas_password',
-        get_string('naas_settings_password', 'naas'),
-        get_string('naas_settings_password_help', 'naas'),
-        'h6teLq3cQangBLFE6qw8',
-        PARAM_TEXT
+    $settings->add(new \mod_naas\admin\test_connection_setting(
+        'naas/test_connection_ui',
+        get_string('test_connection', 'naas'),
+        get_string('test_connection_information', 'naas')
     ));
 
-    $settings->add(new admin_setting_configtext(
-        'naas/naas_timeout',
-        get_string('naas_settings_timeout', 'naas'),
-        get_string('naas_settings_timeout_help', 'naas'),
-        10,
-        PARAM_INT
-    ));
-
-    $settings->add(new admin_setting_configcheckbox(
-        'naas/naas_ssl_noverify',
-        get_string('naas_settings_ssl_noverify', 'naas'),
-        get_string('naas_settings_ssl_noverify_help', 'naas'),
-        0
-    ));
-
-    $settings->add(new admin_setting_configtextarea(
-        'naas/naas_css',
-        get_string('naas_settings_css', 'naas'),
-        get_string('naas_settings_css_help', 'naas'),
-        '',
-        PARAM_TEXT
-    ));
-
-    $settings->add(new admin_setting_configtextarea(
-        'naas/naas_filter',
-        get_string('naas_settings_filter', 'naas'),
-        get_string('naas_settings_filter_help', 'naas'),
-        '',
-        PARAM_TEXT
-    ));
-
-    $settings->add(new admin_setting_configcheckbox(
-        'naas/naas_feedback',
-        get_string('naas_settings_feedback', 'naas'),
-        get_string('naas_settings_feedback_help', 'naas'),
-        1
-    ));
-
+    // Privacy.
     $settings->add(new admin_setting_heading(
-        'naas/privacy',
+        'naas/heading_privacy',
         get_string('naas_settings_privacy', 'naas'),
         get_string('naas_settings_privacy_information', 'naas')
     ));
@@ -139,5 +96,75 @@ if ($hassiteconfig) {
         get_string('naas_settings_privacy_learner_name', 'naas'),
         get_string('naas_settings_privacy_learner_name_help', 'naas'),
         1
+    ));
+
+    // Learner experience.
+    $settings->add(new admin_setting_heading(
+        'naas/heading_learner',
+        get_string('naas_settings_learner', 'naas'),
+        get_string('naas_settings_learner_information', 'naas')
+    ));
+
+    $settings->add(new admin_setting_configcheckbox(
+        'naas/naas_feedback',
+        get_string('naas_settings_feedback', 'naas'),
+        get_string('naas_settings_feedback_help', 'naas'),
+        1
+    ));
+
+    // Catalogue.
+    $settings->add(new admin_setting_heading(
+        'naas/heading_catalogue',
+        get_string('naas_settings_catalogue', 'naas'),
+        get_string('naas_settings_catalogue_information', 'naas')
+    ));
+
+    $settings->add(new admin_setting_configtextarea(
+        'naas/naas_filter',
+        get_string('naas_settings_filter', 'naas'),
+        get_string('naas_settings_filter_help', 'naas'),
+        '',
+        PARAM_TEXT
+    ));
+
+    // Appearance.
+    $settings->add(new admin_setting_heading(
+        'naas/heading_appearance',
+        get_string('naas_settings_appearance', 'naas'),
+        get_string('naas_settings_appearance_information', 'naas')
+    ));
+
+    $settings->add(new admin_setting_configtextarea(
+        'naas/naas_css',
+        get_string('naas_settings_css', 'naas'),
+        get_string('naas_settings_css_help', 'naas'),
+        '',
+        PARAM_TEXT
+    ));
+
+    // Advanced.
+    $advancedinfo = get_string('naas_settings_advanced_information', 'naas');
+    if (!empty(get_config('naas', 'naas_ssl_noverify'))) {
+        $advancedinfo .= "\n\n" . get_string('naas_settings_ssl_noverify_active', 'naas');
+    }
+    $settings->add(new admin_setting_heading(
+        'naas/heading_advanced',
+        get_string('naas_settings_advanced', 'naas'),
+        $advancedinfo
+    ));
+
+    $settings->add(new admin_setting_configtext(
+        'naas/naas_timeout',
+        get_string('naas_settings_timeout', 'naas'),
+        get_string('naas_settings_timeout_help', 'naas'),
+        10,
+        PARAM_INT
+    ));
+
+    $settings->add(new admin_setting_configcheckbox(
+        'naas/naas_ssl_noverify',
+        get_string('naas_settings_ssl_noverify', 'naas'),
+        get_string('naas_settings_ssl_noverify_help', 'naas'),
+        0
     ));
 }
