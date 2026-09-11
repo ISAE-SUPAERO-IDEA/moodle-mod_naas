@@ -146,7 +146,7 @@ class widget implements renderable, templatable {
 
         $data = new stdClass();
         $data->config = json_encode($widgetconfig);
-        $widgetjsurl = new \moodle_url('/mod/naas/assets/vue/naas_widget-2026091102.js');
+        $widgetjsurl = new \moodle_url('/mod/naas/assets/vue/naas_widget-2026091103.js');
         $data->widgetjsurl = $widgetjsurl->out(false);
 
         return $data;

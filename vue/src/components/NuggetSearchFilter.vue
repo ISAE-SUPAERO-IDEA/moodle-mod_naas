@@ -437,11 +437,19 @@ function closeAll() {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 0.75rem;
+  padding-bottom: min(50vh, 420px);
+  overflow: visible;
 }
 
 .filter-column {
   position: relative;
   min-width: 0;
+  overflow: visible;
+  z-index: 1;
+}
+
+.filter-column:has(.filter-pill--open) {
+  z-index: 3;
 }
 
 /* ── Pill button (full-width inside its column) ── */
@@ -529,7 +537,7 @@ function closeAll() {
 .filter-dropdown-list {
   display: flex;
   flex-direction: column;
-  max-height: 240px;
+  max-height: min(50vh, 420px);
   overflow-y: auto;
 }
 

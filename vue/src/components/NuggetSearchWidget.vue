@@ -573,22 +573,23 @@ onMounted(async () => {
   background: rgba(0, 0, 0, 0.35);
   z-index: 1050;
   display: flex;
-  align-items: flex-start;
+  align-items: stretch;
   justify-content: center;
-  padding-top: 60px;
+  padding: 1rem;
 }
 
 /* ── Filters panel ─────────────────────────────────────────────────────── */
 .filters-panel {
   width: 100%;
-  max-width: 900px;
+  max-width: 1100px;
+  height: 100%;
+  max-height: none;
   background: #fff;
   border-radius: 8px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
   display: flex;
   flex-direction: column;
-  max-height: calc(100vh - 80px);
-  overflow: hidden;
+  overflow: visible;
 }
 
 .filters-panel-header {
@@ -624,8 +625,10 @@ onMounted(async () => {
 }
 
 .filters-panel-body {
-  padding: 1.25rem;
-  overflow-y: auto;
+  padding: 1.25rem 1.25rem 2.5rem;
+  overflow: visible;
+  flex: 1 1 auto;
+  min-height: 0;
 }
 
 /* ── Panel slide transition ────────────────────────────────────────────── */
