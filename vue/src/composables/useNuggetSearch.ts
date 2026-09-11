@@ -17,6 +17,9 @@
  * Composable that drives search queries for the NuggetSearchWidget and
  * NuggetSearchFilter components.
  *
+ * Cards are painted as soon as search_nuggets returns. Author/domain names
+ * are filled in afterwards so the grid is not blocked on N+1 vocabulary calls.
+ *
  * @copyright  2024 ISAE-SUPAERO (https://www.isae-supaero.fr/)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -26,6 +29,11 @@ import { useMoodleService } from './useMoodleService'
 import { useNaasConfig } from './useNaasConfig'
 import { useNuggetEnricher } from './useNuggetEnricher'
 import type { Nugget, SearchOptions, SearchResult } from '@/types/nugget.types'
+
+function mergeEnriched(current: Nugget[], enriched: Nugget[]): Nugget[] {
+  const byId = new Map(enriched.map((nugget) => [nugget.nugget_id, nugget]))
+  return current.map((nugget) => byId.get(nugget.nugget_id) ?? nugget)
+}
 
 export function useNuggetSearch(opts: { initialLoading?: boolean } = {}) {
   const service = useMoodleService()
@@ -37,8 +45,10 @@ export function useNuggetSearch(opts: { initialLoading?: boolean } = {}) {
   const loading = ref(opts.initialLoading ?? false)
   const loadingMore = ref(false)
   const error = ref<Error | null>(null)
+  let searchGeneration = 0
 
   async function search(options: SearchOptions, append = false): Promise<SearchResult | null> {
+    const generation = append ? searchGeneration : ++searchGeneration
     try {
       if (append) {
         loadingMore.value = true
@@ -47,21 +57,48 @@ export function useNuggetSearch(opts: { initialLoading?: boolean } = {}) {
       }
       error.value = null
       const result = await service.searchNuggets(options, config.courseId)
-      const items = Array.isArray(result?.items) ? result.items : []
-      const enriched = await enrichMany(items)
-      if (append) {
-        nuggets.value.push(...enriched)
-      } else {
-        nuggets.value = enriched
+      if (generation !== searchGeneration) {
+        return null
       }
-      searchResult.value = { ...result, items: enriched }
+      const items = Array.isArray(result?.items) ? result.items : []
+      if (append) {
+        nuggets.value.push(...items)
+      } else {
+        nuggets.value = items
+      }
+      searchResult.value = { ...result, items }
+      loading.value = false
+      loadingMore.value = false
+
+      void enrichMany(items)
+        .then((enriched) => {
+          if (generation !== searchGeneration) {
+            return
+          }
+          nuggets.value = mergeEnriched(nuggets.value, enriched)
+          if (searchResult.value) {
+            searchResult.value = {
+              ...searchResult.value,
+              items: mergeEnriched(searchResult.value.items, enriched),
+            }
+          }
+        })
+        .catch(() => {
+          // Cards are already visible; vocabulary labels stay as raw keys.
+        })
+
       return searchResult.value
     } catch (e) {
+      if (generation !== searchGeneration) {
+        return null
+      }
       error.value = e as Error
       return null
     } finally {
-      loading.value = false
-      loadingMore.value = false
+      if (generation === searchGeneration) {
+        loading.value = false
+        loadingMore.value = false
+      }
     }
   }
 

@@ -56,6 +56,7 @@ class naas_widget {
                 "error_generic_user_message" => get_string("error:generic_user_message", "naas"),
                 "nugget_search_here" => get_string('nugget_search_here', 'naas'),
                 "nugget_search_no_result" => get_string('nugget_search_no_result', 'naas'),
+                "nugget_search_collecting" => get_string('nugget_search_collecting', 'naas'),
                 "search" => get_string('nugget_search', 'naas'),
                 "click_to_replace" => get_string('click_to_replace', 'naas'),
                 "clear_filters" => get_string('clear_filters', 'naas'),

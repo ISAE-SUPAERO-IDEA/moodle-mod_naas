@@ -78,6 +78,30 @@ replace(
 )
 
 replace(
+  resolve(ROOT, 'amd/build/widget_init.min.js'),
+  /naas_widget-\d{10}\.js/g,
+  `naas_widget-${newVersion}.js`
+)
+
+replace(
+  resolve(ROOT, 'classes/output/widget.php'),
+  /naas_widget-\d{10}\.js/g,
+  `naas_widget-${newVersion}.js`
+)
+
+replace(
+  resolve(ROOT, 'templates/naas_widget.mustache'),
+  /naas_widget-\d{10}\.js/g,
+  `naas_widget-${newVersion}.js`
+)
+
+replace(
+  resolve(ROOT, 'templates/widget.mustache'),
+  /naas_widget-\d{10}\.js/g,
+  `naas_widget-${newVersion}.js`
+)
+
+replace(
   VERSION_PHP,
   /\$plugin->version\s*=\s*\d{10};/,
   `$plugin->version        = ${newVersion};`

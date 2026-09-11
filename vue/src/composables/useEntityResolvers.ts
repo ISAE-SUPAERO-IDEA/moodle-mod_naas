@@ -24,14 +24,26 @@
 import { useMoodleService } from './useMoodleService'
 import { useNaasConfig } from './useNaasConfig'
 
+function stringField(entity: Record<string, unknown> | null | undefined, keys: string[]): string {
+  if (!entity) return ''
+  for (const key of keys) {
+    const value = entity[key]
+    if (typeof value === 'string' && value.trim()) {
+      return value.trim()
+    }
+  }
+  return ''
+}
+
 export function useEntityResolvers() {
   const service = useMoodleService()
   const config = useNaasConfig()
 
   async function getDomainLabel(key: string): Promise<string> {
     try {
-      const domain = await service.getDomain(key, config.courseId)
-      return domain?.label ?? key
+      const domain = await service.getDomain(key, config.courseId) as Record<string, unknown> | null
+      const label = stringField(domain, ['label', 'name', 'title'])
+      return label || key
     } catch {
       return key
     }
@@ -39,20 +51,25 @@ export function useEntityResolvers() {
 
   async function getStructureAcronym(key: string): Promise<string> {
     try {
-      const structure = await service.getStructure(key, config.courseId)
-      return structure?.acronym || structure?.name || key
+      const structure = await service.getStructure(key, config.courseId) as Record<string, unknown> | null
+      const label = stringField(structure, ['acronym', 'name', 'label', 'title'])
+      return label || key
     } catch {
       return key
     }
   }
 
-  async function getPersonName(email: string): Promise<string> {
+  async function getPersonName(personKey: string): Promise<string> {
     try {
-      const person = await service.getPerson(email, config.courseId)
-      if (!person || (!person.firstname && !person.lastname)) return ''
-      return `${person.firstname} ${person.lastname}`.toUpperCase()
+      const person = await service.getPerson(personKey, config.courseId) as Record<string, unknown> | null
+      const first = stringField(person, ['firstname', 'first_name', 'firstName'])
+      const last = stringField(person, ['lastname', 'last_name', 'lastName'])
+      const full = `${first} ${last}`.trim()
+      if (full) return full.toUpperCase()
+      const name = stringField(person, ['name', 'fullname', 'full_name'])
+      return name ? name.toUpperCase() : personKey
     } catch {
-      return email
+      return personKey
     }
   }
 

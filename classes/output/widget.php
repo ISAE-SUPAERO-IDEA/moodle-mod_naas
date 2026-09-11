@@ -84,6 +84,7 @@ class widget implements renderable, templatable {
                 "error_nugget_not_found" => get_string("error_nugget_not_found", "naas"),
                 "nugget_search_here" => get_string('nugget_search_here', 'naas'),
                 "nugget_search_no_result" => get_string('nugget_search_no_result', 'naas'),
+                "nugget_search_collecting" => get_string('nugget_search_collecting', 'naas'),
                 "search" => get_string('nugget_search', 'naas'),
                 "click_to_replace" => get_string('click_to_replace', 'naas'),
                 "clear_filters" => get_string('clear_filters', 'naas'),
@@ -145,7 +146,7 @@ class widget implements renderable, templatable {
 
         $data = new stdClass();
         $data->config = json_encode($widgetconfig);
-        $widgetjsurl = new \moodle_url('/mod/naas/assets/vue/naas_widget-2026030300.js');
+        $widgetjsurl = new \moodle_url('/mod/naas/assets/vue/naas_widget-2026091102.js');
         $data->widgetjsurl = $widgetjsurl->out(false);
 
         return $data;

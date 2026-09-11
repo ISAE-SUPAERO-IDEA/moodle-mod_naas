@@ -24,7 +24,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version        = 2026091000;                  // The current module version (Date: YYYYMMDDXX).
+$plugin->version        = 2026091102;                  // The current module version (Date: YYYYMMDDXX).
 $plugin->release        = "3.0.0";                     // Vue 3 widget.
 $plugin->requires       = 2022041900;                  // Requires this Moodle version.
 $plugin->component      = 'mod_naas';                  // Full name of the plugin (used for diagnostics).

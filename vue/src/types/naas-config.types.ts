@@ -57,6 +57,7 @@ export interface NaasLabelsMetadata {
 export interface NaasLabels {
   nugget_search_here: string
   nugget_search_no_result: string
+  nugget_search_collecting?: string
   search: string
   click_to_replace: string
   clear_filters: string

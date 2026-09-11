@@ -26,6 +26,7 @@ import type { Nugget, SearchResult, XapiParams } from '../types/nugget.types'
 import type { Person } from '../types/person.types'
 import type { Domain } from '../types/domain.types'
 import type { Structure } from '../types/structure.types'
+import { unwrapNaasPayload } from './unwrapNaasPayload'
 
 // Moodle's RequireJS loader — (deps, callback) — differs from Node's require(id).
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -61,10 +62,7 @@ async function callWebservice<T>(
     require(['core/ajax'], (ajax: { call: (calls: unknown[]) => Promise<unknown>[] }) => {
       ajax.call([{ methodname, args }])[0]
         .then((response) => {
-          const payload =
-            typeof response === 'string'
-              ? (JSON.parse(response).payload as T)
-              : (response as T)
+          const payload = unwrapNaasPayload<T>(response)
           if (useCache) cache.set(key, payload)
           resolve(payload)
         })
