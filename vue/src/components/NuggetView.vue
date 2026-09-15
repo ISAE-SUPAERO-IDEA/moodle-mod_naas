@@ -33,53 +33,32 @@
     </div>
 
     <div id="nugget-info-button">
-      <div>
-        <a
-          v-if="aboutButton"
-          href="javascript:;"
-          class="btn btn-primary"
-          @click="showAbout = true"
+      <a
+        v-if="aboutButton"
+        href="javascript:;"
+        class="btn btn-primary"
+        @click="showAbout = true"
+      >
+        {{ config.labels.about }}
+      </a>
+
+      <select
+        v-if="nugget"
+        class="language-select"
+        :value="language"
+        @change="onLanguageChange"
+      >
+        <option :value="nugget.language">
+          {{ config.labels.metadata[nugget.language] }}
+        </option>
+        <option
+          v-for="item in nugget.multilanguages"
+          :key="item.language"
+          :value="item.language"
         >
-          {{ config.labels.about }}
-        </a>
-        <select
-          v-if="nugget"
-          class="language-select"
-          :value="language"
-          @change="language = ($event.target as HTMLSelectElement).value"
-        >
-          <option :value="nugget.language">
-            {{ config.labels.metadata[nugget.language] }}
-          </option>
-          <option
-            v-for="item in nugget.multilanguages"
-            :key="item.language"
-            :value="item.language"
-          >
-            {{ config.labels.about }}
-          </a>
-          <select
-            class="language-select"
-            @change="language = $event.target.value"
-          >
-            <option selected :value="this.nugget.language">
-              {{ config.labels.metadata[nugget.language] }}
-            </option>
-            <option
-              v-for="item in this.nugget.multilanguages"
-              :key="item.language"
-              :value="item.language"
-            >
-              {{ config.labels.metadata[item.language] }}
-            </option>
-          </select>
-        </div>
-        <NuggetAboutModal
-          :visible="aboutModal"
-          :nugget="nugget"
-          @close="aboutModal = false"
-        />
-      </div>
+          {{ config.labels.metadata[item.language] }}
+        </option>
+      </select>
 
       <NuggetAboutModal
         v-if="nugget"
@@ -202,6 +181,10 @@ watch(nugget, (loaded) => {
     }, 500)
   })
 })
+
+function onLanguageChange(event: Event) {
+  language.value = (event.target as HTMLSelectElement).value
+}
 
 function complete() {
   if (!nugget.value) return
