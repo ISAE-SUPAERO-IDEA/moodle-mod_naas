@@ -15,439 +15,591 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Nugget search filter component for NAAS Vue application.
+ * Facet filter panel — renders aggregation buckets returned by the search API.
  *
- * @copyright  2019 ISAE-SUPAERO (https://www.isae-supaero.fr/)
+ * @copyright  2024 ISAE-SUPAERO (https://www.isae-supaero.fr/)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 -->
 <template>
-  <div class="filters" ref="filters">
-    <img
-      v-show="loading"
-      v-bind:src="'../mod/naas/assets/loading.gif'"
-      width="35"
-      height="35"
-    />
-    <div v-show="has_aggregations" class="filters-inner">
-      <div
-        v-for="(aggregation, aggregation_key) in aggregations"
-        :v-if="aggregation.buckets"
-        :key="aggregation_key"
+  <div class="filter-bar" v-click-outside="closeAll">
+    <div class="filter-bar-header">
+      <h3 class="filter-title">{{ config.labels.metadata.filters ?? 'Filters' }}</h3>
+      <button
+        v-show="hasFilters"
+        type="button"
+        class="filter-clear-btn"
+        @click="clearFilters"
       >
-        <a
-          href="javascript:;"
-          class="aggregation-title"
-          @click="switch_aggregation_visibility(aggregation)"
-          data-toggle="dropdown"
-        >
-          <h6 class="filters-title">
-            {{ config.labels.metadata[aggregation_key] }}
-            <i v-if="aggregation.visible" class="icon fa fa-arrow-down"></i>
-            <i v-else class="icon fa fa-arrow-right"></i>
-          </h6>
-        </a>
+        {{ config.labels.clear_filters }}
+      </button>
+    </div>
 
-        <div :id="$id(aggregation_key)" v-show="aggregation.visible">
-          <div v-if="aggregation_key == 'related_domains'" id="related_domains">
-            <span v-for="bucket in related_domains" :key="bucket.key">
+    <!-- 3-column grid: one column per aggregation + skeleton placeholders while loading -->
+    <div class="filter-columns">
+      <!-- Skeleton columns while loading -->
+      <template v-if="loading && !hasAggregations">
+        <div v-for="n in 3" :key="`skel-col-${n}`" class="filter-column">
+          <FilterSkeleton />
+        </div>
+      </template>
+
+      <!-- Aggregation columns -->
+      <div
+        v-for="(aggregation, aggKey) in aggregations"
+        :key="aggKey"
+        class="filter-column"
+      >
+        <button
+          type="button"
+          class="filter-pill"
+          :class="{ 'filter-pill--active': hasSelected(aggregation), 'filter-pill--open': aggregation.visible }"
+          @click="toggle(aggKey)"
+        >
+          {{ config.labels.metadata[aggKey] ?? aggKey }}
+          <span v-if="hasSelected(aggregation)" class="filter-pill-count">
+            {{ selectedCount(aggregation) }}
+          </span>
+          <i class="filter-pill-chevron icon fa" :class="aggregation.visible ? 'fa-chevron-up' : 'fa-chevron-down'" />
+        </button>
+
+        <transition name="dropdown-fade">
+        <div v-show="aggregation.visible" class="filter-dropdown">
+          <!-- Related domains -->
+          <div v-if="aggKey === 'related_domains'">
+            <span v-for="bucket in relatedDomains" :key="bucket.key">
               <RelatedDomain
-                ref="relatedDomain"
                 :bucket="bucket"
-                :truncate_mobile_mode="truncate_mobile_mode"
-                :bucket_class="bucket_class"
-                @bucket-click="bucket_click"
-              ></RelatedDomain>
+                @bucket-click="switchFacet('related_domains', $event)"
+              />
             </span>
           </div>
-          <span
-            v-for="(bucket, id, index) in aggregation.buckets"
-            :key="bucket.key"
-          >
-            <a
-              href="javascript:;"
-              v-if="aggregation_key != 'related_domains'"
-              :class="{
-                'hide-authors': aggregation_key == 'authors' && index > 5,
-              }"
+
+          <!-- All other aggregations -->
+          <div v-else class="filter-dropdown-list">
+            <label
+              v-for="(bucket, _idx) in aggregation.buckets"
+              :key="bucket.key"
+              class="filter-option"
+              :class="{ 'filter-option--hidden': aggKey === 'authors' && Number(_idx) > 5 && !aggregation.showAll }"
             >
-              <NuggetBadge
-                  :selected="bucket.selected"
-                  :text="bucket.caption"
-                  :help="bucket.help"
-                  @click="switch_facet(aggregation_key, bucket.query_value)"  />
-            </a>
-          </span>
-          <div>
-            <a
-              href="javascript:;"
-              id="show-more-authors"
-              class="clear-filters show-more"
-              v-if="aggregation_key == 'authors' && has_more(aggregation)"
-              @click="show_more_bucket()"
+              <input
+                type="checkbox"
+                :checked="bucket.selected"
+                @change="switchFacet(aggKey, bucket.query_value ?? '')"
+              />
+              <span>{{ bucket.caption }}</span>
+            </label>
+
+            <button
+              v-if="aggKey === 'authors' && hasMore(aggregation)"
+              type="button"
+              class="show-more-btn"
+              @click="aggregation.showAll = !aggregation.showAll"
             >
-              + {{ config.labels.show_more_authors }}
-            </a>
+              {{ aggregation.showAll ? `− ${config.labels.hide_authors}` : `+ ${config.labels.show_more_authors}` }}
+            </button>
           </div>
         </div>
-      </div>
-      <div class="clear-filters" v-show="has_filters">
-        <a
-          href="javascript:;"
-          @click="clear_filters()"
-          class="btn btn-primary btn-small"
-        >
-          {{ config.labels.clear_filters }}
-        </a>
+        </transition>
       </div>
     </div>
   </div>
 </template>
-<script>
-// import Loading from "./Loading";
-import RelatedDomain from "./RelatedDomain";
 
-import utils from "@/utils";
-import NuggetBadge from "./NuggetBadge.vue";
-// Useful for aggregation display order
-let aggregations_definitions = [
-  {
-    name: "related_domains",
-    bucket_key_to_ui(bucket_key, component) {
-      return component.getDomainLabel(bucket_key);
-    },
-  },
-  {
-    name: "level",
-    bucket_key_to_ui: (bucket_key, component) => component.$t(`${bucket_key}`),
-  },
-  {
-    name: "language",
-    bucket_key_to_ui: (bucket_key, component) => component.$t(`${bucket_key}`),
-  },
-  "tags",
-  {
-    name: "producers",
-    aggregation_key: "producers",
-    bucket_key_to_query: (bucket_key) => bucket_key,
-    bucket_key_to_ui: (bucket_key, component) =>
-      component.getStructureAcronym(bucket_key),
-  },
-  {
-    name: "authors",
-    aggregation_key: "authors",
-    bucket_key_to_query: (bucket_key) => bucket_key,
-    bucket_key_to_ui: (bucket_key, component) =>
-      component.getPersonName(bucket_key),
-  },
-  "references",
-  {
-    name: "type",
-    bucket_key_to_ui: (bucket_key, component) => component.$t(`${bucket_key}`),
-  },
-];
-// Setting default values for simple aggregations
-for (let i in aggregations_definitions) {
-  let def = aggregations_definitions[i];
-  if (typeof def === "string" || def instanceof String) def = { name: def };
-  def.aggregation_key = def.aggregation_key || def.name;
-  def.bucket_key_filter = def.bucket_key_filter || ((bucket_key) => bucket_key);
-  def.bucket_key_to_ui = def.bucket_key_to_ui || ((bucket_key) => bucket_key);
-  def.bucket_key_to_ui_help = def.bucket_key_to_ui_help || def.bucket_key_to_ui;
-  def.bucket_key_to_query =
-    def.bucket_key_to_query || ((bucket_key) => bucket_key);
-  aggregations_definitions[i] = def;
+<script setup lang="ts">
+import { ref, computed, watch } from 'vue'
+import RelatedDomain from './RelatedDomain.vue'
+import FilterSkeleton from './FilterSkeleton.vue'
+import { useNaasConfig } from '@/composables/useNaasConfig'
+import { useNuggetSearch } from '@/composables/useNuggetSearch'
+import { useEntityResolvers } from '@/composables/useEntityResolvers'
+import type { SearchOptions, AggregationBucket } from '@/types/nugget.types'
+
+interface AggregationUI {
+  buckets: Record<string, AggregationBucket>
+  visible: boolean
+  showAll: boolean
+  name: string
 }
 
-export default {
-  name: "NuggetSearchFilter",
-  props: ["query"],
-  components: {
-    // Loading,
-    RelatedDomain,
-    NuggetBadge,
+type ElWithHandler = HTMLElement & { __coh__: (e: Event) => void }
+
+const vClickOutside = {
+  mounted(el: HTMLElement, binding: { value: () => void }) {
+    const handler = (e: Event) => {
+      if (!el.contains(e.target as Node)) binding.value()
+    }
+    ;(el as ElWithHandler).__coh__ = handler
+    document.addEventListener('click', handler)
   },
-  data() {
-    return {
-      state: {},
-      aggregations: {},
-      related_domains: {},
-      nuggets: undefined,
-      filters_collapse: true,
-      loading: false,
-    };
+  unmounted(el: HTMLElement) {
+    document.removeEventListener('click', (el as ElWithHandler).__coh__)
   },
-  watch: {
-    query: {
-      handler() {
-        this.load();
-      },
-      deep: true
+}
+
+const props = defineProps<{
+  query: SearchOptions | null
+  activeFilters: Record<string, string[]>
+}>()
+const emit = defineEmits<{
+  (e: 'filters', filters: Record<string, string[]>, captions: Record<string, string>): void
+}>()
+
+const config = useNaasConfig()
+const { search } = useNuggetSearch()
+const { getDomainLabel, getStructureAcronym, getPersonName } = useEntityResolvers()
+
+const loading = ref(true)
+const aggregations = ref<Record<string, AggregationUI>>({})
+const relatedDomains = ref<AggregationBucket[]>([])
+
+// Ordered display definition for aggregation panels.
+type AggDef = {
+  name: string
+  aggregation_key: string
+  bucket_key_to_ui: (key: string) => Promise<string>
+  bucket_key_to_query: (key: string) => string
+}
+
+const aggDefinitions: AggDef[] = [
+  {
+    name: 'related_domains',
+    aggregation_key: 'related_domains',
+    bucket_key_to_ui: getDomainLabel,
+    bucket_key_to_query: (k) => k,
+  },
+  {
+    name: 'level',
+    aggregation_key: 'level',
+    bucket_key_to_ui: async (k) => config.labels.metadata[k] ?? k,
+    bucket_key_to_query: (k) => k,
+  },
+  {
+    name: 'language',
+    aggregation_key: 'language',
+    bucket_key_to_ui: async (k) => config.labels.metadata[k] ?? k,
+    bucket_key_to_query: (k) => k,
+  },
+  {
+    name: 'license',
+    aggregation_key: '__license_static',
+    bucket_key_to_ui: async (k) => config.labels.metadata[`license_${k}`] ?? k,
+    bucket_key_to_query: (k) => k,
+  },
+  {
+    name: 'is_public',
+    aggregation_key: '__is_public_static',
+    bucket_key_to_ui: async (k) => {
+      const mapped = k === 'true' ? 'public' : (k === 'false' ? 'private' : k);
+      return config.labels.metadata[mapped] ?? k;
+    },
+    bucket_key_to_query: (k) => k,
+  },
+  {
+    name: 'tags',
+    aggregation_key: 'tags',
+    bucket_key_to_ui: async (k) => k,
+    bucket_key_to_query: (k) => k,
+  },
+  {
+    name: 'producers',
+    aggregation_key: 'producers',
+    bucket_key_to_ui: getStructureAcronym,
+    bucket_key_to_query: (k) => k,
+  },
+  {
+    name: 'authors',
+    aggregation_key: 'authors',
+    bucket_key_to_ui: getPersonName,
+    bucket_key_to_query: (k) => k,
+  },
+  {
+    name: 'references',
+    aggregation_key: 'references',
+    bucket_key_to_ui: async (k) => k,
+    bucket_key_to_query: (k) => k,
+  },
+  {
+    name: 'type',
+    aggregation_key: 'type',
+    bucket_key_to_ui: async (k) => config.labels.metadata[k] ?? k,
+    bucket_key_to_query: (k) => k,
+  },
+]
+
+watch(
+  () => props.query,
+  async (q) => {
+    if (!q) { aggregations.value = {}; return }
+    await load(q)
+  },
+  { deep: true, immediate: true }
+)
+
+// When the widget removes a chip, sync bucket selected state from the prop.
+watch(
+  () => props.activeFilters,
+  (active) => {
+    for (const [aggKey, agg] of Object.entries(aggregations.value)) {
+      for (const [bucketKey, bucket] of Object.entries(agg.buckets)) {
+        bucket.selected = (active[aggKey] ?? []).includes(bucketKey)
+      }
     }
   },
-  mounted() {
-    this.load();
-  },
-  methods: {
-    truncate_mobile_mode(text, size) {
-      return utils.truncate(text, size, "...");
-    },
-    async load() {
-      if (this.query) {
-        this.proxy("mod_naas_search_nuggets",  { searchOptions: this.query, courseId: this.config.courseId })
-            .then(async (payload) => {
-          if (payload) this.loading = true;
-          await this.handle_aggregations(payload.aggregations);
-          this.loading = false;
-        })
-            .catch(async () => {
-              this.aggregations = {};
-            });
-      } else {
-        this.aggregations = {};
-      }
-    },
-    // Updates aggregation data from response
-    async handle_aggregations(network_aggregations) {
-      if (network_aggregations) {
-        let aggregations = Object.assign({});
-        let aggregations_to_sort = [];
-        let j = 1;
-        let related_domains_list = Object.assign({});
-        for (let i in aggregations_definitions) {
-          // going through expected aggregations
-          let aggregation_definition = aggregations_definitions[i];
-          let aggregation_key = aggregation_definition.aggregation_key;
-          let name = aggregation_definition.name;
-          if (network_aggregations[aggregation_key]) {
-            let state_buckets = network_aggregations[aggregation_key].buckets;
-            // add bucket only if it has content
-            if (state_buckets.length > 0) {
-              let old_aggregation = this.aggregations[name];
-              // Aggregations are not visible by default on smaller devices
-              let visible = true;
-              if (old_aggregation) visible = old_aggregation.visible;
-              aggregations[name] = aggregations[name] || {
-                buckets: {},
-                visible,
-                name: aggregation_definition.name,
-              };
-              aggregations[name].id = j;
-              j = j + 1;
-              let aggregation_array = [];
-              // Convert all buckets into data structures adapted to the UI
-              for (let item_key in state_buckets) {
-                let state_bucket = state_buckets[item_key];
-                if (
-                  aggregation_definition.bucket_key_filter(
-                    state_bucket.key,
-                    this
-                  )
-                ) {
-                  // Bucket is not selected by default
-                  state_bucket.selected = false;
-                  // Convert key to UI readable string and add document count
-                  state_bucket.caption =
-                    await aggregation_definition.bucket_key_to_ui(
-                      state_bucket.key,
-                      this
-                    );
-                  state_bucket.caption = `${state_bucket.caption} (${state_bucket.docCount})`;
-                  // Convert key to a help text
-                  state_bucket.help =
-                    await aggregation_definition.bucket_key_to_ui_help(
-                      state_bucket.key,
-                      this
-                    );
-                  // Convert key to query key (for actual search)
-                  state_bucket.query_value =
-                    aggregation_definition.bucket_key_to_query(
-                      state_bucket.key,
-                      this
-                    );
-                  // Sort with children for the tree view
-                  if (name == "related_domains")
-                    this.create_children(related_domains_list, state_bucket, 2);
+  { deep: true }
+)
 
-                  aggregation_array.push(state_bucket);
-                }
-              }
-              aggregations_to_sort[name] = aggregation_array;
-            }
-          }
-        }
+async function load(query: SearchOptions) {
+  loading.value = true
+  try {
+    const result = await search(query)
+    if (!result) return
+    await handleAggregations(result.aggregations)
+  } catch {
+    aggregations.value = {}
+  } finally {
+    loading.value = false
+  }
+}
 
-        // Sort the aggregations alphabetically
-        for (let aggregation_title in aggregations_to_sort) {
-          let sorted_aggregation = aggregations_to_sort[aggregation_title].sort(
-            (a, b) => {
-              if (a.caption < b.caption) return -1;
-              if (a.caption > b.caption) return 1;
-              return 0;
-            }
-          );
-          for (let index in sorted_aggregation)
-            aggregations[aggregation_title].buckets[
-              sorted_aggregation[index].key
-            ] = sorted_aggregation[index];
-        }
+async function handleAggregations(
+  networkAgg: Record<string, { buckets: Array<{ key: string; docCount: number }> }>
+) {
+  const localAgg = { ...networkAgg }
+  if (!localAgg['__license_static']) {
+    localAgg['__license_static'] = {
+      buckets: [
+        { key: '1', docCount: 0 },
+        { key: '2', docCount: 0 },
+        { key: '3', docCount: 0 },
+        { key: '4', docCount: 0 }
+      ]
+    }
+  }
+  if (!localAgg['__is_public_static']) {
+    localAgg['__is_public_static'] = {
+      buckets: [
+        { key: 'true', docCount: 0 },
+        { key: 'false', docCount: 0 }
+      ]
+    }
+  }
 
-        // Sort the field of study alphabetically
-        this.related_domains = Object.values(related_domains_list).sort(
-          (a, b) => {
-            if (a.caption < b.caption) return -1;
-            else if (a.caption > b.caption) return 1;
-            else return 0;
-          }
-        );
+  const newAggs: Record<string, AggregationUI> = {}
+  const newRelatedDomains: Record<string, AggregationBucket> = {}
 
-        this.aggregations = aggregations;
-      }
-    },
-    create_children(related_domains_list, state_bucket, index) {
-      if (
-        typeof related_domains_list[state_bucket.key.slice(0, index)] ===
-        "undefined"
-      ) {
-        // key not exist
-        related_domains_list[state_bucket.key] = state_bucket;
-        related_domains_list[state_bucket.key]["children"] = {};
-      } else {
-        // key exist so can create children inside this key
-        this.create_children(
-          related_domains_list[state_bucket.key.slice(0, index)]["children"],
-          state_bucket,
-          index + 1
-        );
-      }
-    },
-    bucket_click(bucket_key) {
-      this.switch_facet("related_domains", bucket_key);
-    },
-    facet_exists(aggregation_key, bucket_key) {
-      return (
-        this.aggregations[aggregation_key] !== undefined &&
-        this.aggregations[aggregation_key].buckets[bucket_key] !== undefined
-      );
-    },
-    get_facet_selected(aggregation_key, bucket_key) {
-      if (this.facet_exists(aggregation_key, bucket_key)) {
-        return this.aggregations[aggregation_key].buckets[bucket_key].selected;
-      }
-      return false;
-    },
-    set_facet_selected(aggregation_key, bucket_key, selected) {
-      if (this.facet_exists(aggregation_key, bucket_key)) {
-        if (this.get_facet_selected(aggregation_key, bucket_key) != selected) {
-          this.aggregations[aggregation_key].buckets[bucket_key].selected =
-            selected;
-          this.aggregations = Object.assign({}, this.aggregations);
-        }
-      }
-    },
-    switch_facet(aggregation_key, bucket_key) {
-      // Toogle the value of this bucket
-      this.set_facet_selected(
-        aggregation_key,
-        bucket_key,
-        !this.get_facet_selected(aggregation_key, bucket_key)
-      );
-      /*
-      // Unselect all other bucket of this aggregation
-      if (this.aggregations[aggregation_key]) {
-        for (let other_bucket_key in this.aggregations[aggregation_key]
-          .buckets) {
-          if (bucket_key != other_bucket_key) {
-            // this.set_facet_selected(aggregation_key, other_bucket_key, false);
-          }
-        }
-      }
-      */
-      this.$emit("filters", this.get_extra_params());
-    },
-    // Synchronize navigation with UI selection
-    get_extra_params() {
-      let query = {};
-      for (let aggregation_key in this.aggregations) {
-        for (let item_key in this.aggregations[aggregation_key].buckets) {
-          let item = this.aggregations[aggregation_key].buckets[item_key];
-          if (item.selected) {
-            query[aggregation_key] = query[aggregation_key] || [];
-            query[aggregation_key].push(item.key);
-          }
-        }
-      }
-      return query;
-    },
-    bucket_class(bucket) {
-      let mode = bucket.selected ? "primary" : "default";
-      let key = `badge-${mode}`;
-      let clazz = {};
-      clazz[key] = true;
-      return clazz;
-    },
-    clear_filters() {
-      // Helper function to recursively collapse children
-      const collapseChildren = (relatedDomains) => {
-        relatedDomains.forEach((relatedDomain) => {
-          relatedDomain.showChildren = false;
-          if (relatedDomain.$children.length > 0) {
-            collapseChildren(relatedDomain.$children);
-          }
-        });
-      };
-      // Find the root level RelatedDomain components and collapse their children
-      const rootRelatedDomains = this.$refs.relatedDomain;
-      collapseChildren(rootRelatedDomains);
+  for (const def of aggDefinitions) {
+    const raw = localAgg[def.aggregation_key]
+    if (!raw?.buckets?.length) continue
 
-      // Unselect all buckets in all aggregations
-      for (let aggregation_key in this.aggregations) {
-        for (let bucket_key in this.aggregations[aggregation_key].buckets) {
-          this.set_facet_selected(aggregation_key, bucket_key, false);
-        }
-      }
-      this.$emit("filters", this.get_extra_params());
-    },
-    switch_aggregation_visibility(aggregation) {
-      aggregation.visible = !aggregation.visible;
-      this.aggregations = Object.assign({}, this.aggregations);
-    },
-    has_more(aggregation) {
-      return Object.keys(aggregation["buckets"]).length > 5;
-    },
-    show_more_bucket() {
-      let hide_button = document.getElementsByClassName("hide-authors");
-      let is_visible = hide_button[0].style.display === "inline";
+    const oldVisible = aggregations.value[def.name]?.visible ?? false
+    const oldShowAll = aggregations.value[def.name]?.showAll ?? false
+    newAggs[def.name] = { buckets: {}, visible: oldVisible, showAll: oldShowAll, name: def.name }
 
-      for (let i = 0; i < hide_button.length; i++) {
-        if (is_visible) {
-          hide_button[i].style.display = "none";
-          document.getElementById("show-more-authors").innerHTML =
-            "+ " + this.config.labels.show_more_authors;
-        } else {
-          hide_button[i].style.display = "inline";
-          document.getElementById("show-more-authors").innerHTML =
-            "- " + this.config.labels.hide_authors;
-        }
+    const bucketsWithCaptions = await Promise.all(
+      raw.buckets.map(async (b) => {
+        const caption = await def.bucket_key_to_ui(b.key)
+        return {
+          ...b,
+          selected: (props.activeFilters[def.name] ?? []).includes(b.key),
+          caption: `${caption} (${b.docCount})`,
+          help: caption,
+          query_value: def.bucket_key_to_query(b.key),
+          children: {} as Record<string, AggregationBucket>,
+        } as AggregationBucket
+      })
+    )
+
+    const sorted = [...bucketsWithCaptions].sort((a, b) =>
+      (a.caption ?? '').localeCompare(b.caption ?? '')
+    )
+
+    for (const bucket of sorted) {
+      newAggs[def.name].buckets[bucket.key] = bucket
+      if (def.name === 'related_domains') {
+        createChildren(newRelatedDomains, bucket, 2)
       }
-    },
-  },
-  computed: {
-    has_aggregations() {
-      for (let key in this.aggregations) {
-        if (this.aggregations[key].buckets) return true;
+    }
+  }
+
+  relatedDomains.value = Object.values(newRelatedDomains).sort((a, b) =>
+    (a.caption ?? '').localeCompare(b.caption ?? '')
+  )
+  aggregations.value = newAggs
+}
+
+function createChildren(
+  map: Record<string, AggregationBucket>,
+  bucket: AggregationBucket,
+  index: number
+) {
+  const parentKey = bucket.key.slice(0, index)
+  if (!map[parentKey]) {
+    map[bucket.key] = { ...bucket, children: {} }
+  } else {
+    createChildren(map[parentKey].children!, bucket, index + 1)
+  }
+}
+
+function switchFacet(aggKey: string, bucketKey: string) {
+  const agg = aggregations.value[aggKey]
+  if (!agg?.buckets[bucketKey]) return
+  agg.buckets[bucketKey].selected = !agg.buckets[bucketKey].selected
+  const { filters, captions } = getExtraParams()
+  emit('filters', filters, captions)
+}
+
+function getExtraParams(): { filters: Record<string, string[]>; captions: Record<string, string> } {
+  const filters: Record<string, string[]> = {}
+  const captions: Record<string, string> = {}
+  for (const [aggKey, agg] of Object.entries(aggregations.value)) {
+    for (const bucket of Object.values(agg.buckets)) {
+      if (bucket.selected) {
+        filters[aggKey] = [...(filters[aggKey] ?? []), bucket.key]
+        captions[bucket.key] = bucket.help ?? bucket.caption ?? bucket.key
       }
-      return false;
-    },
-    has_filters() {
-      for (let aggregation_key in this.aggregations) {
-        for (let bucket_key in this.aggregations[aggregation_key].buckets) {
-          if (this.aggregations[aggregation_key].buckets[bucket_key].selected)
-            return true;
-        }
-      }
-      return false;
-    },
-  },
-};
+    }
+  }
+  return { filters, captions }
+}
+
+function clearFilters() {
+  for (const agg of Object.values(aggregations.value)) {
+    for (const bucket of Object.values(agg.buckets)) {
+      bucket.selected = false
+    }
+  }
+  relatedDomains.value = relatedDomains.value.map((d) => ({ ...d, selected: false }))
+  emit('filters', {}, {})
+}
+
+const hasAggregations = computed(() =>
+  Object.values(aggregations.value).some((a) => Object.keys(a.buckets).length > 0)
+)
+
+const hasFilters = computed(() =>
+  Object.values(aggregations.value).some((a) =>
+    Object.values(a.buckets).some((b) => b.selected)
+  )
+)
+
+function hasMore(agg: AggregationUI): boolean {
+  return Object.keys(agg.buckets).length > 5
+}
+
+function hasSelected(agg: AggregationUI): boolean {
+  return Object.values(agg.buckets).some((b) => b.selected)
+}
+
+function selectedCount(agg: AggregationUI): number {
+  return Object.values(agg.buckets).filter((b) => b.selected).length
+}
+
+function toggle(aggKey: string) {
+  const opening = !aggregations.value[aggKey].visible
+  for (const key of Object.keys(aggregations.value)) {
+    aggregations.value[key].visible = false
+  }
+  if (opening) aggregations.value[aggKey].visible = true
+}
+
+function closeAll() {
+  for (const key of Object.keys(aggregations.value)) {
+    aggregations.value[key].visible = false
+  }
+}
 </script>
+
+<style scoped>
+/* ── Bar wrapper ── */
+.filter-bar {
+  width: 100%;
+  margin-bottom: 1.25rem;
+}
+
+.filter-bar-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.filter-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--naas-text, #1f2937);
+}
+
+/* ── 3-column grid ── */
+.filter-columns {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+}
+
+.filter-column {
+  position: relative;
+  min-width: 0;
+}
+
+/* ── Pill button (full-width inside its column) ── */
+.filter-pill {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 0.35rem;
+  padding: 0.4rem 0.75rem;
+  border: 1.5px solid var(--naas-border, #dee2e6);
+  border-radius: var(--naas-radius, 8px);
+  background: var(--naas-surface, #fff);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--naas-text, #1f2937);
+  cursor: pointer;
+  transition: border-color var(--naas-transition, 0.18s ease),
+              background   var(--naas-transition, 0.18s ease),
+              color        var(--naas-transition, 0.18s ease);
+  line-height: 1.4;
+  text-align: left;
+}
+
+.filter-pill:hover {
+  border-color: var(--naas-primary, #0f6cbf);
+  color: var(--naas-primary, #0f6cbf);
+  background: var(--naas-surface-hover, #f0f4ff);
+}
+
+.filter-pill--active {
+  background: var(--naas-primary, #0f6cbf);
+  border-color: var(--naas-primary, #0f6cbf);
+  color: #fff;
+}
+
+.filter-pill--active:hover {
+  background: var(--naas-primary-dark, #0a4a8f);
+  color: #fff;
+}
+
+.filter-pill--open {
+  border-color: var(--naas-primary, #0f6cbf);
+  color: var(--naas-primary, #0f6cbf);
+}
+
+.filter-pill--active.filter-pill--open {
+  color: #fff;
+}
+
+.filter-pill-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.1rem;
+  height: 1.1rem;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.3);
+  font-size: 0.7rem;
+  font-weight: 700;
+  line-height: 1;
+  padding: 0 0.2rem;
+}
+
+.filter-pill-chevron {
+  font-size: 0.65rem;
+  flex-shrink: 0;
+}
+
+/* ── Dropdown panel ── */
+.filter-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  z-index: 200;
+  width: 100%;
+  min-width: 180px;
+  background: #fff;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  padding: 0.25rem 0;
+}
+
+.filter-dropdown-list {
+  display: flex;
+  flex-direction: column;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+/* ── Checkbox option row ── */
+.filter-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.75rem;
+  cursor: pointer;
+  font-size: 0.8125rem;
+  color: #343a40;
+  transition: background 0.12s;
+  margin: 0;
+}
+
+.filter-option:hover {
+  background: #f0f4ff;
+}
+
+.filter-option input[type="checkbox"] {
+  flex-shrink: 0;
+  margin: 0;
+  accent-color: var(--primary, #0f6cbf);
+}
+
+.filter-option--hidden {
+  display: none;
+}
+
+/* ── Show more ── */
+.show-more-btn {
+  background: none;
+  border: none;
+  padding: 0.3rem 0.75rem;
+  font-size: 0.8rem;
+  color: var(--primary, #0f6cbf);
+  cursor: pointer;
+  text-align: left;
+}
+
+.show-more-btn:hover { text-decoration: underline; }
+
+/* ── Clear all ── */
+.filter-clear-btn {
+  background: none;
+  border: 1.5px solid #dc3545;
+  border-radius: var(--naas-radius-pill, 999px);
+  padding: 0.25rem 0.65rem;
+  font-size: 0.8125rem;
+  color: #dc3545;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background var(--naas-transition, 0.18s ease),
+              color     var(--naas-transition, 0.18s ease);
+}
+
+.filter-clear-btn:hover {
+  background: #dc3545;
+  color: #fff;
+}
+
+/* ── Dropdown slide-down transition ── */
+.dropdown-fade-enter-active,
+.dropdown-fade-leave-active {
+  transition: opacity 0.16s ease, transform 0.16s ease;
+}
+.dropdown-fade-enter-from,
+.dropdown-fade-leave-to {
+  opacity: 0;
+  transform: translateY(-6px);
+}
+</style>

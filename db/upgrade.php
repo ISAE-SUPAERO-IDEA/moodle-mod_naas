@@ -96,6 +96,11 @@ function xmldb_naas_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2024061403, 'naas');
     }
 
+    if ($oldversion < 2026090800) {
+        // NaaS savepoint reached.
+        upgrade_mod_savepoint(true, 2026090800, 'naas');
+    }
+
     $table = new xmldb_table('naas');
 
     $completionpass = new xmldb_field('completionpass', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'nugget_id');

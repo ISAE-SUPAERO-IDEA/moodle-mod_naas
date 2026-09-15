@@ -15,23 +15,22 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Loading component for NAAS Vue application.
+ * Loading spinner component for the NaaS widget.
  *
- * @copyright  2019 ISAE-SUPAERO (https://www.isae-supaero.fr/)
+ * @copyright  2024 ISAE-SUPAERO (https://www.isae-supaero.fr/)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 -->
 <template>
   <img
     v-show="loading"
-    v-bind:src="'../mod/naas/assets/loading.gif'"
+    src="../../../assets/loading.gif"
     width="35"
     height="35"
+    alt=""
   />
 </template>
-<script>
-export default {
-  name: "Loading",
-  props: ["loading"],
-};
+
+<script setup lang="ts">
+defineProps<{ loading: boolean | number }>()
 </script>

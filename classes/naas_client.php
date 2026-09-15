@@ -71,14 +71,22 @@ class naas_client {
             debugging("NAAS: Configuration: " . var_export($this->config, true), DEBUG_DEVELOPER);
         }
 
+        // Allow the password to be supplied via environment variable so production
+        // deployments can avoid storing the secret in the Moodle database.
+        $password = getenv('NAAS_API_PASSWORD') ?: $this->config->naas_password;
+
+        // SSL peer verification is enabled by default; disable only when explicitly
+        // configured (e.g. local dev environments with self-signed certificates).
+        $verifypeer = empty($this->config->naas_ssl_noverify);
+
         $curl = new \curl(['proxy' => true]);
         $headers = [];
         $options = [
             'CURLOPT_RETURNTRANSFER' => true,
-            'CURLOPT_USERPWD' => $this->config->naas_username . ":" . $this->config->naas_password,
+            'CURLOPT_USERPWD' => $this->config->naas_username . ":" . $password,
             'CURLOPT_CONNECTTIMEOUT' => 10, // Connection timeout.
             'CURLOPT_HTTPPROXYTUNNEL' => false,
-            'CURLOPT_SSL_VERIFYPEER' => false,
+            'CURLOPT_SSL_VERIFYPEER' => $verifypeer,
         ];
 
         if (property_exists($this->config, "naas_timeout")) {

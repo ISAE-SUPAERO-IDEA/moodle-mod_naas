@@ -15,23 +15,25 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Main Vue component for NAAS module.
+ * Root component — renders NuggetView or NuggetSearchWidget based on NAAS.component.
+ * Static imports are intentional: the IIFE bundle inlines everything anyway, so
+ * defineAsyncComponent would only add an async tick with no visual benefit.
  *
- * @copyright  2019 ISAE-SUPAERO (https://www.isae-supaero.fr/)
+ * @copyright  2024 ISAE-SUPAERO (https://www.isae-supaero.fr/)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 -->
 <template>
   <div>
-    <component :is="config.component"></component>
+    <NuggetView v-if="config.component === 'NuggetView'" />
+    <NuggetSearchWidget v-else />
   </div>
 </template>
-<script>
-import NuggetSearchWidget from "@/components/NuggetSearchWidget";
-import NuggetView from "@/components/NuggetView";
-export default {
-  name: "Main",
-  props: ["post", "visible"],
-  components: { NuggetSearchWidget, NuggetView },
-};
+
+<script setup lang="ts">
+import NuggetView from '@/components/NuggetView.vue'
+import NuggetSearchWidget from '@/components/NuggetSearchWidget.vue'
+import { useNaasConfig } from '@/composables/useNaasConfig'
+
+const config = useNaasConfig()
 </script>

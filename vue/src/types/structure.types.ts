@@ -14,19 +14,14 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Utility functions for NAAS Vue application.
+ * TypeScript interface for the NaaS Structure (producer organisation) entity.
  *
- * @copyright  2019 ISAE-SUPAERO (https://www.isae-supaero.fr/)
+ * @copyright  2024 ISAE-SUPAERO (https://www.isae-supaero.fr/)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-export default {
-  truncate(text, length, suffix) {
-    suffix = suffix || "...";
-    if (text && text.length > length) {
-      return text.substring(0, length) + suffix;
-    } else {
-      return text;
-    }
-  },
-};
+export interface Structure {
+  id: string
+  acronym: string
+  name?: string
+}

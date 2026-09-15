@@ -59,9 +59,15 @@ $PAGE->set_heading($course->fullname);
 // Print the page header.
 echo $OUTPUT->header();
 
+$courseurl = new moodle_url('/course/view.php', ['id' => $COURSE->id]);
+$backtocourse = get_string('back_to_course', 'naas');
+$nextactivity = \mod_naas\mod_util::get_next_activity_url();
+$widgethtml = \mod_naas\naas_widget::naas_widget_html($naasinstance->nugget_id, $cm->course, $cm->id, "NuggetView");
+
 $renderer = $PAGE->get_renderer('mod_naas');
-$widget = new \mod_naas\output\widget($naasinstance->nugget_id, $cm->course, $cm->id, "NuggetView");
-$viewpage = new \mod_naas\output\view_page($widget, $cm->course);
+$viewpage = new \mod_naas\output\view_page($courseurl, $backtocourse, $nextactivity, $widgethtml);
+
+$PAGE->requires->js_call_amd('mod_naas/view_page', 'init');
 
 echo $renderer->render($viewpage);
 
