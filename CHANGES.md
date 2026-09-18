@@ -2,6 +2,22 @@
 
 _All notable changes to the NaaS Moodle plugin will be documented in this file._
 
+## Version 2.5.2 (2026-09-18)
+
+### Feature
+- Show producer and partner information in the Nugget About view
+- Send the Moodle UI language to NaaS so the player can match it
+
+### Fix
+- Clearer error when the configured NaaS institute is invalid
+- Handle nugget loading errors and distinguish a missing nugget from a bad API endpoint
+- Remove inoperative navigation buttons from the nugget rating popup
+
+### Chore
+- Render the activity view and widget with Mustache / Output API
+- Add CodeQL, PHPStan, and npm audit GitHub Actions workflows
+
+
 ## Version 2.5.1 (2026-03-09)
 
 ### Fix
