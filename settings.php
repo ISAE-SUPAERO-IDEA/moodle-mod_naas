@@ -167,4 +167,12 @@ if ($hassiteconfig) {
         get_string('naas_settings_ssl_noverify_help', 'naas'),
         0
     ));
+
+    $settings->add(new admin_setting_configtext(
+        'naas/naas_refresh_limit',
+        get_string('naas_refresh_limit', 'naas'),
+        get_string('naas_refresh_limit_desc', 'naas', \mod_naas\search_cache::MAX_ENTRIES),
+        \mod_naas\task\refresh_catalogue::DEFAULT_LIMIT,
+        PARAM_INT
+    ));
 }

@@ -88,6 +88,14 @@ $functions = [
         'ajax' => true,
         'capabilities' => 'mod/naas:addinstance',
     ],
+    'mod_naas_check_catalogue' => [
+        'classname' => 'mod_naas\external\proxy_naas_api',
+        'methodname' => 'check_catalogue',
+        'description' => 'Refresh producer membership and facet counts without fetching cards',
+        'type' => 'read',
+        'ajax' => true,
+        'capabilities' => 'mod/naas:addinstance',
+    ],
     'mod_naas_post_xapi_statement' => [
         'classname' => 'mod_naas\external\xapi',
         'methodname' => 'post_xapi_statement',

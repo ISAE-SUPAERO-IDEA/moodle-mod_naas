@@ -21,6 +21,6 @@
  */
 
 export interface Domain {
-  id: string
-  label: string
+  id: string;
+  label: string;
 }

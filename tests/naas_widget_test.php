@@ -155,20 +155,13 @@ class naas_widget_test extends advanced_testcase {
         $this->assertSame($nuggetid, $config['nugget_id']);
         $this->assertSame($course->id, $config['courseId']);
         $this->assertSame($naas->cmid, $config['cm_id']);
-        $this->assertArrayHasKey('require_activation_code', $config);
-        $this->assertFalse($config['require_activation_code']);
         $this->assertArrayHasKey('catalogue_snapshot', $config);
+        $this->assertArrayNotHasKey('require_activation_code', $config);
 
         $labels = $config['labels'];
         $this->assertArrayHasKey('error_generic_user_message', $labels);
         $this->assertArrayHasKey('nugget_search_collecting', $labels);
-        $this->assertArrayHasKey('insertion_code_title', $labels);
-        $this->assertArrayHasKey('open_access', $labels);
-        $this->assertArrayHasKey('all_nuggets', $labels);
-        $this->assertArrayHasKey('by_producers', $labels);
-        $this->assertArrayHasKey('view_as_cards', $labels);
-        $this->assertArrayHasKey('view_as_list', $labels);
-        $this->assertArrayHasKey('back_to_catalogue', $labels);
+        $this->assertArrayNotHasKey('insertion_code_title', $labels);
         $this->assertArrayHasKey('metadata', $labels);
         $this->assertArrayHasKey('preview', $labels['metadata']);
         $this->assertArrayHasKey('rating', $labels);

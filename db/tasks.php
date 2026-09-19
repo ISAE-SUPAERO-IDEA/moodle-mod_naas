@@ -1,4 +1,5 @@
-// This file is part of Moodle - http://moodle.org/
+<?php
+// This file is part of Moodle - http://moodle.org
 //
 // Moodle is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -14,22 +15,23 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * TypeScript interface for the NaaS Structure (producer organisation) entity.
+ * Scheduled tasks for the NaaS plugin.
  *
- * @copyright  2024 ISAE-SUPAERO (https://www.isae-supaero.fr/)
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright (C) 2026  ISAE-SUPAERO (https://www.isae-supaero.fr/)
+ * @package mod_naas
  */
 
-export interface Structure {
-  id: string;
-  acronym: string;
-  name?: string;
-  logo?: string;
-  logo_url?: string;
-  structure_thumbnail_url?: string;
-  structure_banner_url?: string;
-  image_url?: string;
-  cover_url?: string;
-  thumbnail_url?: string;
-  picture?: string;
-}
+defined('MOODLE_INTERNAL') || die();
+
+$tasks = [
+    [
+        'classname' => 'mod_naas\task\refresh_catalogue',
+        'blocking'  => 0,
+        'minute'    => 'R',
+        'hour'      => '4',
+        'day'       => '*',
+        'dayofweek' => '*',
+        'month'     => '*',
+    ],
+];

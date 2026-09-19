@@ -46,7 +46,7 @@ final class version_php_test extends advanced_testcase {
         require $CFG->dirroot . '/mod/naas/version.php';
 
         $this->assertSame('mod_naas', $plugin->component);
-        $this->assertSame(2026091713, (int) $plugin->version);
+        $this->assertSame(2026091700, (int) $plugin->version);
         $this->assertSame('3.0.0', $plugin->release);
         $this->assertSame(2022041900, (int) $plugin->requires);
         $this->assertSame(0, (int) $plugin->cron);
