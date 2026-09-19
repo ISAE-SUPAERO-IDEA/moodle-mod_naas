@@ -20,33 +20,47 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-import { defineConfig } from 'vite'
-import vue from '@vitejs/plugin-vue'
-import { resolve } from 'path'
-import { readFileSync } from 'fs'
-import type { OutputBundle, NormalizedOutputOptions } from 'rollup'
+import { defineConfig } from "vite";
+import vue from "@vitejs/plugin-vue";
+import { resolve } from "path";
+import { readFileSync } from "fs";
+import type { OutputBundle, NormalizedOutputOptions } from "rollup";
 
 // Bump this when releasing — mirrors the AMD widget_init.js reference.
-const BUNDLE_VERSION = '2026091103'
+const BUNDLE_VERSION = "2026091800";
 
 // Reads the emitted style.css and prepends a self-injecting <style> block
 // into the IIFE JS so Moodle pages get the styles without a separate link tag.
 function inlineCssPlugin() {
   return {
-    name: 'inline-css-into-iife',
-    enforce: 'post' as const,
-    apply: 'build' as const,
+    name: "inline-css-into-iife",
+    enforce: "post" as const,
+    apply: "build" as const,
     generateBundle(_opts: NormalizedOutputOptions, bundle: OutputBundle) {
-      const cssChunk = Object.values(bundle).find((c) => c.type === 'asset' && c.fileName.endsWith('.css'))
-      const jsChunk  = Object.values(bundle).find((c) => c.type === 'chunk' && c.fileName.endsWith('.js'))
-      if (!cssChunk || cssChunk.type !== 'asset' || !jsChunk || jsChunk.type !== 'chunk') return
-      const raw = cssChunk.source
-      const cssStr = (raw instanceof Uint8Array ? new TextDecoder().decode(raw) : raw)
-        .replace(/\\/g, '\\\\')
-        .replace(/`/g, '\\`')
-      jsChunk.code = `;(function(){var s=document.createElement('style');s.textContent=\`${cssStr}\`;document.head.appendChild(s);})();` + jsChunk.code
+      const cssChunk = Object.values(bundle).find(
+        (c) => c.type === "asset" && c.fileName.endsWith(".css")
+      );
+      const jsChunk = Object.values(bundle).find(
+        (c) => c.type === "chunk" && c.fileName.endsWith(".js")
+      );
+      if (
+        !cssChunk ||
+        cssChunk.type !== "asset" ||
+        !jsChunk ||
+        jsChunk.type !== "chunk"
+      )
+        return;
+      const raw = cssChunk.source;
+      const cssStr = (
+        raw instanceof Uint8Array ? new TextDecoder().decode(raw) : raw
+      )
+        .replace(/\\/g, "\\\\")
+        .replace(/`/g, "\\`");
+      jsChunk.code =
+        `;(function(){var s=document.createElement('style');s.textContent=\`${cssStr}\`;document.head.appendChild(s);})();` +
+        jsChunk.code;
     },
-  }
+  };
 }
 
 export default defineConfig(({ mode }) => ({
@@ -55,18 +69,23 @@ export default defineConfig(({ mode }) => ({
     vue(),
     inlineCssPlugin(),
     // Inject window.NAAS dev config into the HTML served locally.
-    mode === 'development'
+    mode === "development"
       ? {
-          name: 'inject-naas-dev-config',
+          name: "inject-naas-dev-config",
           transformIndexHtml(html: string) {
-            const raw = readFileSync(resolve(__dirname, 'dev_config.js'), 'utf-8')
+            const raw = readFileSync(
+              resolve(__dirname, "dev_config.js"),
+              "utf-8"
+            );
             // Strip the CommonJS wrapper to extract the object literal.
-            const match = raw.match(/module\.exports\s*=\s*(\{[\s\S]*\});?\s*$/)
-            if (!match) return html
+            const match = raw.match(
+              /module\.exports\s*=\s*(\{[\s\S]*\});?\s*$/
+            );
+            if (!match) return html;
             return html.replace(
-              '<!-- NAAS_DEV_CONFIG -->',
+              "<!-- NAAS_DEV_CONFIG -->",
               `<script>window.NAAS = ${match[1]}</script>`
-            )
+            );
           },
         }
       : null,
@@ -74,21 +93,21 @@ export default defineConfig(({ mode }) => ({
   // Replace process.env.NODE_ENV with a string literal so the IIFE bundle
   // has no reference to Node globals when loaded in a browser via Moodle.
   define: {
-    'process.env.NODE_ENV': JSON.stringify('production'),
+    "process.env.NODE_ENV": JSON.stringify("production"),
   },
   resolve: {
     alias: {
-      '@': resolve(__dirname, 'src'),
+      "@": resolve(__dirname, "src"),
     },
   },
   build: {
     lib: {
-      entry: resolve(__dirname, 'src/main.ts'),
-      formats: ['iife'],
-      name: 'NaasWidget',
+      entry: resolve(__dirname, "src/main.ts"),
+      formats: ["iife"],
+      name: "NaasWidget",
       fileName: () => `naas_widget-${BUNDLE_VERSION}.js`,
     },
-    outDir: resolve(__dirname, '../assets/vue'),
+    outDir: resolve(__dirname, "../assets/vue"),
     emptyOutDir: false,
     cssCodeSplit: false,
     rollupOptions: {
@@ -98,4 +117,4 @@ export default defineConfig(({ mode }) => ({
       },
     },
   },
-}))
+}));

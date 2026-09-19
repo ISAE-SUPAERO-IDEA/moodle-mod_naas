@@ -169,7 +169,7 @@ class widget implements renderable, templatable {
             $widgetconfig,
             JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
         );
-        $widgetjsurl = new \moodle_url('/mod/naas/assets/vue/naas_widget-2026091103.js');
+        $widgetjsurl = new \moodle_url('/mod/naas/assets/vue/naas_widget-2026091800.js');
         $data->widgetjsurl = $widgetjsurl->out(false);
 
         return $data;
