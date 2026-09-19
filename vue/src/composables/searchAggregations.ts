@@ -21,27 +21,34 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-import type { AggregationBucket, AggregationResult } from '@/types/nugget.types'
+import type {
+  AggregationBucket,
+  AggregationResult,
+} from "@/types/nugget.types";
 
 /** Facets whose bucket keys are entity ids and need a vocabulary lookup. */
-export const NETWORK_LABEL_FACETS = new Set(['related_domains', 'producers', 'authors'])
+export const NETWORK_LABEL_FACETS = new Set([
+  "related_domains",
+  "producers",
+  "authors",
+]);
 
-export const AUTHOR_PREVIEW_LIMIT = 6
+export const AUTHOR_PREVIEW_LIMIT = 6;
 
 export function facetNeedsNetworkLabels(name: string): boolean {
-  return NETWORK_LABEL_FACETS.has(name)
+  return NETWORK_LABEL_FACETS.has(name);
 }
 
 export function captionForBucket(label: string, docCount: number): string {
-  return `${label} (${docCount})`
+  return `${label} (${docCount})`;
 }
 
 export interface MappedAggregation {
-  name: string
-  buckets: AggregationBucket[]
-  visible: boolean
-  showAll: boolean
-  labelsResolved: boolean
+  name: string;
+  buckets: AggregationBucket[];
+  visible: boolean;
+  showAll: boolean;
+  labelsResolved: boolean;
 }
 
 /**
@@ -53,13 +60,12 @@ export function mapAggregationBuckets(
   buckets: Array<{ key: string; docCount?: number; doc_count?: number }>,
   selectedKeys: string[],
   labelForKey: (key: string) => string,
-  preserved?: Pick<MappedAggregation, 'visible' | 'showAll' | 'labelsResolved'>
+  preserved?: Pick<MappedAggregation, "visible" | "showAll" | "labelsResolved">
 ): MappedAggregation {
   const mapped = buckets.map((b) => {
-    const docCount = typeof b.docCount === 'number'
-      ? b.docCount
-      : Number(b.doc_count ?? 0)
-    const label = labelForKey(b.key)
+    const docCount =
+      typeof b.docCount === "number" ? b.docCount : Number(b.doc_count ?? 0);
+    const label = labelForKey(b.key);
     return {
       key: b.key,
       docCount,
@@ -68,10 +74,10 @@ export function mapAggregationBuckets(
       help: label,
       query_value: b.key,
       children: {} as Record<string, AggregationBucket>,
-    }
-  })
+    };
+  });
 
-  mapped.sort((a, b) => (a.caption ?? '').localeCompare(b.caption ?? ''))
+  mapped.sort((a, b) => (a.caption ?? "").localeCompare(b.caption ?? ""));
 
   return {
     name,
@@ -79,43 +85,48 @@ export function mapAggregationBuckets(
     visible: preserved?.visible ?? false,
     showAll: preserved?.showAll ?? false,
     labelsResolved: preserved?.labelsResolved ?? !facetNeedsNetworkLabels(name),
-  }
+  };
 }
 
 export function visibleBuckets(
   aggregation: MappedAggregation
 ): AggregationBucket[] {
-  if (aggregation.name !== 'authors' || aggregation.showAll) {
-    return aggregation.buckets
+  if (aggregation.name !== "authors" || aggregation.showAll) {
+    return aggregation.buckets;
   }
-  return aggregation.buckets.slice(0, AUTHOR_PREVIEW_LIMIT)
+  return aggregation.buckets.slice(0, AUTHOR_PREVIEW_LIMIT);
 }
 
 export function hasMoreAuthors(aggregation: MappedAggregation): boolean {
-  return aggregation.name === 'authors' && aggregation.buckets.length > AUTHOR_PREVIEW_LIMIT
+  return (
+    aggregation.name === "authors" &&
+    aggregation.buckets.length > AUTHOR_PREVIEW_LIMIT
+  );
 }
 
 export function applyResolvedLabels(
   aggregation: MappedAggregation,
-  labels: Record<string, string>
+  labels: Record<string, string>,
+  titles: Record<string, string> = {}
 ): MappedAggregation {
   const buckets = aggregation.buckets.map((bucket) => {
-    const label = labels[bucket.key] ?? bucket.help ?? bucket.key
+    const label = labels[bucket.key] ?? bucket.help ?? bucket.key;
     return {
       ...bucket,
       help: label,
+      title: titles[bucket.key] || bucket.title,
       caption: captionForBucket(label, bucket.docCount),
-    }
-  })
-  buckets.sort((a, b) => (a.caption ?? '').localeCompare(b.caption ?? ''))
-  return { ...aggregation, buckets, labelsResolved: true }
+    };
+  });
+  buckets.sort((a, b) => (a.caption ?? "").localeCompare(b.caption ?? ""));
+  return { ...aggregation, buckets, labelsResolved: true };
 }
 
-export type NetworkAggregations = Record<string, AggregationResult | undefined>
+export type NetworkAggregations = Record<string, AggregationResult | undefined>;
 
 export function selectedKeysFor(
   activeFilters: Record<string, string[]>,
   aggName: string
 ): string[] {
-  return activeFilters[aggName] ?? []
+  return activeFilters[aggName] ?? [];
 }

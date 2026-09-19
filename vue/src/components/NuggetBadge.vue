@@ -22,41 +22,44 @@
  */
 -->
 <template>
-  <span
-    class="badge rounded-pill badge-pill badge-margin"
-    :class="selected ? 'badge-primary' : 'text-primary'"
+  <VChip
+    class="badge-margin"
+    size="small"
+    :color="selected ? 'primary' : undefined"
+    :variant="selected ? 'flat' : 'outlined'"
     :title="help"
     @click="emit('click')"
   >
     {{ truncated }}
-  </span>
+  </VChip>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed } from "vue";
 
 const props = withDefaults(
   defineProps<{
-    selected?: boolean
-    text?: string
-    help?: string
-    textLengthMax?: number
+    selected?: boolean;
+    text?: string;
+    help?: string;
+    textLengthMax?: number;
   }>(),
   { textLengthMax: 25 }
-)
+);
 
-const emit = defineEmits<{ (e: 'click'): void }>()
+const emit = defineEmits<{ (e: "click"): void }>();
 
 const truncated = computed(() => {
-  if (!props.text) return ''
+  if (!props.text) return "";
   return props.text.length > props.textLengthMax
-    ? props.text.substring(0, props.textLengthMax) + '...'
-    : props.text
-})
+    ? props.text.substring(0, props.textLengthMax) + "..."
+    : props.text;
+});
 </script>
 
 <style scoped>
 .badge-margin {
   margin: 1px;
+  cursor: pointer;
 }
 </style>

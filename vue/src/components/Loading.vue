@@ -22,15 +22,15 @@
  */
 -->
 <template>
-  <img
+  <VProgressCircular
     v-show="loading"
-    src="../../../assets/loading.gif"
-    width="35"
-    height="35"
-    alt=""
+    indeterminate
+    color="primary"
+    size="35"
+    width="3"
   />
 </template>
 
 <script setup lang="ts">
-defineProps<{ loading: boolean | number }>()
+defineProps<{ loading: boolean | number }>();
 </script>

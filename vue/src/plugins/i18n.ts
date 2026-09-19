@@ -21,44 +21,44 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-import { createI18n } from 'vue-i18n'
-import type { NaasConfig } from '../types/naas-config.types'
+import { createI18n } from "vue-i18n";
+import type { NaasConfig } from "../types/naas-config.types";
 
 // Flattens NAAS.labels into a single-level map compatible with vue-i18n.
 // metadata sub-keys are promoted to the top level, preserving the Vue 2
 // mixin behaviour: this.$t('en') and this.$t('description') both resolved.
-function buildMessages(labels: NaasConfig['labels']): Record<string, string> {
-  const flat: Record<string, string> = {}
+function buildMessages(labels: NaasConfig["labels"]): Record<string, string> {
+  const flat: Record<string, string> = {};
 
   for (const [k, v] of Object.entries(labels)) {
-    if (k === 'metadata' || k === 'rating') continue
-    if (typeof v === 'string') flat[k] = v
+    if (k === "metadata" || k === "rating") continue;
+    if (typeof v === "string") flat[k] = v;
   }
 
   if (labels.metadata) {
     for (const [k, v] of Object.entries(labels.metadata)) {
-      flat[k] = v as string
+      flat[k] = v as string;
     }
   }
 
   if (labels.rating) {
     for (const [k, v] of Object.entries(labels.rating)) {
-      flat[`rating.${k}`] = v as string
+      flat[`rating.${k}`] = v as string;
     }
   }
 
-  return flat
+  return flat;
 }
 
 export function createNaasI18n(config: NaasConfig) {
-  const locale = (config as unknown as Record<string, string>).lang ?? 'en'
-  const messages = buildMessages(config.labels)
+  const locale = (config as unknown as Record<string, string>).lang ?? "en";
+  const messages = buildMessages(config.labels);
 
   return createI18n({
     legacy: false,
     locale,
-    fallbackLocale: 'en',
+    fallbackLocale: "en",
     messages: { [locale]: messages, en: messages },
     missing: (_locale: string, key: string) => key,
-  })
+  });
 }

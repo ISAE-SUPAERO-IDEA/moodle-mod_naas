@@ -22,34 +22,43 @@
  */
 -->
 <template>
-  <div class="nugget-skeleton" aria-hidden="true">
-    <div class="skel-thumb" />
-    <div class="skel-body">
-      <div class="skel-line skel-title" />
-      <div class="skel-line skel-author" />
-      <div class="skel-line skel-desc" />
-      <div class="skel-line skel-desc skel-desc--short" />
-    </div>
-    <div class="skel-footer">
-      <div class="skel-btn" />
-      <div class="skel-btn" />
-      <div class="skel-btn" />
-    </div>
-  </div>
+  <VCard
+    class="nugget-skeleton"
+    :class="{ 'nugget-skeleton--row': variant === 'row' }"
+    :border="false"
+    elevation="0"
+    aria-hidden="true"
+  >
+    <VSkeletonLoader class="skel-thumb" type="image" />
+    <VCardText class="skel-body">
+      <VSkeletonLoader type="heading, text" />
+    </VCardText>
+    <VCardActions class="skel-footer">
+      <VSkeletonLoader class="skel-btn" type="button" />
+      <VSkeletonLoader class="skel-btn" type="button" />
+      <VSkeletonLoader class="skel-btn" type="button" />
+    </VCardActions>
+  </VCard>
 </template>
 
-<style scoped>
-@keyframes shimmer {
-  0%   { background-position: -700px 0; }
-  100% { background-position: 700px 0; }
-}
+<script setup lang="ts">
+defineProps<{
+  variant?: "card" | "row";
+}>();
+</script>
 
+<style scoped>
 .nugget-skeleton {
   display: flex;
   flex-direction: column;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
   background: var(--naas-surface, #fff);
+  border: 1.5px solid var(--naas-border, #dee2e6);
   border-radius: var(--naas-radius, 8px);
-  box-shadow: var(--naas-shadow-sm, 0 2px 8px rgba(0,0,0,.10));
+  box-shadow: var(--naas-shadow-sm, 0 2px 8px rgba(0, 0, 0, 0.08));
   overflow: hidden;
   height: 100%;
 }
@@ -57,49 +66,59 @@
 .skel-thumb {
   width: 100%;
   aspect-ratio: 16 / 9;
-  background: linear-gradient(90deg, #ececec 25%, #f7f7f7 50%, #ececec 75%);
-  background-size: 1400px 100%;
-  animation: shimmer 1.5s infinite linear;
   flex-shrink: 0;
+}
+
+.skel-thumb :deep(.v-skeleton-loader__image),
+.skel-thumb :deep(.v-skeleton-loader__bone) {
+  height: 100%;
+  border-radius: 0;
 }
 
 .skel-body {
   flex: 1;
-  padding: 0.875rem 1rem 0.5rem;
+  padding: 0.875rem 1rem 0.5rem !important;
 }
 
 .skel-footer {
   display: flex;
   gap: 0.35rem;
-  padding: 0.6rem 0.875rem;
+  padding: 0.6rem 0.875rem !important;
   border-top: 1px solid var(--naas-border-light, #e9ecef);
   background: var(--naas-surface-muted, #f8f9fa);
   flex-shrink: 0;
 }
 
-.skel-line,
-.skel-btn {
-  background: linear-gradient(90deg, #ececec 25%, #f7f7f7 50%, #ececec 75%);
-  background-size: 1400px 100%;
-  animation: shimmer 1.5s infinite linear;
-  border-radius: 4px;
-  margin-bottom: 8px;
-}
-
-/* Stagger lines so they pulse offset from each other */
-.skel-title        { height: 15px; width: 72%; margin-bottom: 10px; animation-delay: 0s; }
-.skel-author       { height: 11px; width: 48%; margin-bottom: 10px; animation-delay: 0.1s; }
-.skel-desc         { height: 11px; width: 95%; animation-delay: 0.2s; }
-.skel-desc--short  { width: 62%; margin-bottom: 0; animation-delay: 0.3s; }
-
 .skel-btn {
   flex: 1;
   height: 27px;
-  border-radius: var(--naas-radius, 8px);
-  margin-bottom: 0;
-  animation-delay: 0.15s;
 }
 
-.skel-btn:nth-child(2) { animation-delay: 0.25s; }
-.skel-btn:nth-child(3) { animation-delay: 0.35s; }
+.nugget-skeleton--row {
+  flex-direction: row;
+  min-height: 7.25rem;
+  height: auto;
+}
+
+.nugget-skeleton--row .skel-thumb {
+  flex: 0 1 13rem;
+  width: 13rem;
+  max-width: 38%;
+  min-width: 0;
+  height: auto;
+}
+
+.nugget-skeleton--row .skel-body {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.nugget-skeleton--row .skel-footer {
+  flex-direction: column;
+  width: 8.75rem;
+  max-width: 30%;
+  flex: 0 0 auto;
+  border-top: none;
+  border-left: 1px solid var(--naas-border-light, #e9ecef);
+}
 </style>

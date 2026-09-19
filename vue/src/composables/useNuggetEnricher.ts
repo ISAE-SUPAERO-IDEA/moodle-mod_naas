@@ -22,48 +22,58 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-import { useMoodleService } from './useMoodleService'
-import { useNaasConfig } from './useNaasConfig'
-import type { Nugget } from '@/types/nugget.types'
-import type { Person } from '@/types/person.types'
-import type { Domain } from '@/types/domain.types'
+import { useMoodleService } from "./useMoodleService";
+import { useNaasConfig } from "./useNaasConfig";
+import type { Nugget } from "@/types/nugget.types";
+import type { Person } from "@/types/person.types";
+import type { Domain } from "@/types/domain.types";
 
 export function useNuggetEnricher() {
-  const service = useMoodleService()
-  const config = useNaasConfig()
+  const service = useMoodleService();
+  const config = useNaasConfig();
 
   async function enrichMany(nuggets: Nugget[]): Promise<Nugget[]> {
-    const personKeys = [...new Set(nuggets.flatMap((nugget) => nugget.authors ?? []).filter(Boolean))]
-    const domainKeys = [...new Set(nuggets.flatMap((nugget) => nugget.domains ?? []).filter(Boolean))]
+    const personKeys = [
+      ...new Set(
+        nuggets.flatMap((nugget) => nugget.authors ?? []).filter(Boolean)
+      ),
+    ];
+    const domainKeys = [
+      ...new Set(
+        nuggets.flatMap((nugget) => nugget.domains ?? []).filter(Boolean)
+      ),
+    ];
 
     const [people, domains] = await Promise.all([
       Promise.all(
         personKeys.map((key) =>
-          service.getPerson(key, config.courseId)
+          service
+            .getPerson(key, config.courseId)
             .then((person) => [key, person] as const)
             .catch(() => [key, null] as const)
         )
       ),
       Promise.all(
         domainKeys.map((key) =>
-          service.getDomain(key, config.courseId)
+          service
+            .getDomain(key, config.courseId)
             .then((domain) => [key, domain] as const)
             .catch(() => [key, null] as const)
         )
       ),
-    ])
+    ]);
 
-    const peopleByKey = new Map<string, Person>()
+    const peopleByKey = new Map<string, Person>();
     for (const [key, person] of people) {
       if (person) {
-        peopleByKey.set(key, person)
+        peopleByKey.set(key, person);
       }
     }
 
-    const domainsByKey = new Map<string, Domain>()
+    const domainsByKey = new Map<string, Domain>();
     for (const [key, domain] of domains) {
       if (domain) {
-        domainsByKey.set(key, domain)
+        domainsByKey.set(key, domain);
       }
     }
 
@@ -75,13 +85,13 @@ export function useNuggetEnricher() {
       domains_data: (nugget.domains ?? [])
         .map((key) => domainsByKey.get(key))
         .filter(Boolean) as Domain[],
-    }))
+    }));
   }
 
   async function enrich(nugget: Nugget): Promise<Nugget> {
-    const [result] = await enrichMany([nugget])
-    return result
+    const [result] = await enrichMany([nugget]);
+    return result;
   }
 
-  return { enrich, enrichMany }
+  return { enrich, enrichMany };
 }

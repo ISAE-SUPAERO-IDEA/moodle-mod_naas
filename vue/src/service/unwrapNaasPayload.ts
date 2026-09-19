@@ -22,12 +22,36 @@
  */
 
 export function unwrapNaasPayload<T>(response: unknown): T {
-  const parsed: unknown = typeof response === 'string' ? JSON.parse(response) : response
-  if (parsed && typeof parsed === 'object' && 'payload' in parsed) {
-    const inner = (parsed as { payload: unknown }).payload
-    if (inner !== undefined && inner !== null) {
-      return inner as T
+  let current: unknown = response;
+  for (let depth = 0; depth < 4; depth++) {
+    if (typeof current === "string") {
+      const trimmed = current.trim();
+      if (
+        !trimmed ||
+        (trimmed[0] !== "{" && trimmed[0] !== "[" && trimmed[0] !== '"')
+      ) {
+        break;
+      }
+      try {
+        current = JSON.parse(trimmed);
+        continue;
+      } catch {
+        break;
+      }
     }
+    if (
+      current &&
+      typeof current === "object" &&
+      !Array.isArray(current) &&
+      "payload" in current
+    ) {
+      const inner = (current as { payload: unknown }).payload;
+      if (inner !== undefined && inner !== null) {
+        current = inner;
+        continue;
+      }
+    }
+    break;
   }
-  return parsed as T
+  return current as T;
 }

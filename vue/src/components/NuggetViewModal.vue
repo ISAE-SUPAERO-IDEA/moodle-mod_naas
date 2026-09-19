@@ -46,40 +46,40 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
-import { useNaasConfig } from '@/composables/useNaasConfig'
-import { useMoodleService } from '@/composables/useMoodleService'
-import type { Nugget } from '@/types/nugget.types'
+import { ref, watch } from "vue";
+import { useNaasConfig } from "@/composables/useNaasConfig";
+import { useMoodleService } from "@/composables/useMoodleService";
+import type { Nugget } from "@/types/nugget.types";
 
-const props = defineProps<{ nugget: Nugget; visible: boolean }>()
-const emit = defineEmits<{ (e: 'close'): void }>()
+const props = defineProps<{ nugget: Nugget; visible: boolean }>();
+const emit = defineEmits<{ (e: "close"): void }>();
 
-const config = useNaasConfig()
-const service = useMoodleService()
+const config = useNaasConfig();
+const service = useMoodleService();
 
-const previewUrl = ref<string | null>(null)
+const previewUrl = ref<string | null>(null);
 
 watch(
   () => props.visible,
   async (visible) => {
     if (!visible) {
-      previewUrl.value = null
-      return
+      previewUrl.value = null;
+      return;
     }
     try {
       previewUrl.value = await service.getNuggetPreview(
         props.nugget.version_id,
         config.courseId
-      )
+      );
     } catch (e) {
-      console.warn('[NaaS] preview load failed', e)
+      console.warn("[NaaS] preview load failed", e);
     }
   }
-)
+);
 
 function close() {
-  previewUrl.value = null
-  emit('close')
+  previewUrl.value = null;
+  emit("close");
 }
 </script>
 
@@ -105,7 +105,7 @@ function close() {
   max-height: 100%;
   margin: 0 auto;
   background: var(--naas-surface, #fff);
-  box-shadow: var(--naas-shadow-lg, 0 12px 40px rgba(0,0,0,.18));
+  box-shadow: var(--naas-shadow-lg, 0 12px 40px rgba(0, 0, 0, 0.18));
   border-radius: var(--naas-radius-xl, 16px);
   display: flex;
   flex-direction: column;
@@ -152,7 +152,7 @@ function close() {
   border-radius: var(--naas-radius, 8px);
   cursor: pointer;
   transition: color var(--naas-transition, 0.18s ease),
-              background var(--naas-transition, 0.18s ease);
+    background var(--naas-transition, 0.18s ease);
 }
 
 .btn-close:hover {

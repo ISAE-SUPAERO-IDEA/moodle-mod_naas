@@ -161,6 +161,12 @@ class naas_widget_test extends advanced_testcase {
         $labels = $config['labels'];
         $this->assertArrayHasKey('error_generic_user_message', $labels);
         $this->assertArrayHasKey('nugget_search_collecting', $labels);
+        $this->assertArrayHasKey('open_access', $labels);
+        $this->assertArrayHasKey('all_nuggets', $labels);
+        $this->assertArrayHasKey('by_producers', $labels);
+        $this->assertArrayHasKey('view_as_cards', $labels);
+        $this->assertArrayHasKey('view_as_list', $labels);
+        $this->assertArrayHasKey('back_to_catalogue', $labels);
         $this->assertArrayNotHasKey('insertion_code_title', $labels);
         $this->assertArrayHasKey('metadata', $labels);
         $this->assertArrayHasKey('preview', $labels['metadata']);

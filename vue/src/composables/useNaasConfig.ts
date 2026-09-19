@@ -20,11 +20,14 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-import { inject } from 'vue'
-import type { NaasConfig } from '@/types/naas-config.types'
+import { inject } from "vue";
+import type { NaasConfig } from "@/types/naas-config.types";
 
 export function useNaasConfig(): NaasConfig {
-  const config = inject<NaasConfig>('naasConfig')
-  if (!config) throw new Error('naasConfig not provided — ensure app.provide("naasConfig", ...) in main.ts')
-  return config
+  const config = inject<NaasConfig>("naasConfig");
+  if (!config)
+    throw new Error(
+      'naasConfig not provided — ensure app.provide("naasConfig", ...) in main.ts'
+    );
+  return config;
 }

@@ -25,7 +25,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-export const SEARCH_FIRST_PAGE = 0
+export const SEARCH_FIRST_PAGE = 0;
 
 /**
  * Attach `page` only after the first page so the initial request matches Vue 2.
@@ -35,7 +35,7 @@ export function withSearchPage<T extends Record<string, unknown>>(
   page: number
 ): T & { page?: number } {
   if (page <= SEARCH_FIRST_PAGE) {
-    return { ...options }
+    return { ...options };
   }
-  return { ...options, page }
+  return { ...options, page };
 }
