@@ -60,6 +60,12 @@
       <h4 class="nugget-title" :title="nugget.name">
         {{ truncate(nugget.name, variant === "row" ? 90 : 60) }}
       </h4>
+      <p
+        v-if="variant === 'row' && description"
+        class="nugget-description"
+      >
+        {{ description }}
+      </p>
       <p v-if="authorsNames" class="nugget-authors">{{ authorsNames }}</p>
     </div>
 
@@ -132,6 +138,18 @@ const authorsNames = computed(() =>
     .map((a) => `${a.firstname} ${a.lastname}`)
     .join(", ")
 );
+
+const description = computed(() => stripHtml(props.nugget.resume));
+
+function stripHtml(value?: string): string {
+  const raw = (value ?? "").trim();
+  if (!raw) {
+    return "";
+  }
+  const text =
+    new DOMParser().parseFromString(raw, "text/html").body.textContent ?? "";
+  return text.replace(/\s+/g, " ").trim();
+}
 
 function truncate(text: string, length: number): string {
   return text && text.length > length ? text.substring(0, length) + "…" : text;
@@ -293,6 +311,18 @@ function truncate(text: string, length: number): string {
   white-space: nowrap;
 }
 
+.nugget-description {
+  margin: 0.15rem 0 0;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  color: var(--naas-text-muted, #6c757d);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
 /* ── Footer ── */
 .nugget-footer {
   display: flex;
@@ -362,7 +392,7 @@ function truncate(text: string, length: number): string {
 .nugget-post--row {
   flex-direction: row;
   align-items: stretch;
-  min-height: 7.25rem;
+  min-height: 8.5rem;
   height: auto;
 }
 
@@ -380,6 +410,7 @@ function truncate(text: string, length: number): string {
   min-width: 0;
   justify-content: center;
   padding: 0.75rem 1rem;
+  gap: 0.2rem;
 }
 
 .nugget-post--row .nugget-title {

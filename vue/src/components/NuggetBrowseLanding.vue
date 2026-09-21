@@ -199,23 +199,27 @@ function initials(value: string): string {
   return value.trim().slice(0, 3).toUpperCase() || "?";
 }
 
+function visibleLabel(value: string): string {
+  const text = value.trim();
+  if (!text || isOpaqueEntityKey(text)) {
+    return "";
+  }
+  return text;
+}
+
 function cardTitle(producer: ProducerCard): string {
-  if (producer.acronym && !isOpaqueEntityKey(producer.acronym)) {
-    return producer.acronym;
+  const acronym = visibleLabel(producer.acronym);
+  const name = visibleLabel(producer.name);
+  if (acronym && name) {
+    return acronym.length <= name.length ? acronym : name;
   }
-  if (producer.name && !isOpaqueEntityKey(producer.name)) {
-    return producer.name;
-  }
-  return "";
+  return acronym || name;
 }
 
 function cardHoverName(producer: ProducerCard): string {
-  if (
-    producer.name &&
-    !isOpaqueEntityKey(producer.name) &&
-    producer.name !== cardTitle(producer)
-  ) {
-    return producer.name;
+  const name = visibleLabel(producer.name);
+  if (name && name !== cardTitle(producer)) {
+    return name;
   }
   return "";
 }
@@ -369,9 +373,15 @@ watch(
 }
 
 .browse-card-title {
-  font-weight: 700;
+  font-weight: 800;
+  font-size: 0.95rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
   color: var(--naas-text, #1f2937);
   line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .browse-card-subtitle,
