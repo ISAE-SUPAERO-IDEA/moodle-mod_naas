@@ -34,7 +34,7 @@ define('mod_naas/widget_init', ['core/config'], function(mdlcfg) {
 
                     // Load the widget from Moodle wwwroot, not from DOM-supplied JSON.
                     let script = document.createElement('script');
-                    script.src = mdlcfg.wwwroot + '/mod/naas/assets/vue/naas_widget-2026091800.js';
+                    script.src = mdlcfg.wwwroot + '/mod/naas/assets/vue/naas_widget-2026092103.js';
                     document.body.appendChild(script);
                 }
             }

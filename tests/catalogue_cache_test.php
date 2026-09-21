@@ -28,6 +28,7 @@ defined('MOODLE_INTERNAL') || die();
 
 use advanced_testcase;
 use mod_naas\catalogue_cache;
+use mod_naas\catalogue_filters;
 
 /**
  * @covers \mod_naas\catalogue_cache
@@ -52,6 +53,20 @@ final class catalogue_cache_test extends advanced_testcase {
         $config = (object) get_config('naas');
         $first = catalogue_cache::fingerprint($config);
         set_config('naas_endpoint', 'https://other.example/api', 'naas');
+        $second = catalogue_cache::fingerprint((object) get_config('naas'));
+        $this->assertNotSame($first, $second);
+    }
+
+    public function test_fingerprint_changes_with_license_filter(): void {
+        $first = catalogue_cache::fingerprint((object) get_config('naas'));
+        set_config('naas_license_filter', catalogue_filters::LICENSE_NONCOMMERCIAL, 'naas');
+        $second = catalogue_cache::fingerprint((object) get_config('naas'));
+        $this->assertNotSame($first, $second);
+    }
+
+    public function test_fingerprint_changes_with_access_filter(): void {
+        $first = catalogue_cache::fingerprint((object) get_config('naas'));
+        set_config('naas_access_filter', catalogue_filters::ACCESS_RESTRICTED, 'naas');
         $second = catalogue_cache::fingerprint((object) get_config('naas'));
         $this->assertNotSame($first, $second);
     }

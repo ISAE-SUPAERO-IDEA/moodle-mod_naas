@@ -32,6 +32,7 @@ namespace mod_naas\task;
 defined('MOODLE_INTERNAL') || die();
 
 use mod_naas\catalogue_cache;
+use mod_naas\catalogue_filters;
 use mod_naas\external\proxy_naas_api;
 use mod_naas\naas_client;
 use mod_naas\search_cache;
@@ -164,9 +165,7 @@ class refresh_catalogue extends \core\task\scheduled_task {
 
         $entries = [];
         foreach (array_slice($queries, 0, max(0, $limit)) as $options) {
-            if (!empty($config->naas_filter)) {
-                $options['nql'] = urlencode($config->naas_filter);
-            }
+            $options = catalogue_filters::apply($options, $config);
             $entries[search_cache::canonical_key($options, $config)] = ['query' => $options];
         }
         return $entries;

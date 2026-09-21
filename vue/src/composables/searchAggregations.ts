@@ -25,6 +25,7 @@ import type {
   AggregationBucket,
   AggregationResult,
 } from "@/types/nugget.types";
+import type { LicenseFilterConfig } from "@/types/naas-config.types";
 
 /** Facets whose bucket keys are entity ids and need a vocabulary lookup. */
 export const NETWORK_LABEL_FACETS = new Set([
@@ -130,3 +131,18 @@ export function selectedKeysFor(
 ): string[] {
   return activeFilters[aggName] ?? [];
 }
+
+/**
+ * Site-level commercial / distribution filters replace the CC licence facet.
+ */
+export function siteRightsFilterActive(
+  filter?: LicenseFilterConfig | null
+): boolean {
+  if (!filter) {
+    return false;
+  }
+  return (
+    (filter.commercial ?? "all") !== "all" || (filter.access ?? "all") !== "all"
+  );
+}
+

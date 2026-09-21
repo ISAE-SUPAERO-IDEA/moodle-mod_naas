@@ -73,6 +73,8 @@ class catalogue_cache {
             (string) ($config->naas_username ?? ''),
             (string) ($config->naas_structure_id ?? ''),
             (string) ($config->naas_filter ?? ''),
+            catalogue_filters::commercial_mode($config),
+            catalogue_filters::access_mode($config),
             sha1($password),
         ]));
     }
@@ -508,16 +510,13 @@ class catalogue_cache {
      * @return string
      */
     private static function request_landing_search(naas_client $naas, object $config): string {
-        $params = [
+        $params = catalogue_filters::apply([
             'is_default_version' => true,
             'page_size' => self::SEARCH_PAGE_SIZE,
-        ];
-        if (!empty($config->naas_filter)) {
-            $params['nql'] = urlencode($config->naas_filter);
-        }
+        ], $config);
         $url = '/nuggets/search?' . http_build_query($params, '', '&');
         $url = preg_replace('/\%5B\d+\%5D/', '', $url);
-        return $naas->request_raw('GET', $url);
+        return catalogue_filters::constrain_search_json($naas->request_raw('GET', $url), $config);
     }
 
     /**

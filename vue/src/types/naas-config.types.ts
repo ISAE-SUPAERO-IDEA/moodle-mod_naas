@@ -131,6 +131,11 @@ export interface CatalogueSnapshot {
   labels?: CatalogueFacetLabels;
 }
 
+export interface LicenseFilterConfig {
+  commercial: "all" | "commercial" | "noncommercial";
+  access: "all" | "unrestricted" | "restricted";
+}
+
 export interface NaasConfig {
   mount_point: string;
   component: "NuggetView" | "NuggetSearchWidget";
@@ -140,6 +145,7 @@ export interface NaasConfig {
   courseId: number;
   nugget_id?: string;
   catalogue_snapshot?: CatalogueSnapshot | null;
+  license_filter?: LicenseFilterConfig;
   labels: NaasLabels;
 }
 

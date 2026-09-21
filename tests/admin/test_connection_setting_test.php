@@ -125,6 +125,16 @@ final class test_connection_setting_test extends advanced_testcase {
         $this->assertContains('naasnaas_feedback', $keys);
         $this->assertContains('naasnaas_nugbot', $keys);
         $this->assertEquals(0, $settings->settings->naasnaas_nugbot->get_defaultsetting());
+        $this->assertContains('naasnaas_license_filter', $keys);
+        $this->assertSame(
+            \mod_naas\catalogue_filters::LICENSE_ALL,
+            $settings->settings->naasnaas_license_filter->get_defaultsetting()
+        );
+        $this->assertContains('naasnaas_access_filter', $keys);
+        $this->assertSame(
+            \mod_naas\catalogue_filters::ACCESS_ALL,
+            $settings->settings->naasnaas_access_filter->get_defaultsetting()
+        );
         $this->assertStringNotContainsString('h6teLq3cQangBLFE6qw8', file_get_contents($CFG->dirroot . '/mod/naas/settings.php'));
     }
 }

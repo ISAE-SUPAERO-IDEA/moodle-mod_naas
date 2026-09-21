@@ -126,6 +126,36 @@ if ($hassiteconfig) {
         get_string('naas_settings_catalogue_information', 'naas')
     ));
 
+    $settings->add(new admin_setting_configselect(
+        'naas/naas_license_filter',
+        get_string('naas_settings_license_filter', 'naas'),
+        get_string('naas_settings_license_filter_help', 'naas'),
+        \mod_naas\catalogue_filters::LICENSE_ALL,
+        [
+            \mod_naas\catalogue_filters::LICENSE_ALL =>
+                get_string('naas_settings_license_filter_all', 'naas'),
+            \mod_naas\catalogue_filters::LICENSE_COMMERCIAL =>
+                get_string('naas_settings_license_filter_commercial', 'naas'),
+            \mod_naas\catalogue_filters::LICENSE_NONCOMMERCIAL =>
+                get_string('naas_settings_license_filter_noncommercial', 'naas'),
+        ]
+    ));
+
+    $settings->add(new admin_setting_configselect(
+        'naas/naas_access_filter',
+        get_string('naas_settings_access_filter', 'naas'),
+        get_string('naas_settings_access_filter_help', 'naas'),
+        \mod_naas\catalogue_filters::ACCESS_ALL,
+        [
+            \mod_naas\catalogue_filters::ACCESS_ALL =>
+                get_string('naas_settings_access_filter_all', 'naas'),
+            \mod_naas\catalogue_filters::ACCESS_UNRESTRICTED =>
+                get_string('naas_settings_access_filter_unrestricted', 'naas'),
+            \mod_naas\catalogue_filters::ACCESS_RESTRICTED =>
+                get_string('naas_settings_access_filter_restricted', 'naas'),
+        ]
+    ));
+
     $settings->add(new admin_setting_configtextarea(
         'naas/naas_filter',
         get_string('naas_settings_filter', 'naas'),

@@ -67,8 +67,8 @@ console.log(`Bumping to version ${newVersion}…`)
 
 replace(
   VITE_CONFIG,
-  /const BUNDLE_VERSION = '\d{10}'/,
-  `const BUNDLE_VERSION = '${newVersion}'`
+  /const BUNDLE_VERSION = ['"]\d{10}['"]/,
+  `const BUNDLE_VERSION = "${newVersion}"`
 )
 
 replace(

@@ -1048,6 +1048,24 @@ class proxy_naas_api_test extends advanced_testcase {
         proxy_naas_api::search_nuggets($course->id, []);
     }
 
+    /**
+     * Combined site filters must appear on the NaaS search URL.
+     */
+    public function test_search_url_includes_licence_and_nql_filters(): void {
+        $options = \mod_naas\catalogue_filters::apply(
+            ['page_size' => 6, 'is_default_version' => true],
+            (object) [
+                'naas_filter' => 'type:video',
+                'naas_license_filter' => \mod_naas\catalogue_filters::LICENSE_COMMERCIAL,
+            ]
+        );
+        $url = proxy_naas_api::search_url($options);
+        $this->assertStringContainsString('nql=', $url);
+        $this->assertStringContainsString('access_licences', $url);
+        $this->assertStringNotContainsString('license=1', $url);
+        $this->assertStringNotContainsString('%2528', $url);
+    }
+
     // -----------------------------------------------------------------------
     // Active enrolment gate (shared with view_nugget)
     // -----------------------------------------------------------------------

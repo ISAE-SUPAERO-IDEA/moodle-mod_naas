@@ -6,6 +6,7 @@ import {
   facetNeedsNetworkLabels,
   hasMoreAuthors,
   mapAggregationBuckets,
+  siteRightsFilterActive,
   visibleBuckets,
 } from "./searchAggregations";
 
@@ -84,5 +85,23 @@ describe("searchAggregations", () => {
     expect(visibleBuckets(mapped)).toHaveLength(AUTHOR_PREVIEW_LIMIT);
     mapped.showAll = true;
     expect(visibleBuckets(mapped)).toHaveLength(8);
+  });
+});
+
+describe("site rights filter", () => {
+  it("leaves the CC facet when both admin filters are all", () => {
+    expect(
+      siteRightsFilterActive({ commercial: "all", access: "all" })
+    ).toBe(false);
+    expect(siteRightsFilterActive(undefined)).toBe(false);
+  });
+
+  it("hides the CC facet when commercial or access is restricted", () => {
+    expect(
+      siteRightsFilterActive({ commercial: "noncommercial", access: "all" })
+    ).toBe(true);
+    expect(
+      siteRightsFilterActive({ commercial: "all", access: "restricted" })
+    ).toBe(true);
   });
 });

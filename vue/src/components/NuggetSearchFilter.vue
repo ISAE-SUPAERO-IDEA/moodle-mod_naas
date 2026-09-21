@@ -150,6 +150,7 @@ import {
   hasMoreAuthors,
   mapAggregationBuckets,
   selectedKeysFor,
+  siteRightsFilterActive,
   visibleBuckets,
   type MappedAggregation,
 } from "@/composables/searchAggregations";
@@ -254,14 +255,19 @@ function rebuild() {
   const domainTree: Record<string, AggregationBucket> = {};
 
   for (const name of AGG_ORDER) {
+    if (name === "license" && siteRightsFilterActive(config.license_filter)) {
+      continue;
+    }
     const raw = STATIC_FACET_BUCKETS[name]
       ? { buckets: STATIC_FACET_BUCKETS[name] }
       : props.networkAggregations[name];
     if (!raw?.buckets?.length) continue;
+    const buckets = raw.buckets;
+    if (!buckets.length) continue;
     const prior = previous.get(name);
     const mapped = mapAggregationBuckets(
       name,
-      raw.buckets,
+      buckets,
       selectedKeysFor(props.activeFilters, name),
       (key) => localLabel(name, key),
       {

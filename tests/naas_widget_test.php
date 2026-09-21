@@ -156,6 +156,9 @@ class naas_widget_test extends advanced_testcase {
         $this->assertSame($course->id, $config['courseId']);
         $this->assertSame($naas->cmid, $config['cm_id']);
         $this->assertArrayHasKey('catalogue_snapshot', $config);
+        $this->assertArrayHasKey('license_filter', $config);
+        $this->assertSame('all', $config['license_filter']['commercial']);
+        $this->assertSame('all', $config['license_filter']['access']);
         $this->assertArrayNotHasKey('require_activation_code', $config);
 
         $labels = $config['labels'];

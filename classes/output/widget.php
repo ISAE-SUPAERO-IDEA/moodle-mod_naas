@@ -81,6 +81,7 @@ class widget implements renderable, templatable {
             "courseId" => $this->courseid,
             "cm_id" => $this->cmid,
             "catalogue_snapshot" => \mod_naas\catalogue_cache::export_for_widget(),
+            "license_filter" => \mod_naas\catalogue_filters::widget_license_config(),
             "labels" => [
                 "error_generic_user_message" => get_string("error:generic_user_message", "naas"),
                 "error_nugget_not_found" => get_string("error_nugget_not_found", "naas"),
@@ -169,7 +170,7 @@ class widget implements renderable, templatable {
             $widgetconfig,
             JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
         );
-        $widgetjsurl = new \moodle_url('/mod/naas/assets/vue/naas_widget-2026091800.js');
+        $widgetjsurl = new \moodle_url('/mod/naas/assets/vue/naas_widget-2026092103.js');
         $data->widgetjsurl = $widgetjsurl->out(false);
 
         return $data;

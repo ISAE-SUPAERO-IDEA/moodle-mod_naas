@@ -17,6 +17,8 @@ Feature: NaaS plugin administration settings
     And I should see "Send learner name to NaaS"
     And I should see "Learner experience"
     And I should see "Catalogue"
+    And I should see "Commercial use"
+    And I should see "Restricted / unrestricted use"
     And I should see "Appearance"
     And I should see "Advanced"
     And "Test connection" "button" should exist

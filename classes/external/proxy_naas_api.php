@@ -835,6 +835,11 @@ class proxy_naas_api extends \external_api {
                             'Type filter',
                             VALUE_OPTIONAL
                         ),
+                        'license' => new \external_multiple_structure(
+                            new \external_value(PARAM_TEXT, 'Single licence value'),
+                            'Licence filter',
+                            VALUE_OPTIONAL
+                        ),
                     ],
                     'Search options',
                     VALUE_DEFAULT,
@@ -894,10 +899,7 @@ class proxy_naas_api extends \external_api {
             $searchoptionsarray['page_size'] = 6;
         }
 
-        // Add nql filter.
-        if (!empty($config->naas_filter)) {
-            $searchoptionsarray['nql'] = urlencode($config->naas_filter);
-        }
+        $searchoptionsarray = \mod_naas\catalogue_filters::apply($searchoptionsarray, $config);
 
         $cachekey = \mod_naas\search_cache::canonical_key($searchoptionsarray, $config);
         if ($params['mode'] !== 'revalidate') {
@@ -909,7 +911,10 @@ class proxy_naas_api extends \external_api {
         }
 
         $naas = self::make_naas_client($config);
-        $result = self::sanitise_json_response($naas->request_raw('GET', self::search_url($searchoptionsarray)));
+        $result = \mod_naas\catalogue_filters::constrain_search_json(
+            self::sanitise_json_response($naas->request_raw('GET', self::search_url($searchoptionsarray))),
+            $config
+        );
 
         if (\mod_naas\catalogue_cache::is_landing_search($searchoptionsarray)) {
             \mod_naas\catalogue_cache::remember_search($result, $config);
@@ -981,17 +986,17 @@ class proxy_naas_api extends \external_api {
 
         $naas = self::make_naas_client($config);
 
-        $searchoptions = [
+        $searchoptions = \mod_naas\catalogue_filters::apply([
             'is_default_version' => true,
             'page_size' => 1,
             'sort_by' => 'modification_date',
             'sort_order' => 'DESC',
-        ];
-        if (!empty($config->naas_filter)) {
-            $searchoptions['nql'] = urlencode($config->naas_filter);
-        }
+        ], $config);
 
-        $raw = self::sanitise_json_response($naas->request_raw('GET', self::search_url($searchoptions)));
+        $raw = \mod_naas\catalogue_filters::constrain_search_json(
+            self::sanitise_json_response($naas->request_raw('GET', self::search_url($searchoptions))),
+            $config
+        );
         \mod_naas\catalogue_cache::remember_aggregations($raw, $config);
         $snapshot = \mod_naas\catalogue_cache::get() ?? [];
 
