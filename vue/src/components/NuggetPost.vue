@@ -23,6 +23,16 @@
 -->
 <template>
   <div class="nugget-post" :class="{ 'nugget-post--row': variant === 'row' }">
+    <button
+      v-if="replaceable"
+      type="button"
+      class="nugget-clear-btn"
+      :aria-label="config.labels.click_to_replace"
+      :title="config.labels.click_to_replace"
+      @click.stop="emit('ReplaceButton', nugget)"
+    >
+      <i class="icon fa fa-times-circle" aria-hidden="true" />
+    </button>
     <!-- Thumbnail with overlay badges -->
     <div class="nugget-thumb-wrap">
       <img
@@ -78,15 +88,6 @@
         <i class="icon fa fa-play-circle" />
         {{ config.labels.preview_button }}
       </button>
-      <button
-        v-if="replaceable"
-        type="button"
-        class="nugget-btn nugget-btn-select"
-        @click="emit('ReplaceButton', nugget)"
-      >
-        <i class="icon fa fa-refresh" aria-hidden="true" />
-        {{ config.labels.click_to_replace }}
-      </button>
     </div>
 
     <NuggetAboutModal
@@ -140,6 +141,7 @@ function truncate(text: string, length: number): string {
 <style scoped>
 /* ── Card shell ── */
 .nugget-post {
+  position: relative;
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -219,26 +221,39 @@ function truncate(text: string, length: number): string {
   text-transform: capitalize;
 }
 
-.nugget-lock {
+.nugget-clear-btn {
   position: absolute;
   top: 0.5rem;
   right: 0.5rem;
+  z-index: 2;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 2rem;
   height: 2rem;
+  padding: 0;
+  border: none;
   border-radius: 50%;
   background: rgba(15, 20, 30, 0.78);
   color: #fff;
+  cursor: pointer;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.28);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
 }
 
-.nugget-lock .icon {
+.nugget-clear-btn:hover,
+.nugget-clear-btn:focus-visible {
+  background: #fff;
+  color: var(--naas-text, #1f2937);
+  outline: 2px solid var(--naas-primary, #0f6cbf);
+  outline-offset: 1px;
+}
+
+.nugget-clear-btn .icon {
   margin: 0;
-  font-size: 0.9rem;
+  font-size: 1.15rem;
+  line-height: 1;
 }
 
 /* ── Body ── */
