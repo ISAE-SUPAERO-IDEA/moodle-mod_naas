@@ -112,6 +112,13 @@ if ($hassiteconfig) {
         1
     ));
 
+    $settings->add(new admin_setting_configcheckbox(
+        'naas/naas_nugbot',
+        get_string('naas_settings_nugbot', 'naas'),
+        get_string('naas_settings_nugbot_help', 'naas'),
+        0
+    ));
+
     // Catalogue.
     $settings->add(new admin_setting_heading(
         'naas/heading_catalogue',

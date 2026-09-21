@@ -122,6 +122,9 @@ final class test_connection_setting_test extends advanced_testcase {
         $this->assertGreaterThan($endpointpos, $testpos);
 
         $this->assertSame('', $settings->settings->naasnaas_password->get_defaultsetting());
+        $this->assertContains('naasnaas_feedback', $keys);
+        $this->assertContains('naasnaas_nugbot', $keys);
+        $this->assertEquals(0, $settings->settings->naasnaas_nugbot->get_defaultsetting());
         $this->assertStringNotContainsString('h6teLq3cQangBLFE6qw8', file_get_contents($CFG->dirroot . '/mod/naas/settings.php'));
     }
 }

@@ -124,12 +124,7 @@ class naas_lti {
             )
         );
 
-        $custom = [
-            "hostname" => $CFG->wwwroot, // Used by feedback feature.
-            "is_authenticated" => true, // Required by feedback feature.
-            "css" => $config->naas_css,
-            "feedback" => ($config->naas_feedback === "1") ? "on" : "off",
-        ];
+        $custom = self::lti_custom_options($config);
 
         $launchdata = [
             "lti_version" => "LTI-1p0",
@@ -192,6 +187,27 @@ class naas_lti {
 
         $form = new \mod_naas\output\lti_launch_form($launchurl, $fields);
         echo $OUTPUT->render_from_template('mod_naas/lti_launch_form', $form->export_for_template($OUTPUT));
+    }
+
+    /**
+     * Options sent to NaaS as the LTI custom_naas JSON body.
+     *
+     * NaaS copies this object onto the learner session. feature.nugbot is read
+     * as a boolean when the player decides whether to load nugbot.js.
+     *
+     * @param object $config Plugin config merged with $CFG
+     * @return array
+     */
+    public static function lti_custom_options(object $config): array {
+        global $CFG;
+
+        return [
+            'hostname' => $CFG->wwwroot,
+            'is_authenticated' => true,
+            'css' => $config->naas_css ?? '',
+            'feedback' => (!empty($config->naas_feedback) && (string) $config->naas_feedback === '1') ? 'on' : 'off',
+            'feature.nugbot' => !empty($config->naas_nugbot) && (string) $config->naas_nugbot === '1',
+        ];
     }
 
     /**

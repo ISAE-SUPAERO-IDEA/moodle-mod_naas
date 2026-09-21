@@ -127,6 +127,36 @@ class naas_lti_test extends advanced_testcase {
         $this->assertNotSame($id1, $id2);
     }
 
+    /**
+     * custom_naas JSON must expose feature.nugbot as a boolean for the NaaS player.
+     */
+    public function test_lti_custom_options_include_nugbot_flag(): void {
+        global $CFG;
+
+        $this->resetAfterTest(true);
+        $CFG->wwwroot = 'https://moodle.example.test';
+
+        $off = naas_lti::lti_custom_options((object) [
+            'naas_css' => '',
+            'naas_feedback' => '1',
+            'naas_nugbot' => '0',
+        ]);
+        $this->assertFalse($off['feature.nugbot']);
+        $this->assertSame('on', $off['feedback']);
+
+        $on = naas_lti::lti_custom_options((object) [
+            'naas_css' => '',
+            'naas_feedback' => '0',
+            'naas_nugbot' => '1',
+        ]);
+        $this->assertTrue($on['feature.nugbot']);
+        $this->assertSame('off', $on['feedback']);
+
+        $encoded = json_encode($on);
+        $decoded = json_decode($encoded, true);
+        $this->assertTrue($decoded['feature.nugbot']);
+    }
+
     // -----------------------------------------------------------------------
     // DB interaction — requires HTTP stub (incomplete until refactor)
     // -----------------------------------------------------------------------
