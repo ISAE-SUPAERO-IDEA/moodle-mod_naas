@@ -161,11 +161,12 @@
         />
 
         <p
-          v-if="loading"
-          class="nugget-collecting-msg"
+          v-if="loading || loadingMore"
+          class="nugget-loading-banner"
           role="status"
           aria-live="polite"
         >
+          <span class="nugget-loading-spinner" aria-hidden="true" />
           {{
             config.labels.nugget_search_collecting ||
             "We are collecting nugget data, please wait."
@@ -196,7 +197,7 @@
               :key="`skel-${n}`"
               class="nugget-grid-item"
             >
-              <NuggetSkeleton :variant="nuggetLayout" />
+              <NuggetSkeleton :variant="nuggetLayout" :delay="n - 1" />
             </div>
           </template>
 
@@ -230,7 +231,7 @@
                 :key="`more-skel-${n}`"
                 class="nugget-grid-item"
               >
-                <NuggetSkeleton :variant="nuggetLayout" />
+                <NuggetSkeleton :variant="nuggetLayout" :delay="n - 1" />
               </div>
             </template>
 
@@ -252,7 +253,16 @@
     <!-- Selected nugget display -->
     <div v-else class="selected-nugget-wrap">
       <div class="selected-nugget-inner">
-        <NuggetSkeleton v-if="selectedNuggetLoading" />
+        <div v-if="selectedNuggetLoading" class="selected-nugget-loading">
+          <p class="nugget-loading-banner" role="status" aria-live="polite">
+            <span class="nugget-loading-spinner" aria-hidden="true" />
+            {{
+              config.labels.nugget_search_collecting ||
+              "We are collecting nugget data, please wait."
+            }}
+          </p>
+          <NuggetSkeleton />
+        </div>
         <div v-if="!selectedNuggetLoading && selectedNugget">
           <NuggetPost
             :nugget="selectedNugget"
@@ -792,6 +802,7 @@ onMounted(async () => {
 .search-results {
   width: 100%;
   max-width: 100%;
+  margin-bottom:3rem;
   min-width: 0;
 }
 
@@ -834,10 +845,43 @@ onMounted(async () => {
   color: var(--naas-primary, #0f6cbf);
 }
 
-.nugget-collecting-msg {
-  margin: 0 0 0.75rem;
-  font-size: 0.875rem;
-  color: var(--naas-text-muted, #6c757d);
+.nugget-loading-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin: 0 0 1rem;
+  padding: 0.7rem 0.95rem;
+  border: 1px solid rgba(15, 108, 191, 0.18);
+  border-radius: var(--naas-radius, 8px);
+  background: var(--naas-primary-light, #dce9fa);
+  color: var(--naas-primary-dark, #0a4a8f);
+  font-size: 0.9rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.nugget-loading-spinner {
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+  border: 2px solid rgba(15, 108, 191, 0.25);
+  border-top-color: var(--naas-primary, #0f6cbf);
+  border-radius: 50%;
+  animation: nugget-loading-spin 0.7s linear infinite;
+}
+
+@keyframes nugget-loading-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nugget-loading-spinner {
+    animation: none;
+    border-top-color: rgba(15, 108, 191, 0.25);
+    background: var(--naas-primary, #0f6cbf);
+  }
 }
 
 /* Revalidation is background work: visible if looked for, never attention-grabbing. */
@@ -845,8 +889,10 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   gap: 0.4rem;
+  margin: 0 0 0.75rem;
   opacity: 0.65;
   font-size: 0.8rem;
+  color: var(--naas-text-muted, #6c757d);
 }
 
 /* ── Nugget grid: 3 cards per row ──────────────────────────────────────── */
@@ -859,9 +905,16 @@ onMounted(async () => {
 }
 
 .nugget-grid-item {
+  display: flex;
   min-width: 0;
   width: 100%;
   max-width: 100%;
+  cursor: default;
+}
+
+.nugget-grid:not(.nugget-grid--rows) .nugget-grid-item :deep(.nugget-post) {
+  width: 100%;
+  height: 100%;
 }
 
 .nugget-grid--rows {

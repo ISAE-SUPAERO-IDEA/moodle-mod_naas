@@ -31,7 +31,7 @@
       :title="config.labels.click_to_replace"
       @click.stop="emit('ReplaceButton', nugget)"
     >
-      <i class="icon fa fa-times-circle" aria-hidden="true" />
+      <span class="nugget-clear-mark" aria-hidden="true">×</span>
     </button>
     <!-- Thumbnail with overlay badges -->
     <div class="nugget-thumb-wrap">
@@ -46,11 +46,8 @@
           <i class="icon fa fa-clock-o" />
           {{ nugget.duration }}&thinsp;min
         </span>
-        <span v-if="nugget.license" class="nugget-badge nugget-badge-level">
-          {{
-            config.labels.metadata[`license_${nugget.license}`] ??
-            nugget.license
-          }}
+        <span v-if="licenseLabel" class="nugget-badge nugget-badge-license">
+          {{ licenseLabel }}
         </span>
       </div>
     </div>
@@ -66,7 +63,12 @@
       >
         {{ description }}
       </p>
-      <p v-if="authorsNames" class="nugget-authors">{{ authorsNames }}</p>
+      <p
+        class="nugget-authors"
+        :class="{ 'nugget-authors--empty': !authorsNames }"
+      >
+        {{ authorsNames }}
+      </p>
     </div>
 
     <!-- Footer actions -->
@@ -91,7 +93,6 @@
         class="nugget-btn nugget-btn-ghost"
         @click="showPreview = true"
       >
-        <i class="icon fa fa-play-circle" />
         {{ config.labels.preview_button }}
       </button>
     </div>
@@ -141,6 +142,16 @@ const authorsNames = computed(() =>
 
 const description = computed(() => stripHtml(props.nugget.resume));
 
+const licenseLabel = computed(() => {
+  const raw = props.nugget.license;
+  if (raw === undefined || raw === null || raw === "") {
+    return "";
+  }
+  return (
+    config.labels.metadata[`license_${raw}`] ?? String(raw)
+  );
+});
+
 function stripHtml(value?: string): string {
   const raw = (value ?? "").trim();
   if (!raw) {
@@ -160,6 +171,7 @@ function truncate(text: string, length: number): string {
 /* ── Card shell ── */
 .nugget-post {
   position: relative;
+  cursor: default;
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -176,9 +188,8 @@ function truncate(text: string, length: number): string {
     transform 0.18s ease;
 }
 
-.nugget-post:hover,
-.nugget-post:focus-within {
-  border-color: var(--naas-primary, #0f6cbf);
+.nugget-post:hover:not(:has(.nugget-clear-btn)),
+.nugget-post:focus-within:not(:has(.nugget-clear-btn)) {
   box-shadow: 0 8px 20px rgba(15, 108, 191, 0.16);
   transform: translateY(-2px);
 }
@@ -194,14 +205,17 @@ function truncate(text: string, length: number): string {
 }
 
 .nugget-thumb {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center;
   display: block;
   transition: transform 0.35s ease;
 }
 
-.nugget-post:hover .nugget-thumb {
+.nugget-post:hover:not(:has(.nugget-clear-btn)) .nugget-thumb {
   transform: scale(1.04);
 }
 
@@ -228,15 +242,10 @@ function truncate(text: string, length: number): string {
   -webkit-backdrop-filter: blur(4px);
 }
 
-.nugget-badge-duration {
+.nugget-badge-duration,
+.nugget-badge-license {
   background: rgba(0, 0, 0, 0.55);
   color: #fff;
-}
-
-.nugget-badge-level {
-  background: var(--naas-primary, #0f6cbf);
-  color: #fff;
-  text-transform: capitalize;
 }
 
 .nugget-clear-btn {
@@ -249,29 +258,33 @@ function truncate(text: string, length: number): string {
   justify-content: center;
   width: 2rem;
   height: 2rem;
+  margin: 0;
   padding: 0;
-  border: none;
+  box-sizing: border-box;
+  border: 2px solid transparent;
   border-radius: 50%;
-  background: rgba(15, 20, 30, 0.78);
+  background: rgba(15, 20, 30, 0.82);
   color: #fff;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.28);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
+  box-shadow: none;
+  line-height: 1;
 }
 
 .nugget-clear-btn:hover,
 .nugget-clear-btn:focus-visible {
   background: #fff;
-  color: var(--naas-text, #1f2937);
-  outline: 2px solid var(--naas-primary, #0f6cbf);
-  outline-offset: 1px;
+  color: #1f2937;
+  border-color: var(--naas-primary, #0f6cbf);
+  outline: none;
+  box-shadow: none;
 }
 
-.nugget-clear-btn .icon {
-  margin: 0;
-  font-size: 1.15rem;
+.nugget-clear-mark {
+  display: block;
+  font-size: 1.35rem;
+  font-weight: 500;
   line-height: 1;
+  color: inherit;
 }
 
 /* ── Body ── */
@@ -297,6 +310,7 @@ function truncate(text: string, length: number): string {
   overflow: hidden;
   min-width: 0;
   max-width: 100%;
+  min-height: calc(1.35em * 2);
 }
 
 .nugget-authors {
@@ -309,6 +323,11 @@ function truncate(text: string, length: number): string {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  min-height: 1.2em;
+}
+
+.nugget-post--row .nugget-authors--empty {
+  display: none;
 }
 
 .nugget-description {
@@ -397,12 +416,12 @@ function truncate(text: string, length: number): string {
 }
 
 .nugget-post--row .nugget-thumb-wrap {
-  flex: 0 1 13rem;
-  width: 13rem;
-  max-width: 38%;
-  min-width: 0;
-  aspect-ratio: 16 / 9;
-  height: auto;
+  flex: 0 0 11.5rem;
+  width: 11.5rem;
+  min-width: 11.5rem;
+  max-width: 11.5rem;
+  height: calc(11.5rem * 9 / 16);
+  aspect-ratio: auto;
 }
 
 .nugget-post--row .nugget-body {
@@ -416,6 +435,7 @@ function truncate(text: string, length: number): string {
 .nugget-post--row .nugget-title {
   -webkit-line-clamp: 1;
   line-clamp: 1;
+  min-height: 0;
 }
 
 .nugget-post--row .nugget-footer {
@@ -441,7 +461,11 @@ function truncate(text: string, length: number): string {
 
   .nugget-post--row .nugget-thumb-wrap {
     width: 100%;
+    min-width: 0;
     max-width: none;
+    flex-basis: auto;
+    height: auto;
+    aspect-ratio: 16 / 9;
   }
 
   .nugget-post--row .nugget-footer {

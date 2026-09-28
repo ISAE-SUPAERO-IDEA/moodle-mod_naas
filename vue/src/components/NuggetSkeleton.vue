@@ -22,33 +22,41 @@
  */
 -->
 <template>
-  <VCard
+  <div
     class="nugget-skeleton"
     :class="{ 'nugget-skeleton--row': variant === 'row' }"
-    :border="false"
-    elevation="0"
+    :style="{ '--skel-delay': String(delay ?? 0) }"
     aria-hidden="true"
   >
-    <VSkeletonLoader class="skel-thumb" type="image" />
-    <VCardText class="skel-body">
-      <VSkeletonLoader type="heading, text" />
-    </VCardText>
-    <VCardActions class="skel-footer">
-      <VSkeletonLoader class="skel-btn" type="button" />
-      <VSkeletonLoader class="skel-btn" type="button" />
-      <VSkeletonLoader class="skel-btn" type="button" />
-    </VCardActions>
-  </VCard>
+    <div class="skel-thumb">
+      <span class="skel-pill" />
+    </div>
+    <div class="skel-body">
+      <span class="skel-line skel-line--title" />
+      <span class="skel-line skel-line--title-short" />
+      <span class="skel-line skel-line--meta" />
+      <span class="skel-line skel-line--text" />
+      <span class="skel-line skel-line--text-short" />
+    </div>
+    <div class="skel-footer">
+      <span class="skel-btn skel-btn--primary" />
+      <span class="skel-btn" />
+      <span class="skel-btn" />
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
 defineProps<{
   variant?: "card" | "row";
+  /** Staggers the sheen so a grid does not pulse in unison. */
+  delay?: number;
 }>();
 </script>
 
 <style scoped>
 .nugget-skeleton {
+  position: relative;
   display: flex;
   flex-direction: column;
   width: 100%;
@@ -63,27 +71,111 @@ defineProps<{
   height: 100%;
 }
 
+.nugget-skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 0%,
+    transparent 38%,
+    rgba(255, 255, 255, 0.72) 50%,
+    transparent 62%,
+    transparent 100%
+  );
+  transform: translateX(-120%);
+  animation: nugget-skeleton-sheen 1.6s ease-in-out infinite;
+  animation-delay: calc(var(--skel-delay) * 0.12s);
+  pointer-events: none;
+  z-index: 1;
+}
+
 .skel-thumb {
+  position: relative;
   width: 100%;
   aspect-ratio: 16 / 9;
   flex-shrink: 0;
+  background: linear-gradient(160deg, #e7eef6 0%, #d5e3f2 100%);
 }
 
-.skel-thumb :deep(.v-skeleton-loader__image),
-.skel-thumb :deep(.v-skeleton-loader__bone) {
-  height: 100%;
-  border-radius: 0;
+.skel-play {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 2.4rem;
+  height: 2.4rem;
+  margin: -1.2rem 0 0 -1.2rem;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: 0 2px 8px rgba(15, 108, 191, 0.12);
+}
+
+.skel-play::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 54%;
+  transform: translate(-50%, -50%);
+  border-style: solid;
+  border-width: 0.38rem 0 0.38rem 0.62rem;
+  border-color: transparent transparent transparent #8eb4d8;
+}
+
+.skel-pill {
+  position: absolute;
+  left: 0.55rem;
+  bottom: 0.55rem;
+  width: 3.4rem;
+  height: 1.05rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.55);
 }
 
 .skel-body {
   flex: 1;
-  padding: 0.875rem 1rem 0.5rem !important;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  padding: 0.875rem 1rem 0.65rem;
+}
+
+.skel-line {
+  display: block;
+  height: 0.72rem;
+  border-radius: 999px;
+  background: #e6ebf1;
+}
+
+.skel-line--title {
+  height: 0.85rem;
+  width: 92%;
+  background: #d5dee8;
+}
+
+.skel-line--title-short {
+  height: 0.85rem;
+  width: 64%;
+  background: #d5dee8;
+}
+
+.skel-line--meta {
+  width: 48%;
+  margin-top: 0.15rem;
+  background: #eef2f6;
+}
+
+.skel-line--text {
+  width: 100%;
+}
+
+.skel-line--text-short {
+  width: 78%;
 }
 
 .skel-footer {
   display: flex;
   gap: 0.35rem;
-  padding: 0.6rem 0.875rem !important;
+  padding: 0.6rem 0.875rem;
   border-top: 1px solid var(--naas-border-light, #e9ecef);
   background: var(--naas-surface-muted, #f8f9fa);
   flex-shrink: 0;
@@ -91,7 +183,13 @@ defineProps<{
 
 .skel-btn {
   flex: 1;
-  height: 27px;
+  height: 1.7rem;
+  border-radius: var(--naas-radius, 8px);
+  background: #e4e9ef;
+}
+
+.skel-btn--primary {
+  background: #c5daf0;
 }
 
 .nugget-skeleton--row {
@@ -113,6 +211,11 @@ defineProps<{
   min-width: 0;
 }
 
+.nugget-skeleton--row .skel-line--text,
+.nugget-skeleton--row .skel-line--text-short {
+  display: none;
+}
+
 .nugget-skeleton--row .skel-footer {
   flex-direction: column;
   width: 8.75rem;
@@ -120,5 +223,20 @@ defineProps<{
   flex: 0 0 auto;
   border-top: none;
   border-left: 1px solid var(--naas-border-light, #e9ecef);
+}
+
+@keyframes nugget-skeleton-sheen {
+  0% {
+    transform: translateX(-120%);
+  }
+  100% {
+    transform: translateX(120%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nugget-skeleton::after {
+    animation: none;
+  }
 }
 </style>

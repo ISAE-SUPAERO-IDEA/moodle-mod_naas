@@ -55,8 +55,13 @@
 .mform[data-naas-details="hidden"] #fitem_id_introeditor,
 .mform[data-naas-details="hidden"] #fitem_id_intro,
 .mform[data-naas-details="hidden"] #fitem_id_showdescription,
-.mform[data-naas-details="hidden"] #fitem_id_cgu_agreement {
+.mform[data-naas-details="hidden"] #fitem_id_cgu_agreement,
+.fitem.naas-cgu-field {
   display: none !important;
+}
+
+.mform .naas-cgu-anchor #fitem_id_cgu_agreement.naas-cgu-field {
+  display: block !important;
 }
 
 #naas_widget,
