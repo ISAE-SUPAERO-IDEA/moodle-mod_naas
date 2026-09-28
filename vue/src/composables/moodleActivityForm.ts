@@ -96,6 +96,65 @@ export function setMoodleActivityDescription(html: string): void {
   }
 }
 
+const CGU_FIELD_CLASS = "naas-cgu-field";
+
+interface CguHome {
+  parent: Node;
+  next: ChildNode | null;
+}
+
+let cguHome: CguHome | null = null;
+
+/** The Moodle CGU row, whether or not the theme printed fitem_id_cgu_agreement. */
+export function cguAgreementItem(): HTMLElement | null {
+  return (
+    document.getElementById("fitem_id_cgu_agreement") ??
+    document.getElementById("id_cgu_agreement")?.closest(".fitem") ??
+    null
+  );
+}
+
+/**
+ * Show the real CGU checkbox under the selected nugget.
+ * The input stays inside the activity form, so Moodle still receives it.
+ */
+/** Hide the CGU row until it is parked under the selected nugget. */
+export function concealCguAgreement(): void {
+  cguAgreementItem()?.classList.add(CGU_FIELD_CLASS);
+}
+
+export function placeCguAgreement(anchor: HTMLElement | null): void {
+  const item = cguAgreementItem();
+  if (!item || !anchor) {
+    return;
+  }
+  item.classList.add(CGU_FIELD_CLASS);
+  const parent = item.parentNode;
+  if (parent && parent !== anchor && (!cguHome || !cguHome.parent.isConnected)) {
+    cguHome = { parent, next: item.nextSibling };
+  }
+  if (item.parentElement !== anchor) {
+    anchor.appendChild(item);
+  }
+}
+
+/** Put the CGU row back where Moodle rendered it. */
+export function restoreCguAgreement(): void {
+  const item = cguAgreementItem();
+  if (!item || !cguHome) {
+    return;
+  }
+  const { parent, next } = cguHome;
+  if (item.parentNode === parent) {
+    return;
+  }
+  if (next && next.parentNode === parent) {
+    parent.insertBefore(item, next);
+  } else {
+    parent.appendChild(item);
+  }
+}
+
 /** Fill (or clear) Moodle fields when a nugget is selected or replaced. */
 export function syncMoodleNuggetFields(nugget: Nugget | null): void {
   setActivityDetailsVisible(!!nugget);

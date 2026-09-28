@@ -1,7 +1,10 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   ACTIVITY_DETAILS_FORM_ATTR,
+  concealCguAgreement,
   descriptionToHtml,
+  placeCguAgreement,
+  restoreCguAgreement,
   setActivityDetailsVisible,
   setMoodleActivityName,
   syncMoodleNuggetFields,
@@ -122,5 +125,50 @@ describe("Moodle activity form bridge", () => {
     expect((document.getElementById("id_name") as HTMLInputElement).value).toBe(
       "Title"
     );
+  });
+});
+
+describe("CGU agreement placement", () => {
+  it("parks the Moodle checkbox under the anchor and keeps it in the form", () => {
+    document.body.innerHTML = `
+      <form class="mform">
+        <div class="fitem">
+          <input type="checkbox" id="id_cgu_agreement" name="cgu_agreement" />
+          <label for="id_cgu_agreement">I have read and agree</label>
+        </div>
+        <div id="after-cgu"></div>
+        <div id="anchor"></div>
+      </form>
+    `;
+    const item = document.querySelector(".fitem") as HTMLElement;
+    const anchor = document.getElementById("anchor") as HTMLElement;
+    const form = document.querySelector("form") as HTMLFormElement;
+
+    concealCguAgreement();
+    expect(item.classList.contains("naas-cgu-field")).toBe(true);
+
+    placeCguAgreement(anchor);
+    expect(anchor.contains(item)).toBe(true);
+    expect(form.contains(document.getElementById("id_cgu_agreement"))).toBe(true);
+
+    restoreCguAgreement();
+    expect(item.parentElement).toBe(form);
+    expect(item.nextElementSibling?.id).toBe("after-cgu");
+  });
+
+  it("finds the row by fitem_id_cgu_agreement", () => {
+    document.body.innerHTML = `
+      <form class="mform">
+        <div id="fitem_id_cgu_agreement" class="fitem">
+          <input type="checkbox" id="id_cgu_agreement" name="cgu_agreement" />
+        </div>
+        <div id="anchor"></div>
+      </form>
+    `;
+    placeCguAgreement(document.getElementById("anchor"));
+    expect(document.getElementById("anchor")?.firstElementChild?.id).toBe(
+      "fitem_id_cgu_agreement"
+    );
+    restoreCguAgreement();
   });
 });

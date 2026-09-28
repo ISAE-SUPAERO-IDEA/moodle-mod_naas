@@ -259,6 +259,7 @@
             replaceable
             @ReplaceButton="clearSelection"
           />
+          <div ref="cguAnchor" class="naas-cgu-anchor"></div>
         </div>
       </div>
     </div>
@@ -267,7 +268,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch, nextTick } from "vue";
+import { ref, computed, onMounted, onBeforeUnmount, watch, nextTick } from "vue";
 import debounce from "debounce";
 import NuggetSearchFilter from "./NuggetSearchFilter.vue";
 import NuggetPost from "./NuggetPost.vue";
@@ -279,6 +280,9 @@ import { useMoodleService } from "@/composables/useMoodleService";
 import { useNuggetSearch } from "@/composables/useNuggetSearch";
 import { SEARCH_FIRST_PAGE, withSearchPage } from "@/composables/searchPaging";
 import {
+  concealCguAgreement,
+  placeCguAgreement,
+  restoreCguAgreement,
   setActivityDetailsVisible,
   syncMoodleNuggetFields,
 } from "@/composables/moodleActivityForm";
@@ -430,6 +434,25 @@ function onGridKeydown(e: KeyboardEvent) {
 }
 
 const selectedNuggetLoading = ref(false);
+const cguAnchor = ref<HTMLElement | null>(null);
+
+watch(
+  [selectedNugget, selectedNuggetLoading],
+  ([nugget, loading]) => {
+    if (!nugget || loading) {
+      restoreCguAgreement();
+    }
+  },
+  { flush: "pre" }
+);
+
+watch([selectedNugget, selectedNuggetLoading], async ([nugget, loading]) => {
+  if (!nugget || loading) {
+    return;
+  }
+  await nextTick();
+  placeCguAgreement(cguAnchor.value);
+});
 const selectedId = ref<string | null>(null);
 const page = ref(SEARCH_FIRST_PAGE);
 const hasMore = ref(false);
@@ -628,7 +651,12 @@ function clearSelection() {
   refreshResults();
 }
 
+onBeforeUnmount(() => {
+  restoreCguAgreement();
+});
+
 onMounted(async () => {
+  concealCguAgreement();
   holdRevalidation();
   const nuggetIdField = document.getElementsByName(
     "nugget_id"
@@ -883,6 +911,10 @@ onMounted(async () => {
   width: 75%;
 }
 
+.naas-cgu-anchor {
+  margin-top: 0.85rem;
+}
+
 /* ── Error banner ──────────────────────────────────────────────────────── */
 .naas-error-banner {
   display: flex;
@@ -1023,8 +1055,86 @@ onMounted(async () => {
 .mform[data-naas-details="hidden"] #fitem_id_introeditor,
 .mform[data-naas-details="hidden"] #fitem_id_intro,
 .mform[data-naas-details="hidden"] #fitem_id_showdescription,
-.mform[data-naas-details="hidden"] #fitem_id_cgu_agreement {
+.mform[data-naas-details="hidden"] #fitem_id_cgu_agreement,
+.fitem.naas-cgu-field {
   display: none !important;
+}
+
+/* The same Moodle checkbox, parked under the selected nugget. */
+.naas-cgu-anchor .fitem.naas-cgu-field,
+.mform .naas-cgu-anchor #fitem_id_cgu_agreement.naas-cgu-field {
+  display: block !important;
+  margin: 0;
+  padding: 0.95rem 1.05rem;
+  border: 1.5px solid rgba(15, 108, 191, 0.28);
+  border-radius: var(--naas-radius, 8px);
+  background: #f3f8fd;
+  box-shadow: none;
+}
+
+.naas-cgu-anchor .fitem.naas-cgu-field > .col-md-3,
+.naas-cgu-anchor .fitemtitle {
+  display: none;
+}
+
+.naas-cgu-anchor .col-md-9,
+.naas-cgu-anchor .felement,
+.naas-cgu-anchor .checkbox {
+  width: 100%;
+  max-width: 100%;
+  flex: 1 1 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.naas-cgu-anchor .form-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  min-height: 0;
+}
+
+.naas-cgu-anchor .form-check-input {
+  position: static;
+  float: none;
+  width: 1.15rem;
+  height: 1.15rem;
+  margin: 0.2rem 0 0;
+  flex: 0 0 auto;
+  accent-color: var(--naas-primary, #0f6cbf);
+}
+
+.naas-cgu-anchor label,
+.naas-cgu-anchor #id_cgu_agreement_description {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.45;
+  color: var(--naas-text, #1f2937);
+}
+
+.naas-cgu-anchor a {
+  color: var(--naas-primary-dark, #0a4a8f);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 0.12em;
+}
+
+.naas-cgu-anchor a:hover,
+.naas-cgu-anchor a:focus-visible {
+  color: var(--naas-primary, #0f6cbf);
+}
+
+.naas-cgu-anchor .invalid-feedback:not(:empty),
+.naas-cgu-anchor .error:not(:empty) {
+  display: block;
+  margin: 0.5rem 0 0 1.9rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  line-height: 1.4;
+  color: #9b1c1c;
 }
 #naas_widget,
 .naas-widget-host {
