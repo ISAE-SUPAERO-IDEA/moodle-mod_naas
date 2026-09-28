@@ -127,7 +127,10 @@ class vocabulary_lookup {
         $table = self::collect([
             [
                 'authors' => self::bucket_keys($aggregations, 'authors'),
-                'domains' => self::bucket_keys($aggregations, 'related_domains'),
+                'domains' => array_values(array_unique(array_merge(
+                    self::bucket_keys($aggregations, 'related_domains'),
+                    self::bucket_keys($aggregations, 'domains')
+                ))),
             ],
         ]);
         $labels = [

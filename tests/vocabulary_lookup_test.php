@@ -150,4 +150,16 @@ final class vocabulary_lookup_test extends advanced_testcase {
         $this->assertSame('ISAE', $labels['producers']['isae']);
         $this->assertArrayNotHasKey('unknown', $labels['producers']);
     }
+
+    public function test_labels_for_aggregations_read_domains_alias(): void {
+        $this->seed('domain_d2', ['id' => 'd2', 'label' => 'Physics']);
+
+        $labels = vocabulary_lookup::labels_for_aggregations(
+            [
+                'domains' => ['buckets' => [['key' => 'd2']]],
+            ]
+        );
+
+        $this->assertSame('Physics', $labels['related_domains']['d2']);
+    }
 }

@@ -463,6 +463,18 @@ class proxy_naas_api_test extends advanced_testcase {
         proxy_naas_api::get_domain($course->id, 'domain key with spaces!');
     }
 
+    public function test_get_domain_accepts_dotted_vocabulary_codes(): void {
+        $this->resetAfterTest(true);
+
+        $course  = $this->getDataGenerator()->create_course();
+        $student = $this->getDataGenerator()->create_user();
+        $this->getDataGenerator()->enrol_user($student->id, $course->id, 'student');
+        $this->setUser($student);
+
+        $this->expectException(\moodle_exception::class);
+        proxy_naas_api::get_domain($course->id, '01.02.03');
+    }
+
     // -----------------------------------------------------------------------
     // get_structure – validation
     // -----------------------------------------------------------------------

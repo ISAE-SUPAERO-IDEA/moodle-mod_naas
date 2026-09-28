@@ -65,6 +65,17 @@ class proxy_naas_api extends \external_api {
     }
 
     /**
+     * Domain vocabulary keys may include dots (hierarchical codes).
+     *
+     * @param string $value
+     */
+    private static function validate_domain_key(string $value): void {
+        if (!preg_match('/^[a-zA-Z0-9_\-.]{1,128}$/', $value)) {
+            throw new \invalid_parameter_exception(get_string('error:invalid_param', 'naas', 'domainKey'));
+        }
+    }
+
+    /**
      * Person keys are encrypted-email hex hashes, emails, or relationship-prefixed ids.
      *
      * @param string $value
@@ -974,7 +985,7 @@ class proxy_naas_api extends \external_api {
         self::validate_context($context);
         require_capability('mod/naas:view', $context);
 
-        self::validate_id_param($params['domainKey'], 'domainKey');
+        self::validate_domain_key($params['domainKey']);
 
         $cache = \cache::make('mod_naas', 'vocabulary_entries');
         $cachekey = 'domain_' . $params['domainKey'];

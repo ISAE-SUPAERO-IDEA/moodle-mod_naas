@@ -132,6 +132,7 @@ class widget implements renderable, templatable {
                     "producers" => get_string('producers', 'naas'),
                     "authors" => get_string('authors', 'naas'),
                     "related_domains" => get_string('field_of_study', 'naas'),
+                    "domains" => get_string('field_of_study', 'naas'),
                     "type" => get_string('type', 'naas'),
                     "lesson" => get_string('lesson', 'naas'),
                     "demo" => get_string('demo', 'naas'),
