@@ -442,7 +442,7 @@ export function structureVisuals(
   const imageUrl = coverUrl || logoUrl;
   return {
     name: name || acronym || fallbackLabel,
-    acronym: acronym || name || fallbackLabel,
+    acronym,
     logoUrl: logoUrl || coverUrl,
     imageUrl,
     hasCover: Boolean(coverUrl && coverUrl !== logoUrl),

@@ -103,7 +103,12 @@
             />
           </span>
           <span class="browse-card-body">
-            <span class="browse-card-title">{{ cardTitle(producer) }}</span>
+            <span v-if="cardAcronym(producer)" class="browse-card-title">{{
+              cardAcronym(producer)
+            }}</span>
+            <span v-if="cardFullName(producer)" class="browse-card-name">{{
+              cardFullName(producer)
+            }}</span>
             <span class="browse-card-meta">{{
               countLabel(producer.count)
             }}</span>
@@ -123,13 +128,20 @@
 import { computed, ref, watch } from "vue";
 import { useNaasConfig } from "@/composables/useNaasConfig";
 import { useEntityResolvers } from "@/composables/useEntityResolvers";
-import { isOpaqueEntityKey } from "@/composables/structureVisuals";
+import { matchCachedProducer } from "@/composables/catalogueSnapshot";
+import {
+  isOpaqueEntityKey,
+  isRawEntityLabel,
+  structureVisuals,
+} from "@/composables/structureVisuals";
+import type { CatalogueProducer } from "@/types/naas-config.types";
 import type { AggregationResult } from "@/types/nugget.types";
 
 const props = defineProps<{
   aggregations: Record<string, AggregationResult>;
   resultsCount?: number;
   loading?: boolean;
+  directory?: CatalogueProducer[];
 }>();
 
 const emit = defineEmits<{
@@ -207,26 +219,53 @@ function visibleLabel(value: string): string {
   return text;
 }
 
-function cardTitle(producer: ProducerCard): string {
+function cardAcronym(producer: ProducerCard): string {
   const acronym = visibleLabel(producer.acronym);
   const name = visibleLabel(producer.name);
-  if (acronym && name) {
-    return acronym.length <= name.length ? acronym : name;
+  if (acronym && (!name || acronym !== name)) {
+    return acronym;
   }
   return acronym || name;
 }
 
-function cardHoverName(producer: ProducerCard): string {
+function cardFullName(producer: ProducerCard): string {
   const name = visibleLabel(producer.name);
-  if (name && name !== cardTitle(producer)) {
+  const acronym = cardAcronym(producer);
+  if (name && name !== acronym) {
     return name;
   }
   return "";
 }
 
+function cardTitle(producer: ProducerCard): string {
+  return cardAcronym(producer);
+}
+
+function cardHoverName(producer: ProducerCard): string {
+  const name = visibleLabel(producer.name);
+  if (name && name !== cardAcronym(producer)) {
+    return name;
+  }
+  return "";
+}
+
+function directoryVisuals(key: string) {
+  const row =
+    matchCachedProducer(props.directory, key) ??
+    matchCachedProducer(config.catalogue_snapshot?.producers, key);
+  if (!row) {
+    return null;
+  }
+  const visuals = structureVisuals(row, key, config.naas_endpoint ?? "");
+  const hasName =
+    (visuals.acronym && !isRawEntityLabel(visuals.acronym, key)) ||
+    (visuals.name && !isRawEntityLabel(visuals.name, key));
+  return hasName ? visuals : null;
+}
+
 watch(
-  () => props.aggregations.producers?.buckets,
-  async (buckets) => {
+  [() => props.aggregations.producers?.buckets, () => props.directory],
+  async ([buckets]) => {
     const load = ++producerLoad;
     const list = [...(buckets ?? [])].sort(
       (a, b) => bucketDocCount(b) - bucketDocCount(a)
@@ -236,22 +275,34 @@ watch(
       resolvingProducers.value = false;
       return;
     }
-    resolvingProducers.value = true;
+    const painted = list.map((bucket) => {
+      const key = String(bucket.key);
+      const visuals =
+        directoryVisuals(key) ??
+        structureVisuals(null, key, config.naas_endpoint ?? "");
+      return {
+        id: key,
+        count: bucketDocCount(bucket),
+        ...visuals,
+      };
+    });
+    producers.value = painted;
+    resolvingProducers.value = false;
+    const missing = painted.filter((card) => !directoryVisuals(card.id));
+    if (!missing.length) {
+      return;
+    }
     const resolved = await Promise.all(
-      list.map(async (bucket) => {
-        const visuals = await getStructureVisuals(String(bucket.key));
-        return {
-          id: String(bucket.key),
-          count: bucketDocCount(bucket),
-          ...visuals,
-        };
+      missing.map(async (card) => {
+        const visuals = await getStructureVisuals(card.id);
+        return { ...card, ...visuals };
       })
     );
     if (load !== producerLoad) {
       return;
     }
-    producers.value = resolved;
-    resolvingProducers.value = false;
+    const byId = new Map(resolved.map((card) => [card.id, card]));
+    producers.value = producers.value.map((card) => byId.get(card.id) ?? card);
   },
   { immediate: true }
 );
@@ -265,6 +316,7 @@ watch(
 .browse-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  align-items: start;
   gap: 1rem;
 }
 
@@ -272,6 +324,7 @@ watch(
   display: flex;
   flex-direction: column;
   align-items: stretch;
+  height: auto;
   text-align: left;
   padding: 0;
   border: 1.5px solid var(--naas-border, #dee2e6);
@@ -284,6 +337,7 @@ watch(
   transition: border-color 0.18s ease, box-shadow 0.18s ease,
     transform 0.18s ease;
 }
+
 
 .browse-card:hover,
 .browse-card:focus-visible {
@@ -305,6 +359,8 @@ watch(
   display: block;
   width: 100%;
   aspect-ratio: 16 / 9;
+  flex: 0 0 auto;
+  overflow: hidden;
   background: var(--naas-surface-muted, #f8f9fa);
 }
 
@@ -322,9 +378,12 @@ watch(
 }
 
 .browse-card-image {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center;
   display: block;
 }
 
@@ -369,16 +428,32 @@ watch(
   display: flex;
   flex-direction: column;
   gap: 0.15rem;
-  padding: 0.8rem 0.9rem 0.95rem;
+  box-sizing: border-box;
+  height: 5.6rem;
+  flex: 0 0 5.6rem;
+  padding: 0.8rem 0.9rem 0.85rem;
+  overflow: hidden;
 }
 
 .browse-card-title {
+  display: block;
   font-weight: 800;
   font-size: 0.95rem;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--naas-text, #1f2937);
   line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.browse-card-name {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--naas-text, #1f2937);
+  line-height: 1.35;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

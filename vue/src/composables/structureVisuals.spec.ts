@@ -31,7 +31,7 @@ describe("structureVisuals", () => {
       structureVisuals({ logo: "https://example.test/mark.svg" }, "fallback")
     ).toEqual({
       name: "fallback",
-      acronym: "fallback",
+      acronym: "",
       logoUrl: "https://example.test/mark.svg",
       imageUrl: "https://example.test/mark.svg",
       hasCover: false,

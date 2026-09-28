@@ -114,6 +114,7 @@
         :aggregations="facetAggregations"
         :results-count="catalogueResultsCount"
         :loading="catalogueLoading"
+        :directory="producerDirectory"
         @select="onBrowseSelect"
       />
 
@@ -284,8 +285,10 @@ import {
 import {
   facetLabelsFromSnapshot,
   mergeFacetLabels,
+  mergeProducerDirectory,
   snapshotSearch,
 } from "@/composables/catalogueSnapshot";
+import type { CatalogueProducer } from "@/types/naas-config.types";
 import type {
   AggregationResult,
   CatalogueFacetLabels,
@@ -345,6 +348,9 @@ const showingBrowse = computed(
 const catalogueResultsCount = ref(Number(landingSnapshot?.results_count ?? 0));
 
 const producersDigest = ref(config.catalogue_snapshot?.producers_digest ?? "");
+const producerDirectory = ref<CatalogueProducer[]>(
+  config.catalogue_snapshot?.producers ?? []
+);
 const facetLabels = ref<CatalogueFacetLabels>(
   facetLabelsFromSnapshot(config.catalogue_snapshot)
 );
@@ -366,6 +372,21 @@ async function runCatalogueCheck() {
     applyCatalogueStamp(check.stamp, config.catalogue_snapshot?.stamp);
     if (check.labels) {
       facetLabels.value = mergeFacetLabels(facetLabels.value, check.labels);
+    }
+    // Digest ignores display names; always absorb producer rows when present.
+    const checkWithProducers = check as typeof check & {
+      producers?: CatalogueProducer[];
+    };
+    const rows = checkWithProducers.producers;
+    if (Array.isArray(rows) && rows.length > 0) {
+      producerDirectory.value = mergeProducerDirectory(
+        producerDirectory.value,
+        rows
+      );
+      facetLabels.value = mergeFacetLabels(
+        facetLabels.value,
+        facetLabelsFromSnapshot({ producers: rows })
+      );
     }
     if (
       check.producers_digest &&

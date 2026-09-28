@@ -21,9 +21,14 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+import { unwrapNaasPayload } from "@/service/unwrapNaasPayload";
 import { useMoodleService } from "./useMoodleService";
 import { useNaasConfig } from "./useNaasConfig";
-import { structureVisuals, type StructureVisuals } from "./structureVisuals";
+import {
+  normalizePersonKey,
+  structureVisuals,
+  type StructureVisuals,
+} from "./structureVisuals";
 import { matchCachedProducer } from "./catalogueSnapshot";
 
 function stringField(
@@ -46,10 +51,9 @@ export function useEntityResolvers() {
 
   async function getDomainLabel(key: string): Promise<string> {
     try {
-      const domain = (await service.getDomain(key, config.courseId)) as Record<
-        string,
-        unknown
-      > | null;
+      const domain = unwrapNaasPayload<Record<string, unknown> | null>(
+        await service.getDomain(key, config.courseId)
+      );
       const label = stringField(domain, ["label", "name", "title"]);
       return label || key;
     } catch {
@@ -58,19 +62,20 @@ export function useEntityResolvers() {
   }
 
   async function getStructureAcronym(key: string): Promise<string> {
+    const fromVisuals = (visuals: StructureVisuals) =>
+      visuals.acronym || visuals.name || key;
     const cached = visualsFromSnapshot(key);
-    if (cached?.acronym) {
-      return cached.acronym;
+    if (cached && (cached.acronym || cached.name)) {
+      return fromVisuals(cached);
     }
     try {
       const structure = await service.getStructure(key, config.courseId);
-      return (
-        structureVisuals(structure, key, config.naas_endpoint ?? "").acronym ||
-        key
+      return fromVisuals(
+        structureVisuals(structure, key, config.naas_endpoint ?? "")
       );
     } catch {
-      return (
-        structureVisuals(null, key, config.naas_endpoint ?? "").acronym || key
+      return fromVisuals(
+        structureVisuals(null, key, config.naas_endpoint ?? "")
       );
     }
   }
@@ -82,7 +87,12 @@ export function useEntityResolvers() {
     }
     try {
       const structure = await service.getStructure(key, config.courseId);
-      return structureVisuals(structure, key, config.naas_endpoint ?? "");
+      const visuals = structureVisuals(
+        structure,
+        key,
+        config.naas_endpoint ?? ""
+      );
+      return visuals;
     } catch {
       return structureVisuals(null, key, config.naas_endpoint ?? "");
     }
@@ -100,23 +110,31 @@ export function useEntityResolvers() {
   }
 
   async function getPersonName(personKey: string): Promise<string> {
+    const id = normalizePersonKey(personKey);
     try {
-      const person = (await service.getPerson(
-        personKey,
-        config.courseId
-      )) as Record<string, unknown> | null;
-      const first = stringField(person, [
-        "firstname",
-        "first_name",
-        "firstName",
-      ]);
-      const last = stringField(person, ["lastname", "last_name", "lastName"]);
+      const person = unwrapNaasPayload<Record<string, unknown> | null>(
+        await service.getPerson(id, config.courseId)
+      );
+      const properties =
+        person?.properties &&
+        typeof person.properties === "object" &&
+        !Array.isArray(person.properties)
+          ? (person.properties as Record<string, unknown>)
+          : null;
+      const first =
+        stringField(person, ["firstname", "first_name", "firstName"]) ||
+        stringField(properties, ["person:firstname", "firstname"]);
+      const last =
+        stringField(person, ["lastname", "last_name", "lastName"]) ||
+        stringField(properties, ["person:lastname", "lastname"]);
       const full = `${first} ${last}`.trim();
-      if (full) return full.toUpperCase();
-      const name = stringField(person, ["name", "fullname", "full_name"]);
-      return name ? name.toUpperCase() : personKey;
+      const name =
+        stringField(person, ["name", "fullname", "full_name"]) ||
+        stringField(properties, ["dc:title", "name"]);
+      const resolved = full || name;
+      return resolved ? resolved.toUpperCase() : "";
     } catch {
-      return personKey;
+      return "";
     }
   }
 

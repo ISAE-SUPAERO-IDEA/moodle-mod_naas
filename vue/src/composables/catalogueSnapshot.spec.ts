@@ -5,6 +5,7 @@ import {
   isEnriched,
   matchCachedProducer,
   mergeFacetLabels,
+  mergeProducerDirectory,
   sameCatalogueStamp,
   snapshotSearch,
 } from "./catalogueSnapshot";
@@ -30,6 +31,31 @@ describe("catalogueSnapshot", () => {
       )?.name
     ).toBe("ISAE-SUPAERO");
     expect(matchCachedProducer(producers, "missing")).toBeNull();
+  });
+
+  it("keeps a known producer name when a probe row has none", () => {
+    const merged = mergeProducerDirectory(
+      [
+        {
+          structure_id: "isae-supaero",
+          uuid: "06d37c13-6ffe-4c4a-a9e3-ac227652f98c",
+          acronym: "ISAE",
+          name: "ISAE-SUPAERO",
+        },
+      ],
+      [
+        {
+          structure_id: "06d37c13-6ffe-4c4a-a9e3-ac227652f98c",
+          uuid: "06d37c13-6ffe-4c4a-a9e3-ac227652f98c",
+          acronym: "",
+          name: "",
+          count: 4,
+        },
+      ]
+    );
+    expect(merged[0].acronym).toBe("ISAE");
+    expect(merged[0].name).toBe("ISAE-SUPAERO");
+    expect(merged[0].count).toBe(4);
   });
 
   it("normalises a snapshot search payload", () => {
@@ -170,6 +196,7 @@ describe("catalogue stamp helpers", () => {
     });
     expect(labels.producers?.["isae-supaero"]).toBe("ISAE");
     expect(labels.producers?.abc).toBe("ISAE");
+    expect(labels.producers?.["managed_by:structure:abc"]).toBe("ISAE");
     expect(labels.related_domains?.d1).toBe("Math");
     expect(labels.authors?.a1).toBe("ADA L");
   });

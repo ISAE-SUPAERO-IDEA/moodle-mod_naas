@@ -20,7 +20,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-import { normalizeStructureKey } from "./structureVisuals";
+import { isRawEntityLabel, normalizeStructureKey } from "./structureVisuals";
 import type {
   CatalogueProducer,
   CatalogueSnapshot,
@@ -55,6 +55,40 @@ export function matchCachedProducer(
     }
   }
   return null;
+}
+
+function keptLabel(value: string | undefined, key: string): string {
+  const text = (value ?? "").trim();
+  if (!text || isRawEntityLabel(text, key)) {
+    return "";
+  }
+  return text;
+}
+
+/**
+ * Keep a name already on screen when a catalogue probe sends the same
+ * producer back without one. Counts and media from the probe still apply.
+ */
+export function mergeProducerDirectory(
+  current: CatalogueProducer[] | undefined,
+  incoming: CatalogueProducer[]
+): CatalogueProducer[] {
+  return incoming.map((row) => {
+    const key = String(row.structure_id || row.uuid || row.id || "");
+    const prior = matchCachedProducer(current, key);
+    if (!prior) {
+      return row;
+    }
+    const name = keptLabel(row.name, key) || keptLabel(prior.name, key);
+    const acronym =
+      keptLabel(row.acronym, key) || keptLabel(prior.acronym, key);
+    return {
+      ...prior,
+      ...row,
+      name: name || row.name,
+      acronym: acronym || row.acronym,
+    };
+  });
 }
 
 /**
@@ -175,6 +209,8 @@ export function facetLabelsFromSnapshot(
       const value = producer[field];
       if (typeof value === "string" && value) {
         labels.producers![value] = text;
+        labels.producers![`structure:${value}`] = text;
+        labels.producers![`managed_by:structure:${value}`] = text;
       }
     }
   }

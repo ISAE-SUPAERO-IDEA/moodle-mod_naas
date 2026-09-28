@@ -90,4 +90,44 @@ describe("useEntityResolvers", () => {
     });
     expect(getStructure).not.toHaveBeenCalled();
   });
+
+  it("reads a domain label from a wrapped payload", async () => {
+    const getDomain = vi.fn().mockResolvedValue({
+      payload: { label: "Aerospace engineering" },
+    });
+    const { getDomainLabel } = withProviders({ getDomain }, () =>
+      useEntityResolvers()
+    );
+    await expect(getDomainLabel("01.02")).resolves.toBe(
+      "Aerospace engineering"
+    );
+  });
+
+  it("reads an author name from Nuxeo person properties", async () => {
+    const getPerson = vi.fn().mockResolvedValue({
+      properties: {
+        "person:firstname": "Ada",
+        "person:lastname": "Lovelace",
+      },
+    });
+    const { getPersonName } = withProviders({ getPerson }, () =>
+      useEntityResolvers()
+    );
+    await expect(getPersonName("abcdef0123456789abcdef0123456789")).resolves.toBe(
+      "ADA LOVELACE"
+    );
+  });
+
+  it("unwraps a person payload and ignores relationship prefixes", async () => {
+    const getPerson = vi.fn().mockResolvedValue({
+      payload: { firstname: "Ada", lastname: "Lovelace" },
+    });
+    const { getPersonName } = withProviders({ getPerson }, () =>
+      useEntityResolvers()
+    );
+    await expect(
+      getPersonName("authored_by:person:abcdef0123456789")
+    ).resolves.toBe("ADA LOVELACE");
+    expect(getPerson).toHaveBeenCalledWith("abcdef0123456789", 7);
+  });
 });
