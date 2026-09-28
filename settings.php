@@ -25,6 +25,14 @@
 defined('MOODLE_INTERNAL') || die();
 
 if ($hassiteconfig) {
+    // Queued only while this page is rendering. The admin tree includes this
+    // file for other screens too, and those must not load the help script.
+    if (isset($PAGE) && $PAGE->pagetype === 'admin-setting-modsettingnaas') {
+        $PAGE->requires->js_call_amd('mod_naas/admin_settings', 'init', [
+            get_string('admin_setting_help', 'naas'),
+        ]);
+    }
+
     // About.
     $settings->add(new admin_setting_heading(
         'naas/heading_about',

@@ -115,6 +115,7 @@ $string["naas_server_unavailable_help"] = "The NaaS server is currently unavaila
 $string["naas_server_unavailable_title"] = "NaaS server unavailable";
 $string["naas_server_unexpected"] = "Unexpected error occurred on the NaaS server";
 $string["naas_settings"] = "NaaS settings";
+$string['admin_setting_help'] = 'More information';
 $string["naas_settings_about"] = "About the Nugget plugin";
 $string["naas_settings_about_information"] = "This page connects Moodle to the [NaaS](https://www.naas-edu.eu/) platform so teachers can add Nugget activities.\n\nThe username and institute ID below default to public Open Education (OER) credentials. Enter the API password (or set the `NAAS_API_PASSWORD` environment variable), then save and test the connection.\n\nFor your school's private catalogue, request API keys from [idea.lab@isae-supaero.fr](mailto:idea.lab@isae-supaero.fr). Read the [privacy notice](https://doc.clickup.com/2594656/p/h/2f5v0-8202/267a2f1cc205119).";
 $string["naas_settings_advanced"] = "Advanced";

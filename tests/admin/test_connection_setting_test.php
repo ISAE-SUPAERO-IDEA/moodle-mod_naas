@@ -95,6 +95,7 @@ final class test_connection_setting_test extends advanced_testcase {
         $PAGE = new \moodle_page();
         $PAGE->set_context(\context_system::instance());
         $PAGE->set_url(new \moodle_url('/admin/settings.php', ['section' => 'modsettingnaas']));
+        $PAGE->set_pagetype('admin-setting-modsettingnaas');
 
         $hassiteconfig = true;
         $settings = new \admin_settingpage('modsettingnaas', 'NaaS');
@@ -141,5 +142,9 @@ final class test_connection_setting_test extends advanced_testcase {
             $settings->settings->naasnaas_access_filter->get_defaultsetting()
         );
         $this->assertStringNotContainsString('h6teLq3cQangBLFE6qw8', file_get_contents($CFG->dirroot . '/mod/naas/settings.php'));
+        $this->assertStringContainsString(
+            'mod_naas/admin_settings',
+            $PAGE->requires->get_end_code()
+        );
     }
 }
