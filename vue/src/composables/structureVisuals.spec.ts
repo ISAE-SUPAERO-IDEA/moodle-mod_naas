@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
   isOpaqueEntityKey,
+  isRawEntityLabel,
+  lookupLabel,
+  normalizePersonKey,
   normalizeStructureKey,
   structureVisuals,
 } from "./structureVisuals";
@@ -148,5 +151,40 @@ describe("structureVisuals", () => {
       name: "ISAE-SUPAERO",
       acronym: "ISAE",
     });
+  });
+
+  it("keeps a nested acronym when the wrapper sends null", () => {
+    expect(
+      structureVisuals({
+        acronym: null,
+        name: "ISAE-SUPAERO",
+        translations: {
+          en: { acronym: "ISAE", name: "ISAE-SUPAERO" },
+        },
+      })
+    ).toMatchObject({
+      name: "ISAE-SUPAERO",
+      acronym: "ISAE",
+    });
+  });
+
+  it("strips relationship prefixes and looks up labels by either form", () => {
+    expect(
+      normalizePersonKey("authored_by:person:abcdef0123456789")
+    ).toBe("abcdef0123456789");
+    expect(
+      normalizeStructureKey("managed_by:structure:isae-uuid")
+    ).toBe("isae-uuid");
+    expect(
+      lookupLabel(
+        { "isae-uuid": "ISAE" },
+        "managed_by:structure:isae-uuid",
+        normalizeStructureKey
+      )
+    ).toBe("ISAE");
+    expect(
+      isRawEntityLabel("authored_by:person:abcdef0123456789")
+    ).toBe(true);
+    expect(isRawEntityLabel("ISAE", "managed_by:structure:x")).toBe(false);
   });
 });

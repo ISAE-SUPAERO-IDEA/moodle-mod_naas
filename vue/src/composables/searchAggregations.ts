@@ -25,7 +25,7 @@ import type {
   AggregationBucket,
   AggregationResult,
 } from "@/types/nugget.types";
-import type { LicenseFilterConfig } from "@/types/naas-config.types";
+import { isRawEntityLabel } from "./structureVisuals";
 
 /** Facets whose bucket keys are entity ids and need a vocabulary lookup. */
 export const NETWORK_LABEL_FACETS = new Set([
@@ -42,6 +42,22 @@ export function facetNeedsNetworkLabels(name: string): boolean {
 
 export function captionForBucket(label: string, docCount: number): string {
   return `${label} (${docCount})`;
+}
+
+/**
+ * Named rows come first. A hash sorts before "A" in plain localeCompare,
+ * which kept unresolved author keys in the six-row preview.
+ */
+function compareBucketCaptions(
+  a: { help?: string; key: string; caption?: string },
+  b: { help?: string; key: string; caption?: string }
+): number {
+  const aRaw = isRawEntityLabel(a.help ?? "", a.key);
+  const bRaw = isRawEntityLabel(b.help ?? "", b.key);
+  if (aRaw !== bRaw) {
+    return aRaw ? 1 : -1;
+  }
+  return (a.caption ?? "").localeCompare(b.caption ?? "");
 }
 
 export interface MappedAggregation {
@@ -78,7 +94,7 @@ export function mapAggregationBuckets(
     };
   });
 
-  mapped.sort((a, b) => (a.caption ?? "").localeCompare(b.caption ?? ""));
+  mapped.sort(compareBucketCaptions);
 
   return {
     name,
@@ -119,30 +135,45 @@ export function applyResolvedLabels(
       caption: captionForBucket(label, bucket.docCount),
     };
   });
-  buckets.sort((a, b) => (a.caption ?? "").localeCompare(b.caption ?? ""));
-  return { ...aggregation, buckets, labelsResolved: true };
+  buckets.sort(compareBucketCaptions);
+  const labelsResolved = buckets.every(
+    (bucket) => !isRawEntityLabel(bucket.help ?? "", bucket.key)
+  );
+  return { ...aggregation, buckets, labelsResolved };
 }
 
 export type NetworkAggregations = Record<string, AggregationResult | undefined>;
+
+/** NaaS has used related_domains and domains for the same vocabulary facet. */
+const DOMAIN_FACET_ALIASES = ["related_domains", "domains"] as const;
+
+export function aggregationFor(
+  aggregations: NetworkAggregations,
+  name: string
+): AggregationResult | undefined {
+  const direct = aggregations[name];
+  if (direct?.buckets?.length) {
+    return direct;
+  }
+  if (name === "related_domains") {
+    for (const alias of DOMAIN_FACET_ALIASES) {
+      const alt = aggregations[alias];
+      if (alt?.buckets?.length) {
+        return alt;
+      }
+    }
+  }
+  return direct;
+}
 
 export function selectedKeysFor(
   activeFilters: Record<string, string[]>,
   aggName: string
 ): string[] {
-  return activeFilters[aggName] ?? [];
-}
-
-/**
- * Site-level commercial / distribution filters replace the CC licence facet.
- */
-export function siteRightsFilterActive(
-  filter?: LicenseFilterConfig | null
-): boolean {
-  if (!filter) {
-    return false;
+  const keys = activeFilters[aggName] ?? [];
+  if (keys.length || aggName !== "related_domains") {
+    return keys;
   }
-  return (
-    (filter.commercial ?? "all") !== "all" || (filter.access ?? "all") !== "all"
-  );
+  return activeFilters.domains ?? [];
 }
 

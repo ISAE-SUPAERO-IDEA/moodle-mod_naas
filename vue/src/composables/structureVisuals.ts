@@ -114,7 +114,26 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 export function isOpaqueEntityKey(value: string): boolean {
-  return OPAQUE_KEY.test(value.trim());
+  const text = value.trim();
+  return (
+    OPAQUE_KEY.test(text) ||
+    /^[0-9a-f]{16,}$/i.test(text)
+  );
+}
+
+/** True when a facet caption is still the raw aggregation key, not a name. */
+export function isRawEntityLabel(value: string, originalKey = ""): boolean {
+  const text = value.trim();
+  if (!text) {
+    return true;
+  }
+  if (originalKey && text === originalKey) {
+    return true;
+  }
+  if (/^(?:managed_by|authored_by|designed_by|reviewed_by):/i.test(text)) {
+    return true;
+  }
+  return isOpaqueEntityKey(text);
 }
 
 /** Aggregation keys may be `managed_by:structure:{id}` instead of the bare structure id. */
@@ -122,6 +141,42 @@ export function normalizeStructureKey(key: string): string {
   const text = key.trim();
   const prefixed = /^(?:managed_by:)?structure:(.+)$/i.exec(text);
   return (prefixed ? prefixed[1] : text).trim();
+}
+
+/** Author buckets may be `authored_by:person:{hash}` instead of the email hash. */
+export function normalizePersonKey(key: string): string {
+  const text = key.trim();
+  const prefixed =
+    /^(?:authored_by:|designed_by:|reviewed_by:)?person:(.+)$/i.exec(text);
+  return (prefixed ? prefixed[1] : text).trim();
+}
+
+export function lookupLabel(
+  labels: Record<string, string> | undefined,
+  key: string,
+  normalize: (value: string) => string
+): string {
+  if (!labels) {
+    return "";
+  }
+  const direct = labels[key];
+  if (direct) {
+    return direct;
+  }
+  const normalised = normalize(key);
+  if (normalised && labels[normalised]) {
+    return labels[normalised];
+  }
+  const needle = normalised.toLowerCase();
+  if (!needle) {
+    return "";
+  }
+  for (const [entry, label] of Object.entries(labels)) {
+    if (normalize(entry).toLowerCase() === needle) {
+      return label;
+    }
+  }
+  return "";
 }
 
 function defaultStructureMedia(
@@ -318,7 +373,22 @@ function unwrapEntity(raw: unknown, depth = 0): Record<string, unknown> | null {
     }
   }
 
-  return { ...nuxeo, ...nested, ...translated, ...raw };
+  return assignDefined({}, nuxeo, nested, translated, raw);
+}
+
+function assignDefined(
+  target: Record<string, unknown>,
+  ...sources: Record<string, unknown>[]
+): Record<string, unknown> {
+  for (const source of sources) {
+    for (const [key, value] of Object.entries(source)) {
+      if (value === null || value === undefined || value === "") {
+        continue;
+      }
+      target[key] = value;
+    }
+  }
+  return target;
 }
 
 function nuxeoFields(properties: unknown): Record<string, unknown> {

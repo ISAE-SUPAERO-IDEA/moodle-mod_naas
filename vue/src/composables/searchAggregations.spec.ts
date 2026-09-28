@@ -1,12 +1,13 @@
 import { describe, expect, it } from "vitest";
 import {
   AUTHOR_PREVIEW_LIMIT,
+  aggregationFor,
   applyResolvedLabels,
   captionForBucket,
   facetNeedsNetworkLabels,
   hasMoreAuthors,
   mapAggregationBuckets,
-  siteRightsFilterActive,
+  selectedKeysFor,
   visibleBuckets,
 } from "./searchAggregations";
 
@@ -75,6 +76,24 @@ describe("searchAggregations", () => {
     expect(mapped.buckets[0].caption).toBe(captionForBucket("intermediate", 7));
   });
 
+  it("keeps resolved author names ahead of leftover hashes in the preview", () => {
+    const hash = "0123456789abcdef0123456789abcdef";
+    const mapped = mapAggregationBuckets(
+      "authors",
+      [
+        { key: hash, docCount: 9 },
+        { key: "author-1", docCount: 2 },
+      ],
+      [],
+      (key) => key
+    );
+    const resolved = applyResolvedLabels(mapped, {
+      "author-1": "ADA LOVELACE",
+    });
+    expect(resolved.buckets[0].caption).toBe("ADA LOVELACE (2)");
+    expect(visibleBuckets(resolved)[0].help).toBe("ADA LOVELACE");
+  });
+
   it("previews the first author buckets until show-all", () => {
     const buckets = Array.from({ length: 8 }, (_, i) => ({
       key: `a${i}`,
@@ -86,22 +105,30 @@ describe("searchAggregations", () => {
     mapped.showAll = true;
     expect(visibleBuckets(mapped)).toHaveLength(8);
   });
-});
 
-describe("site rights filter", () => {
-  it("leaves the CC facet when both admin filters are all", () => {
-    expect(
-      siteRightsFilterActive({ commercial: "all", access: "all" })
-    ).toBe(false);
-    expect(siteRightsFilterActive(undefined)).toBe(false);
-  });
+  it("reads field-of-study buckets from related_domains or the domains alias", () => {
+    const related = {
+      buckets: [{ key: "d1", docCount: 3 }],
+    };
+    const aliased = {
+      buckets: [{ key: "d2", docCount: 8 }],
+    };
 
-  it("hides the CC facet when commercial or access is restricted", () => {
+    expect(aggregationFor({ related_domains: related }, "related_domains")).toBe(
+      related
+    );
     expect(
-      siteRightsFilterActive({ commercial: "noncommercial", access: "all" })
-    ).toBe(true);
+      aggregationFor({ domains: aliased }, "related_domains")?.buckets[0].key
+    ).toBe("d2");
+    expect(aggregationFor({ level: related }, "related_domains")).toBeUndefined();
+    expect(selectedKeysFor({ domains: ["d2"] }, "related_domains")).toEqual([
+      "d2",
+    ]);
     expect(
-      siteRightsFilterActive({ commercial: "all", access: "restricted" })
-    ).toBe(true);
+      selectedKeysFor(
+        { related_domains: ["d1"], domains: ["d2"] },
+        "related_domains"
+      )
+    ).toEqual(["d1"]);
   });
 });

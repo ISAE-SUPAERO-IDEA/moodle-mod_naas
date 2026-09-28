@@ -73,28 +73,7 @@
 
         <transition name="dropdown-fade">
           <div v-show="aggregation.visible" class="filter-dropdown">
-            <div
-              v-if="
-                resolving === aggregation.name ||
-                waitingForNetworkLabels(aggregation)
-              "
-              class="filter-dropdown-list"
-            >
-              <FilterSkeleton />
-            </div>
-
-            <!-- Related domains -->
-            <div v-else-if="aggregation.name === 'related_domains'">
-              <span v-for="bucket in relatedDomains" :key="bucket.key">
-                <RelatedDomain
-                  :bucket="bucket"
-                  @bucket-click="switchFacet('related_domains', $event)"
-                />
-              </span>
-            </div>
-
-            <!-- All other aggregations -->
-            <div v-else class="filter-dropdown-list">
+            <div class="filter-dropdown-list">
               <label
                 v-for="bucket in visibleBuckets(aggregation)"
                 :key="bucket.key"
@@ -136,24 +115,26 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from "vue";
-import RelatedDomain from "./RelatedDomain.vue";
 import FilterSkeleton from "./FilterSkeleton.vue";
 import { useNaasConfig } from "@/composables/useNaasConfig";
 import { useEntityResolvers } from "@/composables/useEntityResolvers";
-import type {
-  AggregationBucket,
-  AggregationResult,
-} from "@/types/nugget.types";
+import type { AggregationResult } from "@/types/nugget.types";
 import {
+  aggregationFor,
   applyResolvedLabels,
   facetNeedsNetworkLabels,
   hasMoreAuthors,
   mapAggregationBuckets,
   selectedKeysFor,
-  siteRightsFilterActive,
   visibleBuckets,
   type MappedAggregation,
 } from "@/composables/searchAggregations";
+import {
+  isRawEntityLabel,
+  lookupLabel,
+  normalizePersonKey,
+  normalizeStructureKey,
+} from "@/composables/structureVisuals";
 
 type ElWithHandler = HTMLElement & { __coh__: (e: Event) => void };
 
@@ -174,30 +155,11 @@ const AGG_ORDER = [
   "related_domains",
   "level",
   "language",
-  "license",
-  "is_public",
-  "tags",
   "producers",
   "authors",
   "references",
   "type",
 ] as const;
-
-const STATIC_FACET_BUCKETS: Record<
-  string,
-  Array<{ key: string; docCount: number }>
-> = {
-  license: [
-    { key: "1", docCount: 0 },
-    { key: "2", docCount: 0 },
-    { key: "3", docCount: 0 },
-    { key: "4", docCount: 0 },
-  ],
-  is_public: [
-    { key: "true", docCount: 0 },
-    { key: "false", docCount: 0 },
-  ],
-};
 
 const props = defineProps<{
   networkAggregations: Record<string, AggregationResult>;
@@ -224,43 +186,39 @@ const {
 } = useEntityResolvers();
 
 const aggregations = ref<MappedAggregation[]>([]);
-const relatedDomains = ref<AggregationBucket[]>([]);
 const resolving = ref<string | null>(null);
 const resolvedLabels = ref<Record<string, Record<string, string>>>({});
 const resolvingNames = new Set<string>();
 
-function waitingForNetworkLabels(agg: MappedAggregation): boolean {
-  return facetNeedsNetworkLabels(agg.name) && !agg.labelsResolved;
+function localLabel(aggName: string, key: string): string {
+  const normalize =
+    aggName === "producers"
+      ? normalizeStructureKey
+      : aggName === "authors"
+      ? normalizePersonKey
+      : (value: string) => value;
+  const cached =
+    lookupLabel(resolvedLabels.value[aggName], key, normalize) ||
+    lookupLabel(props.networkLabels?.[aggName], key, normalize) ||
+    (aggName === "related_domains"
+      ? lookupLabel(props.networkLabels?.domains, key, normalize)
+      : "");
+  if (cached && !isRawEntityLabel(cached, key)) return cached;
+  if (facetNeedsNetworkLabels(aggName)) return key;
+  return config.labels.metadata[key] ?? key;
 }
 
-function localLabel(aggName: string, key: string): string {
-  const cached =
-    resolvedLabels.value[aggName]?.[key] ?? props.networkLabels?.[aggName]?.[key];
-  if (cached) return cached;
-  if (facetNeedsNetworkLabels(aggName)) return key;
-  if (aggName === "license") {
-    return config.labels.metadata[`license_${key}`] ?? key;
-  }
-  if (aggName === "is_public") {
-    const mapped =
-      key === "true" ? "public" : key === "false" ? "private" : key;
-    return config.labels.metadata[mapped] ?? key;
-  }
-  return config.labels.metadata[key] ?? key;
+function hasHumanLabel(aggName: string, key: string): boolean {
+  const label = localLabel(aggName, key);
+  return !!label && !isRawEntityLabel(label, key);
 }
 
 function rebuild() {
   const previous = new Map(aggregations.value.map((agg) => [agg.name, agg]));
   const next: MappedAggregation[] = [];
-  const domainTree: Record<string, AggregationBucket> = {};
 
   for (const name of AGG_ORDER) {
-    if (name === "license" && siteRightsFilterActive(config.license_filter)) {
-      continue;
-    }
-    const raw = STATIC_FACET_BUCKETS[name]
-      ? { buckets: STATIC_FACET_BUCKETS[name] }
-      : props.networkAggregations[name];
+    const raw = aggregationFor(props.networkAggregations, name);
     if (!raw?.buckets?.length) continue;
     const buckets = raw.buckets;
     if (!buckets.length) continue;
@@ -275,25 +233,13 @@ function rebuild() {
         showAll: prior?.showAll ?? false,
         labelsResolved:
           !facetNeedsNetworkLabels(name) ||
-          raw.buckets.every(
-            (b) =>
-              !!resolvedLabels.value[name]?.[b.key] ||
-              !!props.networkLabels?.[name]?.[b.key]
-          ),
+          raw.buckets.every((b) => hasHumanLabel(name, b.key)),
       }
     );
     next.push(mapped);
-    if (name === "related_domains") {
-      for (const bucket of mapped.buckets) {
-        createChildren(domainTree, bucket, 2);
-      }
-    }
   }
 
   aggregations.value = next;
-  relatedDomains.value = Object.values(domainTree).sort((a, b) =>
-    (a.caption ?? "").localeCompare(b.caption ?? "")
-  );
   if (props.prefetch) {
     prefetchNetworkLabels();
   }
@@ -323,19 +269,6 @@ watch(
   },
   { deep: true }
 );
-
-function createChildren(
-  map: Record<string, AggregationBucket>,
-  bucket: AggregationBucket,
-  index: number
-) {
-  const parentKey = bucket.key.slice(0, index);
-  if (!map[parentKey]) {
-    map[bucket.key] = { ...bucket, children: {} };
-  } else {
-    createChildren(map[parentKey].children!, bucket, index + 1);
-  }
-}
 
 function findAggregation(name: string): MappedAggregation | undefined {
   return aggregations.value.find((agg) => agg.name === name);
@@ -375,10 +308,6 @@ function clearFilters() {
       bucket.selected = false;
     }
   }
-  relatedDomains.value = relatedDomains.value.map((d) => ({
-    ...d,
-    selected: false,
-  }));
   emit("filters", {}, {});
 }
 
@@ -417,22 +346,29 @@ async function resolveFacetLabels(agg: MappedAggregation): Promise<void> {
         ? getStructureAcronym
         : getPersonName;
     const current = findAggregation(agg.name) ?? agg;
-    const keys =
-      current.showAll || current.name !== "authors"
-        ? current.buckets.map((b) => b.key)
-        : visibleBuckets(current).map((b) => b.key);
-
     const labels: Record<string, string> = {
       ...(props.networkLabels?.[agg.name] ?? {}),
+      ...(agg.name === "related_domains"
+        ? (props.networkLabels?.domains ?? {})
+        : {}),
       ...(resolvedLabels.value[agg.name] ?? {}),
     };
+    const keys = current.buckets
+      .map((bucket) => bucket.key)
+      .filter((key) => {
+        const known = labels[key];
+        return !known || isRawEntityLabel(known, key);
+      });
     const titles: Record<string, string> = {};
     if (agg.name === "producers") {
       const visuals = await Promise.all(
         keys.map(async (key) => [key, await getStructureVisuals(key)] as const)
       );
       for (const [key, visual] of visuals) {
-        labels[key] = visual.acronym || visual.name || key;
+        const label = visual.acronym || visual.name;
+        if (label && !isRawEntityLabel(label, key)) {
+          labels[key] = label;
+        }
         if (visual.name && visual.name !== labels[key]) {
           titles[key] = visual.name;
         }
@@ -442,7 +378,9 @@ async function resolveFacetLabels(agg: MappedAggregation): Promise<void> {
         keys.map(async (key) => [key, await resolveKey(key)] as const)
       );
       for (const [key, label] of entries) {
-        if (label) labels[key] = label;
+        if (label && !isRawEntityLabel(label, key)) {
+          labels[key] = label;
+        }
       }
     }
     resolvedLabels.value = { ...resolvedLabels.value, [agg.name]: labels };
@@ -450,15 +388,6 @@ async function resolveFacetLabels(agg: MappedAggregation): Promise<void> {
       item.name === agg.name ? applyResolvedLabels(item, labels, titles) : item
     );
     const updated = findAggregation(agg.name);
-    if (agg.name === "related_domains") {
-      const tree: Record<string, AggregationBucket> = {};
-      for (const bucket of updated?.buckets ?? []) {
-        createChildren(tree, bucket, 2);
-      }
-      relatedDomains.value = Object.values(tree).sort((a, b) =>
-        (a.caption ?? "").localeCompare(b.caption ?? "")
-      );
-    }
     if (updated?.buckets.some((bucket) => bucket.selected)) {
       emit("captions", getExtraParams().captions);
     }
