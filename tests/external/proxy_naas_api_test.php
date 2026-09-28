@@ -757,9 +757,15 @@ class proxy_naas_api_test extends advanced_testcase {
         $this->setUser($user);
 
         $cache = \cache::make('mod_naas', 'vocabulary_entries');
-        $cache->set('structurelabel_structA', '{"structure":1}');
+        $cache->set(
+            proxy_naas_api::structure_cache_key('structA'),
+            '{"name":"ISAE-SUPAERO","acronym":"ISAE"}'
+        );
 
-        $this->assertSame('{"structure":1}', proxy_naas_api::get_structure($course->id, 'structA'));
+        $this->assertSame(
+            '{"name":"ISAE-SUPAERO","acronym":"ISAE"}',
+            proxy_naas_api::get_structure($course->id, 'structA')
+        );
     }
 
     /**
@@ -775,7 +781,7 @@ class proxy_naas_api_test extends advanced_testcase {
 
         $structurekey = 'structcover1';
         $cache = \cache::make('mod_naas', 'vocabulary_entries');
-        $cache->delete('structurelabel_' . $structurekey);
+        $cache->delete(proxy_naas_api::structure_cache_key($structurekey));
 
         $stub = new class extends \mod_naas\naas_client {
             public function __construct() {
@@ -788,7 +794,7 @@ class proxy_naas_api_test extends advanced_testcase {
             }
 
             public function request_raw($protocol, $service, $data = null, $params = null) {
-                return '{"structure":"cover"}';
+                return '{"name":"Cover Structure","acronym":"COV"}';
             }
         };
 
@@ -808,8 +814,63 @@ class proxy_naas_api_test extends advanced_testcase {
             $proxycls::$naas_injection = null;
         }
 
-        $this->assertSame('{"structure":"cover"}', $json);
-        $this->assertSame('{"structure":"cover"}', proxy_naas_api::get_structure($course->id, $structurekey));
+        $this->assertSame('{"name":"Cover Structure","acronym":"COV"}', $json);
+        $this->assertSame(
+            '{"name":"Cover Structure","acronym":"COV"}',
+            proxy_naas_api::get_structure($course->id, $structurekey)
+        );
+    }
+
+    /**
+     * Nameless MUC entries must be deleted and refetched, not returned as-is.
+     */
+    public function test_get_structure_ignores_nameless_cache(): void {
+        $this->resetAfterTest(true);
+
+        $course = $this->getDataGenerator()->create_course();
+        $user   = $this->getDataGenerator()->create_user();
+        $this->getDataGenerator()->enrol_user($user->id, $course->id, 'student');
+        $this->setUser($user);
+
+        $structurekey = 'struct-nameless';
+        $cache = \cache::make('mod_naas', 'vocabulary_entries');
+        $cache->set(
+            proxy_naas_api::structure_cache_key($structurekey),
+            '{"payload":{"structure_id":"struct-nameless"}}'
+        );
+
+        $stub = new class extends \mod_naas\naas_client {
+            public function __construct() {
+                $cfg = new \stdClass();
+                $cfg->naas_endpoint = 'https://stub.example';
+                $cfg->naas_username = 'u';
+                $cfg->naas_password = 'p';
+                $cfg->naas_structure_id = 's';
+                parent::__construct($cfg);
+            }
+
+            public function request_raw($protocol, $service, $data = null, $params = null) {
+                return '{"name":"ISAE-SUPAERO","acronym":"ISAE"}';
+            }
+        };
+
+        $injectable = new class extends proxy_naas_api {
+            /** @var \mod_naas\naas_client|null */
+            public static $naas_injection = null;
+
+            protected static function make_naas_client(object $config): \mod_naas\naas_client {
+                return self::$naas_injection ?? parent::make_naas_client($config);
+            }
+        };
+        $proxycls = \get_class($injectable);
+        $proxycls::$naas_injection = $stub;
+        try {
+            $json = $proxycls::get_structure($course->id, $structurekey);
+        } finally {
+            $proxycls::$naas_injection = null;
+        }
+
+        $this->assertStringContainsString('ISAE-SUPAERO', $json);
     }
 
     /**
@@ -825,7 +886,7 @@ class proxy_naas_api_test extends advanced_testcase {
 
         $structurekey = '06d37c13-6ffe-4c4a-a9e3-ac227652f98c';
         $cache = \cache::make('mod_naas', 'vocabulary_entries');
-        $cache->delete('structurelabel_' . $structurekey);
+        $cache->delete(proxy_naas_api::structure_cache_key($structurekey));
         $cache->delete('producer_catalog_v3');
 
         $stub = new class extends \mod_naas\naas_client {
@@ -893,7 +954,10 @@ class proxy_naas_api_test extends advanced_testcase {
 
         $structurekey = '06d37c13-6ffe-4c4a-a9e3-ac227652f98c';
         $cache = \cache::make('mod_naas', 'vocabulary_entries');
-        $cache->set('structurelabel_' . $structurekey, '{"payload":{"structure_id":"' . $structurekey . '"}}');
+        $cache->set(
+            proxy_naas_api::structure_cache_key($structurekey),
+            '{"payload":{"structure_id":"' . $structurekey . '"}}'
+        );
 
         \mod_naas\catalogue_cache::store([
             'fingerprint' => \mod_naas\catalogue_cache::fingerprint((object) get_config('naas')),

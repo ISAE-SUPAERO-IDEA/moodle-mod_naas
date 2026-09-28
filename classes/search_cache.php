@@ -68,6 +68,14 @@ class search_cache {
                 continue;
             }
             if (is_array($value)) {
+                // Cards click the aggregation key (`managed_by:structure:{id}`).
+                // The rebuild stores the bare structure id. Fold both onto one
+                // cache entry so a click paints the list that was just saved.
+                if ($name === 'producers') {
+                    $value = array_map(function ($entry) {
+                        return catalogue_cache::normalize_structure_key((string) $entry);
+                    }, $value);
+                }
                 $copy = [];
                 foreach ($value as $entry) {
                     if (is_scalar($entry) && (string) $entry !== '') {

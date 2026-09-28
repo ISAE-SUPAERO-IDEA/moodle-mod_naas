@@ -125,7 +125,7 @@ class catalogue_cache {
         if (!$snapshot || ($snapshot['fingerprint'] ?? '') !== self::fingerprint($config)) {
             return null;
         }
-        $producers = array_values($snapshot['producers'] ?? []);
+        $producers = self::hydrate_producer_names(array_values($snapshot['producers'] ?? []));
         $search = self::slim_search($snapshot['search'] ?? null);
         return [
             'warmed_at' => (int) ($snapshot['warmed_at'] ?? 0),
@@ -170,7 +170,7 @@ class catalogue_cache {
      * @return array
      */
     public static function probe_payload(array $snapshot, bool $fromcache = false): array {
-        $producers = array_values($snapshot['producers'] ?? []);
+        $producers = self::hydrate_producer_names(array_values($snapshot['producers'] ?? []));
         $aggregations = $snapshot['search']['aggregations'] ?? [];
         if (!is_array($aggregations)) {
             $aggregations = [];
@@ -438,6 +438,120 @@ class catalogue_cache {
     }
 
     /**
+     * Copy acronym and name from the structure vocabulary cache onto producer rows.
+     *
+     * Aggregation keys are hashes. The readable name is learned by get_structure
+     * and stored as structurelabel_{sha1}. Folding it back here lets the next
+     * page paint producer cards without another lookup, and a catalogue probe
+     * cannot hand the widget a nameless copy of the same rows.
+     *
+     * @param array $producers
+     * @return array
+     */
+    public static function hydrate_producer_names(array $producers): array {
+        $cache = \cache::make('mod_naas', 'vocabulary_entries');
+        $changed = false;
+        foreach ($producers as $position => $row) {
+            if (!is_array($row) || self::producer_row_has_name($row)) {
+                continue;
+            }
+            $visuals = null;
+            foreach (['structure_id', 'uuid', 'uid', 'id'] as $field) {
+                $key = isset($row[$field]) ? (string) $row[$field] : '';
+                if ($key === '') {
+                    continue;
+                }
+                $visuals = self::names_from_structure_cache($cache, $key);
+                if ($visuals !== null) {
+                    break;
+                }
+            }
+            if ($visuals === null) {
+                continue;
+            }
+            if ($visuals['name'] !== '') {
+                $producers[$position]['name'] = $visuals['name'];
+            }
+            if ($visuals['acronym'] !== '') {
+                $producers[$position]['acronym'] = $visuals['acronym'];
+            }
+            unset($producers[$position]['needs_resolve']);
+            $changed = true;
+        }
+        if ($changed) {
+            $snapshot = self::get();
+            if (is_array($snapshot)) {
+                $snapshot['producers'] = $producers;
+                self::store($snapshot);
+            }
+        }
+        return $producers;
+    }
+
+    /**
+     * @param array $row
+     * @return bool
+     */
+    private static function producer_row_has_name(array $row): bool {
+        $opaque = '/^(?:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|[0-9a-f]{16,})$/i';
+        foreach (['acronym', 'name'] as $field) {
+            $text = trim((string) ($row[$field] ?? ''));
+            if ($text !== '' && !preg_match($opaque, $text)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * @param \cache $cache
+     * @param string $key
+     * @return array{name: string, acronym: string}|null
+     */
+    private static function names_from_structure_cache(\cache $cache, string $key): ?array {
+        $cachekey = 'structurelabel_' . sha1(strtolower(self::normalize_structure_key($key)));
+        $raw = $cache->get($cachekey);
+        if (!is_string($raw) || $raw === '') {
+            return null;
+        }
+        $decoded = json_decode($raw);
+        if (!is_object($decoded)) {
+            return null;
+        }
+        $record = $decoded;
+        if (isset($record->payload)) {
+            $payload = $record->payload;
+            if (is_string($payload)) {
+                $payload = json_decode($payload);
+            }
+            if (is_object($payload)) {
+                $record = $payload;
+            }
+        }
+        $acronym = '';
+        $name = '';
+        foreach (['acronym'] as $field) {
+            if (isset($record->{$field}) && is_string($record->{$field})) {
+                $acronym = trim($record->{$field});
+            }
+        }
+        foreach (['name', 'title', 'label'] as $field) {
+            if (!isset($record->{$field}) || !is_string($record->{$field})) {
+                continue;
+            }
+            $text = trim($record->{$field});
+            if ($text !== '') {
+                $name = $text;
+                break;
+            }
+        }
+        if (!self::producer_row_has_name(['name' => $name, 'acronym' => $acronym])) {
+            return null;
+        }
+        return ['name' => $name, 'acronym' => $acronym];
+    }
+
+    /**
      * Slim producer matching a search aggregation key, or null.
      *
      * @param string $key
@@ -496,6 +610,50 @@ class catalogue_cache {
             return null;
         }
         return json_encode(['payload' => $producer], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    }
+
+    /**
+     * Other producer ids that may already have a cached search for this click.
+     *
+     * A rebuild can store the list under the structure slug while the card
+     * sends `managed_by:structure:{uuid}`. Both belong to the same row.
+     *
+     * @param array $options Search options about to be looked up.
+     * @return array Copies of $options, one per alternate producer value.
+     */
+    public static function producer_search_aliases(array $options): array {
+        $requested = $options['producers'] ?? [];
+        if (!is_array($requested) || count($requested) !== 1) {
+            return [];
+        }
+        $snapshot = self::get();
+        $rows = is_array($snapshot['producers'] ?? null) ? $snapshot['producers'] : [];
+        $variants = [];
+        foreach ($requested as $value) {
+            if (!is_string($value) || $value === '') {
+                continue;
+            }
+            foreach ($rows as $row) {
+                if (!is_array($row) || !self::producer_matches($row, $value)) {
+                    continue;
+                }
+                foreach (['structure_id', 'uuid', 'uid', 'id'] as $field) {
+                    if (!empty($row[$field]) && is_string($row[$field])) {
+                        $variants[$row[$field]] = true;
+                    }
+                }
+            }
+        }
+        $out = [];
+        foreach (array_keys($variants) as $variant) {
+            if ((string) $variant === (string) $requested[0]) {
+                continue;
+            }
+            $copy = $options;
+            $copy['producers'] = [$variant];
+            $out[] = $copy;
+        }
+        return $out;
     }
 
     /**
@@ -666,7 +824,7 @@ class catalogue_cache {
             'structure_id' => $structureid !== '' ? $structureid : $uuid,
             'uuid' => $uuid !== '' ? $uuid : $structureid,
             'name' => $name,
-            'acronym' => $acronym !== '' ? $acronym : $name,
+            'acronym' => $acronym,
             'structure_thumbnail_url' => $thumbnail,
             'structure_banner_url' => $banner,
         ];

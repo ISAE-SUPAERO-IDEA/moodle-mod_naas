@@ -404,5 +404,33 @@ final class catalogue_cache_test extends advanced_testcase {
         $this->assertSame('Cached', $exported['search']['items'][0]['name']);
         $this->assertSame('ISAE', $exported['producers'][0]['acronym']);
         $this->assertSame('2026-09-16T08:00:00Z', $exported['max_modification_date']);
+        $this->assertNotNull(catalogue_cache::cached_probe((object) get_config('naas')));
+    }
+
+    public function test_export_copies_cached_structure_names_onto_producers(): void {
+        $config = (object) get_config('naas');
+        $key = '06d37c13-6ffe-4c4a-a9e3-ac227652f98c';
+        catalogue_cache::store([
+            'fingerprint' => catalogue_cache::fingerprint($config),
+            'producers' => [[
+                'structure_id' => $key,
+                'uuid' => $key,
+                'name' => '',
+                'acronym' => '',
+                'needs_resolve' => true,
+            ]],
+            'search' => ['items' => [], 'aggregations' => [], 'results_count' => 0],
+        ]);
+        \cache::make('mod_naas', 'vocabulary_entries')->set(
+            'structurelabel_' . sha1(strtolower($key)),
+            '{"payload":{"acronym":"ISAE","name":"ISAE-SUPAERO"}}'
+        );
+
+        $exported = catalogue_cache::export_for_widget();
+        $this->assertSame('ISAE', $exported['producers'][0]['acronym']);
+        $this->assertSame('ISAE-SUPAERO', $exported['producers'][0]['name']);
+        $this->assertArrayNotHasKey('needs_resolve', $exported['producers'][0]);
+        $stored = catalogue_cache::get();
+        $this->assertSame('ISAE', $stored['producers'][0]['acronym']);
     }
 }

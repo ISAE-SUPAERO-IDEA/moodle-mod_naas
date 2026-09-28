@@ -72,6 +72,17 @@ class proxy_naas_api extends \external_api {
     }
 
     /**
+     * MUC vocabulary keys must be simple: letters, digits, underscore.
+     * Structure ids are UUIDs, and a hyphen makes cache->get throw before the name is fetched.
+     *
+     * @param string $structurekey
+     * @return string
+     */
+    public static function structure_cache_key(string $structurekey): string {
+        return 'structurelabel_' . sha1(strtolower(trim($structurekey)));
+    }
+
+    /**
      * Producer aggregation keys may be `managed_by:structure:{id}`.
      * @param string $value
      * @return string
@@ -130,6 +141,7 @@ class proxy_naas_api extends \external_api {
                 $record = $payload;
             }
         }
+        $record = self::normalise_structure_record($record);
         $opaque = '/^(?:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|[0-9a-f]{32,64})$/i';
         foreach (['acronym', 'name', 'title', 'label'] as $field) {
             if (!isset($record->{$field}) || !is_string($record->{$field})) {
@@ -672,20 +684,19 @@ class proxy_naas_api extends \external_api {
         self::validate_id_param($structurekey, 'structureKey');
 
         $cache = \cache::make('mod_naas', 'vocabulary_entries');
-        $cachekey = 'structurelabel_' . $structurekey;
+        $cachekey = self::structure_cache_key($structurekey);
         $cached = $cache->get($cachekey);
         if (is_string($cached) && self::structure_json_has_name($cached)) {
             return $cached;
+        }
+        if ($cached !== false) {
+            $cache->delete($cachekey);
         }
 
         $fromsnapshot = \mod_naas\catalogue_cache::structure_json($structurekey);
         if ($fromsnapshot !== null) {
             $cache->set($cachekey, $fromsnapshot);
             return $fromsnapshot;
-        }
-
-        if ($cached !== false) {
-            return $cached;
         }
 
         $config = (object) array_merge((array) get_config('naas'), (array) $CFG);
@@ -716,10 +727,12 @@ class proxy_naas_api extends \external_api {
             }
         }
 
+        $source = 'http';
         if ($result === null || !self::structure_json_has_name($result)) {
             $fromcatalog = self::structure_from_producer_catalog($naas, strtolower($structurekey));
             if ($fromcatalog !== null) {
                 $result = $fromcatalog;
+                $source = 'catalog';
             }
         }
 
@@ -727,7 +740,10 @@ class proxy_naas_api extends \external_api {
             return self::structure_media_payload($structurekey, (string) ($config->naas_endpoint ?? ''));
         }
 
-        $cache->set($cachekey, $result);
+        $hasname = self::structure_json_has_name($result);
+        if ($hasname) {
+            $cache->set($cachekey, $result);
+        }
         return $result;
     }
 
@@ -907,6 +923,16 @@ class proxy_naas_api extends \external_api {
         $cachekey = \mod_naas\search_cache::canonical_key($searchoptionsarray, $config);
         if ($params['mode'] !== 'revalidate') {
             $cached = \mod_naas\search_cache::get($cachekey, $config);
+            if ($cached === null) {
+                foreach (\mod_naas\catalogue_cache::producer_search_aliases($searchoptionsarray) as $alias) {
+                    $aliaskey = \mod_naas\search_cache::canonical_key($alias, $config);
+                    $cached = \mod_naas\search_cache::get($aliaskey, $config);
+                    if ($cached !== null) {
+                        $cachekey = $aliaskey;
+                        break;
+                    }
+                }
+            }
             if ($cached !== null) {
                 \mod_naas\search_cache::touch($cachekey);
                 return \mod_naas\search_cache::response($cached, true);

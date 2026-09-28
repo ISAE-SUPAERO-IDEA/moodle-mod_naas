@@ -27,6 +27,7 @@ namespace mod_naas\tests;
 defined('MOODLE_INTERNAL') || die();
 
 use advanced_testcase;
+use mod_naas\catalogue_cache;
 use mod_naas\search_cache;
 
 /**
@@ -105,6 +106,80 @@ final class search_cache_test extends advanced_testcase {
             search_cache::canonical_query(['page_size' => 9, 'page' => 0]),
             search_cache::canonical_query(['page_size' => 9, 'page' => 1])
         );
+    }
+
+    public function test_canonical_query_folds_producer_aggregation_keys(): void {
+        $bare = search_cache::canonical_query([
+            'page_size' => 9,
+            'producers' => ['06d37c13-6ffe-4c4a-a9e3-ac227652f98c'],
+        ]);
+        $prefixed = search_cache::canonical_query([
+            'page_size' => 9,
+            'producers' => ['managed_by:structure:06d37c13-6ffe-4c4a-a9e3-ac227652f98c'],
+        ]);
+        $this->assertSame($bare, $prefixed);
+
+        $config = $this->config();
+        $key = search_cache::canonical_key([
+            'page_size' => 9,
+            'producers' => ['06d37c13-6ffe-4c4a-a9e3-ac227652f98c'],
+            'is_default_version' => true,
+        ], $config);
+        search_cache::store(
+            $key,
+            ['producers' => ['06d37c13-6ffe-4c4a-a9e3-ac227652f98c']],
+            $this->body([$this->hit('n1')]),
+            $config
+        );
+        $click = search_cache::canonical_key([
+            'page_size' => 9,
+            'producers' => ['managed_by:structure:06d37c13-6ffe-4c4a-a9e3-ac227652f98c'],
+            'is_default_version' => true,
+        ], $config);
+        $this->assertSame($key, $click);
+        $this->assertNotNull(search_cache::get($click, $config));
+    }
+
+    /**
+     * A rebuild may have stored the list under the structure slug.
+     * The card click still sends the aggregation key.
+     */
+    public function test_click_finds_search_stored_under_structure_slug(): void {
+        $config = $this->config();
+        catalogue_cache::store([
+            'fingerprint' => catalogue_cache::fingerprint($config),
+            'producers' => [[
+                'structure_id' => 'isae-supaero',
+                'uuid' => '06d37c13-6ffe-4c4a-a9e3-ac227652f98c',
+            ]],
+            'search' => ['items' => [], 'aggregations' => [], 'results_count' => 0],
+        ]);
+        $stored = [
+            'page_size' => 9,
+            'producers' => ['isae-supaero'],
+            'is_default_version' => true,
+        ];
+        search_cache::store(
+            search_cache::canonical_key($stored, $config),
+            $stored,
+            $this->body([$this->hit('n1')]),
+            $config
+        );
+
+        $click = [
+            'page_size' => 9,
+            'producers' => ['managed_by:structure:06d37c13-6ffe-4c4a-a9e3-ac227652f98c'],
+            'is_default_version' => true,
+        ];
+        $found = null;
+        foreach (catalogue_cache::producer_search_aliases($click) as $alias) {
+            $found = search_cache::get(search_cache::canonical_key($alias, $config), $config);
+            if ($found !== null) {
+                break;
+            }
+        }
+        $this->assertNotNull($found);
+        $this->assertSame('n1', $found['search']['items'][0]['nugget_id']);
     }
 
     public function test_canonical_query_drops_blank_and_empty_values(): void {

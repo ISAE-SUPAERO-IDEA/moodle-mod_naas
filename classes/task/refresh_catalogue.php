@@ -133,6 +133,10 @@ class refresh_catalogue extends \core\task\scheduled_task {
     private function seed_entries(object $config, int $limit): array {
         $snapshot = catalogue_cache::export_for_widget();
         $producers = $snapshot['producers'] ?? [];
+        $aggregations = $snapshot['search']['aggregations'] ?? [];
+        if (!is_array($aggregations)) {
+            $aggregations = [];
+        }
         usort($producers, function ($a, $b) {
             return (int) ($b['count'] ?? 0) <=> (int) ($a['count'] ?? 0);
         });
@@ -151,7 +155,7 @@ class refresh_catalogue extends \core\task\scheduled_task {
             ],
         ];
         foreach ($producers as $producer) {
-            $key = (string) ($producer['structure_id'] ?? $producer['uuid'] ?? '');
+            $key = $this->producer_query_value($producer, $aggregations);
             if ($key === '') {
                 continue;
             }
@@ -169,5 +173,35 @@ class refresh_catalogue extends \core\task\scheduled_task {
             $entries[search_cache::canonical_key($options, $config)] = ['query' => $options];
         }
         return $entries;
+    }
+
+    /**
+     * The producer value the card will send: the aggregation key when we have it.
+     *
+     * @param array $producer
+     * @param array $aggregations
+     * @return string
+     */
+    private function producer_query_value(array $producer, array $aggregations): string {
+        $candidates = [];
+        foreach (['structure_id', 'uuid', 'uid', 'id'] as $field) {
+            if (!empty($producer[$field]) && is_string($producer[$field])) {
+                $candidates[] = strtolower(catalogue_cache::normalize_structure_key($producer[$field]));
+            }
+        }
+        $buckets = $aggregations['producers']['buckets'] ?? [];
+        if ($candidates && is_array($buckets)) {
+            foreach ($buckets as $bucket) {
+                if (!is_array($bucket) || !isset($bucket['key'])) {
+                    continue;
+                }
+                $raw = (string) $bucket['key'];
+                $needle = strtolower(catalogue_cache::normalize_structure_key($raw));
+                if (in_array($needle, $candidates, true)) {
+                    return $raw;
+                }
+            }
+        }
+        return (string) ($producer['structure_id'] ?? $producer['uuid'] ?? '');
     }
 }
