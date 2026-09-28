@@ -888,6 +888,9 @@ class proxy_naas_api extends \external_api {
         $context = \context_course::instance($params['courseId']);
         self::validate_context($context);
         require_capability('mod/naas:addinstance', $context);
+        // A catalogue probe may already be calling NaaS. Release the session
+        // so this read can return the saved page without waiting for it.
+        \core\session\manager::write_close();
 
         $config = (object) array_merge((array) get_config('naas'), (array) $CFG);
 
@@ -976,6 +979,7 @@ class proxy_naas_api extends \external_api {
         $context = \context_course::instance($params['courseId']);
         self::validate_context($context);
         require_capability('mod/naas:addinstance', $context);
+        \core\session\manager::write_close();
 
         $config = (object) array_merge((array) get_config('naas'), (array) $CFG);
 

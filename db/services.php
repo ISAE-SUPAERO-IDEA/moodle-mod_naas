@@ -38,6 +38,7 @@ $functions = [
         'description' => 'Get a specific nugget',
         'type' => 'read',
         'ajax' => true,
+        'readonlysession' => true,
         'capabilities' => 'mod/naas:addinstance',
     ],
     'mod_naas_view_nugget' => [
@@ -54,6 +55,7 @@ $functions = [
         'description' => 'Get preview URL for a nugget version',
         'type' => 'read',
         'ajax' => true,
+        'readonlysession' => true,
         'capabilities' => 'mod/naas:addinstance',
     ],
     'mod_naas_get_domain' => [
@@ -62,6 +64,7 @@ $functions = [
         'description' => 'Get domain information',
         'type' => 'read',
         'ajax' => true,
+        'readonlysession' => true,
         'capabilities' => 'mod/naas:view',
     ],
     'mod_naas_get_structure' => [
@@ -70,6 +73,7 @@ $functions = [
         'description' => 'Get structure information',
         'type' => 'read',
         'ajax' => true,
+        'readonlysession' => true,
         'capabilities' => 'mod/naas:view',
     ],
     'mod_naas_get_person' => [
@@ -78,6 +82,7 @@ $functions = [
         'description' => 'Get person information',
         'type' => 'read',
         'ajax' => true,
+        'readonlysession' => true,
         'capabilities' => 'mod/naas:view',
     ],
     'mod_naas_search_nuggets' => [
@@ -86,6 +91,7 @@ $functions = [
         'description' => 'Search for nuggets',
         'type' => 'read',
         'ajax' => true,
+        'readonlysession' => true,
         'capabilities' => 'mod/naas:addinstance',
     ],
     'mod_naas_check_catalogue' => [
@@ -94,6 +100,7 @@ $functions = [
         'description' => 'Refresh producer membership and facet counts without fetching cards',
         'type' => 'read',
         'ajax' => true,
+        'readonlysession' => true,
         'capabilities' => 'mod/naas:addinstance',
     ],
     'mod_naas_post_xapi_statement' => [

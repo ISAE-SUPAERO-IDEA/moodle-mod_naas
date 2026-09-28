@@ -419,12 +419,18 @@ class catalogue_cache {
             if ($search === null && !$producers) {
                 return;
             }
+            $search = $search ?? ['items' => [], 'aggregations' => [], 'results_count' => 0];
+            $stamp = catalogue_stamp::from_search($search);
             self::store([
                 'fingerprint' => self::fingerprint($config),
                 'warmed_at' => time(),
-                'search' => $search ?? ['items' => [], 'aggregations' => [], 'results_count' => 0],
+                'search' => $search,
                 'producers' => self::reconcile_producers($producers, $search['aggregations'] ?? []),
                 'max_modification_date' => self::max_modification_date($search['items'] ?? []),
+                'stamp' => $stamp,
+                // A rebuild just talked to NaaS. The next page must not do it again
+                // before the teacher has even clicked a producer.
+                'stamp_checked_at' => catalogue_stamp::is_complete($stamp) ? time() : 0,
             ]);
         } catch (\Throwable $e) {
             debugging('NAAS catalogue cache warm failed: ' . $e->getMessage(), DEBUG_DEVELOPER);
