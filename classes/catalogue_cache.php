@@ -669,6 +669,20 @@ class catalogue_cache {
     }
 
     /**
+     * Author aggregation keys may be `authored_by:person:{hash}`.
+     *
+     * @param string $value
+     * @return string
+     */
+    public static function normalize_person_key(string $value): string {
+        $value = trim($value);
+        if (preg_match('/^(?:authored_by:|designed_by:|reviewed_by:)?person:(.+)$/i', $value, $matches)) {
+            return trim($matches[1]);
+        }
+        return $value;
+    }
+
+    /**
      * @param naas_client $naas
      * @param object $config
      * @return string

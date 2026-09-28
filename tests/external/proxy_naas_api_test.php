@@ -572,6 +572,21 @@ class proxy_naas_api_test extends advanced_testcase {
         proxy_naas_api::get_person($course->id, 'person/with/slashes');
     }
 
+    public function test_get_person_accepts_relationship_prefixed_hash(): void {
+        $this->resetAfterTest(true);
+
+        $course  = $this->getDataGenerator()->create_course();
+        $student = $this->getDataGenerator()->create_user();
+        $this->getDataGenerator()->enrol_user($student->id, $course->id, 'student');
+        $this->setUser($student);
+
+        $this->expectException(\moodle_exception::class);
+        proxy_naas_api::get_person(
+            $course->id,
+            'authored_by:person:abcdef0123456789abcdef0123456789'
+        );
+    }
+
     // -----------------------------------------------------------------------
     // get_nugget_preview – validation
     // -----------------------------------------------------------------------
@@ -1020,9 +1035,12 @@ class proxy_naas_api_test extends advanced_testcase {
         $this->setUser($user);
 
         $cache = \cache::make('mod_naas', 'vocabulary_entries');
-        $cache->set('person_person99', '{"person":99}');
+        $cache->set('person_person99', '{"firstname":"Ada","lastname":"Lovelace"}');
 
-        $this->assertSame('{"person":99}', proxy_naas_api::get_person($course->id, 'person99'));
+        $this->assertSame(
+            '{"firstname":"Ada","lastname":"Lovelace"}',
+            proxy_naas_api::get_person($course->id, 'person99')
+        );
     }
 
     /**
@@ -1051,7 +1069,7 @@ class proxy_naas_api_test extends advanced_testcase {
             }
 
             public function request_raw($protocol, $service, $data = null, $params = null) {
-                return '{"person":"cover"}';
+                return '{"firstname":"Ada","lastname":"Lovelace"}';
             }
         };
 
@@ -1071,8 +1089,138 @@ class proxy_naas_api_test extends advanced_testcase {
             $proxycls::$naas_injection = null;
         }
 
-        $this->assertSame('{"person":"cover"}', $json);
-        $this->assertSame('{"person":"cover"}', proxy_naas_api::get_person($course->id, $personkey));
+        $this->assertSame('{"firstname":"Ada","lastname":"Lovelace"}', $json);
+        $this->assertSame(
+            '{"firstname":"Ada","lastname":"Lovelace"}',
+            proxy_naas_api::get_person($course->id, $personkey)
+        );
+    }
+
+    /**
+     * A Nuxeo person document keeps the name under properties, not firstname.
+     */
+    public function test_get_person_lifts_nuxeo_properties(): void {
+        $this->resetAfterTest(true);
+
+        $course = $this->getDataGenerator()->create_course();
+        $user   = $this->getDataGenerator()->create_user();
+        $this->getDataGenerator()->enrol_user($user->id, $course->id, 'student');
+        $this->setUser($user);
+
+        $personkey = 'abcdef0123456789abcdef0123456789';
+        $cache = \cache::make('mod_naas', 'vocabulary_entries');
+        $cache->delete('person_' . $personkey);
+
+        $stub = new class extends \mod_naas\naas_client {
+            public function __construct() {
+                $cfg = new \stdClass();
+                $cfg->naas_endpoint = 'https://stub.example';
+                $cfg->naas_username = 'u';
+                $cfg->naas_password = 'p';
+                $cfg->naas_structure_id = 's';
+                parent::__construct($cfg);
+            }
+
+            public function request_raw($protocol, $service, $data = null, $params = null) {
+                return json_encode([
+                    'uid' => 'person-doc',
+                    'properties' => [
+                        'person:firstname' => 'Ada',
+                        'person:lastname' => 'Lovelace',
+                        'person:email' => 'abcdef0123456789abcdef0123456789',
+                    ],
+                ]);
+            }
+        };
+
+        $injectable = new class extends proxy_naas_api {
+            /** @var \mod_naas\naas_client|null */
+            public static $naas_injection = null;
+
+            protected static function make_naas_client(object $config): \mod_naas\naas_client {
+                return self::$naas_injection ?? parent::make_naas_client($config);
+            }
+        };
+        $proxycls = \get_class($injectable);
+        $proxycls::$naas_injection = $stub;
+        try {
+            $json = $proxycls::get_person($course->id, $personkey);
+        } finally {
+            $proxycls::$naas_injection = null;
+        }
+
+        $this->assertStringContainsString('"firstname":"Ada"', $json);
+        $this->assertStringContainsString('"lastname":"Lovelace"', $json);
+    }
+
+    /**
+     * GET /persons/{id} 404s still resolve names from the person listing.
+     * Author aggregation keys are the encrypted email stored on each row.
+     */
+    public function test_get_person_uses_person_catalog_on_not_found(): void {
+        $this->resetAfterTest(true);
+
+        $course = $this->getDataGenerator()->create_course();
+        $user   = $this->getDataGenerator()->create_user();
+        $this->getDataGenerator()->enrol_user($user->id, $course->id, 'student');
+        $this->setUser($user);
+
+        $personkey = 'abcdef0123456789abcdef0123456789';
+        $cache = \cache::make('mod_naas', 'vocabulary_entries');
+        $cache->delete('person_' . $personkey);
+        $cache->delete('person_catalog_v1');
+
+        $stub = new class extends \mod_naas\naas_client {
+            public function __construct() {
+                $cfg = new \stdClass();
+                $cfg->naas_endpoint = 'https://stub.example';
+                $cfg->naas_username = 'u';
+                $cfg->naas_password = 'p';
+                $cfg->naas_structure_id = 's';
+                parent::__construct($cfg);
+            }
+
+            public function request_raw($protocol, $service, $data = null, $params = null) {
+                if (str_starts_with((string) $service, '/persons/')) {
+                    if ($service === '/persons/search') {
+                        return json_encode([
+                            'items' => [
+                                [
+                                    'email' => 'abcdef0123456789abcdef0123456789',
+                                    'firstname' => 'Ada',
+                                    'lastname' => 'Lovelace',
+                                ],
+                            ],
+                            'pages' => 1,
+                        ]);
+                    }
+                    throw new \moodle_exception('error:naas_api:not_found', 'naas');
+                }
+                throw new \moodle_exception('error:naas_api:not_found', 'naas');
+            }
+        };
+
+        $injectable = new class extends proxy_naas_api {
+            /** @var \mod_naas\naas_client|null */
+            public static $naas_injection = null;
+
+            protected static function make_naas_client(object $config): \mod_naas\naas_client {
+                return self::$naas_injection ?? parent::make_naas_client($config);
+            }
+        };
+        $proxycls = \get_class($injectable);
+        $proxycls::$naas_injection = $stub;
+        try {
+            $json = $proxycls::get_person(
+                $course->id,
+                'authored_by:person:' . $personkey
+            );
+        } finally {
+            $proxycls::$naas_injection = null;
+        }
+
+        $this->assertStringContainsString('"firstname":"Ada"', $json);
+        $this->assertStringContainsString('"lastname":"Lovelace"', $json);
     }
 
     // -----------------------------------------------------------------------

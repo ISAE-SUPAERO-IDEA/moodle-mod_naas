@@ -85,13 +85,19 @@ class vocabulary_lookup {
         }
         $cache = \cache::make('mod_naas', self::CACHE_AREA);
         $prefixed = [];
+        $lookupkeys = [];
         foreach ($keys as $key) {
-            $prefixed[] = $prefix . $key;
+            $lookup = $prefix === 'person_'
+                ? \mod_naas\catalogue_cache::normalize_person_key((string) $key)
+                : (string) $key;
+            $lookupkeys[$key] = $lookup;
+            $prefixed[] = $prefix . $lookup;
         }
-        $raw = $cache->get_many($prefixed);
+        $raw = $cache->get_many(array_values(array_unique($prefixed)));
         $resolved = [];
         foreach ($keys as $key) {
-            $value = $raw[$prefix . $key] ?? false;
+            $lookup = $lookupkeys[$key];
+            $value = $raw[$prefix . $lookup] ?? false;
             if (!is_string($value) || $value === '') {
                 continue;
             }
