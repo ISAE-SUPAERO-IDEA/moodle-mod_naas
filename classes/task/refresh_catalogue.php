@@ -65,12 +65,27 @@ class refresh_catalogue extends \core\task\scheduled_task {
      * Run the refresh.
      */
     public function execute(): void {
+        $refreshed = $this->refresh(true);
+        if ($refreshed === null) {
+            mtrace('mod_naas: no NaaS endpoint configured, skipping catalogue refresh.');
+            return;
+        }
+        mtrace("mod_naas: refreshed {$refreshed} cached searches.");
+    }
+
+    /**
+     * Rebuild the catalogue snapshot and the warmest search lists.
+     *
+     * @param bool $trace Write per-query failures with mtrace (cron). The settings
+     *                    button passes false so progress text stays off the AJAX body.
+     * @return int|null Number of searches stored, or null when no endpoint is set.
+     */
+    public function refresh(bool $trace = false): ?int {
         global $CFG;
 
         $config = (object) array_merge((array) get_config('naas'), (array) $CFG);
         if (empty($config->naas_endpoint)) {
-            mtrace('mod_naas: no NaaS endpoint configured, skipping catalogue refresh.');
-            return;
+            return null;
         }
 
         $naas = new naas_client($config);
@@ -99,10 +114,15 @@ class refresh_catalogue extends \core\task\scheduled_task {
                     $refreshed++;
                 }
             } catch (\Throwable $e) {
-                mtrace('mod_naas: refresh failed for one query: ' . $e->getMessage());
+                $message = 'mod_naas: refresh failed for one query: ' . $e->getMessage();
+                if ($trace) {
+                    mtrace($message);
+                } else {
+                    debugging($message, DEBUG_DEVELOPER);
+                }
             }
         }
-        mtrace("mod_naas: refreshed {$refreshed} cached searches.");
+        return $refreshed;
     }
 
     /**

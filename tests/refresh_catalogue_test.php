@@ -58,4 +58,17 @@ final class refresh_catalogue_test extends advanced_testcase {
         set_config('naas_refresh_limit', 12, 'naas');
         $this->assertSame(12, refresh_catalogue::effective_limit());
     }
+
+    /**
+     * Missing endpoint is a skip, not a failed refresh.
+     */
+    public function test_refresh_skips_when_endpoint_missing(): void {
+        global $CFG;
+
+        unset_config('naas_endpoint', 'naas');
+        unset($CFG->naas_endpoint);
+
+        $task = new refresh_catalogue();
+        $this->assertNull($task->refresh(false));
+    }
 }

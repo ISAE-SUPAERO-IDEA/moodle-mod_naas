@@ -107,6 +107,8 @@ final class test_connection_setting_test extends advanced_testcase {
         $this->assertContains('naasnaas_password', $keys);
         $this->assertContains('naasnaas_structure_id', $keys);
         $this->assertContains('naastest_connection_ui', $keys);
+        $this->assertContains('naasheading_cache', $keys);
+        $this->assertContains('naasrefresh_cache_ui', $keys);
         $this->assertContains('naasheading_about', $keys);
         $this->assertContains('naasheading_connection', $keys);
         $this->assertContains('naasheading_privacy', $keys);
@@ -117,9 +119,12 @@ final class test_connection_setting_test extends advanced_testcase {
 
         $endpointpos = array_search('naasnaas_endpoint', $keys, true);
         $testpos = array_search('naastest_connection_ui', $keys, true);
+        $cachepos = array_search('naasrefresh_cache_ui', $keys, true);
         $this->assertNotFalse($endpointpos);
         $this->assertNotFalse($testpos);
+        $this->assertNotFalse($cachepos);
         $this->assertGreaterThan($endpointpos, $testpos);
+        $this->assertGreaterThan($testpos, $cachepos);
 
         $this->assertSame('', $settings->settings->naasnaas_password->get_defaultsetting());
         $this->assertContains('naasnaas_feedback', $keys);

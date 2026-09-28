@@ -32,6 +32,14 @@ $functions = [
         'ajax' => true,
         'capabilities' => 'mod/naas:admin',
     ],
+    'mod_naas_refresh_cache' => [
+        'classname' => 'mod_naas\external\proxy_naas_api',
+        'methodname' => 'refresh_cache',
+        'description' => 'Clear the NaaS caches and load them again',
+        'type' => 'write',
+        'ajax' => true,
+        'capabilities' => 'mod/naas:admin',
+    ],
     'mod_naas_get_nugget' => [
         'classname' => 'mod_naas\external\proxy_naas_api',
         'methodname' => 'get_nugget',

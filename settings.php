@@ -77,6 +77,18 @@ if ($hassiteconfig) {
         get_string('test_connection_information', 'naas')
     ));
 
+    // Cache.
+    $settings->add(new admin_setting_heading(
+        'naas/heading_cache',
+        get_string('naas_settings_cache', 'naas'),
+        get_string('naas_settings_cache_information', 'naas')
+    ));
+    $settings->add(new \mod_naas\admin\refresh_cache_setting(
+        'naas/refresh_cache_ui',
+        get_string('cache_refresh', 'naas'),
+        get_string('cache_refresh_information', 'naas')
+    ));
+
     // Privacy.
     $settings->add(new admin_setting_heading(
         'naas/heading_privacy',

@@ -774,6 +774,33 @@ class proxy_naas_api extends \external_api {
     }
 
     /**
+     * Refresh cache parameters description.
+     */
+    public static function refresh_cache_parameters(): \external_function_parameters {
+        return new \external_function_parameters([]);
+    }
+
+    /**
+     * Refresh cache return description.
+     */
+    public static function refresh_cache_returns() {
+        return new \external_value(PARAM_RAW, 'Status message');
+    }
+
+    /**
+     * Clear every NaaS cache and load it again from the saved connection.
+     *
+     * @return string
+     */
+    public static function refresh_cache() {
+        $context = \context_system::instance();
+        self::validate_context($context);
+        require_capability('mod/naas:admin', $context);
+
+        return \mod_naas\cache_refresh::full();
+    }
+
+    /**
      * Get nugget parameters description.
      */
     public static function get_nugget_parameters() {
