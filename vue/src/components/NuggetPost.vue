@@ -190,7 +190,8 @@ function truncate(text: string, length: number): string {
 
 .nugget-post:hover:not(:has(.nugget-clear-btn)),
 .nugget-post:focus-within:not(:has(.nugget-clear-btn)) {
-  box-shadow: 0 8px 20px rgba(15, 108, 191, 0.16);
+  border-color: var(--naas-border, #dee2e6);
+  box-shadow: 0 8px 20px rgba(15, 20, 30, 0.12);
   transform: translateY(-2px);
 }
 
