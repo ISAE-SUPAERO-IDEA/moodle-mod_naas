@@ -108,7 +108,8 @@ export default defineConfig(({ mode }) => ({
       fileName: () => `naas_widget-${BUNDLE_VERSION}.js`,
     },
     outDir: resolve(__dirname, "../assets/vue"),
-    emptyOutDir: false,
+    // Drop previous naas_widget-*.js bundles so only the current build remains.
+    emptyOutDir: true,
     cssCodeSplit: false,
     rollupOptions: {
       output: {
