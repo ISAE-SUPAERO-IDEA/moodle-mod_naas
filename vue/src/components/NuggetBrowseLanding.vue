@@ -149,6 +149,10 @@ const emit = defineEmits<{
     e: "select",
     payload: { facet: string; value: string; caption: string }
   ): void;
+  (
+    e: "named",
+    payload: { id: string; acronym: string; name: string }[]
+  ): void;
 }>();
 
 const config = useNaasConfig();
@@ -263,6 +267,22 @@ function directoryVisuals(key: string) {
   return hasName ? visuals : null;
 }
 
+
+function publishNamed(
+  cards: { id: string; acronym: string; name: string }[]
+): void {
+  const named = cards
+    .map((card) => ({
+      id: card.id,
+      acronym: visibleLabel(card.acronym),
+      name: visibleLabel(card.name),
+    }))
+    .filter((card) => card.acronym || card.name);
+  if (named.length) {
+    emit("named", named);
+  }
+}
+
 watch(
   [() => props.aggregations.producers?.buckets, () => props.directory],
   async ([buckets]) => {
@@ -288,6 +308,7 @@ watch(
     });
     producers.value = painted;
     resolvingProducers.value = false;
+    publishNamed(painted);
     const missing = painted.filter((card) => !directoryVisuals(card.id));
     if (!missing.length) {
       return;
@@ -303,6 +324,7 @@ watch(
     }
     const byId = new Map(resolved.map((card) => [card.id, card]));
     producers.value = producers.value.map((card) => byId.get(card.id) ?? card);
+    publishNamed(producers.value);
   },
   { immediate: true }
 );

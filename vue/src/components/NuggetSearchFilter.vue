@@ -90,7 +90,7 @@
                     )
                   "
                 />
-                <span>{{ bucket.caption }}</span>
+                <span>{{ optionCaption(bucket) }}</span>
               </label>
 
               <button
@@ -189,6 +189,20 @@ const aggregations = ref<MappedAggregation[]>([]);
 const resolving = ref<string | null>(null);
 const resolvedLabels = ref<Record<string, Record<string, string>>>({});
 const resolvingNames = new Set<string>();
+
+
+function optionCaption(bucket: {
+  key: string;
+  help?: string;
+  caption?: string;
+  docCount: number;
+}): string {
+  const label = bucket.help ?? "";
+  if (!isRawEntityLabel(label, bucket.key)) {
+    return bucket.caption || label;
+  }
+  return bucket.docCount ? `… (${bucket.docCount})` : "…";
+}
 
 function localLabel(aggName: string, key: string): string {
   const normalize =

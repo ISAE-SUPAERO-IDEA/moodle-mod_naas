@@ -116,6 +116,7 @@
         :loading="catalogueLoading"
         :directory="producerDirectory"
         @select="onBrowseSelect"
+        @named="onProducersNamed"
       />
 
       <!-- Filter chips + nugget grid -->
@@ -298,6 +299,7 @@ import {
 } from "@/composables/moodleActivityForm";
 import {
   facetLabelsFromSnapshot,
+  matchCachedProducer,
   mergeFacetLabels,
   mergeProducerDirectory,
   snapshotSearch,
@@ -608,6 +610,36 @@ function clearAllFilters() {
   bucketCaptions.value = {};
   page.value = SEARCH_FIRST_PAGE;
   refreshResults();
+}
+
+
+function onProducersNamed(
+  rows: { id: string; acronym: string; name: string }[]
+) {
+  const labels: Record<string, string> = {};
+  for (const row of rows) {
+    const text = row.acronym || row.name;
+    if (text) {
+      labels[row.id] = text;
+    }
+  }
+  if (!Object.keys(labels).length) {
+    return;
+  }
+  facetLabels.value = mergeFacetLabels(facetLabels.value, {
+    producers: labels,
+  });
+  producerDirectory.value = producerDirectory.value.map((producer) => {
+    const named = rows.find((row) => matchCachedProducer([producer], row.id));
+    if (!named) {
+      return producer;
+    }
+    return {
+      ...producer,
+      acronym: named.acronym || producer.acronym,
+      name: named.name || producer.name,
+    };
+  });
 }
 
 function onBrowseSelect(payload: {
