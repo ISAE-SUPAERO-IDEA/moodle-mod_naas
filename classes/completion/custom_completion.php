@@ -42,7 +42,8 @@ class custom_completion extends activity_custom_completion {
         global $CFG, $DB;
         require_once($CFG->libdir . '/gradelib.php');
 
-        $completionpassorattempts = $this->cm->customdata['customcompletionrules']['completionpassorattemptsexhausted'];
+        // Omitted when both flags are off. An empty set means the rule is a no-op.
+        $completionpassorattempts = $this->cm->customdata['customcompletionrules']['completionpassorattemptsexhausted'] ?? [];
         $passrequired = !empty($completionpassorattempts['completionpass']);
         $exhaustaccepted = !empty($completionpassorattempts['completionattemptsexhausted']);
 
