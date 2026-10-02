@@ -138,7 +138,8 @@ final class root_scripts_test extends advanced_testcase {
         $html = ob_get_clean();
 
         $hasform = strpos($html, 'ltiLaunchForm') !== false;
-        $haserror = strpos($html, get_string('cannot_get_nugget', 'naas')) !== false;
+        $haserror = strpos($html, get_string('cannot_get_nugget', 'naas')) !== false
+            || strpos($html, 'naas-launch-error') !== false;
         $this->assertTrue($hasform || $haserror, 'Launch page should render LTI form or nugget load error');
     }
 

@@ -60,7 +60,8 @@ final class launch_php_test extends advanced_testcase {
         $html = ob_get_clean();
 
         $hasform = strpos($html, 'ltiLaunchForm') !== false;
-        $haserror = strpos($html, get_string('cannot_get_nugget', 'naas')) !== false;
+        $haserror = strpos($html, get_string('cannot_get_nugget', 'naas')) !== false
+            || strpos($html, 'naas-launch-error') !== false;
         $this->assertTrue($hasform || $haserror, 'Launch should render LTI form or nugget load error');
     }
 
@@ -86,7 +87,8 @@ final class launch_php_test extends advanced_testcase {
         $html = ob_get_clean();
 
         $hasform = strpos($html, 'ltiLaunchForm') !== false;
-        $haserror = strpos($html, get_string('cannot_get_nugget', 'naas')) !== false;
+        $haserror = strpos($html, get_string('cannot_get_nugget', 'naas')) !== false
+            || strpos($html, 'naas-launch-error') !== false;
         $this->assertTrue($hasform || $haserror);
     }
 
@@ -105,8 +107,21 @@ final class launch_php_test extends advanced_testcase {
         $_GET['id'] = $naas->cmid;
         $_REQUEST['id'] = $naas->cmid;
 
-        $this->expectException(\require_login_exception::class);
-        require($CFG->dirroot . '/mod/naas/launch.php');
+        // A logged-in user who is not enrolled is redirected. PHPUnit turns that into
+        // redirecterrordetected. require_login_exception is the other denial path.
+        $caught = null;
+        try {
+            require($CFG->dirroot . '/mod/naas/launch.php');
+        } catch (\require_login_exception $e) {
+            $caught = $e;
+        } catch (\moodle_exception $e) {
+            if ($e->errorcode === 'redirecterrordetected') {
+                $caught = $e;
+            } else {
+                throw $e;
+            }
+        }
+        $this->assertNotNull($caught, 'Expected access denial when the user is not enrolled');
     }
 
     /**

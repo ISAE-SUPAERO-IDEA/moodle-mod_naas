@@ -44,7 +44,7 @@ final class view_php_test extends advanced_testcase {
      * Else branch: resolve by course-module id (u absent / zero).
      */
     public function test_view_resolves_by_course_module_id(): void {
-        global $CFG;
+        global $CFG, $PAGE;
         $this->resetAfterTest(true);
 
         $course = $this->getDataGenerator()->create_course(['shortname' => 'VPH1']);
@@ -65,8 +65,10 @@ final class view_php_test extends advanced_testcase {
 
         $this->assertStringContainsString(get_string('back_to_course', 'naas'), $html);
         $this->assertStringContainsString('naas_widget', $html);
-        $this->assertStringContainsString('VPH1', $html);
-        $this->assertStringContainsString('Nugget A', $html);
+        $this->assertStringContainsString((string) $naas->cmid, $html);
+        $this->assertStringContainsString($naas->nugget_id, $html);
+        // Course shortname and activity name are the page title, not body markup.
+        $this->assertStringContainsString('VPH1: Nugget A', $PAGE->title);
     }
 
     /**
@@ -192,8 +194,21 @@ final class view_php_test extends advanced_testcase {
         $_GET['id'] = $naas->cmid;
         $_REQUEST['id'] = $naas->cmid;
 
-        $this->expectException(\require_login_exception::class);
-        require($CFG->dirroot . '/mod/naas/view.php');
+        // A logged-in user who is not enrolled is redirected. PHPUnit turns that into
+        // redirecterrordetected. require_login_exception is the other denial path.
+        $caught = null;
+        try {
+            require($CFG->dirroot . '/mod/naas/view.php');
+        } catch (\require_login_exception $e) {
+            $caught = $e;
+        } catch (\moodle_exception $e) {
+            if ($e->errorcode === 'redirecterrordetected') {
+                $caught = $e;
+            } else {
+                throw $e;
+            }
+        }
+        $this->assertNotNull($caught, 'Expected access denial when the user is not enrolled');
     }
 
     /**
