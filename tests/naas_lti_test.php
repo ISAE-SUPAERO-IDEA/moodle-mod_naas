@@ -356,6 +356,31 @@ class naas_lti_test extends advanced_testcase {
     }
 
     /**
+     * A NaaS API failure must render an inline error and must not call debugging().
+     *
+     * Behat fails the launch smoke test if debugging() runs on this path.
+     */
+    public function test_lti_launch_renders_api_error_without_debugging(): void {
+        $this->resetAfterTest();
+        $course = $this->getDataGenerator()->create_course();
+        $user = $this->getDataGenerator()->create_user();
+        $this->getDataGenerator()->enrol_user($user->id, $course->id, 'student');
+        $this->setUser($user);
+        $naas = $this->getDataGenerator()->create_module('naas', ['course' => $course->id]);
+
+        $client = $this->createMock(\mod_naas\naas_client::class);
+        $client->method('get_nugget_data')->willThrowException(
+            new \moodle_exception('error:naas_api:invalid_credentials', 'naas')
+        );
+
+        $output = naas_lti::lti_launch($naas->cmid, '', $client);
+
+        $this->assertStringContainsString(get_string('error:naas_api:invalid_credentials', 'naas'), $output);
+        $this->assertStringContainsString('naas-launch-error', $output);
+        $this->assertDebuggingNotCalled();
+    }
+
+    /**
      * Blank launch URL after cleaning must show the same error as missing config.
      */
     public function test_lti_launch_rejects_blank_launch_url(): void {

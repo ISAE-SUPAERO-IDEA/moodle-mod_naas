@@ -24,6 +24,8 @@
 
 require_once(__DIR__ . '/../../config.php');
 
+global $COURSE, $DB, $OUTPUT, $PAGE;
+
 $id        = optional_param('id', 0, PARAM_INT);        // Course module ID.
 $u         = optional_param('u', 0, PARAM_INT);         // NaaS instance id.
 $redirect  = optional_param('redirect', 0, PARAM_BOOL);

@@ -24,6 +24,8 @@
 
 require_once(__DIR__ . '/../../config.php');
 
+global $DB;
+
 // Get data from DB.
 $id = required_param('id', PARAM_INT); // Course Module ID.
 $cm = get_coursemodule_from_id('naas', $id, 0, false, MUST_EXIST);

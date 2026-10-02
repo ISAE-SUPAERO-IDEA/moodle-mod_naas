@@ -33,6 +33,8 @@ namespace mod_naas\external;
 final class xapi_enrol_test_proxy extends xapi {
     /**
      * Call the active enrolment gate.
+     *
+     * @param int $courseid
      */
     public static function invoke_require_active_course_enrolment(int $courseid): void {
         self::require_active_course_enrolment($courseid);

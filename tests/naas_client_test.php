@@ -594,12 +594,16 @@ class naas_client_test extends advanced_testcase {
 
             /**
              * Ignore curl option assignment.
+             *
+             * @param array $options
              */
             public function setopt($options): void {
             }
 
             /**
              * Return an empty transport body.
+             *
+             * @param string $url
              */
             public function get($url) {
                 return '';

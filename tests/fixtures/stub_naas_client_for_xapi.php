@@ -42,6 +42,10 @@ final class stub_naas_client_for_xapi extends \mod_naas\naas_client {
 
     /**
      * Return a stubbed xAPI acceptance.
+     *
+     * @param string $verb
+     * @param int $versionid
+     * @param object $data
      */
     public function post_xapi_statement($verb, $versionid, $data) {
         return (object) [

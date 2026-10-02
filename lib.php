@@ -23,23 +23,36 @@
  * @package mod_naas
  */
 
-/**#@+
- * Option controlling what options are offered on the NaaS settings form.
+/**
+ * Define module constants. Safe to call more than once.
+ *
+ * @return void
  */
-define('NAAS_MAX_ATTEMPT_OPTION', 10);
-define('NAAS_MAX_QPP_OPTION', 50);
-define('NAAS_MAX_DECIMAL_OPTION', 5);
-define('NAAS_MAX_Q_DECIMAL_OPTION', 7);
-/**#@-*/
+function naas_define_module_constants(): void {
+    if (defined('NAAS_MAX_ATTEMPT_OPTION')) {
+        return;
+    }
 
-/**#@+
- * Options determining how the grades from individual attempts are combined to give
- * the overall grade for a user
- */
-define('NAAS_GRADEHIGHEST', '1');
-define('NAAS_ATTEMPTFIRST', '3');
-define('NAAS_ATTEMPTLAST', '4');
-/**#@-*/
+    /**#@+
+     * Option controlling what options are offered on the NaaS settings form.
+     */
+    define('NAAS_MAX_ATTEMPT_OPTION', 10);
+    define('NAAS_MAX_QPP_OPTION', 50);
+    define('NAAS_MAX_DECIMAL_OPTION', 5);
+    define('NAAS_MAX_Q_DECIMAL_OPTION', 7);
+    /**#@-*/
+
+    /**#@+
+     * Options determining how the grades from individual attempts are combined to give
+     * the overall grade for a user
+     */
+    define('NAAS_GRADEHIGHEST', '1');
+    define('NAAS_ATTEMPTFIRST', '3');
+    define('NAAS_ATTEMPTLAST', '4');
+    /**#@-*/
+}
+
+naas_define_module_constants();
 
 
 /**
@@ -269,12 +282,13 @@ function naas_get_coursemodule_info($coursemodule) {
 
     // Populate the custom completion rules as key => value pairs, but only if the completion mode is 'automatic'.
     if ($coursemodule->completion == COMPLETION_TRACKING_AUTOMATIC) {
-        if ($naas->completionpass) {
+        // An empty array is ignored by core, so the rule is omitted unless pass or exhaustion is on.
+        // Both flags are kept so exhaustion alone still enables the rule.
+        if ($naas->completionpass || $naas->completionattemptsexhausted) {
             $result->customdata['customcompletionrules']['completionpassorattemptsexhausted'] = [
                 'completionpass' => $naas->completionpass,
+                'completionattemptsexhausted' => $naas->completionattemptsexhausted,
             ];
-        } else {
-            $result->customdata['customcompletionrules']['completionpassorattemptsexhausted'] = [];
         }
 
         $result->customdata['customcompletionrules']['completionminattempts'] = $naas->completionminattempts;
@@ -295,40 +309,15 @@ function naas_page_type_list($pagetype, $parentcontext, $currentcontext) {
 }
 
 /**
- * Export URL resource contents
+ * Export activity file contents.
+ *
+ * Nuggets are launched remotely and have no file payload.
+ *
  * @param object $cm
  * @return array of file content
  */
 function naas_export_contents($cm) {
-    global $CFG, $DB;
-    require_once("$CFG->dirroot/mod/url/locallib.php");
-    $contents = [];
-    $context = context_module::instance($cm->id);
-
-    $course = $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST);
-    $urlrecord = $DB->get_record('url', ['id' => $cm->instance], '*', MUST_EXIST);
-
-    $fullurl = str_replace('&amp;', '&', url_get_full_url($urlrecord, $cm, $course));
-    $isurl = clean_param($fullurl, PARAM_URL);
-    if (empty($isurl)) {
-        return null;
-    }
-
-    $url = [];
-    $url['type'] = 'url';
-    $url['filename']     = clean_param(format_string($urlrecord->name), PARAM_FILE);
-    $url['filepath']     = null;
-    $url['filesize']     = 0;
-    $url['fileurl']      = $fullurl;
-    $url['timecreated']  = null;
-    $url['timemodified'] = $urlrecord->timemodified;
-    $url['sortorder']    = null;
-    $url['userid']       = null;
-    $url['author']       = null;
-    $url['license']      = null;
-    $contents[] = $url;
-
-    return $contents;
+    return [];
 }
 
 /**

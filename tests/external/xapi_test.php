@@ -411,6 +411,9 @@ class xapi_test extends advanced_testcase {
 
             /**
              * Return the injected NaaS client.
+             *
+             * @param object $config
+             * @return \mod_naas\naas_client
              */
             protected static function make_naas_client(object $config): \mod_naas\naas_client {
                 return self::$naasinjection ?? parent::make_naas_client($config);

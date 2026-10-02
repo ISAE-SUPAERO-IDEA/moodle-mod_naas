@@ -30,6 +30,8 @@ namespace mod_naas\external;
 final class proxy_naas_api_enrol_test_proxy extends proxy_naas_api {
     /**
      * Call the active enrolment gate.
+     *
+     * @param int $courseid
      */
     public static function invoke_require_active_course_enrolment(int $courseid): void {
         self::require_active_course_enrolment($courseid);

@@ -64,12 +64,8 @@ class behat_mod_naas extends behat_base {
         if (strpos($content, $needle) !== false) {
             return;
         }
-        $needle2 = 'error:naas_api:invalid_endpoint';
-        if (strpos($content, $needle2) !== false) {
-            return;
-        }
-        $needle3 = get_string('error:naas_api:invalid_endpoint', 'naas');
-        if (strpos($content, $needle3) !== false) {
+        // Any NaaS API failure (credentials, endpoint, not found) uses this marker.
+        if (strpos($content, 'naas-launch-error') !== false) {
             return;
         }
         throw new ExpectationException(

@@ -77,7 +77,8 @@ class naas_lti {
                 }
             }
         } catch (\moodle_exception $e) {
-            debugging("NAAS: could not load nugget: " . $e->getMessage(), DEBUG_DEVELOPER);
+            // Expected when the site has no valid NaaS login. Render it inline.
+            // debugging() would fail Behat, which treats this page as a smoke test.
             return self::render_launch_error($e->getMessage());
         }
 
@@ -86,8 +87,11 @@ class naas_lti {
             return $OUTPUT->notification($errormessage, \core\output\notification::NOTIFY_ERROR);
         }
 
-        // Configure LTI module.
-        $PAGE->set_course($course);
+        // Skip when this request already selected the same course.
+        // Calling set_course() again throws once the theme has been initialised.
+        if ((int) $PAGE->course->id !== (int) $course->id) {
+            $PAGE->set_course($course);
+        }
 
         // See: https://moodle.org/mod/forum/discuss.php?d=335734.
         // Configure launch data.
@@ -237,7 +241,7 @@ class naas_lti {
   margin-right: 8px;
 }
 </style>
-    <div class="error-message">$message</div>
+    <div class="error-message naas-launch-error">$message</div>
 HTML;
     }
 }

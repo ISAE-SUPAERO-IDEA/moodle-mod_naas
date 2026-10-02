@@ -297,7 +297,7 @@ class catalogue_cache {
      * @return bool
      */
     private static function producer_matches(array $row, string $key): bool {
-        $needle = strtolower($key);
+        $needle = strtolower(self::normalize_structure_key($key));
         foreach (['structure_id', 'uuid', 'uid', 'id'] as $field) {
             if (!isset($row[$field]) || !is_string($row[$field])) {
                 continue;

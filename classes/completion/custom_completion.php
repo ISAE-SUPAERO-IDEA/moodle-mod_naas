@@ -39,31 +39,48 @@ class custom_completion extends activity_custom_completion {
      * @return bool True if the passing grade (or no attempts left) requirement is disabled or met.
      */
     protected function check_passing_grade_or_all_attempts(): bool {
-        global $CFG;
+        global $CFG, $DB;
         require_once($CFG->libdir . '/gradelib.php');
 
         $completionpassorattempts = $this->cm->customdata['customcompletionrules']['completionpassorattemptsexhausted'];
+        $passrequired = !empty($completionpassorattempts['completionpass']);
+        $exhaustaccepted = !empty($completionpassorattempts['completionattemptsexhausted']);
 
-        if (empty($completionpassorattempts['completionpass'])) {
+        if (!$passrequired && !$exhaustaccepted) {
             return true;
         }
 
-        // Check for passing grade.
-        $item = grade_item::fetch([
-            'courseid' => $this->cm->get_course()->id,
-            'itemtype' => 'mod',
-            'itemmodule' => 'naas',
-            'iteminstance' => $this->cm->instance,
-            'outcomeid' => null,
-        ]);
-        if ($item) {
-            $grades = grade_grade::fetch_users_grades($item, [$this->userid], false);
-            if (!empty($grades[$this->userid]) && $grades[$this->userid]->is_passed($item)) {
-                return true;
+        if ($passrequired) {
+            // Check for passing grade.
+            $item = grade_item::fetch([
+                'courseid' => $this->cm->get_course()->id,
+                'itemtype' => 'mod',
+                'itemmodule' => 'naas',
+                'iteminstance' => $this->cm->instance,
+                'outcomeid' => null,
+            ]);
+            if ($item) {
+                $grades = grade_grade::fetch_users_grades($item, [$this->userid], false);
+                if (!empty($grades[$this->userid]) && $grades[$this->userid]->is_passed($item)) {
+                    return true;
+                }
+            }
+            if (!$exhaustaccepted) {
+                return false;
             }
         }
 
-        return false;
+        // Each LTI launch stores one row. attempts = 0 means unlimited, so it never exhausts.
+        $maxattempts = (int) $DB->get_field('naas', 'attempts', ['id' => $this->cm->instance]);
+        if ($maxattempts < 1) {
+            return false;
+        }
+        $attempts = $DB->count_records('naas_activity_outcome', [
+            'user_id' => $this->userid,
+            'activity_id' => $this->cm->id,
+        ]);
+
+        return $attempts >= $maxattempts;
     }
 
     /**

@@ -722,6 +722,11 @@ class proxy_naas_api_test extends advanced_testcase {
 
             /**
              * Return the stubbed HTTP body.
+             *
+             * @param string $protocol
+             * @param string $service
+             * @param object|null $data
+             * @param array|null $params
              */
             public function request_raw($protocol, $service, $data = null, $params = null) {
                 return '{"domain":"cover"}';
@@ -734,6 +739,9 @@ class proxy_naas_api_test extends advanced_testcase {
 
             /**
              * Return the injected NaaS client.
+             *
+             * @param object $config
+             * @return \mod_naas\naas_client
              */
             protected static function make_naas_client(object $config): \mod_naas\naas_client {
                 return self::$naasinjection ?? parent::make_naas_client($config);
@@ -801,6 +809,11 @@ class proxy_naas_api_test extends advanced_testcase {
 
             /**
              * Return the stubbed HTTP body.
+             *
+             * @param string $protocol
+             * @param string $service
+             * @param object|null $data
+             * @param array|null $params
              */
             public function request_raw($protocol, $service, $data = null, $params = null) {
                 return '{"name":"Cover Structure","acronym":"COV"}';
@@ -813,6 +826,9 @@ class proxy_naas_api_test extends advanced_testcase {
 
             /**
              * Return the injected NaaS client.
+             *
+             * @param object $config
+             * @return \mod_naas\naas_client
              */
             protected static function make_naas_client(object $config): \mod_naas\naas_client {
                 return self::$naasinjection ?? parent::make_naas_client($config);
@@ -866,6 +882,11 @@ class proxy_naas_api_test extends advanced_testcase {
 
             /**
              * Return the stubbed HTTP body.
+             *
+             * @param string $protocol
+             * @param string $service
+             * @param object|null $data
+             * @param array|null $params
              */
             public function request_raw($protocol, $service, $data = null, $params = null) {
                 return '{"name":"ISAE-SUPAERO","acronym":"ISAE"}';
@@ -878,6 +899,9 @@ class proxy_naas_api_test extends advanced_testcase {
 
             /**
              * Return the injected NaaS client.
+             *
+             * @param object $config
+             * @return \mod_naas\naas_client
              */
             protected static function make_naas_client(object $config): \mod_naas\naas_client {
                 return self::$naasinjection ?? parent::make_naas_client($config);
@@ -925,6 +949,11 @@ class proxy_naas_api_test extends advanced_testcase {
 
             /**
              * Return the stubbed HTTP body.
+             *
+             * @param string $protocol
+             * @param string $service
+             * @param object|null $data
+             * @param array|null $params
              */
             public function request_raw($protocol, $service, $data = null, $params = null) {
                 if (str_starts_with((string) $service, '/structures/')) {
@@ -952,6 +981,9 @@ class proxy_naas_api_test extends advanced_testcase {
 
             /**
              * Return the injected NaaS client.
+             *
+             * @param object $config
+             * @return \mod_naas\naas_client
              */
             protected static function make_naas_client(object $config): \mod_naas\naas_client {
                 return self::$naasinjection ?? parent::make_naas_client($config);
@@ -1088,6 +1120,11 @@ class proxy_naas_api_test extends advanced_testcase {
 
             /**
              * Return the stubbed HTTP body.
+             *
+             * @param string $protocol
+             * @param string $service
+             * @param object|null $data
+             * @param array|null $params
              */
             public function request_raw($protocol, $service, $data = null, $params = null) {
                 return '{"firstname":"Ada","lastname":"Lovelace"}';
@@ -1100,6 +1137,9 @@ class proxy_naas_api_test extends advanced_testcase {
 
             /**
              * Return the injected NaaS client.
+             *
+             * @param object $config
+             * @return \mod_naas\naas_client
              */
             protected static function make_naas_client(object $config): \mod_naas\naas_client {
                 return self::$naasinjection ?? parent::make_naas_client($config);
@@ -1150,6 +1190,11 @@ class proxy_naas_api_test extends advanced_testcase {
 
             /**
              * Return the stubbed HTTP body.
+             *
+             * @param string $protocol
+             * @param string $service
+             * @param object|null $data
+             * @param array|null $params
              */
             public function request_raw($protocol, $service, $data = null, $params = null) {
                 return json_encode([
@@ -1169,6 +1214,9 @@ class proxy_naas_api_test extends advanced_testcase {
 
             /**
              * Return the injected NaaS client.
+             *
+             * @param object $config
+             * @return \mod_naas\naas_client
              */
             protected static function make_naas_client(object $config): \mod_naas\naas_client {
                 return self::$naasinjection ?? parent::make_naas_client($config);
@@ -1218,6 +1266,11 @@ class proxy_naas_api_test extends advanced_testcase {
 
             /**
              * Return the stubbed HTTP body.
+             *
+             * @param string $protocol
+             * @param string $service
+             * @param object|null $data
+             * @param array|null $params
              */
             public function request_raw($protocol, $service, $data = null, $params = null) {
                 if (str_starts_with((string) $service, '/persons/')) {
@@ -1245,6 +1298,9 @@ class proxy_naas_api_test extends advanced_testcase {
 
             /**
              * Return the injected NaaS client.
+             *
+             * @param object $config
+             * @return \mod_naas\naas_client
              */
             protected static function make_naas_client(object $config): \mod_naas\naas_client {
                 return self::$naasinjection ?? parent::make_naas_client($config);

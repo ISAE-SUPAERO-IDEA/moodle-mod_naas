@@ -369,6 +369,11 @@ final class catalogue_cache_test extends advanced_testcase {
 
             /**
              * Return the stubbed HTTP body.
+             *
+             * @param string $protocol
+             * @param string $service
+             * @param object|null $data
+             * @param array|null $params
              */
             public function request_raw($protocol, $service, $data = null, $params = null) {
                 if (str_contains((string) $service, '/nuggets/search')) {

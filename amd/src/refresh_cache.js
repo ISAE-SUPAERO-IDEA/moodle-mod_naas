@@ -132,7 +132,11 @@ define('mod_naas/refresh_cache', ['core/ajax', 'core/str'], function(Ajax, Str) 
                     .catch(function(error) {
                         return showFailure(resultDiv, error, 'cache_refresh_failed');
                     })
-                    .always(reset);
+                    .always(reset)
+                    // End on catch so the Moodle 4.1 promise lint accepts the chain.
+                    .catch(function() {
+                        return null;
+                    });
             });
         }
     };
