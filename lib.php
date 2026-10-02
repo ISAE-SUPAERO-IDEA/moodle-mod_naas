@@ -23,6 +23,8 @@
  * @package mod_naas
  */
 
+defined('MOODLE_INTERNAL') || die();
+
 /**
  * Define module constants. Safe to call more than once.
  *
@@ -33,23 +35,17 @@ function naas_define_module_constants(): void {
         return;
     }
 
-    /**#@+
-     * Option controlling what options are offered on the NaaS settings form.
-     */
+    // Option controlling what options are offered on the NaaS settings form.
     define('NAAS_MAX_ATTEMPT_OPTION', 10);
     define('NAAS_MAX_QPP_OPTION', 50);
     define('NAAS_MAX_DECIMAL_OPTION', 5);
     define('NAAS_MAX_Q_DECIMAL_OPTION', 7);
-    /**#@-*/
 
-    /**#@+
-     * Options determining how the grades from individual attempts are combined to give
-     * the overall grade for a user
-     */
+    // Options determining how the grades from individual attempts are combined to give
+    // the overall grade for a user.
     define('NAAS_GRADEHIGHEST', '1');
     define('NAAS_ATTEMPTFIRST', '3');
     define('NAAS_ATTEMPTLAST', '4');
-    /**#@-*/
 }
 
 naas_define_module_constants();
