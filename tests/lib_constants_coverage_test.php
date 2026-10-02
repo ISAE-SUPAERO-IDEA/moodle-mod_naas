@@ -25,23 +25,20 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_naas\tests;
-
-defined('MOODLE_INTERNAL') || die();
+namespace mod_naas;
 
 use advanced_testcase;
 
 /**
+ * Covers the module constants defined in lib.php.
+ *
  * @covers ::naas_define_module_constants
  */
 final class lib_constants_coverage_test extends advanced_testcase {
-
     /**
      * First require of lib.php in this PHP process must execute naas_define_module_constants().
      *
      * @runInSeparateProcess
-     * @backupGlobals disabled
-     * @preserveGlobalState disabled
      */
     public function test_lib_php_constant_defines_run_under_coverage(): void {
         global $CFG;

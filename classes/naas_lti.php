@@ -33,10 +33,11 @@ class naas_lti {
      * Launch LTI content.
      * @param int $naasinstanceid
      * @param string $language
-     * @return void
+     * @param naas_client|null $client Optional client. Tests pass a double so launch stays offline.
+     * @return string HTML for the launch form, or an inline error
      * @throws \Random\RandomException
      */
-    public static function lti_launch($naasinstanceid, $language = "") {
+    public static function lti_launch($naasinstanceid, $language = "", ?naas_client $client = null) {
         global $PAGE;
         global $DB;
         global $CFG;
@@ -49,13 +50,15 @@ class naas_lti {
 
         // Retrieve LTI config from NaaS server.
         $config = (object) array_merge((array) \get_config('naas'), (array) $CFG);
-        $naas = new \mod_naas\naas_client($config);
+        if ($client === null) {
+            $client = new \mod_naas\naas_client($config);
+        }
         // Any NaaS API failure here (eg. an invalid institute / structure_id) must be
         // rendered as a clean inline message in place of the nugget, not bubble up as
         // Moodle's raw exception page.
         try {
-            $nuggetdata = $naas->get_nugget_data($naasinstance->nugget_id);
-            $nuggetconfig = $naas->get_nugget_lti_config($naasinstance->nugget_id);
+            $nuggetdata = $client->get_nugget_data($naasinstance->nugget_id);
+            $nuggetconfig = $client->get_nugget_lti_config($naasinstance->nugget_id);
             if (
                 $language != ""
                 && isset($nuggetdata)
@@ -70,19 +73,17 @@ class naas_lti {
                     }
                 }
                 if ($matchingnugget != null && isset($matchingnugget->nugget_id)) {
-                    $nuggetconfig = $naas->get_nugget_lti_config($matchingnugget->nugget_id);
+                    $nuggetconfig = $client->get_nugget_lti_config($matchingnugget->nugget_id);
                 }
             }
         } catch (\moodle_exception $e) {
             debugging("NAAS: could not load nugget: " . $e->getMessage(), DEBUG_DEVELOPER);
-            self::render_launch_error($e->getMessage());
-            return;
+            return self::render_launch_error($e->getMessage());
         }
 
         if ($nuggetconfig == null || isset($nuggetconfig->error)) {
             $errormessage = get_string("cannot_get_nugget", "naas");
-            echo $OUTPUT->notification($errormessage, \core\output\notification::NOTIFY_ERROR);
-            return;
+            return $OUTPUT->notification($errormessage, \core\output\notification::NOTIFY_ERROR);
         }
 
         // Configure LTI module.
@@ -93,8 +94,7 @@ class naas_lti {
         $launchurl = clean_param($nuggetconfig->url, PARAM_URL);
         if (empty($launchurl)) {
             $errormessage = get_string("cannot_get_nugget", "naas");
-            echo $OUTPUT->notification($errormessage, \core\output\notification::NOTIFY_ERROR);
-            return;
+            return $OUTPUT->notification($errormessage, \core\output\notification::NOTIFY_ERROR);
         }
         $key = $nuggetconfig->key;
         $secret = $nuggetconfig->secret;
@@ -147,10 +147,10 @@ class naas_lti {
             "custom_naas" => json_encode($custom),
         ];
 
-        if ($config->naas_privacy_learner_name) {
+        if (!empty($config->naas_privacy_learner_name)) {
             $launchdata["lis_person_name_full"] = $USER->firstname . " " . $USER->lastname;
         }
-        if ($config->naas_privacy_learner_mail) {
+        if (!empty($config->naas_privacy_learner_mail)) {
             $launchdata["lis_person_contact_email_primary"] = $USER->email;
         }
 
@@ -186,7 +186,7 @@ class naas_lti {
         }
 
         $form = new \mod_naas\output\lti_launch_form($launchurl, $fields);
-        echo $OUTPUT->render_from_template('mod_naas/lti_launch_form', $form->export_for_template($OUTPUT));
+        return $OUTPUT->render_from_template('mod_naas/lti_launch_form', $form->export_for_template($OUTPUT));
     }
 
     /**
@@ -213,11 +213,11 @@ class naas_lti {
     /**
      * Render a clean inline error message in place of the nugget.
      * @param string $message
-     * @return void
+     * @return string
      */
     private static function render_launch_error($message) {
         $message = htmlspecialchars($message, ENT_QUOTES);
-        echo <<<HTML
+        return <<<HTML
 <style>
 .error-message {
   color: #721c24;

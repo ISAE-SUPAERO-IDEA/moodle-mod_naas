@@ -29,8 +29,6 @@
 
 namespace mod_naas\task;
 
-defined('MOODLE_INTERNAL') || die();
-
 use mod_naas\catalogue_cache;
 use mod_naas\catalogue_filters;
 use mod_naas\external\proxy_naas_api;
@@ -55,6 +53,8 @@ class refresh_catalogue extends \core\task\scheduled_task {
     public const MAX_AGE = 2592000;
 
     /**
+     * Return the scheduled task name.
+     *
      * @return string
      */
     public function get_name(): string {

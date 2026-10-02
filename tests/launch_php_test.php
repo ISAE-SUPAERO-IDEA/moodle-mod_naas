@@ -15,24 +15,23 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Line coverage for {@see mod/naas/launch.php} (params, login, capability, LTI hand-off).
+ * Line coverage for mod/naas/launch.php (params, login, capability, LTI hand-off).
  *
  * @package    mod_naas
  * @copyright  2026 onwards ISAE-SUPAERO (https://www.isae-supaero.fr/)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_naas\tests;
-
-defined('MOODLE_INTERNAL') || die();
+namespace mod_naas;
 
 use advanced_testcase;
 
 /**
+ * Tests for the LTI launch script.
+ *
  * @coversNothing
  */
 final class launch_php_test extends advanced_testcase {
-
     protected function tearDown(): void {
         $_GET = [];
         $_POST = [];
@@ -57,7 +56,7 @@ final class launch_php_test extends advanced_testcase {
         $_REQUEST['id'] = $naas->cmid;
 
         ob_start();
-        require $CFG->dirroot . '/mod/naas/launch.php';
+        require($CFG->dirroot . '/mod/naas/launch.php');
         $html = ob_get_clean();
 
         $hasform = strpos($html, 'ltiLaunchForm') !== false;
@@ -83,7 +82,7 @@ final class launch_php_test extends advanced_testcase {
         $_REQUEST = $_GET;
 
         ob_start();
-        require $CFG->dirroot . '/mod/naas/launch.php';
+        require($CFG->dirroot . '/mod/naas/launch.php');
         $html = ob_get_clean();
 
         $hasform = strpos($html, 'ltiLaunchForm') !== false;
@@ -107,7 +106,7 @@ final class launch_php_test extends advanced_testcase {
         $_REQUEST['id'] = $naas->cmid;
 
         $this->expectException(\require_login_exception::class);
-        require $CFG->dirroot . '/mod/naas/launch.php';
+        require($CFG->dirroot . '/mod/naas/launch.php');
     }
 
     /**
@@ -132,7 +131,7 @@ final class launch_php_test extends advanced_testcase {
 
         $caught = null;
         try {
-            require $CFG->dirroot . '/mod/naas/launch.php';
+            require($CFG->dirroot . '/mod/naas/launch.php');
         } catch (\require_login_exception $e) {
             $caught = $e;
         } catch (\required_capability_exception $e) {
@@ -165,7 +164,7 @@ final class launch_php_test extends advanced_testcase {
         $_REQUEST['id'] = $naas->cmid + 999999999;
 
         $this->expectException(\dml_missing_record_exception::class);
-        require $CFG->dirroot . '/mod/naas/launch.php';
+        require($CFG->dirroot . '/mod/naas/launch.php');
     }
 
     /**
@@ -180,7 +179,7 @@ final class launch_php_test extends advanced_testcase {
         $_REQUEST = [];
 
         try {
-            require $CFG->dirroot . '/mod/naas/launch.php';
+            require($CFG->dirroot . '/mod/naas/launch.php');
             $this->fail('Expected moodle_exception for missing id');
         } catch (\moodle_exception $e) {
             $this->assertSame('missingparam', $e->errorcode);

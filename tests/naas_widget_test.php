@@ -22,7 +22,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_naas\tests;
+namespace mod_naas;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -37,12 +37,11 @@ use moodle_url;
  * Tests for mod_naas\naas_widget.
  *
  * @package    mod_naas
- * @copyright  2019 onwards ISAE-SUPAERO (https://www.isae-supaero.fr/)
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright  2019 onwards ISAE-SUPAERO (https://www.isae-supaero.fr/).
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later.
  * @covers \mod_naas\naas_widget
  */
 class naas_widget_test extends advanced_testcase {
-
     /**
      * Extract the JSON object assigned to window.NAAS from rendered HTML (handles `;` inside strings).
      *

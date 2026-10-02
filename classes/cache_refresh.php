@@ -24,8 +24,6 @@
 
 namespace mod_naas;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Clears the four MUC areas, then reloads them from NaaS.
  *

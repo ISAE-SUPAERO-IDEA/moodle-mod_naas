@@ -22,7 +22,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_naas\tests;
+namespace mod_naas;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -37,18 +37,22 @@ use mod_naas_mod_form;
 use moodle_url;
 
 /**
+ * Tests for the activity settings form.
+ *
  * @covers \mod_naas_mod_form
  */
 final class mod_form_test extends advanced_testcase {
-
     protected function tearDown(): void {
-        mod_naas_mod_form::$phpunit_fake_major_version = false;
-        mod_naas_mod_form::$phpunit_major_version_value = null;
+        mod_naas_mod_form::$phpunitfakemajorversion = false;
+        mod_naas_mod_form::$phpunitmajorversionvalue = null;
         parent::tearDown();
     }
 
     /**
      * MoodleQuickForm instance from a mod form (protected property).
+     *
+     * @param mod_naas_mod_form $form Form being inspected.
+     * @return \MoodleQuickForm
      */
     private function mform(mod_naas_mod_form $form): \MoodleQuickForm {
         $ref = new \ReflectionProperty(\moodleform::class, '_form');
@@ -58,6 +62,9 @@ final class mod_form_test extends advanced_testcase {
 
     /**
      * Minimal $PAGE for widget AMD registration during definition().
+     *
+     * @param \context $context Page context.
+     * @param \stdClass $course Course the page belongs to.
      */
     private function init_test_page(\context $context, \stdClass $course): void {
         global $PAGE;
@@ -70,6 +77,7 @@ final class mod_form_test extends advanced_testcase {
     /**
      * QuickForm elements from the internal list.
      *
+     * @param \MoodleQuickForm $mform Form whose elements are read.
      * @return \HTML_QuickForm_element[]
      */
     private function form_elements(\MoodleQuickForm $mform): array {
@@ -80,6 +88,9 @@ final class mod_form_test extends advanced_testcase {
 
     /**
      * Raw html elements concatenated (widget markup, not Moodle fitems).
+     *
+     * @param \MoodleQuickForm $mform Form whose html elements are concatenated.
+     * @return string
      */
     private function html_elements(\MoodleQuickForm $mform): string {
         $chunks = [];
@@ -105,7 +116,7 @@ final class mod_form_test extends advanced_testcase {
         $generator->enrol_user($teacher->id, $course->id, 'editingteacher');
         $this->setUser($teacher);
 
-        list($module, $context, $cw, $cm, $data) = \prepare_new_moduleinfo_data($course, 'naas', 0);
+        [$module, $context, $cw, $cm, $data] = \prepare_new_moduleinfo_data($course, 'naas', 0);
         $this->init_test_page($context, $course);
 
         $form = new mod_naas_mod_form($data, $cw->section, $cm, $course);
@@ -139,7 +150,7 @@ final class mod_form_test extends advanced_testcase {
         ]);
         $cm = \get_coursemodule_from_instance('naas', $naas->id, $course->id, false, MUST_EXIST);
 
-        list($cm, $context, $module, $data, $cw) = \get_moduleinfo_data($cm, $course);
+        [$cm, $context, $module, $data, $cw] = \get_moduleinfo_data($cm, $course);
         $this->init_test_page($context, $course);
 
         $form = new mod_naas_mod_form($data, $cw->section, $cm, $course);
@@ -150,7 +161,7 @@ final class mod_form_test extends advanced_testcase {
     }
 
     /**
-     * definition() on update loads grademax from the existing grade_item when present.
+     * definition() on update loads grademax from the existing gradeitem when present.
      */
     public function test_definition_update_instance_reads_grade_item_grademax(): void {
         $this->resetAfterTest(true);
@@ -167,7 +178,7 @@ final class mod_form_test extends advanced_testcase {
         ]);
         $cm = \get_coursemodule_from_instance('naas', $naas->id, $course->id, false, MUST_EXIST);
 
-        list($cm, $context, $module, $data, $cw) = \get_moduleinfo_data($cm, $course);
+        [$cm, $context, $module, $data, $cw] = \get_moduleinfo_data($cm, $course);
         $this->init_test_page($context, $course);
 
         $form = new mod_naas_mod_form($data, $cw->section, $cm, $course);
@@ -262,7 +273,7 @@ final class mod_form_test extends advanced_testcase {
         $generator->enrol_user($teacher->id, $course->id, 'editingteacher');
         $this->setUser($teacher);
 
-        list($module, $context, $cw, $cm, $data) = \prepare_new_moduleinfo_data($course, 'naas', 0);
+        [$module, $context, $cw, $cm, $data] = \prepare_new_moduleinfo_data($course, 'naas', 0);
         $this->init_test_page($context, $course);
         $form = new mod_naas_mod_form($data, $cw->section, $cm, $course);
 
@@ -284,7 +295,7 @@ final class mod_form_test extends advanced_testcase {
         $generator->enrol_user($teacher->id, $course->id, 'editingteacher');
         $this->setUser($teacher);
 
-        list($module, $context, $cw, $cm, $data) = \prepare_new_moduleinfo_data($course, 'naas', 0);
+        [$module, $context, $cw, $cm, $data] = \prepare_new_moduleinfo_data($course, 'naas', 0);
         $this->init_test_page($context, $course);
         $form = new mod_naas_mod_form($data, $cw->section, $cm, $course);
 
@@ -320,7 +331,7 @@ final class mod_form_test extends advanced_testcase {
         $generator->enrol_user($teacher->id, $course->id, 'editingteacher');
         $this->setUser($teacher);
 
-        list($module, $context, $cw, $cm, $data) = \prepare_new_moduleinfo_data($course, 'naas', 0);
+        [$module, $context, $cw, $cm, $data] = \prepare_new_moduleinfo_data($course, 'naas', 0);
         $this->init_test_page($context, $course);
         $form = new mod_naas_mod_form($data, $cw->section, $cm, $course);
 
@@ -344,7 +355,7 @@ final class mod_form_test extends advanced_testcase {
         $generator->enrol_user($teacher->id, $course->id, 'editingteacher');
         $this->setUser($teacher);
 
-        list($module, $context, $cw, $cm, $data) = \prepare_new_moduleinfo_data($course, 'naas', 0);
+        [$module, $context, $cw, $cm, $data] = \prepare_new_moduleinfo_data($course, 'naas', 0);
         $this->init_test_page($context, $course);
         $form = new mod_naas_mod_form($data, $cw->section, $cm, $course);
 
@@ -367,8 +378,8 @@ final class mod_form_test extends advanced_testcase {
     public function test_add_completion_rules_moodle3_branch_when_major_version_is_three(): void {
         $this->resetAfterTest(true);
 
-        mod_naas_mod_form::$phpunit_fake_major_version = true;
-        mod_naas_mod_form::$phpunit_major_version_value = 3;
+        mod_naas_mod_form::$phpunitfakemajorversion = true;
+        mod_naas_mod_form::$phpunitmajorversionvalue = 3;
 
         $generator = $this->getDataGenerator();
         $course = $generator->create_course(['enablecompletion' => 1]);
@@ -376,7 +387,7 @@ final class mod_form_test extends advanced_testcase {
         $generator->enrol_user($teacher->id, $course->id, 'editingteacher');
         $this->setUser($teacher);
 
-        list($module, $context, $cw, $cm, $data) = \prepare_new_moduleinfo_data($course, 'naas', 0);
+        [$module, $context, $cw, $cm, $data] = \prepare_new_moduleinfo_data($course, 'naas', 0);
         $this->init_test_page($context, $course);
         $form = new mod_naas_mod_form($data, $cw->section, $cm, $course);
 
@@ -386,8 +397,8 @@ final class mod_form_test extends advanced_testcase {
     public function test_add_completion_rules_no_items_when_major_version_null(): void {
         $this->resetAfterTest(true);
 
-        mod_naas_mod_form::$phpunit_fake_major_version = true;
-        mod_naas_mod_form::$phpunit_major_version_value = null;
+        mod_naas_mod_form::$phpunitfakemajorversion = true;
+        mod_naas_mod_form::$phpunitmajorversionvalue = null;
 
         $generator = $this->getDataGenerator();
         $course = $generator->create_course(['enablecompletion' => 1]);
@@ -395,7 +406,7 @@ final class mod_form_test extends advanced_testcase {
         $generator->enrol_user($teacher->id, $course->id, 'editingteacher');
         $this->setUser($teacher);
 
-        list($module, $context, $cw, $cm, $data) = \prepare_new_moduleinfo_data($course, 'naas', 0);
+        [$module, $context, $cw, $cm, $data] = \prepare_new_moduleinfo_data($course, 'naas', 0);
         $this->init_test_page($context, $course);
         $form = new mod_naas_mod_form($data, $cw->section, $cm, $course);
 
@@ -405,8 +416,8 @@ final class mod_form_test extends advanced_testcase {
     public function test_add_completion_rules_no_items_when_major_version_not_three(): void {
         $this->resetAfterTest(true);
 
-        mod_naas_mod_form::$phpunit_fake_major_version = true;
-        mod_naas_mod_form::$phpunit_major_version_value = 4;
+        mod_naas_mod_form::$phpunitfakemajorversion = true;
+        mod_naas_mod_form::$phpunitmajorversionvalue = 4;
 
         $generator = $this->getDataGenerator();
         $course = $generator->create_course(['enablecompletion' => 1]);
@@ -414,7 +425,7 @@ final class mod_form_test extends advanced_testcase {
         $generator->enrol_user($teacher->id, $course->id, 'editingteacher');
         $this->setUser($teacher);
 
-        list($module, $context, $cw, $cm, $data) = \prepare_new_moduleinfo_data($course, 'naas', 0);
+        [$module, $context, $cw, $cm, $data] = \prepare_new_moduleinfo_data($course, 'naas', 0);
         $this->init_test_page($context, $course);
         $form = new mod_naas_mod_form($data, $cw->section, $cm, $course);
 
@@ -448,7 +459,7 @@ final class mod_form_test extends advanced_testcase {
         $generator->enrol_user($teacher->id, $course->id, 'editingteacher');
         $this->setUser($teacher);
 
-        list($module, $context, $cw, $cm, $data) = \prepare_new_moduleinfo_data($course, 'naas', 0);
+        [$module, $context, $cw, $cm, $data] = \prepare_new_moduleinfo_data($course, 'naas', 0);
         $this->init_test_page($context, $course);
         $form = new mod_naas_mod_form($data, $cw->section, $cm, $course);
 
@@ -472,7 +483,7 @@ final class mod_form_test extends advanced_testcase {
         $generator->enrol_user($teacher->id, $course->id, 'editingteacher');
         $this->setUser($teacher);
 
-        list($module, $context, $cw, $cm, $data) = \prepare_new_moduleinfo_data($course, 'naas', 0);
+        [$module, $context, $cw, $cm, $data] = \prepare_new_moduleinfo_data($course, 'naas', 0);
         $this->init_test_page($context, $course);
         $form = new mod_naas_mod_form($data, $cw->section, $cm, $course);
 

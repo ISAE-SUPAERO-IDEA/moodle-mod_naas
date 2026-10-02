@@ -37,8 +37,9 @@ require_once($CFG->libdir . '/adminlib.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class refresh_cache_setting extends \admin_setting {
-
     /**
+     * Prepare the display-only refresh-cache control.
+     *
      * @param string $name unique ascii name, plugin/setting
      * @param string $visiblename localised name
      * @param string $description localised long description

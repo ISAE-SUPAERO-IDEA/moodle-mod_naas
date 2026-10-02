@@ -22,18 +22,17 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_naas\tests;
-
-defined('MOODLE_INTERNAL') || die();
+namespace mod_naas;
 
 use advanced_testcase;
 use mod_naas\nugget_cache;
 
 /**
+ * Tests for the Nugget document cache.
+ *
  * @covers \mod_naas\nugget_cache
  */
 final class nugget_cache_test extends advanced_testcase {
-
     /**
      * Isolate MUC and plugin config.
      */
@@ -49,6 +48,8 @@ final class nugget_cache_test extends advanced_testcase {
     }
 
     /**
+     * Plugin configuration for this test.
+     *
      * @return object
      */
     private function config(): object {
@@ -90,7 +91,7 @@ final class nugget_cache_test extends advanced_testcase {
 
     public function test_get_ignores_an_entry_from_another_connection(): void {
         nugget_cache::store('n1', $this->document(), $this->config());
-        set_config('naas_endpoint', 'https://other.example/api', 'naas');
+        set_config('naas_endpoint', 'https://Other.example/api', 'naas');
         $this->assertNull(nugget_cache::get('n1', $this->config()));
     }
 

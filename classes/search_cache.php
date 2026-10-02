@@ -32,8 +32,6 @@
 
 namespace mod_naas;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Per-query cache of Nugget search responses.
  *
@@ -291,6 +289,8 @@ class search_cache {
     }
 
     /**
+     * Persist the search-cache index.
+     *
      * @param array $index
      */
     private static function index_store(array $index): void {
@@ -335,5 +335,4 @@ class search_cache {
         }
         return $max;
     }
-
 }

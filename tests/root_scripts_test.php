@@ -22,7 +22,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_naas\tests;
+namespace mod_naas;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -32,14 +32,15 @@ require_once($CFG->libdir . '/adminlib.php');
 use advanced_testcase;
 
 /**
- * Root script smoke tests (index, launch, settings). {@see view_php_test} covers view.php; {@see version_php_test} covers version.php.
+ * Root script smoke tests for index, launch, and settings.
+ *
+ * @coversNothing
  *
  * @package    mod_naas
- * @copyright  2026 onwards ISAE-SUPAERO (https://www.isae-supaero.fr/)
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright  2026 onwards ISAE-SUPAERO (https://www.isae-supaero.fr/).
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later.
  */
 final class root_scripts_test extends advanced_testcase {
-
     protected function tearDown(): void {
         $_GET = [];
         $_POST = [];
@@ -67,7 +68,7 @@ final class root_scripts_test extends advanced_testcase {
         $_REQUEST['id'] = $course->id;
 
         ob_start();
-        require $CFG->dirroot . '/mod/naas/index.php';
+        require($CFG->dirroot . '/mod/naas/index.php');
         $html = ob_get_clean();
 
         $this->assertStringContainsString(get_string('modulenameplural', 'naas'), $html);
@@ -91,7 +92,7 @@ final class root_scripts_test extends advanced_testcase {
         $_REQUEST['id'] = $course->id;
 
         ob_start();
-        require $CFG->dirroot . '/mod/naas/index.php';
+        require($CFG->dirroot . '/mod/naas/index.php');
         $html = ob_get_clean();
 
         $this->assertStringContainsString(get_string('nonewmodules', 'naas'), $html);
@@ -109,7 +110,7 @@ final class root_scripts_test extends advanced_testcase {
         $_REQUEST = [];
 
         try {
-            require $CFG->dirroot . '/mod/naas/index.php';
+            require($CFG->dirroot . '/mod/naas/index.php');
             $this->fail('Expected moodle_exception for redirect under CLI');
         } catch (\moodle_exception $e) {
             $this->assertSame('redirecterrordetected', $e->errorcode);
@@ -133,7 +134,7 @@ final class root_scripts_test extends advanced_testcase {
         $_REQUEST['id'] = $naas->cmid;
 
         ob_start();
-        require $CFG->dirroot . '/mod/naas/launch.php';
+        require($CFG->dirroot . '/mod/naas/launch.php');
         $html = ob_get_clean();
 
         $hasform = strpos($html, 'ltiLaunchForm') !== false;
@@ -156,7 +157,7 @@ final class root_scripts_test extends advanced_testcase {
         $hassiteconfig = true;
         $settings = new \admin_settingpage('modsettingnaas', 'NaaS');
 
-        require $CFG->dirroot . '/mod/naas/settings.php';
+        require($CFG->dirroot . '/mod/naas/settings.php');
 
         $keys = array_keys((array) $settings->settings);
         $this->assertGreaterThanOrEqual(8, count($keys));

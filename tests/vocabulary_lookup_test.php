@@ -22,18 +22,17 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_naas\tests;
-
-defined('MOODLE_INTERNAL') || die();
+namespace mod_naas;
 
 use advanced_testcase;
 use mod_naas\vocabulary_lookup;
 
 /**
+ * Tests for facet vocabulary lookup.
+ *
  * @covers \mod_naas\vocabulary_lookup
  */
 final class vocabulary_lookup_test extends advanced_testcase {
-
     /**
      * Isolate MUC.
      */

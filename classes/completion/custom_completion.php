@@ -67,6 +67,29 @@ class custom_completion extends activity_custom_completion {
     }
 
     /**
+     * Check the minimum-attempts requirement for completion.
+     *
+     * Each LTI launch stores one row in naas_activity_outcome. That row count is the attempt count.
+     *
+     * @return bool True when the minimum is unset or the learner has launched enough times.
+     */
+    protected function check_min_attempts(): bool {
+        global $DB;
+
+        $minattempts = $this->cm->customdata['customcompletionrules']['completionminattempts'] ?? 0;
+        if (empty($minattempts)) {
+            return true;
+        }
+
+        $attempts = $DB->count_records('naas_activity_outcome', [
+            'user_id' => $this->userid,
+            'activity_id' => $this->cm->id,
+        ]);
+
+        return $attempts >= (int) $minattempts;
+    }
+
+    /**
      * Fetches the completion state for a given completion rule.
      *
      * @param string $rule The completion rule.
@@ -78,6 +101,9 @@ class custom_completion extends activity_custom_completion {
         switch ($rule) {
             case 'completionpassorattemptsexhausted':
                 $status = static::check_passing_grade_or_all_attempts();
+                break;
+            case 'completionminattempts':
+                $status = static::check_min_attempts();
                 break;
         }
 
@@ -92,6 +118,7 @@ class custom_completion extends activity_custom_completion {
     public static function get_defined_custom_rules(): array {
         return [
             'completionpassorattemptsexhausted',
+            'completionminattempts',
         ];
     }
 
@@ -101,16 +128,22 @@ class custom_completion extends activity_custom_completion {
      * @return array
      */
     public function get_custom_rule_descriptions(): array {
+        $descriptions = [];
+
+        $minattempts = $this->cm->customdata['customcompletionrules']['completionminattempts'] ?? 0;
+        if (!empty($minattempts)) {
+            $descriptions['completionminattempts'] = get_string('completiondetail:minattempts', 'naas', $minattempts);
+        }
+
         $completionpassorattempts = $this->cm->customdata['customcompletionrules']['completionpassorattemptsexhausted'] ?? [];
         if (!empty($completionpassorattempts['completionattemptsexhausted'])) {
             $passorallattemptslabel = get_string('completiondetail:passorexhaust', 'naas');
         } else {
             $passorallattemptslabel = get_string('completiondetail:passgrade', 'naas');
         }
+        $descriptions['completionpassorattemptsexhausted'] = $passorallattemptslabel;
 
-        return [
-            'completionpassorattemptsexhausted' => $passorallattemptslabel,
-        ];
+        return $descriptions;
     }
 
     /**
@@ -121,6 +154,7 @@ class custom_completion extends activity_custom_completion {
     public function get_sort_order(): array {
         return [
             'completionview',
+            'completionminattempts',
             'completionusegrade',
             'completionpassorattemptsexhausted',
         ];

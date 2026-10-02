@@ -24,8 +24,6 @@
 
 namespace mod_naas;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Shared JSON envelope handling for NaaS bodies stored in MUC.
  *
@@ -105,6 +103,8 @@ class naas_payload {
     }
 
     /**
+     * Whether the value looks like a JSON document.
+     *
      * @param string $value
      * @return bool
      */

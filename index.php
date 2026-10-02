@@ -23,8 +23,8 @@
  * @author      Thomas Delalbre
  */
 
-require_once('../../config.php');
-require_once('lib.php');
+require_once(__DIR__ . '/../../config.php');
+require_once(__DIR__ . '/lib.php');
 
 // Course ID is a required parameter.
 $id = optional_param('id', 0, PARAM_INT);  // Using optional_param to handle missing ID gracefully.

@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Full line coverage for {@see mod/naas/view.php} (both instance-resolution branches,
+ * Full line coverage for mod/naas/view.php (both instance-resolution branches,
  * optional query params, happy path with/without next activity, and access / existence failures).
  *
  * @package    mod_naas
@@ -23,17 +23,16 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_naas\tests;
-
-defined('MOODLE_INTERNAL') || die();
+namespace mod_naas;
 
 use advanced_testcase;
 
 /**
+ * Tests for the activity view script.
+ *
  * @coversNothing
  */
 final class view_php_test extends advanced_testcase {
-
     protected function tearDown(): void {
         $_GET = [];
         $_POST = [];
@@ -61,7 +60,7 @@ final class view_php_test extends advanced_testcase {
         $_REQUEST['id'] = $naas->cmid;
 
         ob_start();
-        require $CFG->dirroot . '/mod/naas/view.php';
+        require($CFG->dirroot . '/mod/naas/view.php');
         $html = ob_get_clean();
 
         $this->assertStringContainsString(get_string('back_to_course', 'naas'), $html);
@@ -87,7 +86,7 @@ final class view_php_test extends advanced_testcase {
         $_REQUEST['u'] = $naas->id;
 
         ob_start();
-        require $CFG->dirroot . '/mod/naas/view.php';
+        require($CFG->dirroot . '/mod/naas/view.php');
         $html = ob_get_clean();
 
         $this->assertStringContainsString(get_string('back_to_course', 'naas'), $html);
@@ -113,7 +112,7 @@ final class view_php_test extends advanced_testcase {
         $_REQUEST['id'] = 999999999;
 
         ob_start();
-        require $CFG->dirroot . '/mod/naas/view.php';
+        require($CFG->dirroot . '/mod/naas/view.php');
         $html = ob_get_clean();
 
         $this->assertStringContainsString(get_string('back_to_course', 'naas'), $html);
@@ -138,7 +137,7 @@ final class view_php_test extends advanced_testcase {
         $_REQUEST = $_GET;
 
         ob_start();
-        require $CFG->dirroot . '/mod/naas/view.php';
+        require($CFG->dirroot . '/mod/naas/view.php');
         $html = ob_get_clean();
 
         $this->assertStringContainsString('naas_widget', $html);
@@ -171,7 +170,7 @@ final class view_php_test extends advanced_testcase {
         $_REQUEST['id'] = $naas->cmid;
 
         ob_start();
-        require $CFG->dirroot . '/mod/naas/view.php';
+        require($CFG->dirroot . '/mod/naas/view.php');
         $html = ob_get_clean();
 
         $this->assertStringContainsString('next-activity', $html);
@@ -194,7 +193,7 @@ final class view_php_test extends advanced_testcase {
         $_REQUEST['id'] = $naas->cmid;
 
         $this->expectException(\require_login_exception::class);
-        require $CFG->dirroot . '/mod/naas/view.php';
+        require($CFG->dirroot . '/mod/naas/view.php');
     }
 
     /**
@@ -214,7 +213,7 @@ final class view_php_test extends advanced_testcase {
         $_REQUEST['id'] = $naas->cmid + 999999;
 
         $this->expectException(\dml_missing_record_exception::class);
-        require $CFG->dirroot . '/mod/naas/view.php';
+        require($CFG->dirroot . '/mod/naas/view.php');
     }
 
     /**
@@ -236,6 +235,6 @@ final class view_php_test extends advanced_testcase {
         $_REQUEST['u'] = $badid;
 
         $this->expectException(\dml_missing_record_exception::class);
-        require $CFG->dirroot . '/mod/naas/view.php';
+        require($CFG->dirroot . '/mod/naas/view.php');
     }
 }

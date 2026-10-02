@@ -31,8 +31,6 @@
 
 namespace mod_naas;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Per-Nugget cache of the default-version document.
  *

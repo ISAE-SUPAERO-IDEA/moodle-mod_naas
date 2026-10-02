@@ -22,9 +22,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_naas\tests\output;
-
-defined('MOODLE_INTERNAL') || die();
+namespace mod_naas\output;
 
 use basic_testcase;
 use mod_naas\output\view_page;
@@ -38,15 +36,12 @@ use stdClass;
  * export_for_template() receives a mock renderer_base but never calls it.
  *
  * @package    mod_naas
- * @copyright  2019 onwards ISAE-SUPAERO (https://www.isae-supaero.fr/)
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright  2019 onwards ISAE-SUPAERO (https://www.isae-supaero.fr/).
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later.
  * @covers \mod_naas\output\view_page
  */
 class view_page_test extends basic_testcase {
-
-    // -----------------------------------------------------------------------
-    // Helpers
-    // -----------------------------------------------------------------------
+    // Helpers.
 
     /**
      * Build a minimal view_page instance for use in tests.
@@ -73,9 +68,7 @@ class view_page_test extends basic_testcase {
         return $this->createMock(\renderer_base::class);
     }
 
-    // -----------------------------------------------------------------------
-    // Return type
-    // -----------------------------------------------------------------------
+    // Return type.
 
     /**
      * export_for_template() must return a stdClass instance.
@@ -85,9 +78,7 @@ class view_page_test extends basic_testcase {
         $this->assertInstanceOf(stdClass::class, $result);
     }
 
-    // -----------------------------------------------------------------------
-    // courseurl
-    // -----------------------------------------------------------------------
+    // Courseurl.
 
     /**
      * courseurl is serialised to a string (no ampersand encoding).
@@ -120,9 +111,7 @@ class view_page_test extends basic_testcase {
         $this->assertStringNotContainsString('&amp;', $result->courseurl);
     }
 
-    // -----------------------------------------------------------------------
-    // backtocourse
-    // -----------------------------------------------------------------------
+    // Backtocourse.
 
     /**
      * backtocourse string is passed through unchanged.
@@ -138,9 +127,7 @@ class view_page_test extends basic_testcase {
         $this->assertSame('Return to my course', $result->backtocourse);
     }
 
-    // -----------------------------------------------------------------------
-    // widgethtml
-    // -----------------------------------------------------------------------
+    // Widgethtml.
 
     /**
      * widgethtml is passed through verbatim (pre-rendered HTML string).
@@ -151,9 +138,7 @@ class view_page_test extends basic_testcase {
         $this->assertSame($html, $result->widgethtml);
     }
 
-    // -----------------------------------------------------------------------
-    // hasnextactivity – no next activity
-    // -----------------------------------------------------------------------
+    // Hasnextactivity – no next activity.
 
     /**
      * When nextactivity is null, hasnextactivity is false.
@@ -172,9 +157,7 @@ class view_page_test extends basic_testcase {
         $this->assertFalse(property_exists($result, 'nextactivityurl'));
     }
 
-    // -----------------------------------------------------------------------
-    // hasnextactivity – with next activity
-    // -----------------------------------------------------------------------
+    // Hasnextactivity – with next activity.
 
     /**
      * When nextactivity is provided, hasnextactivity is true.

@@ -21,15 +21,15 @@
  * overrides request_raw().  This lets us unit-test handle_result() logic,
  * URL construction, and all public API methods without a live NaaS endpoint.
  *
- * Tests that require actual network access are marked @group external and
- * skipped in offline environments.
+ * Tests that require actual network access belong to the external group and
+ * are skipped in offline environments.
  *
  * @package    mod_naas
  * @copyright  2019 onwards ISAE-SUPAERO (https://www.isae-supaero.fr/)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_naas\tests;
+namespace mod_naas;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -37,76 +37,18 @@ use advanced_testcase;
 use mod_naas\naas_client;
 use stdClass;
 
-// ---------------------------------------------------------------------------
-// Testable subclass — overrides the HTTP layer only
-// ---------------------------------------------------------------------------
-
-/**
- * Subclass of naas_client that replaces request_raw() with a controllable stub.
- *
- * Tests set $stub_json and $stub_error before calling the public API methods,
- * and inspect $captured to verify what arguments were passed to the transport.
- */
-class testable_naas_client extends naas_client {
-
-    /** @var string JSON string returned by the stub transport. */
-    public string $stub_json = '{}';
-
-    /** @var bool When true, request_raw() throws a moodle_exception. */
-    public bool $stub_error = false;
-
-    /** @var array Arguments received by the last request_raw() call. */
-    public array $captured = [];
-
-    /**
-     * Override: capture arguments and return the stub response.
-     *
-     * @param string      $protocol
-     * @param string      $service
-     * @param object|null $data
-     * @param array|null  $params
-     * @return string
-     * @throws \moodle_exception when $stub_error is true
-     */
-    public function request_raw($protocol, $service, $data = null, $params = null): string {
-        $this->captured = [
-            'protocol' => $protocol,
-            'service'  => $service,
-            'data'     => $data,
-            'params'   => $params,
-        ];
-
-        if ($this->stub_error) {
-            throw new \moodle_exception(
-                'error:proxy_naas_api:curl',
-                'naas',
-                '',
-                'stub curl error',
-                json_encode(['errno' => 1, 'error' => 'stub curl error', 'url' => ''])
-            );
-        }
-
-        return $this->stub_json;
-    }
-}
-
-// ---------------------------------------------------------------------------
-// Tests
-// ---------------------------------------------------------------------------
+require_once(__DIR__ . '/fixtures/testable_naas_client.php');
 
 /**
  * Tests for mod_naas\naas_client.
  *
  * @package    mod_naas
- * @copyright  2019 onwards ISAE-SUPAERO (https://www.isae-supaero.fr/)
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright  2019 onwards ISAE-SUPAERO (https://www.isae-supaero.fr/).
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later.
  * @covers \mod_naas\naas_client
  */
 class naas_client_test extends advanced_testcase {
-
-    // -----------------------------------------------------------------------
-    // Constructor / debug flag
-    // -----------------------------------------------------------------------
+    // Constructor / debug flag.
 
     /**
      * The constructor must store the config object.
@@ -148,16 +90,14 @@ class naas_client_test extends advanced_testcase {
         $this->assertTrue($ref->getValue($client));
     }
 
-    // -----------------------------------------------------------------------
-    // handle_result (exercised via request())
-    // -----------------------------------------------------------------------
+    // Handle_result (exercised via request()).
 
     /**
      * When the response has a payload property, request() returns the payload.
      */
     public function test_request_returns_payload_when_present(): void {
         $client            = $this->make_client();
-        $client->stub_json = json_encode(['payload' => ['id' => 'nugget-xyz']]);
+        $client->stubjson = json_encode(['payload' => ['id' => 'nugget-xyz']]);
 
         $result = $client->request('GET', '/nuggets/nugget-xyz/default_version');
 
@@ -174,7 +114,7 @@ class naas_client_test extends advanced_testcase {
         $payload->title = 'Aerodynamics 101';
 
         $client            = $this->make_client();
-        $client->stub_json = json_encode(['payload' => $payload]);
+        $client->stubjson = json_encode(['payload' => $payload]);
 
         $result = $client->request('GET', '/test');
 
@@ -188,9 +128,9 @@ class naas_client_test extends advanced_testcase {
      */
     public function test_request_returns_full_response_when_payload_is_null(): void {
         $client            = $this->make_client();
-        $client->stub_json = json_encode(['payload' => null]);
+        $client->stubjson = json_encode(['payload' => null]);
 
-        // payload is null → condition fails → handle_result returns $res.
+        // Payload is null → condition fails → handle_result returns $res.
         $result = $client->request('GET', '/test');
 
         $this->assertInstanceOf(stdClass::class, $result);
@@ -203,7 +143,7 @@ class naas_client_test extends advanced_testcase {
      */
     public function test_request_returns_response_on_error_property(): void {
         $client            = $this->make_client();
-        $client->stub_json = json_encode(['error' => 'Something went wrong']);
+        $client->stubjson = json_encode(['error' => 'Something went wrong']);
 
         $result = $client->request('GET', '/test');
 
@@ -217,28 +157,26 @@ class naas_client_test extends advanced_testcase {
      */
     public function test_request_returns_empty_object_for_empty_json(): void {
         $client            = $this->make_client();
-        $client->stub_json = '{}';
+        $client->stubjson = '{}';
 
         $result = $client->request('GET', '/test');
 
         $this->assertInstanceOf(stdClass::class, $result);
     }
 
-    // -----------------------------------------------------------------------
-    // request_raw routing (via captured args)
-    // -----------------------------------------------------------------------
+    // Request_raw routing (via captured args).
 
     /**
      * get_api_info() issues a GET request to the root endpoint.
      */
     public function test_get_api_info_sends_get_to_root(): void {
         $client            = $this->make_client();
-        $client->stub_json = '{"payload": {"status": "ok"}}';
+        $client->stubjson = '{"payload": {"status": "ok"}}';
 
         $client->get_api_info();
 
         $this->assertSame('GET', $client->captured['protocol']);
-        $this->assertSame('',    $client->captured['service']);
+        $this->assertSame('', $client->captured['service']);
     }
 
     /**
@@ -246,11 +184,11 @@ class naas_client_test extends advanced_testcase {
      */
     public function test_get_nugget_data_sends_get_to_correct_url(): void {
         $client            = $this->make_client();
-        $client->stub_json = '{"payload": null}';
+        $client->stubjson = '{"payload": null}';
 
         $client->get_nugget_data('my-nugget-id');
 
-        $this->assertSame('GET',                                          $client->captured['protocol']);
+        $this->assertSame('GET', $client->captured['protocol']);
         $this->assertSame('/nuggets/my-nugget-id/default_version', $client->captured['service']);
     }
 
@@ -261,13 +199,13 @@ class naas_client_test extends advanced_testcase {
         $config                    = $this->base_config();
         $config->naas_structure_id = 'my-structure';
         $client                    = new testable_naas_client($config);
-        $client->stub_json         = '{"payload": null}';
+        $client->stubjson         = '{"payload": null}';
 
         $client->get_nugget_lti_config('nugget-abc');
 
-        $this->assertSame('GET',           $client->captured['protocol']);
+        $this->assertSame('GET', $client->captured['protocol']);
         $this->assertStringContainsString('/nuggets/nugget-abc/lti', $client->captured['service']);
-        $this->assertSame('my-structure',  $client->captured['params']['structure_id']);
+        $this->assertSame('my-structure', $client->captured['params']['structure_id']);
     }
 
     /**
@@ -275,7 +213,7 @@ class naas_client_test extends advanced_testcase {
      */
     public function test_get_nugget_lti_config_uses_explicit_structure_id(): void {
         $client            = $this->make_client();
-        $client->stub_json = '{"payload": null}';
+        $client->stubjson = '{"payload": null}';
 
         $client->get_nugget_lti_config('nugget-abc', 'override-structure');
 
@@ -287,7 +225,7 @@ class naas_client_test extends advanced_testcase {
      */
     public function test_post_xapi_statement_sends_post_to_correct_url(): void {
         $client            = $this->make_client();
-        $client->stub_json = '{"payload": {"statusCode": 200, "statusMessage": "OK"}}';
+        $client->stubjson = '{"payload": {"statusCode": 200, "statusMessage": "OK"}}';
 
         $data          = new stdClass();
         $data->user    = (object)['name' => 'Test', 'email' => 'test@example.com'];
@@ -304,17 +242,15 @@ class naas_client_test extends advanced_testcase {
      */
     public function test_get_connected_user_calls_auth_endpoint(): void {
         $client            = $this->make_client();
-        $client->stub_json = '{"payload": {"username": "admin"}}';
+        $client->stubjson = '{"payload": {"username": "admin"}}';
 
         $client->get_connected_user();
 
-        $this->assertSame('GET',   $client->captured['protocol']);
+        $this->assertSame('GET', $client->captured['protocol']);
         $this->assertSame('/auth', $client->captured['service']);
     }
 
-    // -----------------------------------------------------------------------
-    // Error propagation
-    // -----------------------------------------------------------------------
+    // Error propagation.
 
     /**
      * When request_raw() throws (curl error), request() must propagate the
@@ -322,7 +258,7 @@ class naas_client_test extends advanced_testcase {
      */
     public function test_request_propagates_curl_exception(): void {
         $client             = $this->make_client();
-        $client->stub_error = true;
+        $client->stuberror = true;
 
         $this->expectException(\moodle_exception::class);
         $client->request('GET', '/test');
@@ -333,27 +269,27 @@ class naas_client_test extends advanced_testcase {
      */
     public function test_get_nugget_data_propagates_exception(): void {
         $client             = $this->make_client();
-        $client->stub_error = true;
+        $client->stuberror = true;
 
         $this->expectException(\moodle_exception::class);
         $client->get_nugget_data('nugget-id');
     }
 
-    // -----------------------------------------------------------------------
-    // Tests for request_raw using injected curl factory
-    // -----------------------------------------------------------------------
+    // Tests for request_raw using injected curl factory.
 
     public function test_request_raw_executes_successfully(): void {
         $config = $this->base_config();
-        
+
         $mockcurl = $this->createMock(\curl::class);
         $mockcurl->expects($this->once())->method('setopt');
         $mockcurl->expects($this->once())->method('get')->willReturn('{"status": "ok"}');
         $mockcurl->method('get_info')->willReturn(['http_code' => 200]);
         $mockcurl->method('get_errno')->willReturn(0);
 
-        $client = new naas_client($config, function() use ($mockcurl) { return $mockcurl; });
-        
+        $client = new naas_client($config, function () use ($mockcurl) {
+            return $mockcurl;
+        });
+
         $response = $client->request_raw('GET', '/test');
         $this->assertEquals('{"status": "ok"}', $response);
     }
@@ -396,7 +332,7 @@ class naas_client_test extends advanced_testcase {
 
     public function test_request_raw_executes_post_successfully(): void {
         $config = $this->base_config();
-        
+
         $mockcurl = $this->createMock(\curl::class);
         $mockcurl->expects($this->once())->method('setopt');
         $mockcurl->expects($this->once())->method('post')->with(
@@ -406,36 +342,42 @@ class naas_client_test extends advanced_testcase {
         $mockcurl->method('get_info')->willReturn(['http_code' => 201]);
         $mockcurl->method('get_errno')->willReturn(0);
 
-        $client = new naas_client($config, function() use ($mockcurl) { return $mockcurl; });
-        
+        $client = new naas_client($config, function () use ($mockcurl) {
+            return $mockcurl;
+        });
+
         $response = $client->request_raw('POST', '/test', ['foo' => 'bar']);
         $this->assertEquals('{"status": "posted"}', $response);
     }
 
     public function test_request_raw_handles_curl_error(): void {
         $config = $this->base_config();
-        
+
         $mockcurl = $this->createMock(\curl::class);
         $mockcurl->method('get')->willReturn('');
         $mockcurl->method('get_info')->willReturn(['http_code' => 0]);
-        $mockcurl->method('get_errno')->willReturn(28); // CURLE_OPERATION_TIMEDOUT
+        $mockcurl->method('get_errno')->willReturn(28); // CURLE_OPERATION_TIMEDOUT.
 
-        $client = new naas_client($config, function() use ($mockcurl) { return $mockcurl; });
-        
+        $client = new naas_client($config, function () use ($mockcurl) {
+            return $mockcurl;
+        });
+
         $this->expectException(\moodle_exception::class);
         $client->request_raw('GET', '/test');
     }
 
     public function test_request_raw_handles_http_error(): void {
         $config = $this->base_config();
-        
+
         $mockcurl = $this->createMock(\curl::class);
         $mockcurl->method('get')->willReturn('Not Found');
         $mockcurl->method('get_info')->willReturn(['http_code' => 404]);
         $mockcurl->method('get_errno')->willReturn(0);
 
-        $client = new naas_client($config, function() use ($mockcurl) { return $mockcurl; });
-        
+        $client = new naas_client($config, function () use ($mockcurl) {
+            return $mockcurl;
+        });
+
         $this->expectException(\moodle_exception::class);
         $client->request_raw('GET', '/test');
     }
@@ -446,16 +388,18 @@ class naas_client_test extends advanced_testcase {
     public function test_request_raw_ssl_verification(): void {
         $config = $this->base_config();
         $config->naas_ssl_noverify = true;
-        
+
         $mockcurl = $this->createMock(\curl::class);
-        $mockcurl->expects($this->once())->method('setopt')->with($this->callback(function($options) {
+        $mockcurl->expects($this->once())->method('setopt')->with($this->callback(function ($options) {
             return $options['CURLOPT_SSL_VERIFYPEER'] === false;
         }));
         $mockcurl->method('get')->willReturn('{}');
         $mockcurl->method('get_info')->willReturn(['http_code' => 200]);
         $mockcurl->method('get_errno')->willReturn(0);
 
-        $client = new naas_client($config, function() use ($mockcurl) { return $mockcurl; });
+        $client = new naas_client($config, function () use ($mockcurl) {
+            return $mockcurl;
+        });
         $client->request_raw('GET', '/test');
     }
 
@@ -465,16 +409,18 @@ class naas_client_test extends advanced_testcase {
     public function test_request_raw_timeout(): void {
         $config = $this->base_config();
         $config->naas_timeout = 45;
-        
+
         $mockcurl = $this->createMock(\curl::class);
-        $mockcurl->expects($this->once())->method('setopt')->with($this->callback(function($options) {
+        $mockcurl->expects($this->once())->method('setopt')->with($this->callback(function ($options) {
             return $options['CURLOPT_TIMEOUT'] === 45;
         }));
         $mockcurl->method('get')->willReturn('{}');
         $mockcurl->method('get_info')->willReturn(['http_code' => 200]);
         $mockcurl->method('get_errno')->willReturn(0);
 
-        $client = new naas_client($config, function() use ($mockcurl) { return $mockcurl; });
+        $client = new naas_client($config, function () use ($mockcurl) {
+            return $mockcurl;
+        });
         $client->request_raw('GET', '/test');
     }
 
@@ -484,19 +430,21 @@ class naas_client_test extends advanced_testcase {
     public function test_request_raw_custom_headers(): void {
         $config = $this->base_config();
         $config->naas_impersonate = 'user123';
-        $config->wwwroot = 'https://moodle.example.com';
-        
+        $config->wwwroot = 'https://Moodle.example.com';
+
         $mockcurl = $this->createMock(\curl::class);
-        $mockcurl->expects($this->once())->method('setopt')->with($this->callback(function($options) {
+        $mockcurl->expects($this->once())->method('setopt')->with($this->callback(function ($options) {
             $headers = $options['CURLOPT_HTTPHEADER'];
-            return in_array('X-NaaS-Impersonate:user123', $headers) && 
-                   in_array('X-Host:https://moodle.example.com', $headers);
+            return in_array('X-NaaS-Impersonate:user123', $headers) &&
+                   in_array('X-Host:https://Moodle.example.com', $headers);
         }));
         $mockcurl->method('get')->willReturn('{}');
         $mockcurl->method('get_info')->willReturn(['http_code' => 200]);
         $mockcurl->method('get_errno')->willReturn(0);
 
-        $client = new naas_client($config, function() use ($mockcurl) { return $mockcurl; });
+        $client = new naas_client($config, function () use ($mockcurl) {
+            return $mockcurl;
+        });
         $client->request_raw('GET', '/test');
     }
 
@@ -505,20 +453,22 @@ class naas_client_test extends advanced_testcase {
      */
     public function test_request_raw_sanitizes_query_params(): void {
         $config = $this->base_config();
-        
+
         $mockcurl = $this->createMock(\curl::class);
-        // http_build_query(['tags' => ['a', 'b']]) usually produces tags%5B0%5D=a&tags%5B1%5D=b
-        // request_raw should change it to tags%5B%5D=a&tags%5B%5D=b
-        $mockcurl->expects($this->once())->method('get')->with($this->callback(function($url) {
+        // Http_build_query(['tags' => ['a', 'b']]) usually produces tags%5B0%5D=a&tags%5B1%5D=b.
+        // Request_raw should change it to tags%5B%5D=a&tags%5B%5D=b.
+        $mockcurl->expects($this->once())->method('get')->with($this->callback(function ($url) {
             // PHPUnit may XML-escape "&" as "&amp;" in failure output; normalise for assertions.
             $url = html_entity_decode($url, ENT_QUOTES | ENT_HTML5, 'UTF-8');
-            // http_build_query gives tags%5B0%5D=a&…; preg_replace strips the numeric indices → tags=a&tags=b.
+            // Http_build_query gives tags%5B0%5D=a&…; preg_replace strips the numeric indices → tags=a&tags=b.
             return strpos($url, 'tags=a') !== false && strpos($url, 'tags=b') !== false;
         }))->willReturn('{}');
         $mockcurl->method('get_info')->willReturn(['http_code' => 200]);
         $mockcurl->method('get_errno')->willReturn(0);
 
-        $client = new naas_client($config, function() use ($mockcurl) { return $mockcurl; });
+        $client = new naas_client($config, function () use ($mockcurl) {
+            return $mockcurl;
+        });
         $client->request_raw('GET', '/test', null, ['tags' => ['a', 'b']]);
     }
 
@@ -529,7 +479,7 @@ class naas_client_test extends advanced_testcase {
         $config = $this->base_config();
         $mockcurl = $this->createMock(\curl::class);
         $mockcurl->method('setopt');
-        $client = new naas_client($config, function() use ($mockcurl) {
+        $client = new naas_client($config, function () use ($mockcurl) {
             return $mockcurl;
         });
 
@@ -547,7 +497,8 @@ class naas_client_test extends advanced_testcase {
         $mockcurl->method('get')->willReturn('Bad');
         $mockcurl->method('get_info')->willReturn(['http_code' => 400]);
         $mockcurl->method('get_errno')->willReturn(0);
-        $client = new naas_client($config, function() use ($mockcurl) {
+        $mockcurl->method('getResponse')->willReturn(['x-naas-api' => '1']);
+        $client = new naas_client($config, function () use ($mockcurl) {
             return $mockcurl;
         });
 
@@ -569,6 +520,7 @@ class naas_client_test extends advanced_testcase {
         $mockcurl->method('get')->willReturn('Unauthorized');
         $mockcurl->method('get_info')->willReturn(['http_code' => 401]);
         $mockcurl->method('get_errno')->willReturn(0);
+        $mockcurl->method('getResponse')->willReturn(['x-naas-api' => '1']);
         $client = new naas_client($config, function () use ($mockcurl) {
             return $mockcurl;
         });
@@ -591,6 +543,7 @@ class naas_client_test extends advanced_testcase {
         $mockcurl->method('get')->willReturn('Forbidden');
         $mockcurl->method('get_info')->willReturn(['http_code' => 403]);
         $mockcurl->method('get_errno')->willReturn(0);
+        $mockcurl->method('getResponse')->willReturn(['x-naas-api' => '1']);
         $client = new naas_client($config, function () use ($mockcurl) {
             return $mockcurl;
         });
@@ -613,6 +566,7 @@ class naas_client_test extends advanced_testcase {
         $mockcurl->method('get')->willReturn('Bad Gateway');
         $mockcurl->method('get_info')->willReturn(['http_code' => 502]);
         $mockcurl->method('get_errno')->willReturn(0);
+        $mockcurl->method('getResponse')->willReturn(['x-naas-api' => '1']);
         $client = new naas_client($config, function () use ($mockcurl) {
             return $mockcurl;
         });
@@ -638,17 +592,29 @@ class naas_client_test extends advanced_testcase {
             /** @var string */
             public $error = 'connection reset';
 
+            /**
+             * Ignore curl option assignment.
+             */
             public function setopt($options): void {
             }
 
+            /**
+             * Return an empty transport body.
+             */
             public function get($url) {
                 return '';
             }
 
+            /**
+             * Return the stubbed curl info.
+             */
             public function get_info() {
                 return ['http_code' => 0];
             }
 
+            /**
+             * Return the stubbed curl error number.
+             */
             public function get_errno() {
                 return 56;
             }
@@ -678,7 +644,7 @@ class naas_client_test extends advanced_testcase {
      */
     public function test_request_invalid_json_body_returns_null(): void {
         $client = $this->make_client();
-        $client->stub_json = 'not-valid-json-{';
+        $client->stubjson = 'not-valid-json-{';
 
         $this->assertNull($client->request('GET', '/svc'));
     }
@@ -692,7 +658,7 @@ class naas_client_test extends advanced_testcase {
         $config = $this->base_config();
         $config->naas_debug = true;
         $client = new testable_naas_client($config);
-        $client->stub_json = 'not-valid-json-{';
+        $client->stubjson = 'not-valid-json-{';
 
         $this->assertNull($client->request('GET', '/svc'));
 
@@ -709,13 +675,13 @@ class naas_client_test extends advanced_testcase {
         $config = $this->base_config();
         $config->naas_debug = true;
         $client = new testable_naas_client($config);
-        $client->stub_json = json_encode(['error' => 'server-side']);
+        $client->stubjson = json_encode(['error' => 'server-side']);
 
         $result = $client->request('GET', '/svc');
         $this->assertIsObject($result);
         $this->assertSame('server-side', $result->error);
 
-        // handle_result() logs twice in the error branch (NORMAL + DEVELOPER).
+        // Handle_result() logs twice in the error branch (NORMAL + DEVELOPER).
         $this->assertDebuggingCalledCount(2, [
             get_string('error:naas_server', 'naas'),
             json_encode('server-side', JSON_PRETTY_PRINT),
@@ -731,13 +697,13 @@ class naas_client_test extends advanced_testcase {
         $config = $this->base_config();
         $config->naas_debug = true;
         $client = new testable_naas_client($config);
-        $client->stub_json = json_encode(['payload' => ['k' => 'v']]);
+        $client->stubjson = json_encode(['payload' => ['k' => 'v']]);
 
         $result = $client->request('GET', '/svc');
         $this->assertIsObject($result);
         $this->assertSame('v', $result->k);
 
-        $res = json_decode($client->stub_json);
+        $res = json_decode($client->stubjson);
         $expected = 'Payload: ' . json_encode($res->payload, JSON_PRETTY_PRINT);
         $this->assertDebuggingCalled($expected, DEBUG_DEVELOPER);
     }
@@ -751,7 +717,7 @@ class naas_client_test extends advanced_testcase {
         $config = $this->base_config();
         $config->naas_debug = true;
         $client = new testable_naas_client($config);
-        $client->stub_json = json_encode(['status' => 'orphan']);
+        $client->stubjson = json_encode(['status' => 'orphan']);
 
         $result = $client->request('GET', '/svc');
         $this->assertIsObject($result);
@@ -763,9 +729,7 @@ class naas_client_test extends advanced_testcase {
         );
     }
 
-    // -----------------------------------------------------------------------
-    // Helpers
-    // -----------------------------------------------------------------------
+    // Helpers.
 
     /**
      * Build a testable client with minimal config.
@@ -783,7 +747,7 @@ class naas_client_test extends advanced_testcase {
      */
     private function base_config(): stdClass {
         $config                   = new stdClass();
-        $config->naas_endpoint    = 'https://naas.example.com/api';
+        $config->naas_endpoint    = 'https://Naas.example.com/api';
         $config->naas_username    = 'testuser';
         $config->naas_password    = 'testpass';
         $config->naas_structure_id = 'default-structure';

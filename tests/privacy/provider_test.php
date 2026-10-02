@@ -22,9 +22,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_naas\tests\privacy;
-
-defined('MOODLE_INTERNAL') || die();
+namespace mod_naas\privacy;
 
 use core_privacy\local\request\approved_contextlist;
 use core_privacy\local\request\approved_userlist;
@@ -36,15 +34,12 @@ use mod_naas\privacy\provider;
  * Tests for mod_naas\privacy\provider.
  *
  * @package    mod_naas
- * @copyright  2019 onwards ISAE-SUPAERO (https://www.isae-supaero.fr/)
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright  2019 onwards ISAE-SUPAERO (https://www.isae-supaero.fr/).
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later.
  * @covers \mod_naas\privacy\provider
  */
 class provider_test extends provider_testcase {
-
-    // -----------------------------------------------------------------------
-    // get_metadata
-    // -----------------------------------------------------------------------
+    // Get_metadata.
 
     /**
      * get_metadata() must return a populated collection (not empty).
@@ -69,9 +64,7 @@ class provider_test extends provider_testcase {
         $this->assertContains('naas_activity_outcome', $tables);
     }
 
-    // -----------------------------------------------------------------------
-    // get_contexts_for_userid
-    // -----------------------------------------------------------------------
+    // Get_contexts_for_userid.
 
     /**
      * A user with no activity data must produce an empty context list.
@@ -126,9 +119,7 @@ class provider_test extends provider_testcase {
         $this->assertCount(2, $contextlist);
     }
 
-    // -----------------------------------------------------------------------
-    // export_user_data
-    // -----------------------------------------------------------------------
+    // Export_user_data.
 
     /**
      * export_user_data() must write data for the user's activity sessions.
@@ -153,9 +144,7 @@ class provider_test extends provider_testcase {
         $this->assertTrue(property_exists($data, 'User information'));
     }
 
-    // -----------------------------------------------------------------------
-    // delete_data_for_user
-    // -----------------------------------------------------------------------
+    // Delete_data_for_user.
 
     /**
      * delete_data_for_user() must remove all outcome rows for the target user.
@@ -207,9 +196,7 @@ class provider_test extends provider_testcase {
         $this->assertEquals(1, $DB->count_records('naas_activity_outcome', ['user_id' => $userb->id]));
     }
 
-    // -----------------------------------------------------------------------
-    // delete_data_for_all_users_in_context
-    // -----------------------------------------------------------------------
+    // Delete_data_for_all_users_in_context.
 
     /**
      * delete_data_for_all_users_in_context() must remove every outcome row in
@@ -262,9 +249,7 @@ class provider_test extends provider_testcase {
         $this->assertEquals(1, $DB->count_records('naas_activity_outcome', ['activity_id' => $naas->cmid]));
     }
 
-    // -----------------------------------------------------------------------
-    // get_users_in_context / delete_data_for_users
-    // -----------------------------------------------------------------------
+    // Get_users_in_context / delete_data_for_users.
 
     /**
      * get_users_in_context() must list users who have sessions in the context.
@@ -366,9 +351,7 @@ class provider_test extends provider_testcase {
         $this->assertEquals(1, $DB->count_records('naas_activity_outcome', ['activity_id' => $label->cmid]));
     }
 
-    // -----------------------------------------------------------------------
-    // Helpers
-    // -----------------------------------------------------------------------
+    // Helpers.
 
     /**
      * Create a course, one naas module, and one enrolled user.

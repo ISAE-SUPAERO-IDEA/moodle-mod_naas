@@ -34,11 +34,10 @@ use Behat\Mink\Exception\ExpectationException;
  *
  * @package    mod_naas
  * @category   test
- * @copyright  2026 onwards ISAE-SUPAERO (https://www.isae-supaero.fr/)
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright  2026 onwards ISAE-SUPAERO (https://www.isae-supaero.fr/).
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later.
  */
 class behat_mod_naas extends behat_base {
-
     /**
      * Opens /mod/naas/launch.php for the given activity instance name.
      *

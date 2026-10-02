@@ -22,19 +22,18 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_naas\tests;
-
-defined('MOODLE_INTERNAL') || die();
+namespace mod_naas;
 
 use advanced_testcase;
 use mod_naas\catalogue_cache;
 use mod_naas\catalogue_filters;
 
 /**
+ * Tests for the cached catalogue snapshot.
+ *
  * @covers \mod_naas\catalogue_cache
  */
 final class catalogue_cache_test extends advanced_testcase {
-
     /**
      * Isolate MUC and plugin config.
      */
@@ -52,7 +51,7 @@ final class catalogue_cache_test extends advanced_testcase {
     public function test_fingerprint_changes_with_endpoint(): void {
         $config = (object) get_config('naas');
         $first = catalogue_cache::fingerprint($config);
-        set_config('naas_endpoint', 'https://other.example/api', 'naas');
+        set_config('naas_endpoint', 'https://Other.example/api', 'naas');
         $second = catalogue_cache::fingerprint((object) get_config('naas'));
         $this->assertNotSame($first, $second);
     }
@@ -356,15 +355,21 @@ final class catalogue_cache_test extends advanced_testcase {
 
     public function test_warm_stores_search_and_producers(): void {
         $stub = new class extends \mod_naas\naas_client {
+            /**
+             * Create the stub.
+             */
             public function __construct() {
                 $cfg = new \stdClass();
-                $cfg->naas_endpoint = 'https://stub.example';
+                $cfg->naas_endpoint = 'https://Stub.example';
                 $cfg->naas_username = 'u';
                 $cfg->naas_password = 'p';
                 $cfg->naas_structure_id = 's';
                 parent::__construct($cfg);
             }
 
+            /**
+             * Return the stubbed HTTP body.
+             */
             public function request_raw($protocol, $service, $data = null, $params = null) {
                 if (str_contains((string) $service, '/nuggets/search')) {
                     return json_encode([

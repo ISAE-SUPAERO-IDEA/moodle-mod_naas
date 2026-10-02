@@ -24,8 +24,6 @@
 
 namespace mod_naas;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Compose catalogue NQL and post-filter by the institute's access-licence rights.
  *
@@ -166,6 +164,8 @@ class catalogue_filters {
     }
 
     /**
+     * Configured commercial-use filter.
+     *
      * @param object|null $config
      * @return string
      */
@@ -177,6 +177,8 @@ class catalogue_filters {
     }
 
     /**
+     * Configured access-distribution filter.
+     *
      * @param object|null $config
      * @return string
      */
@@ -198,6 +200,8 @@ class catalogue_filters {
     }
 
     /**
+     * NQL fragment for the configured licence filters.
+     *
      * @param object|null $config
      * @return string
      */
@@ -228,6 +232,8 @@ class catalogue_filters {
     }
 
     /**
+     * Read an allow-listed mode from plugin config.
+     *
      * @param object|null $config
      * @param string $name
      * @param string[] $allowed

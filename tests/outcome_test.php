@@ -26,7 +26,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_naas\tests;
+namespace mod_naas;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -35,21 +35,20 @@ require_once($CFG->libdir . '/gradelib.php');
 require_once($CFG->dirroot . '/mod/naas/lib.php');
 
 use advanced_testcase;
-use grade_item;
+use gradeitem;
 use stdClass;
 
 /**
  * Tests for the outcome / grading logic of mod_naas.
  *
+ * @coversNothing
+ *
  * @package    mod_naas
- * @copyright  2019 onwards ISAE-SUPAERO (https://www.isae-supaero.fr/)
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright  2019 onwards ISAE-SUPAERO (https://www.isae-supaero.fr/).
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later.
  */
 class outcome_test extends advanced_testcase {
-
-    // -----------------------------------------------------------------------
-    // NAAS_GRADEHIGHEST strategy
-    // -----------------------------------------------------------------------
+    // NAAS_GRADEHIGHEST strategy.
 
     /**
      * With NAAS_GRADEHIGHEST, a higher score overwrites the existing grade.
@@ -128,9 +127,7 @@ class outcome_test extends advanced_testcase {
         $this->assertEquals(100.0, (float) $grades->items[0]->grades[$user->id]->grade);
     }
 
-    // -----------------------------------------------------------------------
-    // NAAS_ATTEMPTFIRST strategy
-    // -----------------------------------------------------------------------
+    // NAAS_ATTEMPTFIRST strategy.
 
     /**
      * With NAAS_ATTEMPTFIRST, the first grade submitted is stored.
@@ -172,9 +169,7 @@ class outcome_test extends advanced_testcase {
         $this->assertEquals(70.0, (float) $grades->items[0]->grades[$user->id]->grade);
     }
 
-    // -----------------------------------------------------------------------
-    // NAAS_ATTEMPTLAST strategy
-    // -----------------------------------------------------------------------
+    // NAAS_ATTEMPTLAST strategy.
 
     /**
      * With NAAS_ATTEMPTLAST, every submission overwrites the previous grade.
@@ -192,9 +187,7 @@ class outcome_test extends advanced_testcase {
         $this->assertEquals(90.0, (float) $grades->items[0]->grades[$user->id]->grade);
     }
 
-    // -----------------------------------------------------------------------
-    // grade_update isolation between users
-    // -----------------------------------------------------------------------
+    // Grade_update isolation between users.
 
     /**
      * Grade updates for one user must not affect another user in the same activity.
@@ -209,16 +202,14 @@ class outcome_test extends advanced_testcase {
         $this->submit_grade($course->id, $naas->id, $usera->id, 85);
         $this->submit_grade($course->id, $naas->id, $userb->id, 50);
 
-        $grades_a = grade_get_grades($course->id, 'mod', 'naas', $naas->id, $usera->id);
-        $grades_b = grade_get_grades($course->id, 'mod', 'naas', $naas->id, $userb->id);
+        $gradesa = grade_get_grades($course->id, 'mod', 'naas', $naas->id, $usera->id);
+        $gradesb = grade_get_grades($course->id, 'mod', 'naas', $naas->id, $userb->id);
 
-        $this->assertEquals(85.0, (float) $grades_a->items[0]->grades[$usera->id]->grade);
-        $this->assertEquals(50.0, (float) $grades_b->items[0]->grades[$userb->id]->grade);
+        $this->assertEquals(85.0, (float) $gradesa->items[0]->grades[$usera->id]->grade);
+        $this->assertEquals(50.0, (float) $gradesb->items[0]->grades[$userb->id]->grade);
     }
 
-    // -----------------------------------------------------------------------
-    // XXE / malformed XML — pending script refactor
-    // -----------------------------------------------------------------------
+    // XXE / malformed XML — pending script refactor.
 
     /**
      * Parsing outcome.php input with a DOCTYPE entity must not expand the
@@ -231,10 +222,10 @@ class outcome_test extends advanced_testcase {
         global $CFG;
         $this->resetAfterTest(true);
         require_once($CFG->dirroot . '/mod/naas/outcome.php');
-        
+
         $xml = <<<XML
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE replace [<!ENTITY xxe SYSTEM "file:///nonexistent_file">]>
+<!DOCTYPE replace [<!ENTITY xxe SYSTEM "file://Note: /nonexistent_file">]>.
 <imsx_POXEnvelopeRequest>
   <imsx_POXBody>
     <replaceResultRequest>
@@ -267,10 +258,14 @@ XML;
         global $CFG;
         $this->resetAfterTest(true);
         require_once($CFG->dirroot . '/mod/naas/outcome.php');
-        
+
         $this->expectException(\moodle_exception::class);
-        $this->expectExceptionMessage('error:malformed_xml');
-        \mod_naas_outcome::handle('<invalid><xml>');
+        try {
+            \mod_naas_outcome::handle('<invalid><xml>');
+        } catch (\moodle_exception $e) {
+            $this->assertSame('error:malformed_xml', $e->errorcode);
+            throw $e;
+        }
     }
 
     /**
@@ -290,18 +285,18 @@ XML;
         ]);
         $user = $this->getDataGenerator()->create_user();
         $this->getDataGenerator()->enrol_user($user->id, $course->id);
-        
+
         $sourcedid = 'test-session-123';
         $DB->insert_record('naas_activity_outcome', [
             'user_id' => $user->id,
             'activity_id' => $naas->cmid,
             'sourced_id' => $sourcedid,
-            'date_added' => time()
+            'date_added' => time(),
         ]);
 
         $xml = <<<XML
 <?xml version="1.0" encoding="UTF-8"?>
-<imsx_POXEnvelopeRequest xmlns="http://www.imsglobal.org/services/ltiv1p1/xsd/imsoms_v1p0">
+<imsx_POXEnvelopeRequest xmlns="http://Www.imsglobal.org/services/ltiv1p1/xsd/imsoms_v1p0">.
   <imsx_POXHeader>
     <imsx_POXResponseHeaderInfo>
       <imsx_version>V1.0</imsx_version>
@@ -329,14 +324,13 @@ XML;
 
         $grades = grade_get_grades($course->id, 'mod', 'naas', $naas->id, $user->id);
         $this->assertEquals(85.0, (float) $grades->items[0]->grades[$user->id]->grade);
-        
+
         // Check completion.
         $completion = new \completion_info($course);
         $cm = get_coursemodule_from_id('naas', $naas->cmid);
         $completiondata = $completion->get_data($cm, true, $user->id);
         $this->assertEquals(COMPLETION_COMPLETE, $completiondata->completionstate);
     }
-
 
     /**
      * An unknown sourcedId must throw a moodle_exception rather than causing
@@ -368,10 +362,14 @@ XML;
   </imsx_POXBody>
 </imsx_POXEnvelopeRequest>
 XML;
-        
+
         $this->expectException(\moodle_exception::class);
-        $this->expectExceptionMessage('error:unknown_sourced_id');
-        \mod_naas_outcome::handle($xml);
+        try {
+            \mod_naas_outcome::handle($xml);
+        } catch (\moodle_exception $e) {
+            $this->assertSame('error:unknown_sourced_id', $e->errorcode);
+            throw $e;
+        }
     }
 
     /**
@@ -684,9 +682,7 @@ XML;
         $this->assertEquals(33.0, (float) $grades->items[0]->grades[$user->id]->grade);
     }
 
-    // -----------------------------------------------------------------------
-    // Helpers
-    // -----------------------------------------------------------------------
+    // Helpers.
 
     /**
      * Minimal IMS LTI replaceResult payload used by handle() tests.
@@ -698,7 +694,7 @@ XML;
     private function replace_result_xml(string $sourcedid, string $score): string {
         return <<<XML
 <?xml version="1.0" encoding="UTF-8"?>
-<imsx_POXEnvelopeRequest xmlns="http://www.imsglobal.org/services/ltiv1p1/xsd/imsoms_v1p0">
+<imsx_POXEnvelopeRequest xmlns="http://Www.imsglobal.org/services/ltiv1p1/xsd/imsoms_v1p0">.
   <imsx_POXHeader>
     <imsx_POXResponseHeaderInfo>
       <imsx_version>V1.0</imsx_version>

@@ -22,18 +22,17 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_naas\tests;
-
-defined('MOODLE_INTERNAL') || die();
+namespace mod_naas;
 
 use advanced_testcase;
 use mod_naas\catalogue_stamp;
 
 /**
+ * Tests for catalogue freshness stamps.
+ *
  * @covers \mod_naas\catalogue_stamp
  */
 final class catalogue_stamp_test extends advanced_testcase {
-
     public function test_from_search_uses_the_first_item_as_newest(): void {
         $stamp = catalogue_stamp::from_search([
             'results_count' => 12,

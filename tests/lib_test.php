@@ -22,7 +22,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_naas\tests;
+namespace mod_naas;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -35,12 +35,12 @@ use stdClass;
 /**
  * Tests for the public API functions in mod_naas/lib.php.
  *
- * PHPUnit only attributes coverage to lib.php for functions listed in @covers.
+ * PHPUnit only attributes coverage to lib.php for functions listed in the covers tags below.
  * Keep this list in sync with tests that call lib.php APIs.
  *
  * @package    mod_naas
- * @copyright  2019 onwards ISAE-SUPAERO (https://www.isae-supaero.fr/)
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright  2019 onwards ISAE-SUPAERO (https://www.isae-supaero.fr/).
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later.
  * @covers ::get_moodle_major_version
  * @covers ::lti_get_jwt_claim_mapping_test
  * @covers ::naas_define_module_constants
@@ -63,7 +63,6 @@ use stdClass;
  * @covers ::naas_view
  */
 class lib_test extends advanced_testcase {
-
     /**
      * Module constants must be defined and naas_define_module_constants() must be idempotent.
      */
@@ -81,11 +80,11 @@ class lib_test extends advanced_testcase {
         $this->assertSame(10, NAAS_MAX_ATTEMPT_OPTION);
     }
 
-    // -----------------------------------------------------------------------
-    // naas_supports
-    // -----------------------------------------------------------------------
+    // Naas_supports.
 
     /**
+     * Every declared feature matches naas_supports().
+     *
      * @dataProvider naas_supports_cases_provider
      *
      * @param string|int $feature
@@ -96,6 +95,8 @@ class lib_test extends advanced_testcase {
     }
 
     /**
+     * Feature flags passed to naas_supports().
+     *
      * @return array<string, array{0: string|int, 1: mixed}>
      */
     public static function naas_supports_cases_provider(): array {
@@ -117,9 +118,7 @@ class lib_test extends advanced_testcase {
         ];
     }
 
-    // -----------------------------------------------------------------------
-    // naas_add_instance
-    // -----------------------------------------------------------------------
+    // Naas_add_instance.
 
     /**
      * naas_add_instance() must insert a row and return an integer id.
@@ -186,9 +185,7 @@ class lib_test extends advanced_testcase {
         $this->assertSame($record->timecreated, $record->timemodified);
     }
 
-    // -----------------------------------------------------------------------
-    // naas_update_instance
-    // -----------------------------------------------------------------------
+    // Naas_update_instance.
 
     /**
      * naas_update_instance() must return true on success.
@@ -269,9 +266,7 @@ class lib_test extends advanced_testcase {
         $this->assertLessThanOrEqual($after, $record->timemodified);
     }
 
-    // -----------------------------------------------------------------------
-    // naas_delete_instance
-    // -----------------------------------------------------------------------
+    // Naas_delete_instance.
 
     /**
      * naas_delete_instance() must return true on success.
@@ -321,9 +316,7 @@ class lib_test extends advanced_testcase {
         $this->assertEquals(0, $DB->count_records('naas_activity_outcome', ['activity_id' => $naas->cmid]));
     }
 
-    // -----------------------------------------------------------------------
-    // naas_get_view_actions & naas_get_post_actions
-    // -----------------------------------------------------------------------
+    // Naas_get_view_actions & naas_get_post_actions.
 
     /**
      * Test naas_get_view_actions returns correct array.
@@ -345,9 +338,7 @@ class lib_test extends advanced_testcase {
         $this->assertContains('add', $actions);
     }
 
-    // -----------------------------------------------------------------------
-    // naas_get_coursemodule_info
-    // -----------------------------------------------------------------------
+    // Naas_get_coursemodule_info.
 
     /**
      * Test naas_get_coursemodule_info populates completion rules.
@@ -364,9 +355,9 @@ class lib_test extends advanced_testcase {
         ]);
 
         $cm = get_coursemodule_from_instance('naas', $naas->id, $course->id, false, MUST_EXIST);
-        
+
         $info = naas_get_coursemodule_info($cm);
-        
+
         $this->assertInstanceOf(\cached_cm_info::class, $info);
         $this->assertSame($naas->name, $info->name);
         $this->assertArrayHasKey('customcompletionrules', $info->customdata);
@@ -461,9 +452,7 @@ class lib_test extends advanced_testcase {
         $this->assertEquals(1, $rules['completionpassorattemptsexhausted']['completionattemptsexhausted']);
     }
 
-    // -----------------------------------------------------------------------
-    // naas_view
-    // -----------------------------------------------------------------------
+    // Naas_view.
 
     /**
      * Test naas_view triggers course_module_viewed event.
@@ -480,15 +469,13 @@ class lib_test extends advanced_testcase {
         naas_view($course, $cm, $context);
         $events = $sink->get_events();
         $this->assertCount(1, $events);
-        
+
         $event = reset($events);
         $this->assertInstanceOf('\mod_naas\event\course_module_viewed', $event);
         $this->assertEquals($context->id, $event->contextid);
     }
 
-    // -----------------------------------------------------------------------
-    // Miscellaneous functions
-    // -----------------------------------------------------------------------
+    // Miscellaneous functions.
 
     /**
      * Test get_moodle_major_version.
@@ -496,7 +483,7 @@ class lib_test extends advanced_testcase {
     public function test_get_moodle_major_version(): void {
         $version = get_moodle_major_version();
         $this->assertIsInt($version);
-        // $release starts with the branch number (3, 4, 5, …), not a combined "3.0" → 30 style value.
+        // Note: $release starts with the branch number (3, 4, 5, …), not a combined "3.0" → 30 style value.
         $this->assertGreaterThanOrEqual(3, $version);
     }
 
@@ -545,9 +532,9 @@ class lib_test extends advanced_testcase {
         $course = $this->getDataGenerator()->create_course();
         $naas = $this->getDataGenerator()->create_module('naas', ['course' => $course->id]);
         $cm = get_coursemodule_from_instance('naas', $naas->id, $course->id, false, MUST_EXIST);
-        $cm_info = \cm_info::create($cm);
+        $cminfo = \cm_info::create($cm);
 
-        $updates = naas_check_updates_since($cm_info, time() - 3600);
+        $updates = naas_check_updates_since($cminfo, time() - 3600);
         $this->assertIsObject($updates);
     }
 
@@ -563,9 +550,9 @@ class lib_test extends advanced_testcase {
 
         $settings = new \settings_navigation($PAGE, $PAGE->context);
         $node = new \navigation_node('naas');
-        
+
         naas_extend_settings_navigation($settings, $node);
-        
+
         $this->assertNotNull($node->get('about'));
     }
 
@@ -586,9 +573,9 @@ class lib_test extends advanced_testcase {
 
         // Test grade_item_delete.
         naas_grade_item_delete($naas);
-        $grade_item = \grade_item::fetch(['itemtype' => 'mod', 'itemmodule' => 'naas', 'iteminstance' => $naas->id]);
-        // Note: grade_item_delete in lib.php doesn't actually delete the record from DB, 
-        // it just marks it as deleted in the grade_update call (which often just nulls things or handles it in gradebook).
+        $gradeitem = \grade_item::fetch(['itemtype' => 'mod', 'itemmodule' => 'naas', 'iteminstance' => $naas->id]);
+        // Note: grade_item_delete in lib.php doesn't actually delete the record from DB,.
+        // It just marks it as deleted in the grade_update call (which often just nulls things or handles it in gradebook).
         // But we can verify the call doesn't crash.
         $this->assertTrue(true);
     }

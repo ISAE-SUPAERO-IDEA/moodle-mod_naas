@@ -22,7 +22,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_naas\tests\completion;
+namespace mod_naas\completion;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -37,15 +37,12 @@ use mod_naas\completion\custom_completion;
  * Tests for mod_naas\completion\custom_completion.
  *
  * @package    mod_naas
- * @copyright  2019 onwards ISAE-SUPAERO (https://www.isae-supaero.fr/)
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright  2019 onwards ISAE-SUPAERO (https://www.isae-supaero.fr/).
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later.
  * @covers \mod_naas\completion\custom_completion
  */
 class custom_completion_test extends advanced_testcase {
-
-    // -----------------------------------------------------------------------
-    // get_defined_custom_rules()
-    // -----------------------------------------------------------------------
+    // Defined custom rules.
 
     /**
      * get_defined_custom_rules() must return the expected rule names.
@@ -63,18 +60,16 @@ class custom_completion_test extends advanced_testcase {
         $this->assertNotEmpty(custom_completion::get_defined_custom_rules());
     }
 
-    // -----------------------------------------------------------------------
-    // get_custom_rule_descriptions()
-    // -----------------------------------------------------------------------
+    // Custom rule descriptions.
 
     public function test_get_custom_rule_descriptions(): void {
         $this->resetAfterTest(true);
 
         $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
         $naas   = $this->getDataGenerator()->create_module('naas', [
-            'course'                  => $course->id,
-            'completion'              => COMPLETION_TRACKING_AUTOMATIC,
-            'completionpass'          => 1,
+            'course' => $course->id,
+            'completion' => COMPLETION_TRACKING_AUTOMATIC,
+            'completionpass' => 1,
         ]);
         $user   = $this->getDataGenerator()->create_user();
         $cm     = get_fast_modinfo($course)->get_cm($naas->cmid);
@@ -98,9 +93,9 @@ class custom_completion_test extends advanced_testcase {
 
         $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
         $naas   = $this->getDataGenerator()->create_module('naas', [
-            'course'                      => $course->id,
-            'completion'                  => COMPLETION_TRACKING_AUTOMATIC,
-            'completionpass'              => 0,
+            'course' => $course->id,
+            'completion' => COMPLETION_TRACKING_AUTOMATIC,
+            'completionpass' => 0,
             'completionattemptsexhausted' => 1,
         ]);
         $user = $this->getDataGenerator()->create_user();
@@ -123,8 +118,8 @@ class custom_completion_test extends advanced_testcase {
 
         $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
         $naas   = $this->getDataGenerator()->create_module('naas', [
-            'course'                => $course->id,
-            'completion'            => COMPLETION_TRACKING_AUTOMATIC,
+            'course' => $course->id,
+            'completion' => COMPLETION_TRACKING_AUTOMATIC,
             'completionminattempts' => 4,
         ]);
         $user = $this->getDataGenerator()->create_user();
@@ -147,10 +142,7 @@ class custom_completion_test extends advanced_testcase {
 
         $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
         $naas   = $this->getDataGenerator()->create_module('naas', [
-            'course'         => $course->id,
-            'completion'     => COMPLETION_TRACKING_AUTOMATIC,
-            'completionpass' => 0,
-        ]);
+            'course'         => $course->id, 'completion'     => COMPLETION_TRACKING_AUTOMATIC, 'completionpass' => 0, ]);
         $user = $this->getDataGenerator()->create_user();
         $cm   = get_fast_modinfo($course)->get_cm($naas->cmid);
 
@@ -166,10 +158,7 @@ class custom_completion_test extends advanced_testcase {
 
         $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
         $naas   = $this->getDataGenerator()->create_module('naas', [
-            'course'         => $course->id,
-            'completion'     => COMPLETION_TRACKING_AUTOMATIC,
-            'completionpass' => 1,
-        ]);
+            'course'         => $course->id, 'completion'     => COMPLETION_TRACKING_AUTOMATIC, 'completionpass' => 1, ]);
         $user = $this->getDataGenerator()->create_user();
         $cm   = get_fast_modinfo($course)->get_cm($naas->cmid);
 
@@ -185,19 +174,12 @@ class custom_completion_test extends advanced_testcase {
 
         $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
         $naas   = $this->getDataGenerator()->create_module('naas', [
-            'course'         => $course->id,
-            'completion'     => COMPLETION_TRACKING_AUTOMATIC,
-            'completionpass' => 1,
-        ]);
+            'course'         => $course->id, 'completion'     => COMPLETION_TRACKING_AUTOMATIC, 'completionpass' => 1, ]);
         $user = $this->getDataGenerator()->create_user();
         $this->getDataGenerator()->enrol_user($user->id, $course->id);
 
         $gradeitem = \grade_item::fetch([
-            'courseid'     => $course->id,
-            'itemtype'     => 'mod',
-            'itemmodule'   => 'naas',
-            'iteminstance' => $naas->id,
-        ]);
+            'courseid'     => $course->id, 'itemtype'     => 'mod', 'itemmodule'   => 'naas', 'iteminstance' => $naas->id, ]);
         $gradeitem->gradepass = 70;
         $gradeitem->update();
 
@@ -220,11 +202,11 @@ class custom_completion_test extends advanced_testcase {
 
         $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
         $naas   = $this->getDataGenerator()->create_module('naas', [
-            'course'                      => $course->id,
-            'completion'                  => COMPLETION_TRACKING_AUTOMATIC,
-            'completionpass'              => 0,
+            'course' => $course->id,
+            'completion' => COMPLETION_TRACKING_AUTOMATIC,
+            'completionpass' => 0,
             'completionattemptsexhausted' => 1,
-            'attempts'                    => 3,
+            'attempts' => 3,
         ]);
         $user = $this->getDataGenerator()->create_user();
         $this->getDataGenerator()->enrol_user($user->id, $course->id);
@@ -247,9 +229,9 @@ class custom_completion_test extends advanced_testcase {
 
         $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
         $naas   = $this->getDataGenerator()->create_module('naas', [
-            'course'                      => $course->id,
-            'completion'                  => COMPLETION_TRACKING_AUTOMATIC,
-            'completionpass'              => 0,
+            'course' => $course->id,
+            'completion' => COMPLETION_TRACKING_AUTOMATIC,
+            'completionpass' => 0,
             'completionattemptsexhausted' => 1,
         ]);
         $user = $this->getDataGenerator()->create_user();
@@ -259,9 +241,7 @@ class custom_completion_test extends advanced_testcase {
         $this->assertContains('completionpassorattemptsexhausted', $completion->get_available_custom_rules());
     }
 
-    // -----------------------------------------------------------------------
-    // get_sort_order()
-    // -----------------------------------------------------------------------
+    // Sort order.
 
     /**
      * get_sort_order() must include the custom rule in the ordered list.
@@ -271,9 +251,9 @@ class custom_completion_test extends advanced_testcase {
 
         $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
         $naas   = $this->getDataGenerator()->create_module('naas', [
-            'course'                  => $course->id,
-            'completion'              => COMPLETION_TRACKING_AUTOMATIC,
-            'completionpass'          => 0,
+            'course' => $course->id,
+            'completion' => COMPLETION_TRACKING_AUTOMATIC,
+            'completionpass' => 0,
         ]);
         $user   = $this->getDataGenerator()->create_user();
         $cm     = get_fast_modinfo($course)->get_cm($naas->cmid);
@@ -285,9 +265,7 @@ class custom_completion_test extends advanced_testcase {
         $this->assertContains('completionpassorattemptsexhausted', $order);
     }
 
-    // -----------------------------------------------------------------------
-    // get_state() – completionpass disabled
-    // -----------------------------------------------------------------------
+    // Get_state() – completionpass disabled.
 
     /**
      * When completionpass=0 the rule is not registered as available for the
@@ -299,10 +277,7 @@ class custom_completion_test extends advanced_testcase {
 
         $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
         $naas   = $this->getDataGenerator()->create_module('naas', [
-            'course'         => $course->id,
-            'completion'     => COMPLETION_TRACKING_AUTOMATIC,
-            'completionpass' => 0,
-        ]);
+            'course'         => $course->id, 'completion'     => COMPLETION_TRACKING_AUTOMATIC, 'completionpass' => 0, ]);
         $user = $this->getDataGenerator()->create_user();
         $this->getDataGenerator()->enrol_user($user->id, $course->id);
 
@@ -336,19 +311,13 @@ class custom_completion_test extends advanced_testcase {
         $cm = get_fast_modinfo($course)->get_cm($naas->cmid);
         $cm->override_customdata('customcompletionrules', [
             'completionpassorattemptsexhausted' => [
-                'completionpass' => 0,
-                'completionattemptsexhausted' => 0,
-            ],
-            'completionminattempts' => 0,
-        ]);
+                'completionpass' => 0, 'completionattemptsexhausted' => 0, ], 'completionminattempts' => 0, ]);
         $completion = new custom_completion($cm, $user->id);
 
         $this->assertSame(COMPLETION_COMPLETE, $completion->get_state('completionpassorattemptsexhausted'));
     }
 
-    // -----------------------------------------------------------------------
-    // get_state() – completionpass enabled, no grade
-    // -----------------------------------------------------------------------
+    // Get_state() – completionpass enabled, no grade.
 
     /**
      * When completionpass=1 and the user has no grade, get_state() must return
@@ -359,10 +328,7 @@ class custom_completion_test extends advanced_testcase {
 
         $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
         $naas   = $this->getDataGenerator()->create_module('naas', [
-            'course'         => $course->id,
-            'completion'     => COMPLETION_TRACKING_AUTOMATIC,
-            'completionpass' => 1,
-        ]);
+            'course'         => $course->id, 'completion'     => COMPLETION_TRACKING_AUTOMATIC, 'completionpass' => 1, ]);
         $user = $this->getDataGenerator()->create_user();
         $this->getDataGenerator()->enrol_user($user->id, $course->id);
 
@@ -373,9 +339,7 @@ class custom_completion_test extends advanced_testcase {
         $this->assertEquals(COMPLETION_INCOMPLETE, $state);
     }
 
-    // -----------------------------------------------------------------------
-    // get_state() – completionpass enabled, passing grade
-    // -----------------------------------------------------------------------
+    // Get_state() – completionpass enabled, passing grade.
 
     /**
      * When completionpass=1 and the user has a passing grade, get_state() must
@@ -387,21 +351,14 @@ class custom_completion_test extends advanced_testcase {
 
         $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
         $naas   = $this->getDataGenerator()->create_module('naas', [
-            'course'         => $course->id,
-            'completion'     => COMPLETION_TRACKING_AUTOMATIC,
-            'completionpass' => 1,
-        ]);
+            'course'         => $course->id, 'completion'     => COMPLETION_TRACKING_AUTOMATIC, 'completionpass' => 1, ]);
         $user = $this->getDataGenerator()->create_user();
         $this->getDataGenerator()->enrol_user($user->id, $course->id);
 
-        // Set a passing grade (gradepass defaults to 0 which means any grade ≥ 0 passes;
-        // to make the test meaningful we set gradepass to 50 and award 80).
+        // Set a passing grade (gradepass defaults to 0, which means any grade passes).
+        // To make the test meaningful we set gradepass to 50 and award 80).
         $gradeitem = \grade_item::fetch([
-            'courseid'     => $course->id,
-            'itemtype'     => 'mod',
-            'itemmodule'   => 'naas',
-            'iteminstance' => $naas->id,
-        ]);
+            'courseid'     => $course->id, 'itemtype'     => 'mod', 'itemmodule'   => 'naas', 'iteminstance' => $naas->id, ]);
         $gradeitem->gradepass = 50;
         $gradeitem->update();
 
@@ -417,9 +374,7 @@ class custom_completion_test extends advanced_testcase {
         $this->assertEquals(COMPLETION_COMPLETE, $state);
     }
 
-    // -----------------------------------------------------------------------
-    // Isolation between users
-    // -----------------------------------------------------------------------
+    // Isolation between users.
 
     /**
      * Completion state is isolated per user: User A completing must not affect
@@ -430,10 +385,7 @@ class custom_completion_test extends advanced_testcase {
 
         $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
         $naas   = $this->getDataGenerator()->create_module('naas', [
-            'course'         => $course->id,
-            'completion'     => COMPLETION_TRACKING_AUTOMATIC,
-            'completionpass' => 1,
-        ]);
+            'course'         => $course->id, 'completion'     => COMPLETION_TRACKING_AUTOMATIC, 'completionpass' => 1, ]);
         $usera = $this->getDataGenerator()->create_user();
         $userb = $this->getDataGenerator()->create_user();
         $this->getDataGenerator()->enrol_user($usera->id, $course->id);
@@ -441,11 +393,7 @@ class custom_completion_test extends advanced_testcase {
 
         // Award a passing grade only to User A.
         $gradeitem = \grade_item::fetch([
-            'courseid'     => $course->id,
-            'itemtype'     => 'mod',
-            'itemmodule'   => 'naas',
-            'iteminstance' => $naas->id,
-        ]);
+            'courseid'     => $course->id, 'itemtype'     => 'mod', 'itemmodule'   => 'naas', 'iteminstance' => $naas->id, ]);
         $gradeitem->gradepass = 50;
         $gradeitem->update();
 
@@ -455,16 +403,14 @@ class custom_completion_test extends advanced_testcase {
         grade_update('mod/naas', $course->id, 'mod', 'naas', $naas->id, 0, $grade);
 
         $cm          = get_fast_modinfo($course)->get_cm($naas->cmid);
-        $completion_a = new custom_completion($cm, $usera->id);
-        $completion_b = new custom_completion($cm, $userb->id);
+        $completiona = new custom_completion($cm, $usera->id);
+        $completionb = new custom_completion($cm, $userb->id);
 
-        $this->assertEquals(COMPLETION_COMPLETE,   $completion_a->get_state('completionpassorattemptsexhausted'));
-        $this->assertEquals(COMPLETION_INCOMPLETE, $completion_b->get_state('completionpassorattemptsexhausted'));
+        $this->assertEquals(COMPLETION_COMPLETE, $completiona->get_state('completionpassorattemptsexhausted'));
+        $this->assertEquals(COMPLETION_INCOMPLETE, $completionb->get_state('completionpassorattemptsexhausted'));
     }
 
-    // -----------------------------------------------------------------------
-    // Isolation between activities
-    // -----------------------------------------------------------------------
+    // Isolation between activities.
 
     /**
      * Completion state for one activity must not bleed into a second activity
@@ -475,26 +421,16 @@ class custom_completion_test extends advanced_testcase {
 
         $course  = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
         $naas1   = $this->getDataGenerator()->create_module('naas', [
-            'course'         => $course->id,
-            'completion'     => COMPLETION_TRACKING_AUTOMATIC,
-            'completionpass' => 1,
-        ]);
+            'course'         => $course->id, 'completion'     => COMPLETION_TRACKING_AUTOMATIC, 'completionpass' => 1, ]);
         $naas2   = $this->getDataGenerator()->create_module('naas', [
-            'course'         => $course->id,
-            'completion'     => COMPLETION_TRACKING_AUTOMATIC,
-            'completionpass' => 1,
-        ]);
+            'course'         => $course->id, 'completion'     => COMPLETION_TRACKING_AUTOMATIC, 'completionpass' => 1, ]);
         $user = $this->getDataGenerator()->create_user();
         $this->getDataGenerator()->enrol_user($user->id, $course->id);
 
         // Award a passing grade on naas1 only.
         foreach ([$naas1->id] as $instanceid) {
             $gradeitem = \grade_item::fetch([
-                'courseid'     => $course->id,
-                'itemtype'     => 'mod',
-                'itemmodule'   => 'naas',
-                'iteminstance' => $instanceid,
-            ]);
+                'courseid'     => $course->id, 'itemtype'     => 'mod', 'itemmodule'   => 'naas', 'iteminstance' => $instanceid, ]);
             $gradeitem->gradepass = 50;
             $gradeitem->update();
 
@@ -511,13 +447,11 @@ class custom_completion_test extends advanced_testcase {
         $completion1 = new custom_completion($cm1, $user->id);
         $completion2 = new custom_completion($cm2, $user->id);
 
-        $this->assertEquals(COMPLETION_COMPLETE,   $completion1->get_state('completionpassorattemptsexhausted'));
+        $this->assertEquals(COMPLETION_COMPLETE, $completion1->get_state('completionpassorattemptsexhausted'));
         $this->assertEquals(COMPLETION_INCOMPLETE, $completion2->get_state('completionpassorattemptsexhausted'));
     }
 
-    // -----------------------------------------------------------------------
-    // validate_rule()
-    // -----------------------------------------------------------------------
+    // Rule validation.
 
     /**
      * get_state() must throw a coding_exception for an unknown rule.
@@ -527,9 +461,7 @@ class custom_completion_test extends advanced_testcase {
 
         $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
         $naas   = $this->getDataGenerator()->create_module('naas', [
-            'course'     => $course->id,
-            'completion' => COMPLETION_TRACKING_AUTOMATIC,
-        ]);
+            'course'     => $course->id, 'completion' => COMPLETION_TRACKING_AUTOMATIC, ]);
         $user = $this->getDataGenerator()->create_user();
         $cm   = get_fast_modinfo($course)->get_cm($naas->cmid);
 
@@ -539,9 +471,7 @@ class custom_completion_test extends advanced_testcase {
         $completion->get_state('unknown_rule_xyz');
     }
 
-    // -----------------------------------------------------------------------
-    // get_state() – completionattemptsexhausted
-    // -----------------------------------------------------------------------
+    // Get_state() – completionattemptsexhausted.
 
     /**
      * When completionattemptsexhausted=1 and the user has used all attempts,
@@ -553,11 +483,11 @@ class custom_completion_test extends advanced_testcase {
 
         $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
         $naas   = $this->getDataGenerator()->create_module('naas', [
-            'course'                      => $course->id,
-            'completion'                  => COMPLETION_TRACKING_AUTOMATIC,
-            'completionpass'              => 1,
+            'course' => $course->id,
+            'completion' => COMPLETION_TRACKING_AUTOMATIC,
+            'completionpass' => 1,
             'completionattemptsexhausted' => 1,
-            'attempts'                    => 2,
+            'attempts' => 2,
         ]);
         $user = $this->getDataGenerator()->create_user();
         $this->getDataGenerator()->enrol_user($user->id, $course->id);
@@ -575,9 +505,7 @@ class custom_completion_test extends advanced_testcase {
         $this->assertEquals(COMPLETION_COMPLETE, $state);
     }
 
-    // -----------------------------------------------------------------------
-    // get_state() – completionminattempts
-    // -----------------------------------------------------------------------
+    // Get_state() – completionminattempts.
 
     /**
      * When completionminattempts > 0, get_state() must return
@@ -588,8 +516,8 @@ class custom_completion_test extends advanced_testcase {
 
         $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
         $naas   = $this->getDataGenerator()->create_module('naas', [
-            'course'                => $course->id,
-            'completion'            => COMPLETION_TRACKING_AUTOMATIC,
+            'course' => $course->id,
+            'completion' => COMPLETION_TRACKING_AUTOMATIC,
             'completionminattempts' => 2,
         ]);
         $user = $this->getDataGenerator()->create_user();
@@ -605,7 +533,7 @@ class custom_completion_test extends advanced_testcase {
         /** @var \mod_naas_generator $gen */
         $gen = $this->getDataGenerator()->get_plugin_generator('mod_naas');
         $gen->create_activity_outcome($user->id, $naas->cmid);
-        
+
         // Refetch modinfo is NOT needed for get_state as it queries DB directly for attempts.
         $this->assertEquals(COMPLETION_INCOMPLETE, $completion->get_state('completionminattempts'));
 

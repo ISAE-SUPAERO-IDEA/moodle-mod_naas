@@ -29,8 +29,6 @@
 
 namespace mod_naas;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Builds the persons/domains side table shipped alongside cached search hits.
  *
@@ -221,6 +219,8 @@ class vocabulary_lookup {
     }
 
     /**
+     * Aggregation bucket keys for one facet.
+     *
      * @param array $aggregations
      * @param string $name
      * @return array
@@ -240,6 +240,8 @@ class vocabulary_lookup {
     }
 
     /**
+     * Map producer keys to display labels.
+     *
      * @param array $keys
      * @param array $producers
      * @return array

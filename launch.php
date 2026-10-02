@@ -22,7 +22,7 @@
  * @package mod_naas
  */
 
-require_once('../../config.php');
+require_once(__DIR__ . '/../../config.php');
 
 // Get data from DB.
 $id = required_param('id', PARAM_INT); // Course Module ID.
@@ -35,4 +35,4 @@ $course = $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST);
 require_login($course, true, $cm);
 require_capability('mod/naas:view', $context);
 
-\mod_naas\naas_lti::lti_launch($id, $language);
+echo \mod_naas\naas_lti::lti_launch($id, $language);

@@ -27,8 +27,6 @@
 
 namespace mod_naas;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Value object for the catalogue probe stamp.
  *
@@ -78,6 +76,8 @@ class catalogue_stamp {
     }
 
     /**
+     * Whether two catalogue stamps describe the same snapshot.
+     *
      * @param mixed $left
      * @param mixed $right
      * @return bool

@@ -22,9 +22,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_naas\tests\output;
-
-defined('MOODLE_INTERNAL') || die();
+namespace mod_naas\output;
 
 use basic_testcase;
 use mod_naas\output\index_page;
@@ -35,15 +33,12 @@ use stdClass;
  * Tests for mod_naas\output\index_page.
  *
  * @package    mod_naas
- * @copyright  2019 onwards ISAE-SUPAERO (https://www.isae-supaero.fr/)
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright  2019 onwards ISAE-SUPAERO (https://www.isae-supaero.fr/).
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later.
  * @covers \mod_naas\output\index_page
  */
 class index_page_test extends basic_testcase {
-
-    // -----------------------------------------------------------------------
-    // Helpers
-    // -----------------------------------------------------------------------
+    // Helpers.
 
     /**
      * Build a minimal index_page instance.
@@ -71,9 +66,7 @@ class index_page_test extends basic_testcase {
         return $this->createMock(\renderer_base::class);
     }
 
-    // -----------------------------------------------------------------------
-    // Return type
-    // -----------------------------------------------------------------------
+    // Return type.
 
     /**
      * export_for_template() must return a stdClass instance.
@@ -83,9 +76,7 @@ class index_page_test extends basic_testcase {
         $this->assertInstanceOf(stdClass::class, $result);
     }
 
-    // -----------------------------------------------------------------------
-    // courseurl
-    // -----------------------------------------------------------------------
+    // Courseurl.
 
     /**
      * courseurl must be a plain string without HTML-encoded ampersands.
@@ -97,9 +88,7 @@ class index_page_test extends basic_testcase {
         $this->assertStringNotContainsString('&amp;', $result->courseurl);
     }
 
-    // -----------------------------------------------------------------------
-    // backtocourse
-    // -----------------------------------------------------------------------
+    // Backtocourse.
 
     /**
      * backtocourse is passed through unchanged.
@@ -116,9 +105,7 @@ class index_page_test extends basic_testcase {
         $this->assertSame('Go back', $result->backtocourse);
     }
 
-    // -----------------------------------------------------------------------
-    // heading
-    // -----------------------------------------------------------------------
+    // Heading.
 
     /**
      * heading is exported unchanged.
@@ -128,9 +115,7 @@ class index_page_test extends basic_testcase {
         $this->assertSame('Nugget Activities', $result->heading);
     }
 
-    // -----------------------------------------------------------------------
-    // usesections
-    // -----------------------------------------------------------------------
+    // Usesections.
 
     /**
      * usesections=true is exported as boolean true.
@@ -148,9 +133,7 @@ class index_page_test extends basic_testcase {
         $this->assertFalse($result->usesections);
     }
 
-    // -----------------------------------------------------------------------
-    // rows
-    // -----------------------------------------------------------------------
+    // Rows.
 
     /**
      * An empty rows array is exported as an empty array.

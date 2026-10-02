@@ -24,7 +24,7 @@
  *  - Tests that exercise code paths BEFORE the first HTTP call (module
  *    resolution, config fetch): these run offline.
  *  - Tests that cover the full launch path (DB insertion, form rendering,
- *    OAuth signature): marked @group external.  Until the HttpAdapter
+ *    OAuth signature): they belong to the external group.  Until the HttpAdapter
  *    refactor lands these are marked incomplete so they appear in the report
  *    as a reminder rather than failures.
  *
@@ -33,7 +33,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_naas\tests;
+namespace mod_naas;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -48,20 +48,17 @@ use stdClass;
  * Tests for mod_naas\naas_lti.
  *
  * @package    mod_naas
- * @copyright  2019 onwards ISAE-SUPAERO (https://www.isae-supaero.fr/)
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright  2019 onwards ISAE-SUPAERO (https://www.isae-supaero.fr/).
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later.
  * @covers \mod_naas\naas_lti
  */
 class naas_lti_test extends advanced_testcase {
-
     public function setUp(): void {
         parent::setUp();
         $_SERVER['SERVER_NAME'] = 'localhost';
     }
 
-    // -----------------------------------------------------------------------
-    // Module resolution — offline (no HTTP needed)
-    // -----------------------------------------------------------------------
+    // Module resolution — offline (no HTTP needed).
 
     /**
      * lti_launch() must throw a dml_missing_record_exception when the
@@ -80,9 +77,7 @@ class naas_lti_test extends advanced_testcase {
         naas_lti::lti_launch(999999);
     }
 
-    // -----------------------------------------------------------------------
-    // OAuth signature helper — pure logic, no DB or HTTP
-    // -----------------------------------------------------------------------
+    // OAuth signature helper — pure logic, no DB or HTTP.
 
     /**
      * The OAuth base-string includes the launch URL and all sorted parameters.
@@ -92,8 +87,8 @@ class naas_lti_test extends advanced_testcase {
      * verifies the invariants independently of the HTTP call.
      */
     public function test_oauth_nonce_is_unique_across_calls(): void {
-        // Two consecutive uniqid() calls must differ.  This mirrors the nonce
-        // generation in lti_launch().
+        // Two consecutive uniqid() calls must differ.  This mirrors the nonce.
+        // Generation in lti_launch().
         $nonce1 = uniqid('', true);
         $nonce2 = uniqid('', true);
 
@@ -134,7 +129,7 @@ class naas_lti_test extends advanced_testcase {
         global $CFG;
 
         $this->resetAfterTest(true);
-        $CFG->wwwroot = 'https://moodle.example.test';
+        $CFG->wwwroot = 'https://Moodle.example.test';
 
         $off = naas_lti::lti_custom_options((object) [
             'naas_css' => '',
@@ -157,9 +152,7 @@ class naas_lti_test extends advanced_testcase {
         $this->assertTrue($decoded['feature.nugbot']);
     }
 
-    // -----------------------------------------------------------------------
-    // DB interaction — requires HTTP stub (incomplete until refactor)
-    // -----------------------------------------------------------------------
+    // DB interaction — requires HTTP stub (incomplete until refactor).
 
     /**
      * A successful LTI launch must insert exactly one naas_activity_outcome row.
@@ -176,7 +169,11 @@ class naas_lti_test extends advanced_testcase {
 
         $client = $this->createMock(\mod_naas\naas_client::class);
         $client->method('get_nugget_data')->willReturn((object)['version_id' => 'v1']);
-        $client->method('get_nugget_lti_config')->willReturn((object)['url' => 'http://example.com/lti', 'key' => 'k', 'secret' => 's']);
+        $client->method('get_nugget_lti_config')->willReturn((object) [
+            'url' => 'http://Example.com/lti',
+            'key' => 'k',
+            'secret' => 's',
+        ]);
 
         naas_lti::lti_launch($naas->cmid, '', $client);
 
@@ -199,7 +196,11 @@ class naas_lti_test extends advanced_testcase {
 
         $client = $this->createMock(\mod_naas\naas_client::class);
         $client->method('get_nugget_data')->willReturn((object)['version_id' => 'v1']);
-        $client->method('get_nugget_lti_config')->willReturn((object)['url' => 'http://example.com/lti', 'key' => 'k', 'secret' => 's']);
+        $client->method('get_nugget_lti_config')->willReturn((object) [
+            'url' => 'http://Example.com/lti',
+            'key' => 'k',
+            'secret' => 's',
+        ]);
 
         naas_lti::lti_launch($naas->cmid, '', $client);
         naas_lti::lti_launch($naas->cmid, '', $client);
@@ -222,7 +223,11 @@ class naas_lti_test extends advanced_testcase {
 
         $client = $this->createMock(\mod_naas\naas_client::class);
         $client->method('get_nugget_data')->willReturn((object)['version_id' => 'v1']);
-        $client->method('get_nugget_lti_config')->willReturn((object)['url' => 'http://example.com/lti', 'key' => 'k', 'secret' => 's']);
+        $client->method('get_nugget_lti_config')->willReturn((object) [
+            'url' => 'http://Example.com/lti',
+            'key' => 'k',
+            'secret' => 's',
+        ]);
 
         $output = naas_lti::lti_launch($naas->cmid, '', $client);
 
@@ -243,7 +248,11 @@ class naas_lti_test extends advanced_testcase {
 
         $client = $this->createMock(\mod_naas\naas_client::class);
         $client->method('get_nugget_data')->willReturn((object)['version_id' => 'v1']);
-        $client->method('get_nugget_lti_config')->willReturn((object)['url' => 'http://example.com/lti', 'key' => 'k', 'secret' => 's']);
+        $client->method('get_nugget_lti_config')->willReturn((object) [
+            'url' => 'http://Example.com/lti',
+            'key' => 'k',
+            'secret' => 's',
+        ]);
 
         $output1 = naas_lti::lti_launch($naas->cmid, '', $client);
 
@@ -272,20 +281,20 @@ class naas_lti_test extends advanced_testcase {
         $nuggetdata = (object)[
             'version_id' => 'v1',
             'multilanguages' => [
-                (object)['language' => 'fr', 'nugget_id' => 'nugget-fr']
-            ]
+                (object)['language' => 'fr', 'nugget_id' => 'nugget-fr'],
+            ],
         ];
         $client->method('get_nugget_data')->willReturn($nuggetdata);
-        
-        // It should call get_nugget_lti_config with 'nugget-fr' because we pass 'fr'
+
+        // It should call get_nugget_lti_config with 'nugget-fr' because we pass 'fr'.
         $client->expects($this->atLeastOnce())
-               ->method('get_nugget_lti_config')
-               ->with($this->logicalOr($this->equalTo($naas->nugget_id), $this->equalTo('nugget-fr')))
-               ->willReturn((object)['url' => 'http://example.fr/lti', 'key' => 'k', 'secret' => 's']);
+            ->method('get_nugget_lti_config')
+            ->with($this->logicalOr($this->equalTo($naas->nugget_id), $this->equalTo('nugget-fr')))
+            ->willReturn((object)['url' => 'http://Example.fr/lti', 'key' => 'k', 'secret' => 's']);
 
         $output = naas_lti::lti_launch($naas->cmid, 'fr', $client);
 
-        $this->assertStringContainsString('http://example.fr/lti', $output);
+        $this->assertStringContainsString('http://Example.fr/lti', $output);
     }
 
     /**
@@ -301,23 +310,27 @@ class naas_lti_test extends advanced_testcase {
 
         $client = $this->createMock(\mod_naas\naas_client::class);
         $client->method('get_nugget_data')->willReturn((object)['version_id' => 'v1']);
-        $client->method('get_nugget_lti_config')->willReturn((object)['url' => 'http://example.com/lti', 'key' => 'k', 'secret' => 's']);
+        $client->method('get_nugget_lti_config')->willReturn((object) [
+            'url' => 'http://Example.com/lti',
+            'key' => 'k',
+            'secret' => 's',
+        ]);
 
-        // 1. Privacy ON (defaults)
+        // 1. Privacy ON (defaults).
         set_config('naas_privacy_learner_name', 1, 'naas');
         set_config('naas_privacy_learner_mail', 1, 'naas');
-        
+
         $output1 = naas_lti::lti_launch($naas->cmid, '', $client);
-        
+
         $this->assertStringContainsString('John Doe', $output1);
         $this->assertStringContainsString('john@example.com', $output1);
 
-        // 2. Privacy OFF
+        // 2. Privacy OFF.
         set_config('naas_privacy_learner_name', 0, 'naas');
         set_config('naas_privacy_learner_mail', 0, 'naas');
-        
+
         $output2 = naas_lti::lti_launch($naas->cmid, '', $client);
-        
+
         $this->assertStringNotContainsString('John Doe', $output2);
         $this->assertStringNotContainsString('john@example.com', $output2);
     }

@@ -22,8 +22,6 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Data generator for mod_naas.
  *
@@ -36,7 +34,6 @@ defined('MOODLE_INTERNAL') || die();
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class mod_naas_generator extends testing_module_generator {
-
     /**
      * Create a naas module instance with plugin-specific defaults.
      *
@@ -48,6 +45,9 @@ class mod_naas_generator extends testing_module_generator {
      * @return stdClass
      */
     public function create_instance($record = null, array $options = null) {
+        global $CFG;
+        require_once($CFG->dirroot . '/mod/naas/lib.php');
+
         $record = (array) $record;
 
         if (empty($record['nugget_id'])) {

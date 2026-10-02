@@ -22,18 +22,17 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_naas\tests;
-
-defined('MOODLE_INTERNAL') || die();
+namespace mod_naas;
 
 use advanced_testcase;
 use mod_naas\naas_payload;
 
 /**
+ * Tests for NaaS response payload parsing.
+ *
  * @covers \mod_naas\naas_payload
  */
 final class naas_payload_test extends advanced_testcase {
-
     public function test_unwrap_payload_object(): void {
         $this->assertSame(
             ['firstname' => 'Ada'],

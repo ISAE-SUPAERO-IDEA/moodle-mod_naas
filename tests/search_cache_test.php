@@ -22,19 +22,18 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_naas\tests;
-
-defined('MOODLE_INTERNAL') || die();
+namespace mod_naas;
 
 use advanced_testcase;
 use mod_naas\catalogue_cache;
 use mod_naas\search_cache;
 
 /**
+ * Tests for the cached Nugget search index.
+ *
  * @covers \mod_naas\search_cache
  */
 final class search_cache_test extends advanced_testcase {
-
     /**
      * Isolate MUC and plugin config.
      */
@@ -192,7 +191,7 @@ final class search_cache_test extends advanced_testcase {
     public function test_canonical_key_differs_per_connection(): void {
         $options = ['page_size' => 9];
         $first = search_cache::canonical_key($options, $this->config());
-        set_config('naas_endpoint', 'https://other.example/api', 'naas');
+        set_config('naas_endpoint', 'https://Other.example/api', 'naas');
         $second = search_cache::canonical_key($options, $this->config());
         $this->assertNotSame($first, $second);
     }

@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Tests for {@see mod/naas/version.php} (plugin version metadata loaded by core upgrade / plugins UI).
+ * Tests for mod/naas/version.php (plugin version metadata loaded by core upgrade / plugins UI).
  *
  * When bumping $plugin->version, $plugin->release, $plugin->requires, or $plugin->dependencies,
  * update the assertions in this file to match version.php.
@@ -25,17 +25,16 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_naas\tests;
-
-defined('MOODLE_INTERNAL') || die();
+namespace mod_naas;
 
 use advanced_testcase;
 
 /**
+ * Checks the metadata declared in version.php.
+ *
  * @coversNothing
  */
 final class version_php_test extends advanced_testcase {
-
     /**
      * Require version.php and assert every public metadata field used by core.
      */
@@ -43,7 +42,7 @@ final class version_php_test extends advanced_testcase {
         global $CFG, $plugin;
 
         $plugin = new \stdClass();
-        require $CFG->dirroot . '/mod/naas/version.php';
+        require($CFG->dirroot . '/mod/naas/version.php');
 
         $this->assertSame('mod_naas', $plugin->component);
         $this->assertSame(2026092801, (int) $plugin->version);
@@ -62,14 +61,12 @@ final class version_php_test extends advanced_testcase {
      * Fresh process require keeps coverage attribution clean for the version file (same as other root scripts).
      *
      * @runInSeparateProcess
-     * @backupGlobals disabled
-     * @preserveGlobalState disabled
      */
     public function test_version_php_loads_in_separate_process(): void {
         global $CFG, $plugin;
 
         $plugin = new \stdClass();
-        require $CFG->dirroot . '/mod/naas/version.php';
+        require($CFG->dirroot . '/mod/naas/version.php');
 
         $this->assertSame('mod_naas', $plugin->component);
         $this->assertGreaterThan(0, (int) $plugin->version);

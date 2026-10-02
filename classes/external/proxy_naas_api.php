@@ -28,7 +28,6 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->libdir . '/externallib.php');
 
-
 /**
  * Proxy requests from the user agent to the naas-api.
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -238,7 +237,7 @@ class proxy_naas_api extends \external_api {
         $props = null;
         if (isset($item->properties) && is_object($item->properties)) {
             $props = $item->properties;
-        } elseif (isset($item->properties) && is_array($item->properties)) {
+        } else if (isset($item->properties) && is_array($item->properties)) {
             $props = (object) $item->properties;
         }
         if ($props) {
@@ -252,12 +251,14 @@ class proxy_naas_api extends \external_api {
                 $item->email = $props->{'person:email'};
             }
         }
-        foreach ([
-            'first_name' => 'firstname',
-            'firstName' => 'firstname',
-            'last_name' => 'lastname',
-            'lastName' => 'lastname',
-        ] as $from => $to) {
+        foreach (
+            [
+                'first_name' => 'firstname',
+                'firstName' => 'firstname',
+                'last_name' => 'lastname',
+                'lastName' => 'lastname',
+            ] as $from => $to
+        ) {
             if (self::blank_string($item->{$to} ?? null) && isset($item->{$from}) && is_string($item->{$from})) {
                 $item->{$to} = $item->{$from};
             }
@@ -266,7 +267,7 @@ class proxy_naas_api extends \external_api {
             $title = null;
             if ($props && isset($props->{'dc:title'}) && is_string($props->{'dc:title'})) {
                 $title = $props->{'dc:title'};
-            } elseif (isset($item->title) && is_string($item->title)) {
+            } else if (isset($item->title) && is_string($item->title)) {
                 $title = $item->title;
             }
             if (is_string($title)) {
@@ -561,7 +562,7 @@ class proxy_naas_api extends \external_api {
         $props = null;
         if (isset($item->properties) && is_object($item->properties)) {
             $props = $item->properties;
-        } elseif (isset($item->properties) && is_array($item->properties)) {
+        } else if (isset($item->properties) && is_array($item->properties)) {
             $props = (object) $item->properties;
         }
         if ($props) {
@@ -571,7 +572,7 @@ class proxy_naas_api extends \external_api {
             if (self::blank_string($item->name ?? null)) {
                 if (isset($props->{'dc:title'})) {
                     $item->name = $props->{'dc:title'};
-                } elseif (isset($props->{'structure:name'})) {
+                } else if (isset($props->{'structure:name'})) {
                     $item->name = $props->{'structure:name'};
                 }
             }
@@ -589,6 +590,8 @@ class proxy_naas_api extends \external_api {
     }
 
     /**
+     * Whether the value is missing or an empty string.
+     *
      * @param mixed $value
      * @return bool
      */
@@ -926,7 +929,6 @@ class proxy_naas_api extends \external_api {
         return self::sanitise_json_response($naas->request_raw('GET', $url));
     }
 
-
     /**
      * Get nugget preview parameters description.
      */
@@ -1105,11 +1107,13 @@ class proxy_naas_api extends \external_api {
                     $result = $candidate;
                 }
             } catch (\moodle_exception $e) {
-                if (!in_array($e->errorcode, [
-                    'error:naas_api:not_found',
-                    'error:naas_api:unknown',
-                    'error:naas_api:bad_request',
-                ], true)) {
+                if (
+                    !in_array($e->errorcode, [
+                        'error:naas_api:not_found',
+                        'error:naas_api:unknown',
+                        'error:naas_api:bad_request',
+                    ], true)
+                ) {
                     throw $e;
                 }
             }
@@ -1199,11 +1203,13 @@ class proxy_naas_api extends \external_api {
                 $naas->request_raw('GET', '/persons/' . rawurlencode($personkey))
             ));
         } catch (\moodle_exception $e) {
-            if (!in_array($e->errorcode, [
-                'error:naas_api:not_found',
-                'error:naas_api:unknown',
-                'error:naas_api:bad_request',
-            ], true)) {
+            if (
+                !in_array($e->errorcode, [
+                    'error:naas_api:not_found',
+                    'error:naas_api:unknown',
+                    'error:naas_api:bad_request',
+                ], true)
+            ) {
                 throw $e;
             }
         }

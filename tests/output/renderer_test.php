@@ -22,9 +22,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_naas\tests\output;
-
-defined('MOODLE_INTERNAL') || die();
+namespace mod_naas\output;
 
 use advanced_testcase;
 use mod_naas\output\view_page;
@@ -36,12 +34,11 @@ use stdClass;
  * Tests for mod_naas\output\renderer.
  *
  * @package    mod_naas
- * @copyright  2019 onwards ISAE-SUPAERO (https://www.isae-supaero.fr/)
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright  2019 onwards ISAE-SUPAERO (https://www.isae-supaero.fr/).
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later.
  * @covers \mod_naas\output\renderer
  */
 class renderer_test extends advanced_testcase {
-
     /**
      * Test render_view_page.
      */
@@ -52,12 +49,12 @@ class renderer_test extends advanced_testcase {
 
         $courseurl = new \moodle_url('/course/view.php', ['id' => 1]);
         $viewpage = new view_page($courseurl, 'Back to course', null, '<div>Widget</div>');
-        
+
         // We use ob_start to avoid outputting HTML to the terminal.
         ob_start();
         $html = $renderer->render_view_page($viewpage);
         ob_end_clean();
-        
+
         $this->assertStringContainsString('Back to course', $html);
         $this->assertStringContainsString('<div>Widget</div>', $html);
     }
@@ -72,11 +69,11 @@ class renderer_test extends advanced_testcase {
 
         $courseurl = new \moodle_url('/course/view.php', ['id' => 1]);
         $indexpage = new index_page($courseurl, 'Back to course', 'Test Course', true, []);
-        
+
         ob_start();
         $html = $renderer->render_index_page($indexpage);
         ob_end_clean();
-        
+
         $this->assertStringContainsString('Test Course', $html);
         $this->assertStringContainsString('Back to course', $html);
     }
@@ -93,13 +90,13 @@ class renderer_test extends advanced_testcase {
             ['name' => 'lti_message_type', 'value' => 'basic-lti-launch-request'],
             ['name' => 'lti_version', 'value' => 'LTI-1p0'],
         ];
-        $form = new lti_launch_form('https://naas.example.com/launch', $fields);
-        
+        $form = new lti_launch_form('https://Naas.example.com/launch', $fields);
+
         ob_start();
         $html = $renderer->render_lti_launch_form($form);
         ob_end_clean();
-        
-        $this->assertStringContainsString('https://naas.example.com/launch', $html);
+
+        $this->assertStringContainsString('https://Naas.example.com/launch', $html);
         $this->assertStringContainsString('lti_message_type', $html);
         $this->assertStringContainsString('basic-lti-launch-request', $html);
     }

@@ -22,19 +22,18 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_naas\tests;
-
-defined('MOODLE_INTERNAL') || die();
+namespace mod_naas;
 
 use advanced_testcase;
 use mod_naas\search_cache;
 use mod_naas\task\refresh_catalogue;
 
 /**
+ * Tests for the scheduled catalogue refresh task.
+ *
  * @covers \mod_naas\task\refresh_catalogue
  */
 final class refresh_catalogue_test extends advanced_testcase {
-
     /**
      * Isolate plugin config.
      */

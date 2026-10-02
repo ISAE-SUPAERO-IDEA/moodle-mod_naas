@@ -22,9 +22,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_naas\tests\output;
-
-defined('MOODLE_INTERNAL') || die();
+namespace mod_naas\output;
 
 use basic_testcase;
 use mod_naas\output\lti_launch_form;
@@ -37,18 +35,15 @@ use stdClass;
  * renderer_base (including plugin renderers). The $output argument is unused.
  *
  * @package    mod_naas
- * @copyright  2019 onwards ISAE-SUPAERO (https://www.isae-supaero.fr/)
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright  2019 onwards ISAE-SUPAERO (https://www.isae-supaero.fr/).
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later.
  * @covers \mod_naas\output\lti_launch_form
  */
 class lti_launch_form_test extends basic_testcase {
-
     /** @var string Sample launch URL used across tests. */
-    private const SAMPLE_URL = 'https://naas.example.com/lti/launch';
+    private const SAMPLE_URL = 'https://Naas.example.com/lti/launch';
 
-    // -----------------------------------------------------------------------
-    // Helpers
-    // -----------------------------------------------------------------------
+    // Helpers.
 
     /**
      * Build a typical set of LTI form fields.
@@ -57,11 +52,11 @@ class lti_launch_form_test extends basic_testcase {
      */
     private function sample_fields(): array {
         return [
-            ['name' => 'lti_version',           'value' => 'LTI-1p0'],
-            ['name' => 'lti_message_type',       'value' => 'basic-lti-launch-request'],
-            ['name' => 'oauth_consumer_key',     'value' => 'consumer-key-123'],
+            ['name' => 'lti_version', 'value' => 'LTI-1p0'],
+            ['name' => 'lti_message_type', 'value' => 'basic-lti-launch-request'],
+            ['name' => 'oauth_consumer_key', 'value' => 'consumer-key-123'],
             ['name' => 'oauth_signature_method', 'value' => 'HMAC-SHA1'],
-            ['name' => 'oauth_signature',        'value' => 'abc123sig=='],
+            ['name' => 'oauth_signature', 'value' => 'abc123sig=='],
         ];
     }
 
@@ -74,9 +69,7 @@ class lti_launch_form_test extends basic_testcase {
         return $this->createMock(\renderer_base::class);
     }
 
-    // -----------------------------------------------------------------------
-    // Return type
-    // -----------------------------------------------------------------------
+    // Return type.
 
     /**
      * export_for_template() must return a stdClass instance.
@@ -87,9 +80,7 @@ class lti_launch_form_test extends basic_testcase {
         $this->assertInstanceOf(stdClass::class, $result);
     }
 
-    // -----------------------------------------------------------------------
-    // launchurl
-    // -----------------------------------------------------------------------
+    // Launchurl.
 
     /**
      * launchurl in context matches the constructor argument exactly.
@@ -104,15 +95,13 @@ class lti_launch_form_test extends basic_testcase {
      * launchurl with query-string is preserved verbatim.
      */
     public function test_launchurl_with_query_string_preserved(): void {
-        $url = 'https://naas.example.com/lti/launch?context=demo&locale=fr';
+        $url = 'https://Naas.example.com/lti/launch?context=demo&locale=fr';
         $form = new lti_launch_form($url, []);
         $result = $form->export_for_template($this->renderer());
         $this->assertSame($url, $result->launchurl);
     }
 
-    // -----------------------------------------------------------------------
-    // fields
-    // -----------------------------------------------------------------------
+    // Fields.
 
     /**
      * An empty fields array is exported as an empty array.
@@ -149,17 +138,14 @@ class lti_launch_form_test extends basic_testcase {
      */
     public function test_individual_field_values_intact(): void {
         $fields = [
-            ['name' => 'oauth_signature', 'value' => 'test-sig'],
-        ];
+            ['name' => 'oauth_signature', 'value' => 'test-sig'], ];
         $form   = new lti_launch_form(self::SAMPLE_URL, $fields);
         $result = $form->export_for_template($this->renderer());
         $this->assertSame('oauth_signature', $result->fields[0]['name']);
-        $this->assertSame('test-sig',        $result->fields[0]['value']);
+        $this->assertSame('test-sig', $result->fields[0]['value']);
     }
 
-    // -----------------------------------------------------------------------
-    // renderer_base contract
-    // -----------------------------------------------------------------------
+    // Renderer_base contract.
 
     /**
      * Passing a renderer_base stub as $output must not throw a TypeError.
@@ -182,6 +168,6 @@ class lti_launch_form_test extends basic_testcase {
         $result2 = $form->export_for_template($this->renderer());
 
         $this->assertSame($result1->launchurl, $result2->launchurl);
-        $this->assertSame($result1->fields,    $result2->fields);
+        $this->assertSame($result1->fields, $result2->fields);
     }
 }

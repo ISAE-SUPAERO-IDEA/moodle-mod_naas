@@ -22,7 +22,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_naas\tests\admin;
+namespace mod_naas\admin;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -33,10 +33,11 @@ use advanced_testcase;
 use mod_naas\admin\refresh_cache_setting;
 
 /**
+ * Tests for the refresh-cache admin setting.
+ *
  * @covers \mod_naas\admin\refresh_cache_setting
  */
 final class refresh_cache_setting_test extends advanced_testcase {
-
     /**
      * Display-only setting: nothing is read from or written to config.
      */

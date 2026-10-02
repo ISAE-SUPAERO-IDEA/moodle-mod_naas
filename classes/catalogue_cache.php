@@ -27,8 +27,6 @@
 
 namespace mod_naas;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Application cache of the unfiltered catalogue (search + producers).
  *
@@ -292,6 +290,8 @@ class catalogue_cache {
     }
 
     /**
+     * Whether a producer row matches the requested key.
+     *
      * @param array $row
      * @param string $key
      * @return bool
@@ -489,6 +489,8 @@ class catalogue_cache {
     }
 
     /**
+     * Whether a producer row includes a display name.
+     *
      * @param array $row
      * @return bool
      */
@@ -504,6 +506,8 @@ class catalogue_cache {
     }
 
     /**
+     * Read a cached structure name and acronym.
+     *
      * @param \cache $cache
      * @param string $key
      * @return array{name: string, acronym: string}|null
@@ -657,6 +661,8 @@ class catalogue_cache {
     }
 
     /**
+     * Canonical form of a structure cache key.
+     *
      * @param string $value
      * @return string
      */
@@ -683,6 +689,8 @@ class catalogue_cache {
     }
 
     /**
+     * Fetch the landing search JSON with the site licence filter.
+     *
      * @param naas_client $naas
      * @param object $config
      * @return string
@@ -698,6 +706,8 @@ class catalogue_cache {
     }
 
     /**
+     * Load every producer the landing page needs.
+     *
      * @param naas_client $naas
      * @return array
      */
@@ -717,6 +727,8 @@ class catalogue_cache {
     }
 
     /**
+     * Walk paginated structure list responses.
+     *
      * @param naas_client $naas
      * @param string $path
      * @param array $query
@@ -742,6 +754,8 @@ class catalogue_cache {
     }
 
     /**
+     * Extract structure rows from one list response.
+     *
      * @param mixed $decoded
      * @return array
      */
@@ -766,6 +780,8 @@ class catalogue_cache {
     }
 
     /**
+     * How many pages a structure list response spans.
+     *
      * @param mixed $decoded
      * @return int
      */
@@ -781,6 +797,8 @@ class catalogue_cache {
     }
 
     /**
+     * Keep the producer fields the picker stores.
+     *
      * @param mixed $raw
      * @return array|null
      */
@@ -792,7 +810,7 @@ class catalogue_cache {
         $props = null;
         if (isset($item->properties) && is_object($item->properties)) {
             $props = $item->properties;
-        } elseif (isset($item->properties) && is_array($item->properties)) {
+        } else if (isset($item->properties) && is_array($item->properties)) {
             $props = (object) $item->properties;
         }
         $acronym = self::first_string([
@@ -845,6 +863,8 @@ class catalogue_cache {
     }
 
     /**
+     * First non-empty string among the candidates.
+     *
      * @param array $candidates
      * @return string
      */

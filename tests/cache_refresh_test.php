@@ -22,19 +22,18 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_naas\tests;
-
-defined('MOODLE_INTERNAL') || die();
+namespace mod_naas;
 
 use advanced_testcase;
 use mod_naas\cache_refresh;
 use mod_naas\catalogue_cache;
 
 /**
+ * Tests for the admin cache purge and rebuild.
+ *
  * @covers \mod_naas\cache_refresh
  */
 final class cache_refresh_test extends advanced_testcase {
-
     /**
      * A click with no saved API URL must not wipe an existing catalogue.
      */

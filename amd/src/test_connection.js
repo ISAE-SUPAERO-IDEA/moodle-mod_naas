@@ -57,6 +57,26 @@ define('mod_naas/test_connection', ['core/ajax', 'core/str'], function(Ajax, Str
         resultDiv.hidden = false;
     }
 
+    /**
+     * Show a failure banner. Falls back if the language string cannot be loaded.
+     *
+     * @param {HTMLElement} resultDiv
+     * @param {*} error
+     * @param {string} stringKey
+     * @return {Promise<null>}
+     */
+    function showFailure(resultDiv, error, stringKey) {
+        const detail = getUserMessage(error);
+        return Str.get_string(stringKey, 'naas')
+            .catch(function() {
+                return '';
+            })
+            .then(function(failedMessage) {
+                showResult(resultDiv, 'alert alert-danger', detail || failedMessage || 'Failed!');
+                return null;
+            });
+    }
+
     return {
         /**
          * Bind the Test connection button.
@@ -107,18 +127,12 @@ define('mod_naas/test_connection', ['core/ajax', 'core/str'], function(Ajax, Str
                     })
                     .then(function(successString) {
                         showResult(resultDiv, 'alert alert-success', successString);
+                        return null;
                     })
                     .catch(function(error) {
-                        const detail = getUserMessage(error);
-                        return Str.get_string('connection_test_failed', 'naas')
-                            .then(function(failedMessage) {
-                                showResult(resultDiv, 'alert alert-danger', detail || failedMessage);
-                            })
-                            .catch(function() {
-                                showResult(resultDiv, 'alert alert-danger', detail || 'Failed!');
-                            });
+                        return showFailure(resultDiv, error, 'connection_test_failed');
                     })
-                    .then(reset);
+                    .always(reset);
             });
         }
     };

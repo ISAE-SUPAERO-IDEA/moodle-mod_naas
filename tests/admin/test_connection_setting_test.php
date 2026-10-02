@@ -22,7 +22,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_naas\tests\admin;
+namespace mod_naas\admin;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -33,10 +33,11 @@ use advanced_testcase;
 use mod_naas\admin\test_connection_setting;
 
 /**
+ * Tests for the test-connection admin setting.
+ *
  * @covers \mod_naas\admin\test_connection_setting
  */
 final class test_connection_setting_test extends advanced_testcase {
-
     /**
      * Display-only setting: nothing is read from or written to config.
      */
@@ -100,7 +101,7 @@ final class test_connection_setting_test extends advanced_testcase {
         $hassiteconfig = true;
         $settings = new \admin_settingpage('modsettingnaas', 'NaaS');
 
-        require $CFG->dirroot . '/mod/naas/settings.php';
+        require($CFG->dirroot . '/mod/naas/settings.php');
 
         $keys = array_keys((array) $settings->settings);
         $this->assertContains('naasnaas_endpoint', $keys);

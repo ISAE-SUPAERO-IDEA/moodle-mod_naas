@@ -23,6 +23,7 @@ Feature: NaaS plugin administration settings
     And I should see "Advanced"
     And "Test connection" "button" should exist
 
+  @javascript
   Scenario: Test connection reports a result from saved settings
     When I log in as "admin"
     And I navigate to "Plugins > Activity modules > Nugget" in site administration

@@ -1,5 +1,18 @@
 <?php
 // This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * Unit tests for mod_naas\mod_util.
@@ -9,9 +22,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_naas\tests;
-
-defined('MOODLE_INTERNAL') || die();
+namespace mod_naas;
 
 use advanced_testcase;
 use mod_naas\mod_util;
@@ -20,13 +31,12 @@ use mod_naas\mod_util;
  * Tests for mod_naas\mod_util.
  *
  * @package    mod_naas
- * @copyright  2019 onwards ISAE-SUPAERO (https://www.isae-supaero.fr/)
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright  2019 onwards ISAE-SUPAERO (https://www.isae-supaero.fr/).
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later.
  * @coversDefaultClass \mod_naas\mod_util
  * @covers ::get_next_activity_url
  */
 class mod_util_test extends advanced_testcase {
-
     /**
      * Test get_next_activity_url.
      */
@@ -41,12 +51,12 @@ class mod_util_test extends advanced_testcase {
 
         $naas1 = $this->getDataGenerator()->create_module('naas', ['course' => $course->id, 'name' => 'N1']);
         $naas2 = $this->getDataGenerator()->create_module('naas', ['course' => $course->id, 'name' => 'N2']);
-        
+
         $PAGE->set_course($course);
         $PAGE->set_cm(get_fast_modinfo($course)->get_cm($naas1->cmid));
 
         $next = mod_util::get_next_activity_url();
-        
+
         $this->assertNotNull($next);
         $this->assertEquals('N2', $next->name);
         $this->assertStringContainsString('id=' . $naas2->cmid, $next->link->out());
@@ -65,12 +75,12 @@ class mod_util_test extends advanced_testcase {
         $this->setUser($user);
 
         $naas1 = $this->getDataGenerator()->create_module('naas', ['course' => $course->id, 'name' => 'N1']);
-        
+
         $PAGE->set_course($course);
         $PAGE->set_cm(get_fast_modinfo($course)->get_cm($naas1->cmid));
 
         $next = mod_util::get_next_activity_url();
-        
+
         $this->assertNull($next);
     }
 
@@ -81,8 +91,8 @@ class mod_util_test extends advanced_testcase {
         global $PAGE, $DB;
         $this->resetAfterTest(true);
 
-        // Enough sections so section 3 exists before we add activities (avoid a non-naas module
-        // becoming the "next" link between N1 and N3).
+        // Enough sections so section 3 exists before we add activities (avoid a non-naas module.
+        // Becoming the "next" link between N1 and N3).
         $course = $this->getDataGenerator()->create_course(['numsections' => 4]);
         $user = $this->getDataGenerator()->create_user();
         $this->getDataGenerator()->enrol_user($user->id, $course->id, 'student');
@@ -90,12 +100,12 @@ class mod_util_test extends advanced_testcase {
 
         // Section 1: visible, contains N1.
         $naas1 = $this->getDataGenerator()->create_module('naas', ['course' => $course->id, 'section' => 1, 'name' => 'N1']);
-        
+
         // Section 2: hidden, contains N2.
         $section2 = $DB->get_record('course_sections', ['course' => $course->id, 'section' => 2]);
         $DB->set_field('course_sections', 'visible', 0, ['id' => $section2->id]);
         $this->getDataGenerator()->create_module('naas', ['course' => $course->id, 'section' => 2, 'name' => 'N2']);
-        
+
         // N3 alone in visible section 3 (section already created by course numsections).
         $this->getDataGenerator()->create_module('naas', ['course' => $course->id, 'section' => 3, 'name' => 'N3']);
 
@@ -103,7 +113,7 @@ class mod_util_test extends advanced_testcase {
         $PAGE->set_cm(get_fast_modinfo($course)->get_cm($naas1->cmid));
 
         $next = mod_util::get_next_activity_url();
-        
+
         // It should skip N2 (hidden section) and go to N3.
         $this->assertNotNull($next);
         $this->assertEquals('N3', $next->name);
