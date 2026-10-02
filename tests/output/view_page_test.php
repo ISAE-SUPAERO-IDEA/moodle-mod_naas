@@ -39,7 +39,6 @@ use stdClass;
  * @copyright  2019 onwards ISAE-SUPAERO (https://www.isae-supaero.fr/).
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later.
  * @covers \mod_naas\output\view_page
- * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
 class view_page_test extends basic_testcase {
     // Helpers.

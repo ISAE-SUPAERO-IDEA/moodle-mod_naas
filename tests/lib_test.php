@@ -61,8 +61,6 @@ use stdClass;
  * @covers ::naas_update_grades
  * @covers ::naas_update_instance
  * @covers ::naas_view
- * @SuppressWarnings(PHPMD.TooManyMethods)
- * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
 class lib_test extends advanced_testcase {
     /**

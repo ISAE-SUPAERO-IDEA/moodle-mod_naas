@@ -37,7 +37,6 @@ use mod_naas\privacy\provider;
  * @copyright  2019 onwards ISAE-SUPAERO (https://www.isae-supaero.fr/).
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later.
  * @covers \mod_naas\privacy\provider
- * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
 class provider_test extends provider_testcase {
     // Get_metadata.

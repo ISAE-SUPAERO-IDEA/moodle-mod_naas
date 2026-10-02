@@ -40,8 +40,6 @@ use moodle_url;
  * Tests for the activity settings form.
  *
  * @covers \mod_naas_mod_form
- * @SuppressWarnings(PHPMD.TooManyPublicMethods)
- * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 final class mod_form_test extends advanced_testcase {
     protected function tearDown(): void {

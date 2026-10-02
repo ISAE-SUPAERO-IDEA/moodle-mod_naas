@@ -47,12 +47,6 @@ require_once(__DIR__ . '/../fixtures/proxy_naas_api_enrol_test_proxy.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later.
  * @coversDefaultClass \mod_naas\external\proxy_naas_api
  * @covers \mod_naas\external\proxy_naas_api
- * @SuppressWarnings(PHPMD.ExcessiveClassLength)
- * @SuppressWarnings(PHPMD.ExcessivePublicCount)
- * @SuppressWarnings(PHPMD.TooManyMethods)
- * @SuppressWarnings(PHPMD.TooManyPublicMethods)
- * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
- * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class proxy_naas_api_test extends advanced_testcase {
     // Parameter schemas.
@@ -733,7 +727,6 @@ class proxy_naas_api_test extends advanced_testcase {
              * @param string $service
              * @param object|null $data
              * @param array|null $params
-             * @SuppressWarnings(PHPMD.UnusedFormalParameter)
              */
             public function request_raw($protocol, $service, $data = null, $params = null) {
                 return '{"domain":"cover"}';
@@ -821,7 +814,6 @@ class proxy_naas_api_test extends advanced_testcase {
              * @param string $service
              * @param object|null $data
              * @param array|null $params
-             * @SuppressWarnings(PHPMD.UnusedFormalParameter)
              */
             public function request_raw($protocol, $service, $data = null, $params = null) {
                 return '{"name":"Cover Structure","acronym":"COV"}';
@@ -895,7 +887,6 @@ class proxy_naas_api_test extends advanced_testcase {
              * @param string $service
              * @param object|null $data
              * @param array|null $params
-             * @SuppressWarnings(PHPMD.UnusedFormalParameter)
              */
             public function request_raw($protocol, $service, $data = null, $params = null) {
                 return '{"name":"ISAE-SUPAERO","acronym":"ISAE"}';
@@ -963,7 +954,6 @@ class proxy_naas_api_test extends advanced_testcase {
              * @param string $service
              * @param object|null $data
              * @param array|null $params
-             * @SuppressWarnings(PHPMD.UnusedFormalParameter)
              */
             public function request_raw($protocol, $service, $data = null, $params = null) {
                 if (str_starts_with((string) $service, '/structures/')) {
@@ -1135,7 +1125,6 @@ class proxy_naas_api_test extends advanced_testcase {
              * @param string $service
              * @param object|null $data
              * @param array|null $params
-             * @SuppressWarnings(PHPMD.UnusedFormalParameter)
              */
             public function request_raw($protocol, $service, $data = null, $params = null) {
                 return '{"firstname":"Ada","lastname":"Lovelace"}';
@@ -1206,7 +1195,6 @@ class proxy_naas_api_test extends advanced_testcase {
              * @param string $service
              * @param object|null $data
              * @param array|null $params
-             * @SuppressWarnings(PHPMD.UnusedFormalParameter)
              */
             public function request_raw($protocol, $service, $data = null, $params = null) {
                 return json_encode([
@@ -1283,7 +1271,6 @@ class proxy_naas_api_test extends advanced_testcase {
              * @param string $service
              * @param object|null $data
              * @param array|null $params
-             * @SuppressWarnings(PHPMD.UnusedFormalParameter)
              */
             public function request_raw($protocol, $service, $data = null, $params = null) {
                 if (str_starts_with((string) $service, '/persons/')) {

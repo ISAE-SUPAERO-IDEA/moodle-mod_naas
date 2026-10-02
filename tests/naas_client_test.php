@@ -46,8 +46,6 @@ require_once(__DIR__ . '/fixtures/testable_naas_client.php');
  * @copyright  2019 onwards ISAE-SUPAERO (https://www.isae-supaero.fr/).
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later.
  * @covers \mod_naas\naas_client
- * @SuppressWarnings(PHPMD.TooManyMethods)
- * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
 class naas_client_test extends advanced_testcase {
     // Constructor / debug flag.
@@ -598,7 +596,6 @@ class naas_client_test extends advanced_testcase {
              * Ignore curl option assignment.
              *
              * @param array $options
-             * @SuppressWarnings(PHPMD.UnusedFormalParameter)
              */
             public function setopt($options): void {
             }
@@ -607,7 +604,6 @@ class naas_client_test extends advanced_testcase {
              * Return an empty transport body.
              *
              * @param string $url
-             * @SuppressWarnings(PHPMD.UnusedFormalParameter)
              */
             public function get($url) {
                 return '';

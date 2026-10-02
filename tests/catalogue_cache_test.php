@@ -32,7 +32,6 @@ use mod_naas\catalogue_filters;
  * Tests for the cached catalogue snapshot.
  *
  * @covers \mod_naas\catalogue_cache
- * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
 final class catalogue_cache_test extends advanced_testcase {
     /**
@@ -375,7 +374,6 @@ final class catalogue_cache_test extends advanced_testcase {
              * @param string $service
              * @param object|null $data
              * @param array|null $params
-             * @SuppressWarnings(PHPMD.UnusedFormalParameter)
              */
             public function request_raw($protocol, $service, $data = null, $params = null) {
                 if (str_contains((string) $service, '/nuggets/search')) {

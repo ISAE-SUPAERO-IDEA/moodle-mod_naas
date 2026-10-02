@@ -40,7 +40,6 @@ use mod_naas\completion\custom_completion;
  * @copyright  2019 onwards ISAE-SUPAERO (https://www.isae-supaero.fr/).
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later.
  * @covers \mod_naas\completion\custom_completion
- * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
 class custom_completion_test extends advanced_testcase {
     // Defined custom rules.

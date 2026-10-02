@@ -42,7 +42,6 @@ use stdClass;
  * Tests for the outcome / grading logic of mod_naas.
  *
  * @coversNothing
- * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  *
  * @package    mod_naas
  * @copyright  2019 onwards ISAE-SUPAERO (https://www.isae-supaero.fr/).
