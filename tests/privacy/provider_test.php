@@ -37,6 +37,7 @@ use mod_naas\privacy\provider;
  * @copyright  2019 onwards ISAE-SUPAERO (https://www.isae-supaero.fr/).
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later.
  * @covers \mod_naas\privacy\provider
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
 class provider_test extends provider_testcase {
     // Get_metadata.
@@ -84,7 +85,7 @@ class provider_test extends provider_testcase {
     public function test_get_contexts_for_userid_returns_correct_context(): void {
         $this->resetAfterTest(true);
 
-        [$course, $naas, $user] = $this->setup_activity_with_user();
+        [, $naas, $user] = $this->setup_activity_with_user();
 
         /** @var \mod_naas_generator $gen */
         $gen = $this->getDataGenerator()->get_plugin_generator('mod_naas');
@@ -127,11 +128,11 @@ class provider_test extends provider_testcase {
     public function test_export_user_data_includes_session(): void {
         $this->resetAfterTest(true);
 
-        [$course, $naas, $user] = $this->setup_activity_with_user();
+        [, $naas, $user] = $this->setup_activity_with_user();
 
         /** @var \mod_naas_generator $gen */
         $gen      = $this->getDataGenerator()->get_plugin_generator('mod_naas');
-        $outcome  = $gen->create_activity_outcome($user->id, $naas->cmid);
+        $gen->create_activity_outcome($user->id, $naas->cmid);
 
         $context  = \context_module::instance($naas->cmid);
         $approved = new approved_contextlist($user, 'mod_naas', [$context->id]);
@@ -153,7 +154,7 @@ class provider_test extends provider_testcase {
         global $DB;
         $this->resetAfterTest(true);
 
-        [$course, $naas, $user] = $this->setup_activity_with_user();
+        [, $naas, $user] = $this->setup_activity_with_user();
 
         /** @var \mod_naas_generator $gen */
         $gen = $this->getDataGenerator()->get_plugin_generator('mod_naas');

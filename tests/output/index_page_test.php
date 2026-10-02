@@ -41,18 +41,33 @@ class index_page_test extends basic_testcase {
     // Helpers.
 
     /**
-     * Build a minimal index_page instance.
+     * Build an index page that does not group rows by section.
      *
-     * @param bool  $usesections
      * @param array $rows
      * @return index_page
      */
-    private function make_page(bool $usesections = false, array $rows = []): index_page {
+    private function make_page(array $rows = []): index_page {
         return new index_page(
             new moodle_url('/course/view.php', ['id' => 10]),
             'Back to course',
             'Nugget Activities',
-            $usesections,
+            false,
+            $rows
+        );
+    }
+
+    /**
+     * Build an index page that groups rows by section.
+     *
+     * @param array $rows
+     * @return index_page
+     */
+    private function make_sections_page(array $rows = []): index_page {
+        return new index_page(
+            new moodle_url('/course/view.php', ['id' => 10]),
+            'Back to course',
+            'Nugget Activities',
+            true,
             $rows
         );
     }
@@ -121,7 +136,7 @@ class index_page_test extends basic_testcase {
      * usesections=true is exported as boolean true.
      */
     public function test_usesections_flag_exported_true(): void {
-        $result = $this->make_page(true)->export_for_template($this->renderer());
+        $result = $this->make_sections_page()->export_for_template($this->renderer());
         $this->assertTrue($result->usesections);
     }
 
@@ -129,7 +144,7 @@ class index_page_test extends basic_testcase {
      * usesections=false is exported as boolean false.
      */
     public function test_usesections_flag_exported_false(): void {
-        $result = $this->make_page(false)->export_for_template($this->renderer());
+        $result = $this->make_page()->export_for_template($this->renderer());
         $this->assertFalse($result->usesections);
     }
 
@@ -139,7 +154,7 @@ class index_page_test extends basic_testcase {
      * An empty rows array is exported as an empty array.
      */
     public function test_empty_rows_exported_as_empty_array(): void {
-        $result = $this->make_page(false, [])->export_for_template($this->renderer());
+        $result = $this->make_page([])->export_for_template($this->renderer());
         $this->assertIsArray($result->rows);
         $this->assertEmpty($result->rows);
     }
@@ -152,7 +167,7 @@ class index_page_test extends basic_testcase {
             (object)['name' => 'Nugget A', 'section' => 'Section 1'],
             (object)['name' => 'Nugget B', 'section' => 'Section 2'],
         ];
-        $result = $this->make_page(true, $rows)->export_for_template($this->renderer());
+        $result = $this->make_sections_page($rows)->export_for_template($this->renderer());
         $this->assertSame($rows, $result->rows);
     }
 
@@ -165,7 +180,7 @@ class index_page_test extends basic_testcase {
             (object)['name' => 'Two'],
             (object)['name' => 'Three'],
         ];
-        $result = $this->make_page(false, $rows)->export_for_template($this->renderer());
+        $result = $this->make_page($rows)->export_for_template($this->renderer());
         $this->assertCount(3, $result->rows);
     }
 
@@ -174,7 +189,7 @@ class index_page_test extends basic_testcase {
      */
     public function test_row_content_preserved(): void {
         $rows = [(object)['name' => 'Test Nugget', 'intro' => 'An intro']];
-        $result = $this->make_page(false, $rows)->export_for_template($this->renderer());
+        $result = $this->make_page($rows)->export_for_template($this->renderer());
         $this->assertSame('Test Nugget', $result->rows[0]->name);
         $this->assertSame('An intro', $result->rows[0]->intro);
     }

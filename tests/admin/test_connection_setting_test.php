@@ -101,7 +101,9 @@ final class test_connection_setting_test extends advanced_testcase {
         $hassiteconfig = true;
         $settings = new \admin_settingpage('modsettingnaas', 'NaaS');
 
-        require($CFG->dirroot . '/mod/naas/settings.php');
+        if ($hassiteconfig) {
+            require($CFG->dirroot . '/mod/naas/settings.php');
+        }
 
         $keys = array_keys((array) $settings->settings);
         $this->assertContains('naasnaas_endpoint', $keys);

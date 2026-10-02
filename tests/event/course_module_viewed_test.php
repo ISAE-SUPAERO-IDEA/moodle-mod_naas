@@ -43,7 +43,6 @@ class course_module_viewed_test extends advanced_testcase {
         $this->resetAfterTest(true);
 
         $course = $this->getDataGenerator()->create_course();
-        $user   = $this->getDataGenerator()->create_user();
         $naas   = $this->getDataGenerator()->create_module('naas', ['course' => $course->id]);
         $context = \context_module::instance($naas->cmid);
 

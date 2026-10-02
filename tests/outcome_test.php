@@ -42,6 +42,7 @@ use stdClass;
  * Tests for the outcome / grading logic of mod_naas.
  *
  * @coversNothing
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  *
  * @package    mod_naas
  * @copyright  2019 onwards ISAE-SUPAERO (https://www.isae-supaero.fr/).
@@ -54,10 +55,9 @@ class outcome_test extends advanced_testcase {
      * With NAAS_GRADEHIGHEST, a higher score overwrites the existing grade.
      */
     public function test_grade_highest_updates_when_score_is_higher(): void {
-        global $DB;
         $this->resetAfterTest(true);
 
-        [$course, $naas, $user, $cm] = $this->setup_graded_activity(NAAS_GRADEHIGHEST);
+        [$course, $naas, $user] = $this->setup_graded_activity(NAAS_GRADEHIGHEST);
 
         // First grade: 60 out of 100.
         $this->submit_grade($course->id, $naas->id, $user->id, 60);
@@ -73,10 +73,9 @@ class outcome_test extends advanced_testcase {
      * With NAAS_GRADEHIGHEST, a lower score must NOT replace the stored grade.
      */
     public function test_grade_highest_does_not_downgrade(): void {
-        global $DB;
         $this->resetAfterTest(true);
 
-        [$course, $naas, $user, $cm] = $this->setup_graded_activity(NAAS_GRADEHIGHEST);
+        [$course, $naas, $user] = $this->setup_graded_activity(NAAS_GRADEHIGHEST);
 
         // First grade: 80.
         $this->submit_grade($course->id, $naas->id, $user->id, 80);
@@ -105,7 +104,7 @@ class outcome_test extends advanced_testcase {
     public function test_grade_highest_score_boundary_at_zero(): void {
         $this->resetAfterTest(true);
 
-        [$course, $naas, $user, $cm] = $this->setup_graded_activity(NAAS_GRADEHIGHEST);
+        [$course, $naas, $user] = $this->setup_graded_activity(NAAS_GRADEHIGHEST);
 
         $this->submit_grade($course->id, $naas->id, $user->id, 0);
 
@@ -119,7 +118,7 @@ class outcome_test extends advanced_testcase {
     public function test_grade_highest_score_boundary_at_max(): void {
         $this->resetAfterTest(true);
 
-        [$course, $naas, $user, $cm] = $this->setup_graded_activity(NAAS_GRADEHIGHEST);
+        [$course, $naas, $user] = $this->setup_graded_activity(NAAS_GRADEHIGHEST);
 
         $this->submit_grade($course->id, $naas->id, $user->id, 100);
 
@@ -135,7 +134,7 @@ class outcome_test extends advanced_testcase {
     public function test_attempt_first_stores_first_grade(): void {
         $this->resetAfterTest(true);
 
-        [$course, $naas, $user, $cm] = $this->setup_graded_activity(NAAS_ATTEMPTFIRST);
+        [$course, $naas, $user] = $this->setup_graded_activity(NAAS_ATTEMPTFIRST);
 
         $this->submit_grade($course->id, $naas->id, $user->id, 70);
 
@@ -150,7 +149,7 @@ class outcome_test extends advanced_testcase {
     public function test_attempt_first_ignores_subsequent_submissions(): void {
         $this->resetAfterTest(true);
 
-        [$course, $naas, $user, $cm] = $this->setup_graded_activity(NAAS_ATTEMPTFIRST);
+        [$course, $naas, $user] = $this->setup_graded_activity(NAAS_ATTEMPTFIRST);
 
         // First submission.
         $this->submit_grade($course->id, $naas->id, $user->id, 70);
@@ -177,7 +176,7 @@ class outcome_test extends advanced_testcase {
     public function test_attempt_last_always_overwrites(): void {
         $this->resetAfterTest(true);
 
-        [$course, $naas, $user, $cm] = $this->setup_graded_activity(NAAS_ATTEMPTLAST);
+        [$course, $naas, $user] = $this->setup_graded_activity(NAAS_ATTEMPTLAST);
 
         $this->submit_grade($course->id, $naas->id, $user->id, 40);
         $this->submit_grade($course->id, $naas->id, $user->id, 20);
@@ -195,7 +194,7 @@ class outcome_test extends advanced_testcase {
     public function test_grade_isolated_per_user(): void {
         $this->resetAfterTest(true);
 
-        [$course, $naas, $usera, $cm] = $this->setup_graded_activity(NAAS_ATTEMPTLAST);
+        [$course, $naas, $usera] = $this->setup_graded_activity(NAAS_ATTEMPTLAST);
         $userb = $this->getDataGenerator()->create_user();
         $this->getDataGenerator()->enrol_user($userb->id, $course->id);
 

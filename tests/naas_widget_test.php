@@ -52,7 +52,17 @@ class naas_widget_test extends advanced_testcase {
         if (!preg_match('/window\.NAAS\s*=\s*(\{)/s', $html, $m, PREG_OFFSET_CAPTURE)) {
             $this->fail('Rendered HTML did not contain window.NAAS assignment');
         }
-        $start = $m[1][1];
+        return $this->slice_balanced_json_object($html, $m[1][1]);
+    }
+
+    /**
+     * Return the balanced JSON object that starts at $start.
+     *
+     * @param string $html
+     * @param int $start
+     * @return string
+     */
+    private function slice_balanced_json_object(string $html, int $start): string {
         $depth = 0;
         $instring = false;
         $escape = false;

@@ -133,7 +133,7 @@ class mod_util_test extends advanced_testcase {
 
         $naas1 = $this->getDataGenerator()->create_module('naas', ['course' => $course->id, 'name' => 'N1']);
         $naas2 = $this->getDataGenerator()->create_module('naas', ['course' => $course->id, 'name' => 'N2']);
-        $naas3 = $this->getDataGenerator()->create_module('naas', ['course' => $course->id, 'name' => 'N3']);
+        $this->getDataGenerator()->create_module('naas', ['course' => $course->id, 'name' => 'N3']);
 
         $DB->set_field('course_modules', 'visible', 0, ['id' => $naas2->cmid]);
         rebuild_course_cache($course->id, true);

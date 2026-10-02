@@ -61,6 +61,8 @@ use stdClass;
  * @covers ::naas_update_grades
  * @covers ::naas_update_instance
  * @covers ::naas_view
+ * @SuppressWarnings(PHPMD.TooManyMethods)
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
 class lib_test extends advanced_testcase {
     /**
@@ -124,7 +126,6 @@ class lib_test extends advanced_testcase {
      * naas_add_instance() must insert a row and return an integer id.
      */
     public function test_add_instance_returns_integer_id(): void {
-        global $DB;
         $this->resetAfterTest(true);
 
         $course = $this->getDataGenerator()->create_course();
@@ -560,7 +561,6 @@ class lib_test extends advanced_testcase {
      * Test naas_update_grades and naas_grade_item_delete.
      */
     public function test_grading_functions(): void {
-        global $DB;
         $this->resetAfterTest(true);
         $course = $this->getDataGenerator()->create_course();
         $naas = $this->getDataGenerator()->create_module('naas', ['course' => $course->id]);
@@ -573,7 +573,7 @@ class lib_test extends advanced_testcase {
 
         // Test grade_item_delete.
         naas_grade_item_delete($naas);
-        $gradeitem = \grade_item::fetch(['itemtype' => 'mod', 'itemmodule' => 'naas', 'iteminstance' => $naas->id]);
+        \grade_item::fetch(['itemtype' => 'mod', 'itemmodule' => 'naas', 'iteminstance' => $naas->id]);
         // Note: grade_item_delete in lib.php doesn't actually delete the record from DB,.
         // It just marks it as deleted in the grade_update call (which often just nulls things or handles it in gradebook).
         // But we can verify the call doesn't crash.

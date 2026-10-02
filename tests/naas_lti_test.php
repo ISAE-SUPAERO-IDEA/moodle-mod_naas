@@ -51,6 +51,7 @@ use stdClass;
  * @copyright  2019 onwards ISAE-SUPAERO (https://www.isae-supaero.fr/).
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later.
  * @covers \mod_naas\naas_lti
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
 class naas_lti_test extends advanced_testcase {
     public function setUp(): void {

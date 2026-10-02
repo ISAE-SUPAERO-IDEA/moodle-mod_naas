@@ -50,6 +50,8 @@ require_once(__DIR__ . '/../fixtures/xapi_enrol_test_proxy.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later.
  * @coversDefaultClass \mod_naas\external\xapi
  * @covers \mod_naas\external\xapi
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class xapi_test extends advanced_testcase {
     // Parameter schema.

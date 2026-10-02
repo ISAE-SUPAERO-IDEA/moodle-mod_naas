@@ -158,7 +158,9 @@ final class root_scripts_test extends advanced_testcase {
         $hassiteconfig = true;
         $settings = new \admin_settingpage('modsettingnaas', 'NaaS');
 
-        require($CFG->dirroot . '/mod/naas/settings.php');
+        if ($hassiteconfig) {
+            require($CFG->dirroot . '/mod/naas/settings.php');
+        }
 
         $keys = array_keys((array) $settings->settings);
         $this->assertGreaterThanOrEqual(8, count($keys));

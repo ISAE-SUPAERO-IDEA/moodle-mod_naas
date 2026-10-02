@@ -32,6 +32,7 @@ use mod_naas\search_cache;
  * Tests for the cached Nugget search index.
  *
  * @covers \mod_naas\search_cache
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
 final class search_cache_test extends advanced_testcase {
     /**

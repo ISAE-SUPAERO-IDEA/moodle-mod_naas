@@ -40,6 +40,7 @@ use mod_naas\completion\custom_completion;
  * @copyright  2019 onwards ISAE-SUPAERO (https://www.isae-supaero.fr/).
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later.
  * @covers \mod_naas\completion\custom_completion
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
 class custom_completion_test extends advanced_testcase {
     // Defined custom rules.
@@ -346,7 +347,6 @@ class custom_completion_test extends advanced_testcase {
      * return COMPLETION_COMPLETE.
      */
     public function test_complete_after_passing_grade(): void {
-        global $CFG;
         $this->resetAfterTest(true);
 
         $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
@@ -478,7 +478,6 @@ class custom_completion_test extends advanced_testcase {
      * get_state() must return COMPLETION_COMPLETE even without a passing grade.
      */
     public function test_complete_after_attempts_exhausted(): void {
-        global $DB;
         $this->resetAfterTest(true);
 
         $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
