@@ -48,8 +48,8 @@ The main features of the Nuggets plugin are as follows:
 ## Installation
 
 ### Requirements
-- Moodle 4.0 or later (the plugin has been tested successfully up to Moodle 4.5.1)
-- PHP 7.3 (the plugin has been tested successfully up to PHP 8.3)
+- Moodle 4.0 or later (the plugin has been tested successfully up to Moodle 5.0)
+- PHP 7.4 (the plugin has been tested successfully up to PHP 8.3)
 
 ### Plugin settings
 
@@ -70,7 +70,11 @@ contact `idea.lab@isae-supaero.fr` to get your private keys.
 - `NaaS API institute ID `
 - `NaaS API password `
 
+Save the form, then use **Test connection** to check that Moodle can reach NaaS with the saved values.
+
 Other optional parameters are :
+- Commercial use: hide Nuggets whose access licence for your institute is commercial (`co`) or non-commercial (`nc`). Already-added activities stay in courses.
+- Restricted / unrestricted use: hide Nuggets whose access licence is unrestricted (`uu`) or restricted (`ru`). Already-added activities stay in courses.
 - NaaS CSS : a CSS file to adapt the display of Nuggets from NaaS to your local style.
 - Search filter: a filter limiting the Nuggets that can be integrated.
 
@@ -95,7 +99,7 @@ See [PLUGIN NUGGET: Privacy Notice (en)](https://doc.clickup.com/2594656/p/h/2f5
 
     1. Switch course space to edit mode
     2. Add an activity or resource
-    3. Choose the Nugget resource
+    3. Choose the Nugget activity
     4. Start typing a keyword in the search field
     5. Filter nuggets by clicking on one or more criteria
     6. Access a nugget's metadata by clicking on the ‘ABOUT’ button

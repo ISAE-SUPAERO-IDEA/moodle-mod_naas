@@ -24,29 +24,14 @@
 <template>
   <div class="nugget-view-skeleton" aria-hidden="true">
     <div class="skel-toolbar">
-      <div class="skel-btn" />
-      <div class="skel-select" />
+      <VSkeletonLoader class="skel-btn" type="button" />
+      <VSkeletonLoader class="skel-select" type="button" />
     </div>
-    <div class="skel-iframe" />
+    <VSkeletonLoader class="skel-iframe" type="image" />
   </div>
 </template>
 
 <style scoped>
-@keyframes shimmer {
-  0%   { background-position: -800px 0; }
-  100% { background-position: 800px 0; }
-}
-
-.skel-toolbar,
-.skel-btn,
-.skel-select,
-.skel-iframe {
-  background: linear-gradient(90deg, #e8e8e8 25%, #f5f5f5 50%, #e8e8e8 75%);
-  background-size: 1600px 100%;
-  animation: shimmer 1.4s infinite linear;
-  border-radius: var(--naas-radius, 6px);
-}
-
 .nugget-view-skeleton {
   width: 100%;
 }
@@ -55,15 +40,25 @@
   display: flex;
   gap: 0.5rem;
   margin-bottom: 0.75rem;
-  background: none;
-  animation: none;
 }
 
-.skel-btn    { width: 100px; height: 36px; }
-.skel-select { width: 140px; height: 36px; }
+.skel-btn {
+  width: 100px;
+  height: 36px;
+}
+
+.skel-select {
+  width: 140px;
+  height: 36px;
+}
 
 .skel-iframe {
   width: 100%;
+  height: 600px;
+}
+
+.skel-iframe :deep(.v-skeleton-loader__image),
+.skel-iframe :deep(.v-skeleton-loader__bone) {
   height: 600px;
 }
 </style>

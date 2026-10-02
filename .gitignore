@@ -1,3 +1,10 @@
 .vscode
 /vendor/
 phpstan-results.sarif
+.DS_Store
+.phpunit.result.cache
+/coverage/
+/vue/coverage/
+/vue/*.log
+/naas.tar.gz
+/naas.zip

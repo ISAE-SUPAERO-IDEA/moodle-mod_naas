@@ -67,12 +67,36 @@ console.log(`Bumping to version ${newVersion}…`)
 
 replace(
   VITE_CONFIG,
-  /const BUNDLE_VERSION = '\d{10}'/,
-  `const BUNDLE_VERSION = '${newVersion}'`
+  /const BUNDLE_VERSION = ['"]\d{10}['"]/,
+  `const BUNDLE_VERSION = "${newVersion}"`
 )
 
 replace(
   WIDGET_INIT,
+  /naas_widget-\d{10}\.js/g,
+  `naas_widget-${newVersion}.js`
+)
+
+replace(
+  resolve(ROOT, 'amd/build/widget_init.min.js'),
+  /naas_widget-\d{10}\.js/g,
+  `naas_widget-${newVersion}.js`
+)
+
+replace(
+  resolve(ROOT, 'classes/output/widget.php'),
+  /naas_widget-\d{10}\.js/g,
+  `naas_widget-${newVersion}.js`
+)
+
+replace(
+  resolve(ROOT, 'templates/naas_widget.mustache'),
+  /naas_widget-\d{10}\.js/g,
+  `naas_widget-${newVersion}.js`
+)
+
+replace(
+  resolve(ROOT, 'templates/widget.mustache'),
   /naas_widget-\d{10}\.js/g,
   `naas_widget-${newVersion}.js`
 )

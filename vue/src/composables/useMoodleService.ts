@@ -20,12 +20,13 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-import { inject } from 'vue'
-import { NAAS_API_KEY } from '@/plugins/naas-api.plugin'
-import type { INaasApiService } from '@/service/naas-api.interface'
+import { inject } from "vue";
+import { NAAS_API_KEY } from "@/plugins/naas-api.plugin";
+import type { INaasApiService } from "@/service/naas-api.interface";
 
 export function useMoodleService(): INaasApiService {
-  const service = inject<INaasApiService>(NAAS_API_KEY)
-  if (!service) throw new Error('naasApi not provided — ensure naasApiPlugin is installed')
-  return service
+  const service = inject<INaasApiService>(NAAS_API_KEY);
+  if (!service)
+    throw new Error("naasApi not provided — ensure naasApiPlugin is installed");
+  return service;
 }

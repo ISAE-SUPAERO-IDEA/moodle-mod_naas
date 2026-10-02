@@ -24,16 +24,16 @@
  */
 -->
 <template>
-  <div>
+  <VApp class="naas-widget">
     <NuggetView v-if="config.component === 'NuggetView'" />
     <NuggetSearchWidget v-else />
-  </div>
+  </VApp>
 </template>
 
 <script setup lang="ts">
-import NuggetView from '@/components/NuggetView.vue'
-import NuggetSearchWidget from '@/components/NuggetSearchWidget.vue'
-import { useNaasConfig } from '@/composables/useNaasConfig'
+import NuggetView from "@/components/NuggetView.vue";
+import NuggetSearchWidget from "@/components/NuggetSearchWidget.vue";
+import { useNaasConfig } from "@/composables/useNaasConfig";
 
-const config = useNaasConfig()
+const config = useNaasConfig();
 </script>

@@ -21,8 +21,8 @@
  */
 
 export interface Person {
-  email: string
-  firstname: string
-  lastname: string
-  bio?: string
+  email: string;
+  firstname: string;
+  lastname: string;
+  bio?: string;
 }

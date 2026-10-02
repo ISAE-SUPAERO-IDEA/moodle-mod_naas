@@ -1,0 +1,74 @@
+/**
+ * Widget-scoped tokens and VApp overrides.
+ *
+ * Vuetify's global CSS reset is disabled via $reset: false in settings.scss
+ * so Moodle's Bootstrap form outside this widget is not restyled. VApp still
+ * provides theme CSS variables inside .naas-widget. Dialogs teleport to body
+ * and keep their own Vuetify overlay styles.
+ */
+
+.v-application.naas-widget {
+  min-height: 0;
+  height: auto;
+  background: transparent;
+  display: block;
+  font-family: inherit;
+  color: inherit;
+}
+
+.naas-widget .v-application__wrap {
+  min-height: 0;
+  display: block;
+}
+
+.naas-widget .v-btn {
+  text-transform: none;
+  letter-spacing: 0.01em;
+  font-weight: 600;
+}
+
+.naas-widget {
+  --naas-primary: #0f6cbf;
+  --naas-primary-hover: #0a58ca;
+  --naas-primary-dark: #0a4a8f;
+  --naas-primary-light: #dce9fa;
+  --naas-surface: #fff;
+  --naas-surface-muted: #f8f9fa;
+  --naas-surface-hover: #f0f4ff;
+  --naas-border: #dee2e6;
+  --naas-border-light: #e9ecef;
+  --naas-text: #1f2937;
+  --naas-text-muted: #6c757d;
+  --naas-text-subtle: #adb5bd;
+  --naas-radius: 8px;
+  --naas-radius-pill: 999px;
+  --naas-radius-xl: 16px;
+  --naas-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --naas-shadow-md: 0 6px 20px rgba(0, 0, 0, 0.14);
+  --naas-shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.18);
+  --naas-transition: 0.18s ease;
+}
+
+/* Moodle form fields live outside the Vue root. */
+.mform[data-naas-details="hidden"] #id_generalcontainer > .fitem,
+.mform[data-naas-details="hidden"] #fitem_id_name,
+.mform[data-naas-details="hidden"] #fitem_id_introeditor,
+.mform[data-naas-details="hidden"] #fitem_id_intro,
+.mform[data-naas-details="hidden"] #fitem_id_showdescription,
+.mform[data-naas-details="hidden"] #fitem_id_cgu_agreement,
+.fitem.naas-cgu-field {
+  display: none !important;
+}
+
+.mform .naas-cgu-anchor #fitem_id_cgu_agreement.naas-cgu-field {
+  display: block !important;
+}
+
+#naas_widget,
+.naas-widget-host {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}

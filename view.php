@@ -22,7 +22,9 @@
  * @package mod_naas
  */
 
-require_once('../../config.php');
+require_once(__DIR__ . '/../../config.php');
+
+global $COURSE, $DB, $OUTPUT, $PAGE;
 
 $id        = optional_param('id', 0, PARAM_INT);        // Course module ID.
 $u         = optional_param('u', 0, PARAM_INT);         // NaaS instance id.

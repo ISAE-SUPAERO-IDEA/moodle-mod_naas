@@ -21,9 +21,9 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-let counter = 0
+let counter = 0;
 
 export function useComponentId() {
-  const uid = ++counter
-  return (suffix: string) => `naas-${uid}-${suffix}`
+  const uid = ++counter;
+  return (suffix: string) => `naas-${uid}-${suffix}`;
 }

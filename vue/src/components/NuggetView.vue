@@ -28,37 +28,38 @@
     <div v-if="error" class="naas-error-banner" role="alert">
       <span>{{ config.labels.error_generic_user_message }}</span>
       <button class="btn btn-sm btn-outline-danger" @click="load">
-        {{ config.labels.retry || 'Retry' }}
+        {{ config.labels.retry || "Retry" }}
       </button>
     </div>
 
     <div id="nugget-info-button">
-      <a
-        v-if="aboutButton"
-        href="javascript:;"
-        class="btn btn-primary"
-        @click="showAbout = true"
-      >
-        {{ config.labels.about }}
-      </a>
-
-      <select
-        v-if="nugget"
-        class="language-select"
-        :value="language"
-        @change="onLanguageChange"
-      >
-        <option :value="nugget.language">
-          {{ config.labels.metadata[nugget.language] }}
-        </option>
-        <option
-          v-for="item in nugget.multilanguages"
-          :key="item.language"
-          :value="item.language"
+      <div>
+        <a
+          v-if="aboutButton"
+          href="javascript:;"
+          class="btn btn-primary"
+          @click="showAbout = true"
         >
-          {{ config.labels.metadata[item.language] }}
-        </option>
-      </select>
+          {{ config.labels.about }}
+        </a>
+        <select
+          v-if="nugget"
+          class="language-select"
+          :value="language"
+          @change="language = ($event.target as HTMLSelectElement).value"
+        >
+          <option :value="nugget.language">
+            {{ config.labels.metadata[nugget.language] }}
+          </option>
+          <option
+            v-for="item in nugget.multilanguages"
+            :key="item.language"
+            :value="item.language"
+          >
+            {{ config.labels.metadata[item.language] }}
+          </option>
+        </select>
+      </div>
 
       <NuggetAboutModal
         v-if="nugget"
@@ -108,92 +109,100 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, nextTick } from 'vue'
+import { ref, computed, watch, nextTick } from "vue";
 // @ts-expect-error iframe-resizer ships no type declarations
-import iframeResizeLib from 'iframe-resizer/js/iframeResizer'
-const iframeResize = iframeResizeLib as (opts: Record<string, unknown>, selector: string) => void
+import iframeResizeLib from "iframe-resizer/js/iframeResizer";
+const iframeResize = iframeResizeLib as (
+  opts: Record<string, unknown>,
+  selector: string
+) => void;
 
-import NuggetAboutModal from './NuggetAboutModal.vue'
-import NuggetCompletionModal from './NuggetCompletionModal.vue'
-import NuggetViewSkeleton from './NuggetViewSkeleton.vue'
-import { useNaasConfig } from '@/composables/useNaasConfig'
-import { useNuggetView } from '@/composables/useNuggetView'
-import { useXapi } from '@/composables/useXapi'
+import NuggetAboutModal from "./NuggetAboutModal.vue";
+import NuggetCompletionModal from "./NuggetCompletionModal.vue";
+import NuggetViewSkeleton from "./NuggetViewSkeleton.vue";
+import { useNaasConfig } from "@/composables/useNaasConfig";
+import { useNuggetView } from "@/composables/useNuggetView";
+import { useXapi } from "@/composables/useXapi";
 
-const config = useNaasConfig()
-const { nugget, loading, error, load } = useNuggetView()
-const { postStatement } = useXapi()
+const config = useNaasConfig();
+const { nugget, loading, error, load } = useNuggetView();
+const { postStatement } = useXapi();
 
-const language = ref<string | null>(null)
-const showAbout = ref(false)
-const showCompletion = ref(false)
+const language = ref<string | null>(null);
+const showAbout = ref(false);
+const showCompletion = ref(false);
 
 // The Moodle ≥ 4.0 secondary-nav has its own About link; hide our button in that case.
-const aboutButton = !document.querySelector('.secondary-navigation nav ul li[data-key=about]')
+const aboutButton = !document.querySelector(
+  ".secondary-navigation nav ul li[data-key=about]"
+);
 
 // Available synchronously — lets the browser open the TCP connection before the nugget API resolves.
-const preloadUrl = `launch.php?id=${config.cm_id}&triggerview=0`
+const preloadUrl = `launch.php?id=${config.cm_id}&triggerview=0`;
 
 const iframeUrl = computed(() => {
-  if (!language.value) return null
-  return `launch.php?id=${config.cm_id}&triggerview=0&language=${language.value}`
-})
+  if (!language.value) return null;
+  return `launch.php?id=${config.cm_id}&triggerview=0&language=${language.value}`;
+});
 
-let experiencedTimer: ReturnType<typeof setTimeout> | null = null
-let visibilityObserver: IntersectionObserver | null = null
+let experiencedTimer: ReturnType<typeof setTimeout> | null = null;
+let visibilityObserver: IntersectionObserver | null = null;
 
 // React to the nugget loading: set language, init iframe-resizer, schedule xAPI.
 watch(nugget, (loaded) => {
-  if (!loaded) return
-  language.value = loaded.language
+  if (!loaded) return;
+  language.value = loaded.language;
 
   // Wait for the iframe to be in the DOM before attaching iframe-resizer.
   nextTick(() => {
     setTimeout(() => {
       iframeResize(
-        { log: false, checkOrigin: false, heightCalculationMethod: 'lowestElement' },
-        '#lti-frame'
-      )
+        {
+          log: false,
+          checkOrigin: false,
+          heightCalculationMethod: "lowestElement",
+        },
+        "#lti-frame"
+      );
 
       // Delay "experienced" by 30 s of confirmed iframe visibility so accidental
       // landings do not pollute xAPI records.
-      const iframe = document.getElementById('lti-frame')
-      if (!iframe) return
+      const iframe = document.getElementById("lti-frame");
+      if (!iframe) return;
 
-      visibilityObserver = new IntersectionObserver((entries) => {
-        const visible = entries[0]?.isIntersecting ?? false
-        if (visible && !experiencedTimer) {
-          experiencedTimer = setTimeout(() => {
-            postStatement({
-              id: config.cm_id,
-              verb: 'experienced',
-              version_id: loaded.version_id,
-            })
-            visibilityObserver?.disconnect()
-          }, 10000)
-        } else if (!visible && experiencedTimer) {
-          clearTimeout(experiencedTimer)
-          experiencedTimer = null
-        }
-      }, { threshold: 0.5 })
+      visibilityObserver = new IntersectionObserver(
+        (entries) => {
+          const visible = entries[0]?.isIntersecting ?? false;
+          if (visible && !experiencedTimer) {
+            experiencedTimer = setTimeout(() => {
+              postStatement({
+                id: config.cm_id,
+                verb: "experienced",
+                version_id: loaded.version_id,
+              });
+              visibilityObserver?.disconnect();
+            }, 10000);
+          } else if (!visible && experiencedTimer) {
+            clearTimeout(experiencedTimer);
+            experiencedTimer = null;
+          }
+        },
+        { threshold: 0.5 }
+      );
 
-      visibilityObserver.observe(iframe)
-    }, 500)
-  })
-})
-
-function onLanguageChange(event: Event) {
-  language.value = (event.target as HTMLSelectElement).value
-}
+      visibilityObserver.observe(iframe);
+    }, 500);
+  });
+});
 
 function complete() {
-  if (!nugget.value) return
-  showCompletion.value = true
+  if (!nugget.value) return;
+  showCompletion.value = true;
   postStatement({
     id: config.cm_id,
-    verb: 'completed',
+    verb: "completed",
     version_id: nugget.value.version_id,
-  })
+  });
 }
 </script>
 
@@ -224,7 +233,7 @@ function complete() {
   font-size: 0.875rem;
   color: var(--naas-text, #1f2937);
   transition: border-color var(--naas-transition, 0.18s ease),
-              box-shadow   var(--naas-transition, 0.18s ease);
+    box-shadow var(--naas-transition, 0.18s ease);
   outline: none;
 }
 
@@ -263,14 +272,14 @@ function complete() {
   font-weight: 700;
   border-radius: var(--naas-radius-pill, 999px);
   letter-spacing: 0.02em;
-  box-shadow: var(--naas-shadow-sm, 0 2px 8px rgba(0,0,0,.10));
+  box-shadow: var(--naas-shadow-sm, 0 2px 8px rgba(0, 0, 0, 0.1));
   transition: background var(--naas-transition, 0.18s ease),
-              box-shadow var(--naas-transition, 0.18s ease),
-              transform  var(--naas-transition, 0.18s ease);
+    box-shadow var(--naas-transition, 0.18s ease),
+    transform var(--naas-transition, 0.18s ease);
 }
 
 #completion-modal-button button:hover {
   transform: translateY(-1px);
-  box-shadow: var(--naas-shadow-md, 0 6px 20px rgba(0,0,0,.14));
+  box-shadow: var(--naas-shadow-md, 0 6px 20px rgba(0, 0, 0, 0.14));
 }
 </style>

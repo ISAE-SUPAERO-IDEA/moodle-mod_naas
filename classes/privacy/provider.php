@@ -205,7 +205,7 @@ class provider implements
             return;
         }
 
-        $sql = "SELECT naas_session.user_id
+        $sql = "SELECT naas_session.user_id AS userid
             FROM {naas_activity_outcome} naas_session
             JOIN {modules} m ON m.name = 'naas'
             JOIN {course_modules} cm ON cm.id = naas_session.activity_id AND cm.module = m.id

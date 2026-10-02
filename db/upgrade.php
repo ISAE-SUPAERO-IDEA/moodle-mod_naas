@@ -138,5 +138,14 @@ function xmldb_naas_upgrade($oldversion) {
         $dbman->add_field($table, $grademethod);
     }
 
+    if ($oldversion < 2026091700) {
+        // The first cache build used a 40-search nightly cap. Refresh the whole
+        // keyspace so every landing section stays warm.
+        if ((string) get_config('naas', 'naas_refresh_limit') === '40') {
+            set_config('naas_refresh_limit', \mod_naas\task\refresh_catalogue::DEFAULT_LIMIT, 'naas');
+        }
+        upgrade_mod_savepoint(true, 2026091700, 'naas');
+    }
+
     return true;
 }

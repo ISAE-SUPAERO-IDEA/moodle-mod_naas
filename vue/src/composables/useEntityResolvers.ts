@@ -21,40 +21,127 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-import { useMoodleService } from './useMoodleService'
-import { useNaasConfig } from './useNaasConfig'
+import { unwrapNaasPayload } from "@/service/unwrapNaasPayload";
+import { useMoodleService } from "./useMoodleService";
+import { useNaasConfig } from "./useNaasConfig";
+import {
+  normalizePersonKey,
+  structureVisuals,
+  type StructureVisuals,
+} from "./structureVisuals";
+import { matchCachedProducer } from "./catalogueSnapshot";
+
+function stringField(
+  entity: Record<string, unknown> | null | undefined,
+  keys: string[]
+): string {
+  if (!entity) return "";
+  for (const key of keys) {
+    const value = entity[key];
+    if (typeof value === "string" && value.trim()) {
+      return value.trim();
+    }
+  }
+  return "";
+}
 
 export function useEntityResolvers() {
-  const service = useMoodleService()
-  const config = useNaasConfig()
+  const service = useMoodleService();
+  const config = useNaasConfig();
 
   async function getDomainLabel(key: string): Promise<string> {
     try {
-      const domain = await service.getDomain(key, config.courseId)
-      return domain?.label ?? key
+      const domain = unwrapNaasPayload<Record<string, unknown> | null>(
+        await service.getDomain(key, config.courseId)
+      );
+      const label = stringField(domain, ["label", "name", "title"]);
+      return label || key;
     } catch {
-      return key
+      return key;
     }
   }
 
   async function getStructureAcronym(key: string): Promise<string> {
+    const fromVisuals = (visuals: StructureVisuals) =>
+      visuals.acronym || visuals.name || key;
+    const cached = visualsFromSnapshot(key);
+    if (cached && (cached.acronym || cached.name)) {
+      return fromVisuals(cached);
+    }
     try {
-      const structure = await service.getStructure(key, config.courseId)
-      return structure?.acronym || structure?.name || key
+      const structure = await service.getStructure(key, config.courseId);
+      return fromVisuals(
+        structureVisuals(structure, key, config.naas_endpoint ?? "")
+      );
     } catch {
-      return key
+      return fromVisuals(
+        structureVisuals(null, key, config.naas_endpoint ?? "")
+      );
     }
   }
 
-  async function getPersonName(email: string): Promise<string> {
+  async function getStructureVisuals(key: string): Promise<StructureVisuals> {
+    const cached = visualsFromSnapshot(key);
+    if (cached && (cached.acronym || cached.name)) {
+      return cached;
+    }
     try {
-      const person = await service.getPerson(email, config.courseId)
-      if (!person || (!person.firstname && !person.lastname)) return ''
-      return `${person.firstname} ${person.lastname}`.toUpperCase()
+      const structure = await service.getStructure(key, config.courseId);
+      const visuals = structureVisuals(
+        structure,
+        key,
+        config.naas_endpoint ?? ""
+      );
+      return visuals;
     } catch {
-      return email
+      return structureVisuals(null, key, config.naas_endpoint ?? "");
     }
   }
 
-  return { getDomainLabel, getStructureAcronym, getPersonName }
+  function visualsFromSnapshot(key: string): StructureVisuals | null {
+    const producer = matchCachedProducer(
+      config.catalogue_snapshot?.producers,
+      key
+    );
+    if (!producer) {
+      return null;
+    }
+    return structureVisuals(producer, key, config.naas_endpoint ?? "");
+  }
+
+  async function getPersonName(personKey: string): Promise<string> {
+    const id = normalizePersonKey(personKey);
+    try {
+      const person = unwrapNaasPayload<Record<string, unknown> | null>(
+        await service.getPerson(id, config.courseId)
+      );
+      const properties =
+        person?.properties &&
+        typeof person.properties === "object" &&
+        !Array.isArray(person.properties)
+          ? (person.properties as Record<string, unknown>)
+          : null;
+      const first =
+        stringField(person, ["firstname", "first_name", "firstName"]) ||
+        stringField(properties, ["person:firstname", "firstname"]);
+      const last =
+        stringField(person, ["lastname", "last_name", "lastName"]) ||
+        stringField(properties, ["person:lastname", "lastname"]);
+      const full = `${first} ${last}`.trim();
+      const name =
+        stringField(person, ["name", "fullname", "full_name"]) ||
+        stringField(properties, ["dc:title", "name"]);
+      const resolved = full || name;
+      return resolved ? resolved.toUpperCase() : "";
+    } catch {
+      return "";
+    }
+  }
+
+  return {
+    getDomainLabel,
+    getStructureAcronym,
+    getStructureVisuals,
+    getPersonName,
+  };
 }

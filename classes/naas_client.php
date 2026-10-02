@@ -41,12 +41,32 @@ class naas_client {
     protected $debug;
 
     /**
+     * Optional factory that returns a curl-like client. Tests inject this so requests stay offline.
+     * @var callable|null
+     */
+    private $curlfactory;
+
+    /**
      * Initialize the NaaS client
      * @param object $config
+     * @param callable|null $curlfactory Returns an object with the curl methods this client uses
      */
-    public function __construct($config) {
+    public function __construct($config, ?callable $curlfactory = null) {
         $this->config = $config;
         $this->debug = property_exists($config, "naas_debug") ? $this->config->naas_debug : false;
+        $this->curlfactory = $curlfactory;
+    }
+
+    /**
+     * Build the HTTP client for one request.
+     *
+     * @return object
+     */
+    private function new_curl() {
+        if ($this->curlfactory !== null) {
+            return ($this->curlfactory)();
+        }
+        return new \curl(['proxy' => true]);
     }
 
     /**
@@ -79,7 +99,7 @@ class naas_client {
         // configured (e.g. local dev environments with self-signed certificates).
         $verifypeer = empty($this->config->naas_ssl_noverify);
 
-        $curl = new \curl(['proxy' => true]);
+        $curl = $this->new_curl();
         $headers = [];
         $options = [
             'CURLOPT_RETURNTRANSFER' => true,
@@ -140,13 +160,17 @@ class naas_client {
         $code = $info['http_code'] ?? 0;
         $errno = $curl->get_errno();
         $error = $curl->error;
-        $responseheaders = $curl->getResponse();
 
         $isnaasapi = false;
-        foreach ($responseheaders as $name => $value) {
-            if (strtolower((string)$name) === 'x-naas-api') {
-                $isnaasapi = true;
-                break;
+        if (is_object($curl) && method_exists($curl, 'getResponse')) {
+            $responseheaders = $curl->getResponse();
+            if (is_array($responseheaders)) {
+                foreach ($responseheaders as $name => $value) {
+                    if (strtolower((string) $name) === 'x-naas-api') {
+                        $isnaasapi = true;
+                        break;
+                    }
+                }
             }
         }
 

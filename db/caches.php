@@ -21,6 +21,14 @@
  * These are stable vocabulary lookups that change rarely; a 24-hour TTL avoids
  * repeated round-trips to the NaaS API on every page load.
  *
+ * catalogue_snapshot is the unfiltered search + producer list warmed when
+ * Test connection succeeds. The search widget paints from it immediately.
+ *
+ * search_results caches one entry per canonical search query so a producer
+ * section or a filtered list paints without a NaaS round-trip. Entries are
+ * revalidated by the widget rather than expired by the clock, so the TTL is
+ * only a backstop; \mod_naas\search_cache bounds the keyspace itself.
+ *
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @copyright (C) 2019  ISAE-SUPAERO (https://www.isae-supaero.fr/)
  * @package mod_naas
@@ -32,6 +40,24 @@ $definitions = [
     'vocabulary_entries' => [
         'mode'       => cache_store::MODE_APPLICATION,
         'ttl'        => 86400, // 24 hours.
+        'simplekeys' => true,
+        'simpledata' => true,
+    ],
+    'catalogue_snapshot' => [
+        'mode'       => cache_store::MODE_APPLICATION,
+        'ttl'        => 2592000, // 30 days; replaced on warm / landing search.
+        'simplekeys' => true,
+        'simpledata' => true,
+    ],
+    'search_results' => [
+        'mode'       => cache_store::MODE_APPLICATION,
+        'ttl'        => 604800, // 7 days; freshness comes from revalidation, not the clock.
+        'simplekeys' => true,
+        'simpledata' => true,
+    ],
+    'nugget_documents' => [
+        'mode'       => cache_store::MODE_APPLICATION,
+        'ttl'        => 604800, // 7 days; revalidated by the widget on every form open.
         'simplekeys' => true,
         'simpledata' => true,
     ],

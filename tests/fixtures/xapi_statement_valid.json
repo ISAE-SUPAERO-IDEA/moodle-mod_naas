@@ -1,0 +1,29 @@
+{
+  "user": {
+    "name": "Jane Doe",
+    "email": "jane.doe@example.com"
+  },
+  "resource_link_id": "dGVzdC1yZXNvdXJjZS1saW5rLWlk",
+  "body": {
+    "result": {
+      "score": {
+        "scaled": 0.9,
+        "raw": 90,
+        "min": 0,
+        "max": 100
+      },
+      "completion": true,
+      "success": true
+    },
+    "context": {
+      "contextActivities": {
+        "category": [
+          {
+            "id": "https://naas.example.com/profiles/naas",
+            "objectType": "Activity"
+          }
+        ]
+      }
+    }
+  }
+}

@@ -14,59 +14,130 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * JavaScript module to test connection to NAAS API.
+ * Test the saved NaaS API configuration from the plugin settings page.
  *
+ * @module     mod_naas/test_connection
  * @copyright  2023 ISAE-SUPAERO (https://www.isae-supaero.fr/)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-define('mod_naas/test_connection', ['jquery', 'core/ajax', 'core/str'], function($, ajax, Str) {
+define('mod_naas/test_connection', ['core/ajax', 'core/str'], function(Ajax, Str) {
 
     /**
-     * Handle a failed response to the test connection.
-     * @param {jQuery} resultDiv - The div element to display results
-     * @param {Error} error - The error object from the failed request
-     * @param {Promise<string>} failedStringPromise - Promise that resolves to the failure message
+     * User-facing text from a Moodle ajax exception. Never returns debuginfo.
+     *
+     * @param {*} error
+     * @return {string}
      */
-    function handleFailedResponse(resultDiv, error, failedStringPromise) {
-
-        /**
-         * Show an error.
-         * @param {string} failedMessage
-         */
-        function showError(failedMessage) {
-            resultDiv
-                .addClass("alert alert-danger")
-                .html(`<p>${failedMessage}</p><p>${error.message}</p>`)
-                .show();
+    function getUserMessage(error) {
+        if (!error) {
+            return '';
         }
+        if (typeof error === 'string') {
+            return error;
+        }
+        if (typeof error.error === 'string' && error.error !== '') {
+            return error.error;
+        }
+        if (typeof error.message === 'string' && error.message !== '') {
+            return error.message;
+        }
+        return '';
+    }
 
-        failedStringPromise
-            .then(showError)
-            .catch(() => showError('Failed!')); // Fallback message
+    /**
+     * Show a status banner in the result region using textContent (no HTML).
+     *
+     * @param {HTMLElement} resultDiv
+     * @param {string} cssClass
+     * @param {string} message
+     */
+    function showResult(resultDiv, cssClass, message) {
+        resultDiv.className = 'connection-result mt-2 ' + cssClass;
+        resultDiv.textContent = message;
+        resultDiv.hidden = false;
+    }
+
+    /**
+     * Show a failure banner. Falls back if the language string cannot be loaded.
+     *
+     * @param {HTMLElement} resultDiv
+     * @param {*} error
+     * @param {string} stringKey
+     * @return {Promise<null>}
+     */
+    function showFailure(resultDiv, error, stringKey) {
+        const detail = getUserMessage(error);
+        return Str.get_string(stringKey, 'naas')
+            .catch(function() {
+                return '';
+            })
+            .then(function(failedMessage) {
+                showResult(resultDiv, 'alert alert-danger', detail || failedMessage || 'Failed!');
+                return null;
+            });
     }
 
     return {
+        /**
+         * Bind the Test connection button.
+         */
         init: function() {
-            $('#testconnection').on('click', function(e) {
+            const button = document.getElementById('testconnection');
+            const resultDiv = document.getElementById('connection-result');
+            if (!button || !resultDiv || button.dataset.naasBound) {
+                return;
+            }
+            button.dataset.naasBound = '1';
+
+            let inFlight = false;
+
+            button.addEventListener('click', function(e) {
                 e.preventDefault();
-                const resultDiv = $('#connection-result');
-                resultDiv.hide().removeClass();
+                if (inFlight) {
+                    return;
+                }
 
-                // Pre-fetch strings we'll need
-                const successStringPromise = Str.get_string('connection_test_success', 'naas');
-                const failedStringPromise = Str.get_string('connection_test_failed', 'naas');
+                inFlight = true;
+                button.disabled = true;
+                button.setAttribute('aria-busy', 'true');
 
-                ajax.call([{
+                const originalLabel = button.textContent;
+                const testingLabel = button.getAttribute('data-testing-label');
+                if (testingLabel) {
+                    button.textContent = testingLabel;
+                }
+
+                resultDiv.className = 'connection-result mt-2';
+                resultDiv.textContent = '';
+                resultDiv.hidden = true;
+
+                const reset = function() {
+                    inFlight = false;
+                    button.disabled = false;
+                    button.removeAttribute('aria-busy');
+                    button.textContent = originalLabel;
+                };
+
+                Ajax.call([{
                     methodname: 'mod_naas_test_config',
                     args: {},
-                }])[0].done(function() {
-                    successStringPromise.done(function(successString) {
-                        resultDiv.addClass("alert alert-success").text(successString);
-                        resultDiv.show();
+                }])[0]
+                    .then(function() {
+                        return Str.get_string('connection_test_success', 'naas');
+                    })
+                    .then(function(successString) {
+                        showResult(resultDiv, 'alert alert-success', successString);
+                        return null;
+                    })
+                    .catch(function(error) {
+                        return showFailure(resultDiv, error, 'connection_test_failed');
+                    })
+                    .always(reset)
+                    // End on catch so the Moodle 4.1 promise lint accepts the chain.
+                    .catch(function() {
+                        return null;
                     });
-                }).fail(error => handleFailedResponse(resultDiv, error, failedStringPromise));
-             });
+            });
         }
     };
 });

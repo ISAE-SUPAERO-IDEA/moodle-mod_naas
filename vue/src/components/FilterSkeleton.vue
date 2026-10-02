@@ -23,38 +23,13 @@
 -->
 <template>
   <div class="filter-skeleton" aria-hidden="true">
-    <div class="skel-group">
-      <div class="skel-line skel-heading" />
-      <div class="skel-line skel-badge" />
-      <div class="skel-line skel-badge skel-badge--short" />
-    </div>
+    <VSkeletonLoader type="text, button, button" />
   </div>
 </template>
 
 <style scoped>
-@keyframes shimmer {
-  0%   { background-position: -400px 0; }
-  100% { background-position: 400px 0; }
-}
-
-.skel-line {
-  background: linear-gradient(90deg, #e8e8e8 25%, #f5f5f5 50%, #e8e8e8 75%);
-  background-size: 800px 100%;
-  animation: shimmer 1.4s infinite linear;
-  border-radius: 4px;
-  margin-bottom: 6px;
-}
-
 .filter-skeleton {
   padding: 10px;
   width: 100%;
 }
-
-.skel-group {
-  margin-bottom: 16px;
-}
-
-.skel-heading       { height: 14px; width: 80%; margin-bottom: 10px; }
-.skel-badge         { height: 20px; width: 90%; border-radius: 50px; }
-.skel-badge--short  { width: 60%; }
 </style>

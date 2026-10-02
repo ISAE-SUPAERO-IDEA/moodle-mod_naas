@@ -22,89 +22,69 @@
  */
 -->
 <template>
-  <ul class="related-domains-list">
-    <li class="related-domains-list-element">
+  <VList class="related-domains-list" density="compact" nav>
+    <VListItem class="related-domains-list-element">
       <NuggetBadge
         :selected="bucket.selected"
         :text="bucket.caption"
         :text-length-max="20"
         @click="emit('bucket-click', bucket.query_value ?? '')"
       />
-      <span
-        v-if="hasChildren"
-        :class="['tree-view-caret', { 'tree-view-caret-down': showChildren }]"
-        @click="showChildren = !showChildren"
-      />
-    </li>
+      <template v-if="hasChildren" #append>
+        <VBtn
+          :icon="showChildren ? 'mdi-chevron-down' : 'mdi-chevron-right'"
+          variant="text"
+          size="x-small"
+          @click.stop="showChildren = !showChildren"
+        />
+      </template>
+    </VListItem>
 
-    <li
-      v-show="showChildren"
-      class="related-domains-list-element related-domains-child"
-    >
-      <ul
-        v-for="child in bucket.children"
-        :key="child.key"
-        class="related-domains-list"
-        style="margin: 0 0 0 20px"
-      >
-        <li class="related-domains-list-element">
-          <RelatedDomain
-            :bucket="child"
-            @bucket-click="emit('bucket-click', $event)"
-          />
-        </li>
-      </ul>
-    </li>
-  </ul>
+    <VExpandTransition>
+      <div v-show="showChildren && hasChildren">
+        <RelatedDomain
+          v-for="child in bucket.children"
+          :key="child.key"
+          class="related-domains-child"
+          :bucket="child"
+          @bucket-click="emit('bucket-click', $event)"
+        />
+      </div>
+    </VExpandTransition>
+  </VList>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import NuggetBadge from './NuggetBadge.vue'
-import type { AggregationBucket } from '@/types/nugget.types'
+import { ref, computed } from "vue";
+import NuggetBadge from "./NuggetBadge.vue";
+import type { AggregationBucket } from "@/types/nugget.types";
 
-const props = defineProps<{ bucket: AggregationBucket }>()
-const emit = defineEmits<{ (e: 'bucket-click', key: string): void }>()
+const props = defineProps<{ bucket: AggregationBucket }>();
+const emit = defineEmits<{ (e: "bucket-click", key: string): void }>();
 
-const hasChildren = computed(() =>
-  !!props.bucket.children && Object.keys(props.bucket.children).length > 0
-)
+const hasChildren = computed(
+  () => !!props.bucket.children && Object.keys(props.bucket.children).length > 0
+);
 
-// Start expanded if any child is already selected.
-function anyChildSelected(children?: Record<string, AggregationBucket>): boolean {
-  if (!children) return false
+function anyChildSelected(
+  children?: Record<string, AggregationBucket>
+): boolean {
+  if (!children) return false;
   return Object.values(children).some(
     (c) => c.selected || anyChildSelected(c.children)
-  )
+  );
 }
 
-const showChildren = ref(anyChildSelected(props.bucket.children))
+const showChildren = ref(anyChildSelected(props.bucket.children));
 </script>
 
 <style scoped>
 .related-domains-list {
-  margin: 0;
   padding: 0;
+  background: transparent;
 }
 
-.related-domains-list-element {
-  list-style-type: none;
-}
-
-.tree-view-caret {
-  cursor: pointer;
-  user-select: none;
-}
-
-.tree-view-caret::after {
-  content: "\25BC";
-  color: black;
-  display: inline-block;
-  margin-right: 6px;
-  transform: rotate(-90deg);
-}
-
-.tree-view-caret-down::after {
-  transform: rotate(0deg);
+.related-domains-child {
+  margin-left: 1.25rem;
 }
 </style>

@@ -25,29 +25,25 @@
 defined('MOODLE_INTERNAL') || die();
 
 if ($hassiteconfig) {
-    // Test connection button.
-    $PAGE->requires->js_call_amd('mod_naas/test_connection', 'init');
-    $link = html_writer::tag(
-        'p',
-        html_writer::link('#', get_string('test_connection', 'naas'), ['class' => 'btn btn-secondary', 'id' => 'testconnection'])
-    );
-    $resultspan = html_writer::div(
-        '',
-        'connection-result',
-        ['id' => 'connection-result']
-    );
-    $settings->add(
-        new admin_setting_heading(
-            'test_connection',
-            get_string('test_connection', 'naas'),
-            get_string('test_connection_information', 'naas') . $link . $resultspan
-        )
-    );
+    // Queued only while this page is rendering. The admin tree includes this
+    // file for other screens too, and those must not load the help script.
+    if (isset($PAGE) && $PAGE->pagetype === 'admin-setting-modsettingnaas') {
+        $PAGE->requires->js_call_amd('mod_naas/admin_settings', 'init', [
+            get_string('admin_setting_help', 'naas'),
+        ]);
+    }
 
-    // NaaS settings.
+    // About.
     $settings->add(new admin_setting_heading(
-        'naas',
-        get_string('naas_settings', 'naas'),
+        'naas/heading_about',
+        get_string('naas_settings_about', 'naas'),
+        get_string('naas_settings_about_information', 'naas')
+    ));
+
+    // Connection.
+    $settings->add(new admin_setting_heading(
+        'naas/heading_connection',
+        get_string('naas_settings_connection', 'naas'),
         get_string('naas_settings_information', 'naas')
     ));
 
@@ -67,6 +63,14 @@ if ($hassiteconfig) {
         PARAM_TEXT
     ));
 
+    $settings->add(new admin_setting_configpasswordunmask(
+        'naas/naas_password',
+        get_string('naas_settings_password', 'naas'),
+        get_string('naas_settings_password_help', 'naas'),
+        '',
+        PARAM_TEXT
+    ));
+
     $settings->add(new admin_setting_configtext(
         'naas/naas_structure_id',
         get_string('naas_settings_structure_id', 'naas'),
@@ -75,12 +79,135 @@ if ($hassiteconfig) {
         PARAM_TEXT
     ));
 
-    $settings->add(new admin_setting_configpasswordunmask(
-        'naas/naas_password',
-        get_string('naas_settings_password', 'naas'),
-        get_string('naas_settings_password_help', 'naas'),
-        'h6teLq3cQangBLFE6qw8',
+    $settings->add(new \mod_naas\admin\test_connection_setting(
+        'naas/test_connection_ui',
+        get_string('test_connection', 'naas'),
+        get_string('test_connection_information', 'naas')
+    ));
+
+    // Cache.
+    $settings->add(new admin_setting_heading(
+        'naas/heading_cache',
+        get_string('naas_settings_cache', 'naas'),
+        get_string('naas_settings_cache_information', 'naas')
+    ));
+    $settings->add(new \mod_naas\admin\refresh_cache_setting(
+        'naas/refresh_cache_ui',
+        get_string('cache_refresh', 'naas'),
+        get_string('cache_refresh_information', 'naas')
+    ));
+
+    // Privacy.
+    $settings->add(new admin_setting_heading(
+        'naas/heading_privacy',
+        get_string('naas_settings_privacy', 'naas'),
+        get_string('naas_settings_privacy_information', 'naas')
+    ));
+
+    $settings->add(new admin_setting_configcheckbox(
+        'naas/naas_privacy_learner_mail',
+        get_string('naas_settings_privacy_learner_mail', 'naas'),
+        get_string('naas_settings_privacy_learner_mail_help', 'naas'),
+        1
+    ));
+
+    $settings->add(new admin_setting_configcheckbox(
+        'naas/naas_privacy_learner_name',
+        get_string('naas_settings_privacy_learner_name', 'naas'),
+        get_string('naas_settings_privacy_learner_name_help', 'naas'),
+        1
+    ));
+
+    // Learner experience.
+    $settings->add(new admin_setting_heading(
+        'naas/heading_learner',
+        get_string('naas_settings_learner', 'naas'),
+        get_string('naas_settings_learner_information', 'naas')
+    ));
+
+    $settings->add(new admin_setting_configcheckbox(
+        'naas/naas_feedback',
+        get_string('naas_settings_feedback', 'naas'),
+        get_string('naas_settings_feedback_help', 'naas'),
+        1
+    ));
+
+    $settings->add(new admin_setting_configcheckbox(
+        'naas/naas_nugbot',
+        get_string('naas_settings_nugbot', 'naas'),
+        get_string('naas_settings_nugbot_help', 'naas'),
+        0
+    ));
+
+    // Catalogue.
+    $settings->add(new admin_setting_heading(
+        'naas/heading_catalogue',
+        get_string('naas_settings_catalogue', 'naas'),
+        get_string('naas_settings_catalogue_information', 'naas')
+    ));
+
+    $settings->add(new admin_setting_configselect(
+        'naas/naas_license_filter',
+        get_string('naas_settings_license_filter', 'naas'),
+        get_string('naas_settings_license_filter_help', 'naas'),
+        \mod_naas\catalogue_filters::LICENSE_ALL,
+        [
+            \mod_naas\catalogue_filters::LICENSE_ALL =>
+                get_string('naas_settings_license_filter_all', 'naas'),
+            \mod_naas\catalogue_filters::LICENSE_COMMERCIAL =>
+                get_string('naas_settings_license_filter_commercial', 'naas'),
+            \mod_naas\catalogue_filters::LICENSE_NONCOMMERCIAL =>
+                get_string('naas_settings_license_filter_noncommercial', 'naas'),
+        ]
+    ));
+
+    $settings->add(new admin_setting_configselect(
+        'naas/naas_access_filter',
+        get_string('naas_settings_access_filter', 'naas'),
+        get_string('naas_settings_access_filter_help', 'naas'),
+        \mod_naas\catalogue_filters::ACCESS_ALL,
+        [
+            \mod_naas\catalogue_filters::ACCESS_ALL =>
+                get_string('naas_settings_access_filter_all', 'naas'),
+            \mod_naas\catalogue_filters::ACCESS_UNRESTRICTED =>
+                get_string('naas_settings_access_filter_unrestricted', 'naas'),
+            \mod_naas\catalogue_filters::ACCESS_RESTRICTED =>
+                get_string('naas_settings_access_filter_restricted', 'naas'),
+        ]
+    ));
+
+    $settings->add(new admin_setting_configtextarea(
+        'naas/naas_filter',
+        get_string('naas_settings_filter', 'naas'),
+        get_string('naas_settings_filter_help', 'naas'),
+        '',
         PARAM_TEXT
+    ));
+
+    // Appearance.
+    $settings->add(new admin_setting_heading(
+        'naas/heading_appearance',
+        get_string('naas_settings_appearance', 'naas'),
+        get_string('naas_settings_appearance_information', 'naas')
+    ));
+
+    $settings->add(new admin_setting_configtextarea(
+        'naas/naas_css',
+        get_string('naas_settings_css', 'naas'),
+        get_string('naas_settings_css_help', 'naas'),
+        '',
+        PARAM_TEXT
+    ));
+
+    // Advanced.
+    $advancedinfo = get_string('naas_settings_advanced_information', 'naas');
+    if (!empty(get_config('naas', 'naas_ssl_noverify'))) {
+        $advancedinfo .= "\n\n" . get_string('naas_settings_ssl_noverify_active', 'naas');
+    }
+    $settings->add(new admin_setting_heading(
+        'naas/heading_advanced',
+        get_string('naas_settings_advanced', 'naas'),
+        $advancedinfo
     ));
 
     $settings->add(new admin_setting_configtext(
@@ -98,46 +225,11 @@ if ($hassiteconfig) {
         0
     ));
 
-    $settings->add(new admin_setting_configtextarea(
-        'naas/naas_css',
-        get_string('naas_settings_css', 'naas'),
-        get_string('naas_settings_css_help', 'naas'),
-        '',
-        PARAM_TEXT
-    ));
-
-    $settings->add(new admin_setting_configtextarea(
-        'naas/naas_filter',
-        get_string('naas_settings_filter', 'naas'),
-        get_string('naas_settings_filter_help', 'naas'),
-        '',
-        PARAM_TEXT
-    ));
-
-    $settings->add(new admin_setting_configcheckbox(
-        'naas/naas_feedback',
-        get_string('naas_settings_feedback', 'naas'),
-        get_string('naas_settings_feedback_help', 'naas'),
-        1
-    ));
-
-    $settings->add(new admin_setting_heading(
-        'naas/privacy',
-        get_string('naas_settings_privacy', 'naas'),
-        get_string('naas_settings_privacy_information', 'naas')
-    ));
-
-    $settings->add(new admin_setting_configcheckbox(
-        'naas/naas_privacy_learner_mail',
-        get_string('naas_settings_privacy_learner_mail', 'naas'),
-        get_string('naas_settings_privacy_learner_mail_help', 'naas'),
-        1
-    ));
-
-    $settings->add(new admin_setting_configcheckbox(
-        'naas/naas_privacy_learner_name',
-        get_string('naas_settings_privacy_learner_name', 'naas'),
-        get_string('naas_settings_privacy_learner_name_help', 'naas'),
-        1
+    $settings->add(new admin_setting_configtext(
+        'naas/naas_refresh_limit',
+        get_string('naas_refresh_limit', 'naas'),
+        get_string('naas_refresh_limit_desc', 'naas', \mod_naas\search_cache::MAX_ENTRIES),
+        \mod_naas\task\refresh_catalogue::DEFAULT_LIMIT,
+        PARAM_INT
     ));
 }

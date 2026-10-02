@@ -1,0 +1,9 @@
+// Disable Vuetify's global CSS reset (and utility/color packs) so Moodle
+// Bootstrap outside the widget is not restyled. Component styles still apply
+// inside VApp. $color-pack: false keeps the IIFE CSS from shipping every
+// Material colour token.
+@use "vuetify/settings" with (
+  $reset: false,
+  $utilities: false,
+  $color-pack: false
+);

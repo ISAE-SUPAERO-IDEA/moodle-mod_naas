@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  PHPUnit configuration for mod_naas.
+
+  Host PHP is not required. From moodle-docker (see run-phpunit-docker.sh):
+    ./run-phpunit-docker.sh
+    ./run-phpunit-docker.sh filter root_scripts_test
+
+  Or manually:
+    cd /path/to/moodle-docker
+    ./bin/moodle-docker-compose exec -T webserver bash -lc \
+      'cd /var/www/html && php -d pcov.enabled=1 -d pcov.directory=/var/www/html \
+       vendor/bin/phpunit -c mod/naas/phpunit.xml'
+
+  Coverage (inside the container): mod/naas/coverage/html/index.html
+  Requires PCOV or Xdebug coverage in the webserver image.
+-->
+<phpunit
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="../../lib/phpunit/phpunit.xsd"
+    bootstrap="../../lib/phpunit/bootstrap.php"
+    colors="true"
+    stopOnError="false"
+    stopOnFailure="false"
+    stopOnIncomplete="false"
+    stopOnSkipped="false"
+    verbose="true">
+
+  <!-- ===================================================================
+       Test suites
+  ==================================================================== -->
+  <testsuites>
+    <testsuite name="mod_naas">
+      <!-- Root-level test files -->
+      <file>tests/lib_test.php</file>
+      <file>tests/lib_constants_coverage_test.php</file>
+      <file>tests/naas_client_test.php</file>
+      <file>tests/naas_lti_test.php</file>
+      <file>tests/outcome_test.php</file>
+      <file>tests/naas_widget_test.php</file>
+      <file>tests/mod_util_test.php</file>
+      <file>tests/root_scripts_test.php</file>
+      <file>tests/launch_php_test.php</file>
+      <file>tests/view_php_test.php</file>
+      <file>tests/version_php_test.php</file>
+      <file>tests/catalogue_cache_test.php</file>
+      <file>tests/catalogue_stamp_test.php</file>
+      <file>tests/search_cache_test.php</file>
+      <file>tests/vocabulary_lookup_test.php</file>
+      <file>tests/naas_payload_test.php</file>
+      <file>tests/nugget_cache_test.php</file>
+      <file>tests/refresh_catalogue_test.php</file>
+      <!-- Sub-directories -->
+      <directory suffix="_test.php">tests/admin</directory>
+      <directory suffix="_test.php">tests/output</directory>
+      <directory suffix="_test.php">tests/completion</directory>
+      <directory suffix="_test.php">tests/privacy</directory>
+      <directory suffix="_test.php">tests/event</directory>
+    </testsuite>
+
+    <!-- Offline-safe subset: excludes tests that need a live NaaS endpoint -->
+    <testsuite name="mod_naas_offline">
+      <file>tests/lib_test.php</file>
+      <file>tests/lib_constants_coverage_test.php</file>
+      <file>tests/naas_client_test.php</file>
+      <file>tests/naas_lti_test.php</file>
+      <file>tests/outcome_test.php</file>
+      <file>tests/naas_widget_test.php</file>
+      <file>tests/mod_util_test.php</file>
+      <file>tests/root_scripts_test.php</file>
+      <file>tests/launch_php_test.php</file>
+      <file>tests/view_php_test.php</file>
+      <file>tests/version_php_test.php</file>
+      <file>tests/catalogue_cache_test.php</file>
+      <file>tests/catalogue_stamp_test.php</file>
+      <file>tests/search_cache_test.php</file>
+      <file>tests/vocabulary_lookup_test.php</file>
+      <file>tests/naas_payload_test.php</file>
+      <file>tests/nugget_cache_test.php</file>
+      <file>tests/refresh_catalogue_test.php</file>
+      <directory suffix="_test.php">tests/admin</directory>
+      <directory suffix="_test.php">tests/output</directory>
+      <directory suffix="_test.php">tests/completion</directory>
+      <directory suffix="_test.php">tests/privacy</directory>
+      <directory suffix="_test.php">tests/event</directory>
+    </testsuite>
+  </testsuites>
+
+  <!-- ===================================================================
+       Code coverage
+       Only enabled when XDEBUG_MODE=coverage or pcov is active.
+  ==================================================================== -->
+  <coverage processUncoveredFiles="false">
+    <include>
+      <!-- Production classes -->
+      <directory suffix=".php">classes</directory>
+      <!-- Root plugin scripts (Moodle entry points / glue not under classes/) -->
+      <file>lib.php</file>
+      <file>index.php</file>
+      <file>view.php</file>
+      <file>launch.php</file>
+      <file>mod_form.php</file>
+      <file>outcome.php</file>
+      <file>settings.php</file>
+      <file>version.php</file>
+    </include>
+    <exclude>
+      <!-- Scratch / draft files not part of the deliverable -->
+      <file>classes/output/renderer2.php</file>
+      <file>classes/output/view_page2.php</file>
+    </exclude>
+    <report>
+      <!-- Open coverage/html/index.html in a browser after the run -->
+      <html outputDirectory="coverage/html"/>
+      <!-- Plain-text summary printed to the terminal -->
+      <text outputFile="coverage/coverage.txt" showUncoveredFiles="false"/>
+      <!-- Machine-readable report for CI (Codecov, SonarQube, etc.) -->
+      <clover outputFile="coverage/clover.xml"/>
+    </report>
+  </coverage>
+
+</phpunit>

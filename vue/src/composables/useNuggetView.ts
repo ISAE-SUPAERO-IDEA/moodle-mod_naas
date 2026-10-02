@@ -21,42 +21,42 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-import { ref, onMounted } from 'vue'
-import { useMoodleService } from './useMoodleService'
-import { useNaasConfig } from './useNaasConfig'
-import { useNuggetEnricher } from './useNuggetEnricher'
-import type { Nugget } from '@/types/nugget.types'
+import { ref, onMounted } from "vue";
+import { useMoodleService } from "./useMoodleService";
+import { useNaasConfig } from "./useNaasConfig";
+import { useNuggetEnricher } from "./useNuggetEnricher";
+import type { Nugget } from "@/types/nugget.types";
 
 export function useNuggetView() {
-  const service = useMoodleService()
-  const config = useNaasConfig()
-  const { enrich } = useNuggetEnricher()
+  const service = useMoodleService();
+  const config = useNaasConfig();
+  const { enrich } = useNuggetEnricher();
 
-  const nugget = ref<Nugget | null>(null)
-  const loading = ref(true)
-  const error = ref<string | null>(null)
+  const nugget = ref<Nugget | null>(null);
+  const loading = ref(true);
+  const error = ref<string | null>(null);
 
   async function load() {
-    console.log('[NaaS] useNuggetView.load() called, cm_id=', config.cm_id)
+    console.log("[NaaS] useNuggetView.load() called, cm_id=", config.cm_id);
     try {
-      loading.value = true
-      error.value = null
-      const raw = await service.viewNugget(config.cm_id)
-      console.log('[NaaS] viewNugget response:', raw)
-      nugget.value = await enrich(raw)
+      loading.value = true;
+      error.value = null;
+      const raw = await service.viewNugget(config.cm_id);
+      console.log("[NaaS] viewNugget response:", raw);
+      nugget.value = await enrich(raw);
     } catch (e) {
-      const msg = e instanceof Error ? e.message : String(e)
-      console.error('[NaaS] useNuggetView.load() error:', e)
-      error.value = msg
+      const msg = e instanceof Error ? e.message : String(e);
+      console.error("[NaaS] useNuggetView.load() error:", e);
+      error.value = msg;
     } finally {
-      loading.value = false
+      loading.value = false;
     }
   }
 
   onMounted(() => {
-    console.log('[NaaS] NuggetView onMounted — starting load')
-    load()
-  })
+    console.log("[NaaS] NuggetView onMounted — starting load");
+    load();
+  });
 
-  return { nugget, loading, error, load }
+  return { nugget, loading, error, load };
 }
