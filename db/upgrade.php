@@ -15,28 +15,24 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * URL module upgrade code
+ * NAAS module upgrade code
  *
- * This file keeps track of upgrades to
- * the resource module
+ * This file keeps track of upgrades to the naas module.
  *
- * Sometimes, changes between versions involve
- * alterations to database structures and other
- * major things that may break installations.
+ * Sometimes, changes between versions involve alterations to database
+ * structures and other major things that may break installations.
  *
- * The upgrade function in this file will attempt
- * to perform all the necessary actions to upgrade
- * your older installation to the current version.
+ * The upgrade function in this file will attempt to perform all the
+ * necessary actions to upgrade your older installation to the current version.
  *
- * If there's something it cannot do itself, it
- * will tell you what you need to do.
+ * The commands in here will all be database-neutral, using the methods of
+ * the database_manager class.
  *
- * The commands in here will all be database-neutral,
- * using the methods of database_manager class
+ * Please do not forget to use upgrade_set_timeout() before any action that
+ * may take longer time to finish.
  *
- * Please do not forget to use upgrade_set_timeout()
- * before any action that may take longer time to finish.
- * @param string $oldversion
+ * @param int $oldversion
+ * @return bool
  *
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @copyright (C) 2019  ISAE-SUPAERO (https://www.isae-supaero.fr/)
@@ -46,29 +42,12 @@ function xmldb_naas_upgrade($oldversion) {
     global $CFG, $DB;
 
     $dbman = $DB->get_manager();
-    // Automatically generated Moodle v3.3.0 release upgrade line.
-    // Put any upgrade step following this.
 
-    // Automatically generated Moodle v3.4.0 release upgrade line.
-    // Put any upgrade step following this.
-
-    // Automatically generated Moodle v3.5.0 release upgrade line.
-    // Put any upgrade step following this.
-
-    // Automatically generated Moodle v3.6.0 release upgrade line.
-    // Put any upgrade step following this.
-
-    // Automatically generated Moodle v3.7.0 release upgrade line.
-    // Put any upgrade step following this.
-    debugging("upgrade", DEBUG_DEVELOPER);
     if ($oldversion < 2023090704) {
-        debugging("cgu", DEBUG_DEVELOPER);
-
         $table = new xmldb_table('naas');
         $field = new xmldb_field('cgu_agreement', XMLDB_TYPE_INTEGER, '1', null, null, null, null, 'nugget_id');
 
         if (!$dbman->field_exists($table, $field)) {
-            debugging("c", DEBUG_DEVELOPER);
             $dbman->add_field($table, $field);
         }
 
@@ -77,60 +56,70 @@ function xmldb_naas_upgrade($oldversion) {
     }
 
     if ($oldversion < 2024061403) {
-        debugging("retour lti", DEBUG_DEVELOPER);
-
         $table = new xmldb_table('naas_activity_outcome');
 
         if (!$dbman->table_exists($table)) {
             $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
-            $table->add_field('user_id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
-            $table->add_field('activity_id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+            $table->add_field('user_id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+            $table->add_field('activity_id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
             $table->add_field('sourced_id', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
-            $table->add_field('date_added', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+            $table->add_field('date_added', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
 
             $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
 
             $dbman->create_table($table);
         }
 
+        // Naas savepoint reached.
         upgrade_mod_savepoint(true, 2024061403, 'naas');
     }
 
-    $table = new xmldb_table('naas');
+    if ($oldversion < 2026102700) {
+        $table = new xmldb_table('naas');
 
-    $completionpass = new xmldb_field('completionpass', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'nugget_id');
-    if (!$dbman->field_exists($table, $completionpass)) {
-        $dbman->add_field($table, $completionpass);
-    }
-    $completionattemptsexhausted = new xmldb_field(
-        'completionattemptsexhausted',
-        XMLDB_TYPE_INTEGER,
-        '10',
-        null,
-        null,
-        null,
-        null,
-        'nugget_id'
-    );
-    if (!$dbman->field_exists($table, $completionattemptsexhausted)) {
-        $dbman->add_field($table, $completionattemptsexhausted);
-    }
-    $completionminattempts = new xmldb_field(
-        'completionminattempts',
-        XMLDB_TYPE_INTEGER,
-        '10',
-        null,
-        null,
-        null,
-        null,
-        'nugget_id'
-    );
-    if (!$dbman->field_exists($table, $completionminattempts)) {
-        $dbman->add_field($table, $completionminattempts);
-    }
-    $grademethod = new xmldb_field('grade_method', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'nugget_id');
-    if (!$dbman->field_exists($table, $grademethod)) {
-        $dbman->add_field($table, $grademethod);
+        // Colonnes à créer si absentes, ou à aligner sur l'install.xml si déjà présentes.
+        $fields = [
+            new xmldb_field('completionpass', XMLDB_TYPE_INTEGER, '10', null, null, null, '0', 'nugget_id'),
+            new xmldb_field('completionattemptsexhausted', XMLDB_TYPE_INTEGER, '10', null, null, null, '0', 'nugget_id'),
+            new xmldb_field('completionminattempts', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'nugget_id'),
+            new xmldb_field('grade_method', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '1', 'nugget_id'),
+            new xmldb_field('attempts', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'nugget_id'),
+            new xmldb_field('allowofflineattempts', XMLDB_TYPE_INTEGER, '1', null, null, null, '0', 'attempts'),
+        ];
+
+        // Nettoyage des NULL avant passage en NOT NULL (uniquement sur les colonnes déjà présentes).
+        $defaults = [
+            'grade_method' => 1,
+            'completionpass' => 0,
+            'completionattemptsexhausted' => 0,
+            'completionminattempts' => 0,
+        ];
+        foreach ($defaults as $name => $value) {
+            if ($dbman->field_exists($table, new xmldb_field($name))) {
+                $DB->execute("UPDATE {naas} SET $name = :val WHERE $name IS NULL", ['val' => $value]);
+            }
+        }
+
+        foreach ($fields as $field) {
+            if ($dbman->field_exists($table, $field)) {
+                $dbman->change_field_notnull($table, $field);
+                $dbman->change_field_default($table, $field);
+            } else {
+                $dbman->add_field($table, $field);
+            }
+        }
+
+        // Table naas_activity_outcome : valeurs par défaut à 0.
+        $table = new xmldb_table('naas_activity_outcome');
+        foreach (['user_id', 'activity_id', 'date_added'] as $name) {
+            $field = new xmldb_field($name, XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+            if ($dbman->field_exists($table, $field)) {
+                $dbman->change_field_default($table, $field);
+            }
+        }
+
+        // Naas savepoint reached.
+        upgrade_mod_savepoint(true, 2026102700, 'naas');
     }
 
     return true;
