@@ -13,7 +13,6 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-
 /**
  * NAAS module upgrade code
  *
@@ -40,43 +39,32 @@
  */
 function xmldb_naas_upgrade($oldversion) {
     global $CFG, $DB;
-
     $dbman = $DB->get_manager();
-
     if ($oldversion < 2023090704) {
         $table = new xmldb_table('naas');
         $field = new xmldb_field('cgu_agreement', XMLDB_TYPE_INTEGER, '1', null, null, null, null, 'nugget_id');
-
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
-
         // Naas savepoint reached.
         upgrade_mod_savepoint(true, 2023090704, 'naas');
     }
-
     if ($oldversion < 2024061403) {
         $table = new xmldb_table('naas_activity_outcome');
-
         if (!$dbman->table_exists($table)) {
             $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
             $table->add_field('user_id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
             $table->add_field('activity_id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
             $table->add_field('sourced_id', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
             $table->add_field('date_added', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
-
             $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
-
             $dbman->create_table($table);
         }
-
         // Naas savepoint reached.
         upgrade_mod_savepoint(true, 2024061403, 'naas');
     }
-
     if ($oldversion < 2026102700) {
         $table = new xmldb_table('naas');
-
         // Fields to create if missing, or to align with install.xml if they already exist.
         $fields = [
             new xmldb_field('completionpass', XMLDB_TYPE_INTEGER, '10', null, null, null, '0', 'nugget_id'),
@@ -87,7 +75,6 @@ function xmldb_naas_upgrade($oldversion) {
             new xmldb_field('allowofflineattempts', XMLDB_TYPE_INTEGER, '1', null, null, null, '0', 'attempts'),
             new xmldb_field('cgu_agreement', XMLDB_TYPE_INTEGER, '1', null, null, null, null, 'nugget_id'),
         ];
-
         // Replace NULL values before switching to NOT NULL (only on columns that already exist).
         $defaults = [
             'grade_method' => 1,
@@ -100,7 +87,6 @@ function xmldb_naas_upgrade($oldversion) {
                 $DB->execute("UPDATE {naas} SET $name = :val WHERE $name IS NULL", ['val' => $value]);
             }
         }
-
         foreach ($fields as $field) {
             if ($dbman->field_exists($table, $field)) {
                 $dbman->change_field_notnull($table, $field);
@@ -109,7 +95,6 @@ function xmldb_naas_upgrade($oldversion) {
                 $dbman->add_field($table, $field);
             }
         }
-
         // Table naas_activity_outcome: set default values to 0.
         $table = new xmldb_table('naas_activity_outcome');
         foreach (['user_id', 'activity_id', 'date_added'] as $name) {
@@ -118,11 +103,8 @@ function xmldb_naas_upgrade($oldversion) {
                 $dbman->change_field_default($table, $field);
             }
         }
-
         // Naas savepoint reached.
         upgrade_mod_savepoint(true, 2026102700, 'naas');
     }
-
     return true;
-    
 }
