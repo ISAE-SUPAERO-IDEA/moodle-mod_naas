@@ -77,7 +77,7 @@ function xmldb_naas_upgrade($oldversion) {
     if ($oldversion < 2026102700) {
         $table = new xmldb_table('naas');
 
-        // Colonnes à créer si absentes, ou à aligner sur l'install.xml si déjà présentes.
+        // Fields to create if missing, or to align with install.xml if they already exist.
         $fields = [
             new xmldb_field('completionpass', XMLDB_TYPE_INTEGER, '10', null, null, null, '0', 'nugget_id'),
             new xmldb_field('completionattemptsexhausted', XMLDB_TYPE_INTEGER, '10', null, null, null, '0', 'nugget_id'),
@@ -85,9 +85,10 @@ function xmldb_naas_upgrade($oldversion) {
             new xmldb_field('grade_method', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '1', 'nugget_id'),
             new xmldb_field('attempts', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'nugget_id'),
             new xmldb_field('allowofflineattempts', XMLDB_TYPE_INTEGER, '1', null, null, null, '0', 'attempts'),
+            new xmldb_field('cgu_agreement', XMLDB_TYPE_INTEGER, '1', null, null, null, null, 'nugget_id'),
         ];
 
-        // Nettoyage des NULL avant passage en NOT NULL (uniquement sur les colonnes déjà présentes).
+        // Replace NULL values before switching to NOT NULL (only on columns that already exist).
         $defaults = [
             'grade_method' => 1,
             'completionpass' => 0,
@@ -109,7 +110,7 @@ function xmldb_naas_upgrade($oldversion) {
             }
         }
 
-        // Table naas_activity_outcome : valeurs par défaut à 0.
+        // Table naas_activity_outcome: set default values to 0.
         $table = new xmldb_table('naas_activity_outcome');
         foreach (['user_id', 'activity_id', 'date_added'] as $name) {
             $field = new xmldb_field($name, XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
