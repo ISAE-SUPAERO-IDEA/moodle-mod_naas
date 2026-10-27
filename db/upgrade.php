@@ -124,4 +124,5 @@ function xmldb_naas_upgrade($oldversion) {
     }
 
     return true;
+    
 }
