@@ -295,43 +295,6 @@ function naas_page_type_list($pagetype, $parentcontext, $currentcontext) {
 }
 
 /**
- * Export URL resource contents
- * @param object $cm
- * @return array of file content
- */
-function naas_export_contents($cm) {
-    global $CFG, $DB;
-    require_once("$CFG->dirroot/mod/url/locallib.php");
-    $contents = [];
-    $context = context_module::instance($cm->id);
-
-    $course = $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST);
-    $urlrecord = $DB->get_record('url', ['id' => $cm->instance], '*', MUST_EXIST);
-
-    $fullurl = str_replace('&amp;', '&', url_get_full_url($urlrecord, $cm, $course));
-    $isurl = clean_param($fullurl, PARAM_URL);
-    if (empty($isurl)) {
-        return null;
-    }
-
-    $url = [];
-    $url['type'] = 'url';
-    $url['filename']     = clean_param(format_string($urlrecord->name), PARAM_FILE);
-    $url['filepath']     = null;
-    $url['filesize']     = 0;
-    $url['fileurl']      = $fullurl;
-    $url['timecreated']  = null;
-    $url['timemodified'] = $urlrecord->timemodified;
-    $url['sortorder']    = null;
-    $url['userid']       = null;
-    $url['author']       = null;
-    $url['license']      = null;
-    $contents[] = $url;
-
-    return $contents;
-}
-
-/**
  * Register the ability to handle drag and drop file uploads
  * @return array containing details of the files / types the mod can handle
  */
