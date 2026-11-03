@@ -295,16 +295,6 @@ function naas_page_type_list($pagetype, $parentcontext, $currentcontext) {
 }
 
 /**
- * Register the ability to handle drag and drop file uploads
- * @return array containing details of the files / types the mod can handle
- */
-function naas_dndupload_register() {
-    return ['types' => [
-        ['identifier' => 'url', 'message' => get_string('createurl', 'url')],
-    ]];
-}
-
-/**
  * Mark the activity completed (if required) and trigger the course_module_viewed event.
  *
  * @param  stdClass $course     course object
