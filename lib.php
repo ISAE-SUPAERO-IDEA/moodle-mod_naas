@@ -284,17 +284,6 @@ function naas_get_coursemodule_info($coursemodule) {
 }
 
 /**
- * Return a list of page types
- * @param string $pagetype current page type
- * @param stdClass $parentcontext Block's parent context
- * @param stdClass $currentcontext Current context of block
- */
-function naas_page_type_list($pagetype, $parentcontext, $currentcontext) {
-    $modulepagetype = ['mod-url-*' => get_string('page-mod-url-x', 'url')];
-    return $modulepagetype;
-}
-
-/**
  * Mark the activity completed (if required) and trigger the course_module_viewed event.
  *
  * @param  stdClass $course     course object
