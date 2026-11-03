@@ -2,6 +2,17 @@
 
 _All notable changes to the NaaS Moodle plugin will be documented in this file._
 
+## Version 2.5.3 (2026-11-03)
+
+### Fix
+- Fix the Moodle mobile app failing to open any course containing a nugget ("Can't find data record in database table url")
+- Remove the broken drag-and-drop link handler that showed a "Create URL resource" entry and failed when picked
+- Show the correct page type options in the settings of blocks placed on a nugget page
+
+### Chore
+- Drop the unused mod_url dependency
+
+
 ## Version 2.5.2 (2026-09-18)
 
 ### Feature
