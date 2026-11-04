@@ -130,6 +130,11 @@ import { useNaasConfig } from "@/composables/useNaasConfig";
 import { useEntityResolvers } from "@/composables/useEntityResolvers";
 import { matchCachedProducer } from "@/composables/catalogueSnapshot";
 import {
+  namedPayload,
+  namedPayloadChanged,
+} from "@/composables/producerDirectory";
+import type { NamedProducer } from "@/composables/producerDirectory";
+import {
   isOpaqueEntityKey,
   isRawEntityLabel,
   structureVisuals,
@@ -267,20 +272,19 @@ function directoryVisuals(key: string) {
   return hasName ? visuals : null;
 }
 
+/**
+ * Last payload sent upstream. The parent folds it into the `directory` prop,
+ * which re-runs the watcher below: re-emitting the same names would loop.
+ */
+let lastNamed: NamedProducer[] = [];
 
-function publishNamed(
-  cards: { id: string; acronym: string; name: string }[]
-): void {
-  const named = cards
-    .map((card) => ({
-      id: card.id,
-      acronym: visibleLabel(card.acronym),
-      name: visibleLabel(card.name),
-    }))
-    .filter((card) => card.acronym || card.name);
-  if (named.length) {
-    emit("named", named);
+function publishNamed(cards: NamedProducer[]): void {
+  const named = namedPayload(cards, visibleLabel);
+  if (!named.length || !namedPayloadChanged(lastNamed, named)) {
+    return;
   }
+  lastNamed = named;
+  emit("named", named);
 }
 
 watch(

@@ -299,11 +299,15 @@ import {
 } from "@/composables/moodleActivityForm";
 import {
   facetLabelsFromSnapshot,
-  matchCachedProducer,
   mergeFacetLabels,
   mergeProducerDirectory,
   snapshotSearch,
 } from "@/composables/catalogueSnapshot";
+import {
+  mergeProducerNames,
+  producerLabelUpdates,
+} from "@/composables/producerDirectory";
+import type { NamedProducer } from "@/composables/producerDirectory";
 import type { CatalogueProducer } from "@/types/naas-config.types";
 import type {
   AggregationResult,
@@ -612,34 +616,24 @@ function clearAllFilters() {
   refreshResults();
 }
 
-
-function onProducersNamed(
-  rows: { id: string; acronym: string; name: string }[]
-) {
-  const labels: Record<string, string> = {};
-  for (const row of rows) {
-    const text = row.acronym || row.name;
-    if (text) {
-      labels[row.id] = text;
-    }
+/**
+ * Fold names the landing resolved into the facet labels and the directory.
+ *
+ * Assigning `producerDirectory` hands NuggetBrowseLanding a new `directory`
+ * reference and re-runs its watcher, which emits `named` again. Only assign
+ * when something actually changed, or the round trip never settles.
+ */
+function onProducersNamed(rows: NamedProducer[]) {
+  const labels = producerLabelUpdates(facetLabels.value.producers, rows);
+  if (Object.keys(labels).length) {
+    facetLabels.value = mergeFacetLabels(facetLabels.value, {
+      producers: labels,
+    });
   }
-  if (!Object.keys(labels).length) {
-    return;
+  const merged = mergeProducerNames(producerDirectory.value, rows);
+  if (merged !== producerDirectory.value) {
+    producerDirectory.value = merged;
   }
-  facetLabels.value = mergeFacetLabels(facetLabels.value, {
-    producers: labels,
-  });
-  producerDirectory.value = producerDirectory.value.map((producer) => {
-    const named = rows.find((row) => matchCachedProducer([producer], row.id));
-    if (!named) {
-      return producer;
-    }
-    return {
-      ...producer,
-      acronym: named.acronym || producer.acronym,
-      name: named.name || producer.name,
-    };
-  });
 }
 
 function onBrowseSelect(payload: {
