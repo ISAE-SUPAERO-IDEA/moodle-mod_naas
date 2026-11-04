@@ -14,11 +14,16 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Bumps BUNDLE_VERSION in vite.config.ts, amd/src/widget_init.js, and version.php
- * in one command so all three stay in sync.
+ * Bumps the Vue bundle version in the two places that define it:
+ * BUNDLE_VERSION in vite.config.ts (build output name) and
+ * widget::BUNDLE_VERSION in classes/output/widget.php (URL served by Moodle).
  *
  * Usage:  node scripts/bump-version.js [VERSION]
  * If VERSION is omitted, defaults to today's date as YYYYMMDDnn (nn = 00).
+ *
+ * The plugin version ($plugin->version in version.php) is deliberately NOT
+ * touched: it follows the upgrade savepoints, not the bundle. Run `yarn build`
+ * afterwards so assets/vue/ contains the renamed bundle.
  *
  * @copyright  2024 ISAE-SUPAERO (https://www.isae-supaero.fr/)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -33,9 +38,8 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 const ROOT = resolve(__dirname, '../..')  // mod/naas root
 const VUE  = resolve(__dirname, '..')     // mod/naas/vue
 
-const VITE_CONFIG   = resolve(VUE,  'vite.config.ts')
-const WIDGET_INIT   = resolve(ROOT, 'amd/src/widget_init.js')
-const VERSION_PHP   = resolve(ROOT, 'version.php')
+const VITE_CONFIG = resolve(VUE,  'vite.config.ts')
+const WIDGET_PHP  = resolve(ROOT, 'classes/output/widget.php')
 
 function todayVersion() {
   const d = new Date()
@@ -56,14 +60,15 @@ function replace(file, pattern, replacement) {
   const before = readFileSync(file, 'utf-8')
   const after = before.replace(pattern, replacement)
   if (before === after) {
-    console.warn(`  [warn] no match in ${file}`)
+    console.error(`  [error] no match in ${file}`)
+    process.exitCode = 1
   } else {
     writeFileSync(file, after, 'utf-8')
     console.log(`  updated ${file}`)
   }
 }
 
-console.log(`Bumping to version ${newVersion}…`)
+console.log(`Bumping the widget bundle to ${newVersion}…`)
 
 replace(
   VITE_CONFIG,
@@ -72,39 +77,9 @@ replace(
 )
 
 replace(
-  WIDGET_INIT,
-  /naas_widget-\d{10}\.js/g,
-  `naas_widget-${newVersion}.js`
+  WIDGET_PHP,
+  /const BUNDLE_VERSION = '\d{10}';/,
+  `const BUNDLE_VERSION = '${newVersion}';`
 )
 
-replace(
-  resolve(ROOT, 'amd/build/widget_init.min.js'),
-  /naas_widget-\d{10}\.js/g,
-  `naas_widget-${newVersion}.js`
-)
-
-replace(
-  resolve(ROOT, 'classes/output/widget.php'),
-  /naas_widget-\d{10}\.js/g,
-  `naas_widget-${newVersion}.js`
-)
-
-replace(
-  resolve(ROOT, 'templates/naas_widget.mustache'),
-  /naas_widget-\d{10}\.js/g,
-  `naas_widget-${newVersion}.js`
-)
-
-replace(
-  resolve(ROOT, 'templates/widget.mustache'),
-  /naas_widget-\d{10}\.js/g,
-  `naas_widget-${newVersion}.js`
-)
-
-replace(
-  VERSION_PHP,
-  /\$plugin->version\s*=\s*\d{10};/,
-  `$plugin->version        = ${newVersion};`
-)
-
-console.log('Done.')
+console.log('Done. Now run `yarn build` and commit assets/vue/ with these two files.')

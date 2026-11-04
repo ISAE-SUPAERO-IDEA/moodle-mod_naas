@@ -36,6 +36,12 @@ use templatable;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class widget implements renderable, templatable {
+    /**
+     * Version suffix of the Vue bundle shipped in assets/vue/naas_widget-<version>.js.
+     * Kept in sync with BUNDLE_VERSION in vue/vite.config.ts by vue/scripts/bump-version.js.
+     */
+    public const BUNDLE_VERSION = '2026092801';
+
     /** @var int The nugget ID. */
     protected $nuggetid;
 
@@ -171,7 +177,7 @@ class widget implements renderable, templatable {
             $widgetconfig,
             JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
         );
-        $widgetjsurl = new \moodle_url('/mod/naas/assets/vue/naas_widget-2026092801.js');
+        $widgetjsurl = new \moodle_url('/mod/naas/assets/vue/naas_widget-' . self::BUNDLE_VERSION . '.js');
         $data->widgetjsurl = $widgetjsurl->out(false);
 
         return $data;
