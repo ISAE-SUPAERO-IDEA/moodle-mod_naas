@@ -43,6 +43,21 @@ class vocabulary_lookup {
     public const BIO_MAX_LENGTH = 1200;
 
     /**
+     * MUC key of a person or domain entry in the vocabulary cache.
+     *
+     * Domain codes may contain dots ("01.02.03") and person keys may be e-mail
+     * addresses, neither of which is a valid key in a simplekeys cache, so the
+     * key is hashed. Every reader and writer of the area must go through here.
+     *
+     * @param string $prefix 'person_' or 'domain_'
+     * @param string $key Domain code or normalised person key
+     * @return string
+     */
+    public static function cache_key(string $prefix, string $key): string {
+        return $prefix . sha1($key);
+    }
+
+    /**
      * Resolve every author and domain key used by the given items.
      *
      * Keys are deduplicated across items, so a person appearing on nine cards
@@ -88,14 +103,13 @@ class vocabulary_lookup {
             $lookup = $prefix === 'person_'
                 ? \mod_naas\catalogue_cache::normalize_person_key((string) $key)
                 : (string) $key;
-            $lookupkeys[$key] = $lookup;
-            $prefixed[] = $prefix . $lookup;
+            $lookupkeys[$key] = self::cache_key($prefix, $lookup);
+            $prefixed[] = $lookupkeys[$key];
         }
         $raw = $cache->get_many(array_values(array_unique($prefixed)));
         $resolved = [];
         foreach ($keys as $key) {
-            $lookup = $lookupkeys[$key];
-            $value = $raw[$prefix . $lookup] ?? false;
+            $value = $raw[$lookupkeys[$key]] ?? false;
             if (!is_string($value) || $value === '') {
                 continue;
             }

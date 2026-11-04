@@ -49,7 +49,11 @@ final class vocabulary_lookup_test extends advanced_testcase {
      * @param array $value
      */
     private function seed(string $key, array $value): void {
-        \cache::make('mod_naas', vocabulary_lookup::CACHE_AREA)->set($key, json_encode($value));
+        [$prefix, $raw] = explode('_', $key, 2);
+        \cache::make('mod_naas', vocabulary_lookup::CACHE_AREA)->set(
+            vocabulary_lookup::cache_key($prefix . '_', $raw),
+            json_encode($value)
+        );
     }
 
     public function test_collect_resolves_persons_and_domains(): void {

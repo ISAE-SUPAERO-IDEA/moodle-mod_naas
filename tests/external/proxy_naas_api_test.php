@@ -708,7 +708,7 @@ class proxy_naas_api_test extends advanced_testcase {
         $this->setUser($user);
 
         $cache = \cache::make('mod_naas', 'vocabulary_entries');
-        $cache->set('domain_cachedkey', '{"cached":true}');
+        $cache->set(\mod_naas\vocabulary_lookup::cache_key('domain_', 'cachedkey'), '{"cached":true}');
 
         $this->assertSame('{"cached":true}', proxy_naas_api::get_domain($course->id, 'cachedkey'));
     }
@@ -726,7 +726,7 @@ class proxy_naas_api_test extends advanced_testcase {
 
         $domainkey = 'domcover1';
         $cache = \cache::make('mod_naas', 'vocabulary_entries');
-        $cache->delete('domain_' . $domainkey);
+        $cache->delete(\mod_naas\vocabulary_lookup::cache_key('domain_', $domainkey));
 
         $stub = new class extends \mod_naas\naas_client {
             /**
@@ -1103,7 +1103,10 @@ class proxy_naas_api_test extends advanced_testcase {
         $this->setUser($user);
 
         $cache = \cache::make('mod_naas', 'vocabulary_entries');
-        $cache->set('person_person99', '{"firstname":"Ada","lastname":"Lovelace"}');
+        $cache->set(
+            \mod_naas\vocabulary_lookup::cache_key('person_', 'person99'),
+            '{"firstname":"Ada","lastname":"Lovelace"}'
+        );
 
         $this->assertSame(
             '{"firstname":"Ada","lastname":"Lovelace"}',
@@ -1124,7 +1127,7 @@ class proxy_naas_api_test extends advanced_testcase {
 
         $personkey = 'personcover1';
         $cache = \cache::make('mod_naas', 'vocabulary_entries');
-        $cache->delete('person_' . $personkey);
+        $cache->delete(\mod_naas\vocabulary_lookup::cache_key('person_', $personkey));
 
         $stub = new class extends \mod_naas\naas_client {
             /**
@@ -1194,7 +1197,7 @@ class proxy_naas_api_test extends advanced_testcase {
 
         $personkey = 'abcdef0123456789abcdef0123456789';
         $cache = \cache::make('mod_naas', 'vocabulary_entries');
-        $cache->delete('person_' . $personkey);
+        $cache->delete(\mod_naas\vocabulary_lookup::cache_key('person_', $personkey));
 
         $stub = new class extends \mod_naas\naas_client {
             /**
@@ -1269,7 +1272,7 @@ class proxy_naas_api_test extends advanced_testcase {
 
         $personkey = 'abcdef0123456789abcdef0123456789';
         $cache = \cache::make('mod_naas', 'vocabulary_entries');
-        $cache->delete('person_' . $personkey);
+        $cache->delete(\mod_naas\vocabulary_lookup::cache_key('person_', $personkey));
         $cache->delete('person_catalog_v1');
 
         $stub = new class extends \mod_naas\naas_client {

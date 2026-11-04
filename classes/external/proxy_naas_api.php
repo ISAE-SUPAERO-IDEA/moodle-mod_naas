@@ -309,10 +309,10 @@ class proxy_naas_api extends \external_api {
                 continue;
             }
             $key = \mod_naas\catalogue_cache::normalize_person_key($record->{$field});
-            if ($key === '' || !preg_match('/^[a-zA-Z0-9_\-]{1,200}$/', $key)) {
+            if ($key === '') {
                 continue;
             }
-            $cache->set('person_' . $key, $wrapped);
+            $cache->set(\mod_naas\vocabulary_lookup::cache_key('person_', $key), $wrapped);
         }
     }
 
@@ -1027,7 +1027,7 @@ class proxy_naas_api extends \external_api {
         self::validate_domain_key($params['domainKey']);
 
         $cache = \cache::make('mod_naas', 'vocabulary_entries');
-        $cachekey = 'domain_' . $params['domainKey'];
+        $cachekey = \mod_naas\vocabulary_lookup::cache_key('domain_', $params['domainKey']);
         $cached = $cache->get($cachekey);
         if ($cached !== false) {
             return $cached;
@@ -1191,7 +1191,7 @@ class proxy_naas_api extends \external_api {
         self::validate_person_key($personkey);
 
         $cache = \cache::make('mod_naas', 'vocabulary_entries');
-        $cachekey = 'person_' . $personkey;
+        $cachekey = \mod_naas\vocabulary_lookup::cache_key('person_', $personkey);
         $cached = $cache->get($cachekey);
         if (is_string($cached)) {
             $enriched = self::enrich_person_json($cached);

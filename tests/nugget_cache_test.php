@@ -109,7 +109,7 @@ final class nugget_cache_test extends advanced_testcase {
 
     public function test_response_carries_the_freshness_digest_and_vocabulary(): void {
         \cache::make('mod_naas', \mod_naas\vocabulary_lookup::CACHE_AREA)->set(
-            'person_a1',
+            \mod_naas\vocabulary_lookup::cache_key('person_', 'a1'),
             json_encode(['firstname' => 'Ada', 'lastname' => 'Lovelace'])
         );
         $entry = nugget_cache::store('n1', $this->document(), $this->config());
