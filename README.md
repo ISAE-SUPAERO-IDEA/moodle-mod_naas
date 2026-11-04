@@ -42,7 +42,7 @@ to fetch the content.
 The main features of the Nuggets plugin are as follows: 
 - Keyword search
 - Nugget filtering
-- Metadata display 
+- Metadata display, including producer and partner information
 - One-click integration of a Nugget into the course space.
 
 ## Installation
@@ -60,7 +60,7 @@ To access all the Nuggets available to your school, you need to retrieve the Naa
 contact `idea.lab@isae-supaero.fr` to get your private keys.
 
 
-🛠️ **Access** the Moodle administration page : `Administration > Plugins > Nugget`.
+🛠️ **Access** the Moodle administration page : `Administration > Plugins > Activity modules > Nugget`.
 
 ![setup-naas-plugin](https://t2594656.p.clickup-attachments.com/t2594656/457711f5-b548-4ce7-b483-863b2aaef71c/image.png)
 

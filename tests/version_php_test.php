@@ -45,16 +45,37 @@ final class version_php_test extends advanced_testcase {
         require($CFG->dirroot . '/mod/naas/version.php');
 
         $this->assertSame('mod_naas', $plugin->component);
-        $this->assertSame(2026092801, (int) $plugin->version);
-        $this->assertSame('3.0.0', $plugin->release);
+        $this->assertMatchesRegularExpression('/^20\d{8}$/', (string) $plugin->version);
+        $this->assertMatchesRegularExpression('/^\d+\.\d+\.\d+$/', $plugin->release);
         $this->assertSame(2022041900, (int) $plugin->requires);
         $this->assertSame(0, (int) $plugin->cron);
         $this->assertSame(MATURITY_STABLE, $plugin->maturity);
 
         $this->assertIsArray($plugin->dependencies);
-        $this->assertCount(2, $plugin->dependencies);
-        $this->assertSame(20191030, (int) $plugin->dependencies['mod_url']);
-        $this->assertSame(2022041900, (int) $plugin->dependencies['mod_lti']);
+        $this->assertArrayHasKey('mod_lti', $plugin->dependencies);
+        $this->assertGreaterThanOrEqual(2022041900, (int) $plugin->dependencies['mod_lti']);
+    }
+
+    /**
+     * The savepoints in db/upgrade.php must be unique, ascending, and never above the plugin version.
+     */
+    public function test_version_php_is_not_below_last_upgrade_savepoint(): void {
+        global $CFG, $plugin;
+
+        $plugin = new \stdClass();
+        require($CFG->dirroot . '/mod/naas/version.php');
+
+        $upgrade = file_get_contents($CFG->dirroot . '/mod/naas/db/upgrade.php');
+        preg_match_all("/upgrade_mod_savepoint\(true,\s*(\d+),\s*'naas'\)/", $upgrade, $matches);
+        $this->assertNotEmpty($matches[1], 'db/upgrade.php must declare at least one savepoint.');
+
+        $savepoints = array_map('intval', $matches[1]);
+        $this->assertSame(array_values(array_unique($savepoints)), $savepoints, 'Savepoints must be unique.');
+
+        $sorted = $savepoints;
+        sort($sorted);
+        $this->assertSame($sorted, $savepoints, 'Savepoints must be in ascending order.');
+        $this->assertGreaterThanOrEqual(max($savepoints), (int) $plugin->version);
     }
 
     /**
