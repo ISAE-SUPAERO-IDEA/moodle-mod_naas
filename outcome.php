@@ -189,6 +189,8 @@ class mod_naas_outcome {
         $naasinstance = $DB->get_record('naas', ['id' => $cm->instance], '*', MUST_EXIST);
         $course = $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST);
 
+        self::assert_attempt_allowed($records, $naasinstance, $cm, (int) $userid);
+
         $itemnumber = 0;
 
         $existinggrades = grade_get_grades($course->id, 'mod', 'naas', $cm->instance, $userid);
@@ -254,6 +256,37 @@ class mod_naas_outcome {
      */
     public static function should_apply_attempt_first_grade(array $grades): bool {
         return count($grades) && array_values($grades)[0]->grade === null;
+    }
+
+    /**
+     * Refuse an outcome that would complete an attempt beyond the attempts allowed.
+     *
+     * launch.php stops a learner from starting a new attempt once every allowed attempt has
+     * an outcome, but several launches opened before the first outcome arrives would each
+     * complete an attempt. The limit is therefore enforced again here. A new result for an
+     * attempt that is already completed is still accepted, and users who can edit the
+     * activity are not limited (same rule as at launch).
+     *
+     * @param array $records naas_activity_outcome rows of this sourcedId
+     * @param stdClass $naasinstance
+     * @param stdClass $cm
+     * @param int $userid
+     * @return void
+     * @throws moodle_exception
+     */
+    private static function assert_attempt_allowed(array $records, stdClass $naasinstance, stdClass $cm, int $userid): void {
+        foreach ($records as $record) {
+            if (!empty($record->timecompleted)) {
+                return;
+            }
+        }
+        if (!\mod_naas\attempts::is_exhausted((int) $naasinstance->attempts, (int) $cm->id, $userid)) {
+            return;
+        }
+        if (has_capability('mod/naas:addinstance', context_module::instance($cm->id), $userid)) {
+            return;
+        }
+        throw new moodle_exception('nomoreattempts', 'naas');
     }
 
     /**

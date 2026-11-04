@@ -763,7 +763,86 @@ XML;
         $this->assertNull($row->timecompleted);
     }
 
+    // Attempt limit enforced when the outcome arrives.
+
+    /**
+     * Two launches opened before the first outcome cannot both complete when one attempt is allowed.
+     * A new result for the attempt that already completed is still accepted.
+     */
+    public function test_handle_rejects_outcome_beyond_attempts_allowed(): void {
+        global $DB, $CFG;
+        $this->resetAfterTest(true);
+        require_once($CFG->dirroot . '/mod/naas/outcome.php');
+
+        [$course, $naas, $user] = $this->setup_limited_activity(1);
+        /** @var \mod_naas_generator $gen */
+        $gen = $this->getDataGenerator()->get_plugin_generator('mod_naas');
+        $gen->create_activity_outcome($user->id, $naas->cmid, 'lti-limit-first');
+        $gen->create_activity_outcome($user->id, $naas->cmid, 'lti-limit-second');
+
+        \mod_naas_outcome::handle($this->replace_result_xml('lti-limit-first', '0.4'));
+
+        try {
+            \mod_naas_outcome::handle($this->replace_result_xml('lti-limit-second', '0.9'));
+            $this->fail('An outcome beyond the attempts allowed must be rejected.');
+        } catch (\moodle_exception $e) {
+            $this->assertSame('nomoreattempts', $e->errorcode);
+        }
+        $second = $DB->get_record('naas_activity_outcome', ['sourced_id' => 'lti-limit-second'], '*', MUST_EXIST);
+        $this->assertNull($second->timecompleted);
+        $grades = grade_get_grades($course->id, 'mod', 'naas', $naas->id, $user->id);
+        $this->assertEquals(40.0, (float) $grades->items[0]->grades[$user->id]->grade);
+
+        // The completed attempt may still send an updated result.
+        \mod_naas_outcome::handle($this->replace_result_xml('lti-limit-first', '0.6'));
+        $grades = grade_get_grades($course->id, 'mod', 'naas', $naas->id, $user->id);
+        $this->assertEquals(60.0, (float) $grades->items[0]->grades[$user->id]->grade);
+    }
+
+    /**
+     * Users who can edit the activity are not limited, as at launch.
+     */
+    public function test_handle_does_not_limit_editing_teachers(): void {
+        global $CFG;
+        $this->resetAfterTest(true);
+        require_once($CFG->dirroot . '/mod/naas/outcome.php');
+
+        [$course, $naas] = $this->setup_limited_activity(1);
+        $teacher = $this->getDataGenerator()->create_user();
+        $this->getDataGenerator()->enrol_user($teacher->id, $course->id, 'editingteacher');
+        /** @var \mod_naas_generator $gen */
+        $gen = $this->getDataGenerator()->get_plugin_generator('mod_naas');
+        $gen->create_activity_outcome($teacher->id, $naas->cmid, 'lti-teacher-first');
+        $gen->create_activity_outcome($teacher->id, $naas->cmid, 'lti-teacher-second');
+
+        \mod_naas_outcome::handle($this->replace_result_xml('lti-teacher-first', '0.4'));
+        \mod_naas_outcome::handle($this->replace_result_xml('lti-teacher-second', '0.9'));
+
+        $this->assertEquals(2, \mod_naas\attempts::count_completed((int) $naas->cmid, (int) $teacher->id));
+    }
+
     // Helpers.
+
+    /**
+     * Graded activity limited to $attempts attempts, with one enrolled learner.
+     *
+     * @param int $attempts
+     * @return array [course, naas module, learner]
+     */
+    private function setup_limited_activity(int $attempts): array {
+        global $DB;
+
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $naas = $this->getDataGenerator()->create_module('naas', [
+            'course' => $course->id,
+            'grade_method' => NAAS_ATTEMPTLAST,
+        ]);
+        $DB->set_field('naas', 'attempts', $attempts, ['id' => $naas->id]);
+        $user = $this->getDataGenerator()->create_user();
+        $this->getDataGenerator()->enrol_user($user->id, $course->id, 'student');
+
+        return [$course, $naas, $user];
+    }
 
     /**
      * Minimal IMS LTI replaceResult payload used by handle() tests.
