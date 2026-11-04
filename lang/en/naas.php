@@ -30,6 +30,11 @@ $string["attempts_help"] = "Maximum number of attempts a learner may complete. A
 $string["authors"] = "Authors";
 $string["back_to_course"] = "Back to Course Index";
 $string["beginner"] = "Beginner";
+$string["cachedef_catalogue_snapshot"] = "NaaS catalogue snapshot shown when the Nugget search opens";
+$string["cachedef_nugget_documents"] = "NaaS Nugget documents";
+$string["cachedef_oauth_nonces"] = "OAuth nonces of recent NaaS grade submissions (replay protection)";
+$string["cachedef_search_results"] = "NaaS Nugget search results";
+$string["cachedef_vocabulary_entries"] = "NaaS vocabulary labels (authors, producers, domains)";
 $string["cannot_get_nugget"] = "The Nugget could not be loaded. Please try again. If the problem persists, please contact your platform administrator.";
 $string["cgu_agreement"] = "I have read and agree to the <a target=\"_blank\" href=\"https://doc.clickup.com/2594656/p/h/2f5v0-13342/fff6a689cd78033\">Terms and Conditions of the NaaS platform</a>";
 $string["clear_filters"] = "Clear filters";
