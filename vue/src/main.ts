@@ -23,7 +23,6 @@
 import { createApp } from "vue";
 import Main from "@/Main.vue";
 import { naasApiPlugin } from "@/plugins/naas-api.plugin";
-import { createNaasI18n } from "@/plugins/i18n";
 import "@/styles/naas-theme.css";
 
 const config = window.NAAS;
@@ -42,7 +41,6 @@ if (import.meta.env.DEV) {
 }
 
 app.use(naasApiPlugin);
-app.use(createNaasI18n(config));
 
 // Provide config globally so all components can inject it without prop-drilling.
 app.provide("naasConfig", config);
