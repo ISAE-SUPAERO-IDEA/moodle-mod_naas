@@ -76,6 +76,18 @@ class mod_naas_outcome {
         $grade->rawgrade = round((float) $score * (float) $grademax, 5);
 
         $grademethod = $naasinstance->grade_method;
+        if (!in_array((string) $grademethod, [NAAS_GRADEHIGHEST, NAAS_ATTEMPTFIRST, NAAS_ATTEMPTLAST], true)) {
+            throw new moodle_exception(
+                'error:unsupported_grade_method',
+                'naas',
+                '',
+                $grademethod
+            );
+        }
+
+        // The outcome closes the attempt. Record it before the grade so that any completion
+        // recalculation triggered by the grade change already counts this attempt.
+        \mod_naas\attempts::mark_completed($sourcedid, (float) $score);
 
         if ($grademethod == NAAS_GRADEHIGHEST) {
             $currenthighestgrade = -1;
@@ -93,15 +105,9 @@ class mod_naas_outcome {
             if (self::should_apply_attempt_first_grade(array_values($existinggradesdata))) {
                 grade_update('mod/naas', $course->id, 'mod', 'naas', $cm->instance, $itemnumber, $grade);
             }
-        } else if ($grademethod == NAAS_ATTEMPTLAST) {
-            grade_update('mod/naas', $course->id, 'mod', 'naas', $cm->instance, $itemnumber, $grade);
         } else {
-            throw new moodle_exception(
-                'error:unsupported_grade_method',
-                'naas',
-                '',
-                $grademethod
-            );
+            // NAAS_ATTEMPTLAST.
+            grade_update('mod/naas', $course->id, 'mod', 'naas', $cm->instance, $itemnumber, $grade);
         }
 
         $completion = new completion_info($course);

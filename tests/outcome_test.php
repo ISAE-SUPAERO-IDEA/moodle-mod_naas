@@ -680,6 +680,89 @@ XML;
         $this->assertEquals(33.0, (float) $grades->items[0]->grades[$user->id]->grade);
     }
 
+    // Attempt closure: the outcome stores score and timecompleted on the launch row.
+
+    /**
+     * handle() closes the attempt: score and timecompleted are stored on the outcome row.
+     * A later outcome for the same session refreshes the score but keeps the completion time.
+     */
+    public function test_handle_marks_attempt_completed_with_score(): void {
+        global $DB, $CFG;
+        $this->resetAfterTest(true);
+        require_once($CFG->dirroot . '/mod/naas/outcome.php');
+
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $naas = $this->getDataGenerator()->create_module('naas', [
+            'course' => $course->id,
+            'grade_method' => NAAS_ATTEMPTLAST,
+            'completion' => COMPLETION_TRACKING_AUTOMATIC,
+            'completionusegrade' => 1,
+        ]);
+        $user = $this->getDataGenerator()->create_user();
+        $this->getDataGenerator()->enrol_user($user->id, $course->id);
+
+        /** @var \mod_naas_generator $gen */
+        $gen = $this->getDataGenerator()->get_plugin_generator('mod_naas');
+        $sourcedid = 'lti-close-attempt';
+        $gen->create_activity_outcome($user->id, $naas->cmid, $sourcedid);
+
+        $before = $DB->get_record('naas_activity_outcome', ['sourced_id' => $sourcedid], '*', MUST_EXIST);
+        $this->assertNull($before->score);
+        $this->assertNull($before->timecompleted);
+
+        $start = time();
+        \mod_naas_outcome::handle($this->replace_result_xml($sourcedid, '0.85'));
+
+        $row = $DB->get_record('naas_activity_outcome', ['sourced_id' => $sourcedid], '*', MUST_EXIST);
+        $this->assertEqualsWithDelta(0.85, (float) $row->score, 0.00001);
+        $this->assertGreaterThanOrEqual($start, (int) $row->timecompleted);
+
+        // Pin the completion time in the past, then post a second result for the same session.
+        $DB->set_field('naas_activity_outcome', 'timecompleted', 1000, ['sourced_id' => $sourcedid]);
+        \mod_naas_outcome::handle($this->replace_result_xml($sourcedid, '0.5'));
+
+        $row = $DB->get_record('naas_activity_outcome', ['sourced_id' => $sourcedid], '*', MUST_EXIST);
+        $this->assertEqualsWithDelta(0.5, (float) $row->score, 0.00001);
+        $this->assertSame(1000, (int) $row->timecompleted);
+        $this->assertEquals(1, $DB->count_records('naas_activity_outcome', ['sourced_id' => $sourcedid]));
+    }
+
+    /**
+     * An unsupported grade method rejects the outcome before the attempt is closed.
+     */
+    public function test_handle_unsupported_grade_method_leaves_attempt_open(): void {
+        global $DB, $CFG;
+        $this->resetAfterTest(true);
+        require_once($CFG->dirroot . '/mod/naas/outcome.php');
+
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $naas = $this->getDataGenerator()->create_module('naas', [
+            'course' => $course->id,
+            'grade_method' => NAAS_ATTEMPTLAST,
+            'completion' => COMPLETION_TRACKING_AUTOMATIC,
+            'completionusegrade' => 1,
+        ]);
+        $user = $this->getDataGenerator()->create_user();
+        $this->getDataGenerator()->enrol_user($user->id, $course->id);
+        $DB->set_field('naas', 'grade_method', 99, ['id' => $naas->id]);
+
+        /** @var \mod_naas_generator $gen */
+        $gen = $this->getDataGenerator()->get_plugin_generator('mod_naas');
+        $sourcedid = 'lti-bad-method-open';
+        $gen->create_activity_outcome($user->id, $naas->cmid, $sourcedid);
+
+        try {
+            \mod_naas_outcome::handle($this->replace_result_xml($sourcedid, '0.5'));
+            $this->fail('An unsupported grade method must throw.');
+        } catch (\moodle_exception $e) {
+            $this->assertSame('error:unsupported_grade_method', $e->errorcode);
+        }
+
+        $row = $DB->get_record('naas_activity_outcome', ['sourced_id' => $sourcedid], '*', MUST_EXIST);
+        $this->assertNull($row->score);
+        $this->assertNull($row->timecompleted);
+    }
+
     // Helpers.
 
     /**

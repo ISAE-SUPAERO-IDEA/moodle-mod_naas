@@ -64,6 +64,23 @@ class provider_test extends provider_testcase {
         $this->assertContains('naas_activity_outcome', $tables);
     }
 
+    /**
+     * get_metadata() must declare the attempt outcome fields (score, timecompleted).
+     */
+    public function test_get_metadata_declares_attempt_outcome_fields(): void {
+        $collection = new \core_privacy\local\metadata\collection('mod_naas');
+        provider::get_metadata($collection);
+
+        $fields = [];
+        foreach ($collection->get_collection() as $item) {
+            if ($item->get_name() === 'naas_activity_outcome') {
+                $fields = array_keys($item->get_privacy_fields());
+            }
+        }
+        $this->assertContains('score', $fields);
+        $this->assertContains('timecompleted', $fields);
+    }
+
     // Get_contexts_for_userid.
 
     /**
@@ -142,6 +159,30 @@ class provider_test extends provider_testcase {
 
         // The writer stores a stdClass; the user information property must be an array.
         $this->assertTrue(property_exists($data, 'User information'));
+    }
+
+    /**
+     * export_user_data() must include the score and completion time of a completed attempt.
+     */
+    public function test_export_user_data_includes_attempt_outcome(): void {
+        $this->resetAfterTest(true);
+
+        [, $naas, $user] = $this->setup_activity_with_user();
+
+        /** @var \mod_naas_generator $gen */
+        $gen = $this->getDataGenerator()->get_plugin_generator('mod_naas');
+        $gen->create_completed_attempt($user->id, $naas->cmid, 0.75, 1700000000);
+
+        $context  = \context_module::instance($naas->cmid);
+        $approved = new approved_contextlist($user, 'mod_naas', [$context->id]);
+        provider::export_user_data($approved);
+
+        $data = writer::with_context($context)->get_data(['Nugget info pertaining to user']);
+        $sessions = $data->{'User information'};
+        $this->assertCount(1, $sessions);
+        $this->assertEqualsWithDelta(0.75, (float) $sessions[0]['Score'], 0.00001);
+        $this->assertEquals(1700000000, $sessions[0]['Completed at']);
+        $this->assertArrayHasKey('Started at', $sessions[0]);
     }
 
     // Delete_data_for_user.

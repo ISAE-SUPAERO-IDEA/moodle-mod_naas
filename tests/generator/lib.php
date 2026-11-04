@@ -95,4 +95,31 @@ class mod_naas_generator extends testing_module_generator {
         $record->id = $DB->insert_record('naas_activity_outcome', $record);
         return $record;
     }
+
+    /**
+     * Create a completed attempt: an outcome row that already received its LTI result.
+     *
+     * Only such rows count towards attempts allowed and the completion rules.
+     *
+     * @param int $userid
+     * @param int $activityid  The course-module id (cm->id)
+     * @param float $score  Normalised LTI score (0..1)
+     * @param int|null $timecompleted  Defaults to now.
+     * @return \stdClass  The updated record.
+     */
+    public function create_completed_attempt(
+        int $userid,
+        int $activityid,
+        float $score = 1.0,
+        ?int $timecompleted = null
+    ): \stdClass {
+        global $DB;
+
+        $record = $this->create_activity_outcome($userid, $activityid);
+        $record->score = $score;
+        $record->timecompleted = $timecompleted ?? time();
+        $DB->update_record('naas_activity_outcome', $record);
+
+        return $record;
+    }
 }

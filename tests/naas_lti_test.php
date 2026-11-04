@@ -399,4 +399,146 @@ class naas_lti_test extends advanced_testcase {
 
         $this->assertStringContainsString(get_string('cannot_get_nugget', 'naas'), $output);
     }
+
+    // Attempts allowed: only launches that received an LTI outcome are attempts.
+
+    /**
+     * A learner who completed every allowed attempt is refused: no LTI form, no new row, NaaS not called.
+     */
+    public function test_lti_launch_refused_for_student_when_attempts_exhausted(): void {
+        global $DB;
+        $this->resetAfterTest();
+        $course = $this->getDataGenerator()->create_course();
+        $user = $this->getDataGenerator()->create_user();
+        $this->getDataGenerator()->enrol_user($user->id, $course->id, 'student');
+        $this->setUser($user);
+        $naas = $this->getDataGenerator()->create_module('naas', ['course' => $course->id, 'attempts' => 1]);
+
+        /** @var \mod_naas_generator $gen */
+        $gen = $this->getDataGenerator()->get_plugin_generator('mod_naas');
+        $gen->create_completed_attempt($user->id, $naas->cmid, 0.3);
+
+        $client = $this->createMock(\mod_naas\naas_client::class);
+        $client->expects($this->never())->method('get_nugget_data');
+        $client->expects($this->never())->method('get_nugget_lti_config');
+
+        $output = naas_lti::lti_launch($naas->cmid, '', $client);
+
+        $this->assertStringContainsString(get_string('nomoreattempts', 'naas'), $output);
+        $this->assertStringNotContainsString('name="oauth_signature"', $output);
+        $this->assertEquals(1, $DB->count_records('naas_activity_outcome', ['user_id' => $user->id, 'activity_id' => $naas->cmid]));
+    }
+
+    /**
+     * Launches without an outcome do not consume attempts: reloading the page never blocks the learner.
+     */
+    public function test_lti_launch_allowed_while_launches_have_no_outcome(): void {
+        global $DB;
+        $this->resetAfterTest();
+        $course = $this->getDataGenerator()->create_course();
+        $user = $this->getDataGenerator()->create_user();
+        $this->getDataGenerator()->enrol_user($user->id, $course->id, 'student');
+        $this->setUser($user);
+        $naas = $this->getDataGenerator()->create_module('naas', ['course' => $course->id, 'attempts' => 1]);
+
+        /** @var \mod_naas_generator $gen */
+        $gen = $this->getDataGenerator()->get_plugin_generator('mod_naas');
+        $gen->create_activity_outcome($user->id, $naas->cmid);
+        $gen->create_activity_outcome($user->id, $naas->cmid);
+
+        $output = naas_lti::lti_launch($naas->cmid, '', $this->launch_client());
+
+        $this->assertStringContainsString('name="oauth_signature"', $output);
+        $this->assertStringNotContainsString(get_string('nomoreattempts', 'naas'), $output);
+        $this->assertEquals(3, $DB->count_records('naas_activity_outcome', ['user_id' => $user->id, 'activity_id' => $naas->cmid]));
+    }
+
+    /**
+     * The learner may launch until the last allowed attempt is completed, not after.
+     */
+    public function test_lti_launch_allowed_until_last_attempt_completed(): void {
+        $this->resetAfterTest();
+        $course = $this->getDataGenerator()->create_course();
+        $user = $this->getDataGenerator()->create_user();
+        $this->getDataGenerator()->enrol_user($user->id, $course->id, 'student');
+        $this->setUser($user);
+        $naas = $this->getDataGenerator()->create_module('naas', ['course' => $course->id, 'attempts' => 2]);
+
+        /** @var \mod_naas_generator $gen */
+        $gen = $this->getDataGenerator()->get_plugin_generator('mod_naas');
+        $gen->create_completed_attempt($user->id, $naas->cmid, 0.5);
+
+        $output = naas_lti::lti_launch($naas->cmid, '', $this->launch_client());
+        $this->assertStringContainsString('name="oauth_signature"', $output);
+
+        $gen->create_completed_attempt($user->id, $naas->cmid, 0.6);
+
+        $output = naas_lti::lti_launch($naas->cmid, '', $this->launch_client());
+        $this->assertStringContainsString(get_string('nomoreattempts', 'naas'), $output);
+        $this->assertStringNotContainsString('name="oauth_signature"', $output);
+    }
+
+    /**
+     * Users who can edit the activity (mod/naas:addinstance) preview it without limit, like mod_quiz.
+     */
+    public function test_lti_launch_allowed_for_teacher_when_attempts_exhausted(): void {
+        global $DB;
+        $this->resetAfterTest();
+        $course = $this->getDataGenerator()->create_course();
+        $teacher = $this->getDataGenerator()->create_user();
+        $this->getDataGenerator()->enrol_user($teacher->id, $course->id, 'editingteacher');
+        $this->setUser($teacher);
+        $naas = $this->getDataGenerator()->create_module('naas', ['course' => $course->id, 'attempts' => 1]);
+
+        /** @var \mod_naas_generator $gen */
+        $gen = $this->getDataGenerator()->get_plugin_generator('mod_naas');
+        $gen->create_completed_attempt($teacher->id, $naas->cmid, 1.0);
+
+        $output = naas_lti::lti_launch($naas->cmid, '', $this->launch_client());
+
+        $this->assertStringContainsString('name="oauth_signature"', $output);
+        $this->assertStringNotContainsString(get_string('nomoreattempts', 'naas'), $output);
+        $this->assertEquals(2, $DB->count_records('naas_activity_outcome', [
+            'user_id' => $teacher->id,
+            'activity_id' => $naas->cmid,
+        ]));
+    }
+
+    /**
+     * attempts = 0 means unlimited: the learner is never blocked.
+     */
+    public function test_lti_launch_unlimited_attempts_never_blocks(): void {
+        $this->resetAfterTest();
+        $course = $this->getDataGenerator()->create_course();
+        $user = $this->getDataGenerator()->create_user();
+        $this->getDataGenerator()->enrol_user($user->id, $course->id, 'student');
+        $this->setUser($user);
+        $naas = $this->getDataGenerator()->create_module('naas', ['course' => $course->id, 'attempts' => 0]);
+
+        /** @var \mod_naas_generator $gen */
+        $gen = $this->getDataGenerator()->get_plugin_generator('mod_naas');
+        $gen->create_completed_attempt($user->id, $naas->cmid, 0.1);
+        $gen->create_completed_attempt($user->id, $naas->cmid, 0.2);
+        $gen->create_completed_attempt($user->id, $naas->cmid, 0.3);
+
+        $output = naas_lti::lti_launch($naas->cmid, '', $this->launch_client());
+
+        $this->assertStringContainsString('name="oauth_signature"', $output);
+    }
+
+    /**
+     * Client double returning a valid LTI config so lti_launch() stays offline.
+     *
+     * @return \mod_naas\naas_client
+     */
+    private function launch_client(): \mod_naas\naas_client {
+        $client = $this->createMock(\mod_naas\naas_client::class);
+        $client->method('get_nugget_data')->willReturn((object)['version_id' => 'v1']);
+        $client->method('get_nugget_lti_config')->willReturn((object) [
+            'url' => 'http://Example.com/lti',
+            'key' => 'k',
+            'secret' => 's',
+        ]);
+        return $client;
+    }
 }

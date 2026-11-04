@@ -48,6 +48,15 @@ class naas_lti {
         $context = \context_module::instance($cm->id);
         $course = $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST);
 
+        // Learners cannot start another attempt once every allowed attempt received its outcome.
+        // Users who can edit the activity (teachers) preview it without limit, like mod_quiz.
+        if (
+            attempts::is_exhausted((int) $naasinstance->attempts, $cm->id, $USER->id)
+            && !has_capability('mod/naas:addinstance', $context)
+        ) {
+            return $OUTPUT->notification(get_string('nomoreattempts', 'naas'), \core\output\notification::NOTIFY_ERROR);
+        }
+
         // Retrieve LTI config from NaaS server.
         $config = (object) array_merge((array) \get_config('naas'), (array) $CFG);
         if ($client === null) {
@@ -108,7 +117,8 @@ class naas_lti {
         $activityid = $cm->id;
         $sourcedid = bin2hex(random_bytes(16)); // 16 bytes to obtain a 32-character hexadecimal string.
 
-        // Insert a record in the database.
+        // Insert a record in the database. It becomes a completed attempt once NaaS posts the
+        // outcome for this sourced id (see \mod_naas\attempts); a bare launch counts for nothing.
         $newrecord = new \stdClass();
         $newrecord->user_id = $userid;
         $newrecord->activity_id = $activityid;

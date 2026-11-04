@@ -116,5 +116,25 @@ function xmldb_naas_upgrade($oldversion) {
         // Naas savepoint reached.
         upgrade_mod_savepoint(true, 2026110400, 'naas');
     }
+    if ($oldversion < 2026110401) {
+        // A naas_activity_outcome row is created at every LTI launch; it only becomes
+        // a completed attempt once NaaS posts an outcome (score + timecompleted).
+        $table = new xmldb_table('naas_activity_outcome');
+
+        // Normalised LTI result score (0..1); null until an outcome is received.
+        $field = new xmldb_field('score', XMLDB_TYPE_NUMBER, '10, 5', null, null, null, null, 'date_added');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Time the LTI outcome was received; null while the attempt is only launched.
+        $field = new xmldb_field('timecompleted', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'score');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Naas savepoint reached.
+        upgrade_mod_savepoint(true, 2026110401, 'naas');
+    }
     return true;
 }

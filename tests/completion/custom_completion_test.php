@@ -31,6 +31,7 @@ require_once($CFG->libdir . '/gradelib.php');
 require_once($CFG->dirroot . '/mod/naas/lib.php');
 
 use advanced_testcase;
+use mod_naas\attempts;
 use mod_naas\completion\custom_completion;
 
 /**
@@ -213,7 +214,7 @@ class custom_completion_test extends advanced_testcase {
 
         /** @var \mod_naas_generator $gen */
         $gen = $this->getDataGenerator()->get_plugin_generator('mod_naas');
-        $gen->create_activity_outcome($user->id, $naas->cmid);
+        $gen->create_completed_attempt($user->id, $naas->cmid, 0.5);
 
         $cm         = get_fast_modinfo($course)->get_cm($naas->cmid);
         $completion = new custom_completion($cm, $user->id);
@@ -490,11 +491,11 @@ class custom_completion_test extends advanced_testcase {
         $user = $this->getDataGenerator()->create_user();
         $this->getDataGenerator()->enrol_user($user->id, $course->id);
 
-        // Record 2 attempts.
+        // Record 2 completed attempts (each received its LTI outcome).
         /** @var \mod_naas_generator $gen */
         $gen = $this->getDataGenerator()->get_plugin_generator('mod_naas');
-        $gen->create_activity_outcome($user->id, $naas->cmid);
-        $gen->create_activity_outcome($user->id, $naas->cmid);
+        $gen->create_completed_attempt($user->id, $naas->cmid, 0.3);
+        $gen->create_completed_attempt($user->id, $naas->cmid, 0.4);
 
         $cm = get_fast_modinfo($course)->get_cm($naas->cmid);
         $completion = new custom_completion($cm, $user->id);
@@ -527,17 +528,226 @@ class custom_completion_test extends advanced_testcase {
         // 0 attempts.
         $this->assertEquals(COMPLETION_INCOMPLETE, $completion->get_state('completionminattempts'));
 
-        // 1 attempt.
+        // 1 completed attempt.
         /** @var \mod_naas_generator $gen */
         $gen = $this->getDataGenerator()->get_plugin_generator('mod_naas');
-        $gen->create_activity_outcome($user->id, $naas->cmid);
+        $gen->create_completed_attempt($user->id, $naas->cmid, 0.6);
 
         // Refetch modinfo is NOT needed for get_state as it queries DB directly for attempts.
         $this->assertEquals(COMPLETION_INCOMPLETE, $completion->get_state('completionminattempts'));
 
-        // 2 attempts.
-        $gen->create_activity_outcome($user->id, $naas->cmid);
+        // 2 completed attempts.
+        $gen->create_completed_attempt($user->id, $naas->cmid, 0.7);
         $this->assertEquals(COMPLETION_COMPLETE, $completion->get_state('completionminattempts'));
+    }
+
+    // Attempt model: only launches that received an LTI outcome are attempts.
+
+    /**
+     * A launch without an LTI outcome is not an attempt: neither the minimum-attempts rule
+     * nor the exhaustion rule may count it, however many times the page was loaded.
+     */
+    public function test_launched_but_unfinished_attempts_do_not_count(): void {
+        $this->resetAfterTest(true);
+
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $naas   = $this->getDataGenerator()->create_module('naas', [
+            'course' => $course->id,
+            'completion' => COMPLETION_TRACKING_AUTOMATIC,
+            'completionminattempts' => 1,
+            'completionpass' => 0,
+            'completionattemptsexhausted' => 1,
+            'attempts' => 1,
+        ]);
+        $user = $this->getDataGenerator()->create_user();
+        $this->getDataGenerator()->enrol_user($user->id, $course->id);
+
+        /** @var \mod_naas_generator $gen */
+        $gen = $this->getDataGenerator()->get_plugin_generator('mod_naas');
+        // Three page loads, no outcome yet.
+        $gen->create_activity_outcome($user->id, $naas->cmid);
+        $gen->create_activity_outcome($user->id, $naas->cmid);
+        $gen->create_activity_outcome($user->id, $naas->cmid);
+
+        $cm         = get_fast_modinfo($course)->get_cm($naas->cmid);
+        $completion = new custom_completion($cm, $user->id);
+
+        $this->assertSame(0, attempts::count_completed($naas->cmid, $user->id));
+        $this->assertEquals(COMPLETION_INCOMPLETE, $completion->get_state('completionminattempts'));
+        $this->assertEquals(COMPLETION_INCOMPLETE, $completion->get_state('completionpassorattemptsexhausted'));
+
+        // One outcome closes one attempt: minimum (1) reached and allowed attempts (1) exhausted.
+        $gen->create_completed_attempt($user->id, $naas->cmid, 0.2);
+
+        $this->assertSame(1, attempts::count_completed($naas->cmid, $user->id));
+        $this->assertEquals(COMPLETION_COMPLETE, $completion->get_state('completionminattempts'));
+        $this->assertEquals(COMPLETION_COMPLETE, $completion->get_state('completionpassorattemptsexhausted'));
+    }
+
+    /**
+     * Unlimited attempts (attempts = 0) can never be exhausted, however many were completed.
+     */
+    public function test_unlimited_attempts_never_exhaust(): void {
+        $this->resetAfterTest(true);
+
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $naas   = $this->getDataGenerator()->create_module('naas', [
+            'course' => $course->id,
+            'completion' => COMPLETION_TRACKING_AUTOMATIC,
+            'completionpass' => 0,
+            'completionattemptsexhausted' => 1,
+            'attempts' => 0,
+        ]);
+        $user = $this->getDataGenerator()->create_user();
+        $this->getDataGenerator()->enrol_user($user->id, $course->id);
+
+        /** @var \mod_naas_generator $gen */
+        $gen = $this->getDataGenerator()->get_plugin_generator('mod_naas');
+        $gen->create_completed_attempt($user->id, $naas->cmid, 0.1);
+        $gen->create_completed_attempt($user->id, $naas->cmid, 0.2);
+        $gen->create_completed_attempt($user->id, $naas->cmid, 0.3);
+
+        $cm         = get_fast_modinfo($course)->get_cm($naas->cmid);
+        $completion = new custom_completion($cm, $user->id);
+
+        $this->assertFalse(attempts::is_exhausted(0, $naas->cmid, $user->id));
+        $this->assertEquals(COMPLETION_INCOMPLETE, $completion->get_state('completionpassorattemptsexhausted'));
+    }
+
+    /**
+     * Pass required and exhaustion refused: using up every attempt with a failing grade
+     * leaves the rule incomplete.
+     */
+    public function test_incomplete_when_pass_required_exhaust_refused_attempts_exhausted_and_grade_failing(): void {
+        $this->resetAfterTest(true);
+
+        [$course, $naas, $user] = $this->setup_failing_learner_with_exhausted_attempts(0);
+
+        $cm         = get_fast_modinfo($course)->get_cm($naas->cmid);
+        $completion = new custom_completion($cm, $user->id);
+
+        $this->assertTrue(attempts::is_exhausted(1, $naas->cmid, $user->id));
+        $this->assertEquals(COMPLETION_INCOMPLETE, $completion->get_state('completionpassorattemptsexhausted'));
+    }
+
+    /**
+     * Pass required with exhaustion accepted: the same failing learner is complete once
+     * attempts run out.
+     */
+    public function test_complete_when_pass_required_exhaust_accepted_attempts_exhausted_and_grade_failing(): void {
+        $this->resetAfterTest(true);
+
+        [$course, $naas, $user] = $this->setup_failing_learner_with_exhausted_attempts(1);
+
+        $cm         = get_fast_modinfo($course)->get_cm($naas->cmid);
+        $completion = new custom_completion($cm, $user->id);
+
+        $this->assertEquals(COMPLETION_COMPLETE, $completion->get_state('completionpassorattemptsexhausted'));
+    }
+
+    /**
+     * End to end: the LTI outcome posted to outcome.php closes the attempt (timecompleted)
+     * and the minimum-attempts rule, then the activity, become complete.
+     */
+    public function test_outcome_closes_attempt_and_completes_min_attempts_rule(): void {
+        global $CFG, $DB;
+        $this->resetAfterTest(true);
+        require_once($CFG->dirroot . '/mod/naas/outcome.php');
+
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $naas   = $this->getDataGenerator()->create_module('naas', [
+            'course' => $course->id,
+            'grade_method' => NAAS_ATTEMPTLAST,
+            'completion' => COMPLETION_TRACKING_AUTOMATIC,
+            'completionminattempts' => 1,
+        ]);
+        $user = $this->getDataGenerator()->create_user();
+        $this->getDataGenerator()->enrol_user($user->id, $course->id);
+
+        /** @var \mod_naas_generator $gen */
+        $gen = $this->getDataGenerator()->get_plugin_generator('mod_naas');
+        $sourcedid = 'b6-session-1';
+        $gen->create_activity_outcome($user->id, $naas->cmid, $sourcedid);
+
+        $cm         = get_fast_modinfo($course)->get_cm($naas->cmid);
+        $completion = new custom_completion($cm, $user->id);
+        $this->assertEquals(COMPLETION_INCOMPLETE, $completion->get_state('completionminattempts'));
+
+        \mod_naas_outcome::handle($this->replace_result_xml($sourcedid, '0.9'));
+
+        $row = $DB->get_record('naas_activity_outcome', ['sourced_id' => $sourcedid], '*', MUST_EXIST);
+        $this->assertNotNull($row->timecompleted);
+        $this->assertEqualsWithDelta(0.9, (float) $row->score, 0.00001);
+        $this->assertSame(1, attempts::count_completed($naas->cmid, $user->id));
+        $this->assertEquals(COMPLETION_COMPLETE, $completion->get_state('completionminattempts'));
+
+        $info = new \completion_info($course);
+        $this->assertEquals(COMPLETION_COMPLETE, $info->get_data($cm, true, $user->id)->completionstate);
+    }
+
+    /**
+     * Course, Nugget (pass required, 1 attempt allowed, grade to pass 70) and a learner who
+     * completed that attempt with a failing grade of 40.
+     *
+     * @param int $exhaustaccepted completionattemptsexhausted flag
+     * @return array [$course, $naas, $user]
+     */
+    private function setup_failing_learner_with_exhausted_attempts(int $exhaustaccepted): array {
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $naas   = $this->getDataGenerator()->create_module('naas', [
+            'course' => $course->id,
+            'completion' => COMPLETION_TRACKING_AUTOMATIC,
+            'completionpass' => 1,
+            'completionattemptsexhausted' => $exhaustaccepted,
+            'attempts' => 1,
+        ]);
+        $user = $this->getDataGenerator()->create_user();
+        $this->getDataGenerator()->enrol_user($user->id, $course->id);
+
+        $gradeitem = \grade_item::fetch([
+            'courseid' => $course->id, 'itemtype' => 'mod', 'itemmodule' => 'naas', 'iteminstance' => $naas->id, ]);
+        $gradeitem->gradepass = 70;
+        $gradeitem->update();
+
+        $grade           = new \stdClass();
+        $grade->userid   = $user->id;
+        $grade->rawgrade = 40;
+        grade_update('mod/naas', $course->id, 'mod', 'naas', $naas->id, 0, $grade);
+
+        /** @var \mod_naas_generator $gen */
+        $gen = $this->getDataGenerator()->get_plugin_generator('mod_naas');
+        $gen->create_completed_attempt($user->id, $naas->cmid, 0.4);
+
+        return [$course, $naas, $user];
+    }
+
+    /**
+     * Minimal IMS LTI replaceResult payload.
+     *
+     * @param string $sourcedid
+     * @param string $score Normalised score 0-1 as string (e.g. "0.85")
+     * @return string
+     */
+    private function replace_result_xml(string $sourcedid, string $score): string {
+        return <<<XML
+<?xml version="1.0" encoding="UTF-8"?>
+<imsx_POXEnvelopeRequest xmlns="http://www.imsglobal.org/services/ltiv1p1/xsd/imsoms_v1p0">
+  <imsx_POXBody>
+    <replaceResultRequest>
+      <resultRecord>
+        <sourcedGUID>
+          <sourcedId>{$sourcedid}</sourcedId>
+        </sourcedGUID>
+        <result>
+          <resultScore>
+            <score>{$score}</score>
+          </resultScore>
+        </result>
+      </resultRecord>
+    </replaceResultRequest>
+  </imsx_POXBody>
+</imsx_POXEnvelopeRequest>
+XML;
     }
 
     /**

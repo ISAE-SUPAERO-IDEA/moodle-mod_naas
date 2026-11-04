@@ -20,6 +20,7 @@ use context_module;
 use core_completion\activity_custom_completion;
 use grade_grade;
 use grade_item;
+use mod_naas\attempts;
 use naas;
 
 /**
@@ -71,40 +72,27 @@ class custom_completion extends activity_custom_completion {
             }
         }
 
-        // Each LTI launch stores one row. attempts = 0 means unlimited, so it never exhausts.
+        // Only attempts that received an LTI outcome count. attempts = 0 means unlimited, so it never exhausts.
         $maxattempts = (int) $DB->get_field('naas', 'attempts', ['id' => $this->cm->instance]);
-        if ($maxattempts < 1) {
-            return false;
-        }
-        $attempts = $DB->count_records('naas_activity_outcome', [
-            'user_id' => $this->userid,
-            'activity_id' => $this->cm->id,
-        ]);
 
-        return $attempts >= $maxattempts;
+        return attempts::is_exhausted($maxattempts, $this->cm->id, $this->userid);
     }
 
     /**
      * Check the minimum-attempts requirement for completion.
      *
-     * Each LTI launch stores one row in naas_activity_outcome. That row count is the attempt count.
+     * An attempt is a naas_activity_outcome row that received its LTI outcome
+     * (see \mod_naas\attempts). Launches without an outcome do not count.
      *
-     * @return bool True when the minimum is unset or the learner has launched enough times.
+     * @return bool True when the minimum is unset or the learner completed enough attempts.
      */
     protected function check_min_attempts(): bool {
-        global $DB;
-
         $minattempts = $this->cm->customdata['customcompletionrules']['completionminattempts'] ?? 0;
         if (empty($minattempts)) {
             return true;
         }
 
-        $attempts = $DB->count_records('naas_activity_outcome', [
-            'user_id' => $this->userid,
-            'activity_id' => $this->cm->id,
-        ]);
-
-        return $attempts >= (int) $minattempts;
+        return attempts::count_completed($this->cm->id, $this->userid) >= (int) $minattempts;
     }
 
     /**

@@ -72,6 +72,8 @@ class provider implements
                 'activity_id' => 'privacy:metadata:naas_activity_outcome:activity_id',
                 'sourced_id' => 'privacy:metadata:naas_activity_outcome:sourced_id',
                 'date_added' => 'privacy:metadata:naas_activity_outcome:date_added',
+                'score' => 'privacy:metadata:naas_activity_outcome:score',
+                'timecompleted' => 'privacy:metadata:naas_activity_outcome:timecompleted',
             ],
             'privacy:metadata:naas_activity_outcome'
         );
@@ -155,7 +157,9 @@ class provider implements
                     'User ID' => $record->user_id,
                     'Activity ID' => $record->activity_id,
                     'Session ID' => $record->sourced_id,
-                    'Started ad' => $record->date_added,
+                    'Started at' => $record->date_added,
+                    'Score' => $record->score,
+                    'Completed at' => $record->timecompleted,
                 ];
             }
 
