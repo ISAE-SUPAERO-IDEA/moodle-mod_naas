@@ -204,6 +204,18 @@ if ($hassiteconfig) {
     if (!empty(get_config('naas', 'naas_ssl_noverify'))) {
         $advancedinfo .= "\n\n" . get_string('naas_settings_ssl_noverify_active', 'naas');
     }
+    if (empty(get_config('naas', 'naas_require_outcome_oauth'))) {
+        $signedseen = (int) get_config('naas', 'naas_outcome_signed_seen');
+        if ($signedseen > 0) {
+            $advancedinfo .= "\n\n" . get_string(
+                'naas_settings_require_outcome_oauth_ready',
+                'naas',
+                userdate($signedseen, get_string('strftimedatetime', 'langconfig'))
+            );
+        } else {
+            $advancedinfo .= "\n\n" . get_string('naas_settings_require_outcome_oauth_off', 'naas');
+        }
+    }
     $settings->add(new admin_setting_heading(
         'naas/heading_advanced',
         get_string('naas_settings_advanced', 'naas'),

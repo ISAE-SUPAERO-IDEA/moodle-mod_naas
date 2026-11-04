@@ -39,8 +39,10 @@ class mod_naas_outcome {
     /**
      * Apply a replaceResult body (HTTP entrypoint).
      *
-     * OAuth verification runs only when {@see self::is_oauth_required()} is true
-     * (admin setting naas_require_outcome_oauth).
+     * OAuth verification is enforced only when {@see self::is_oauth_required()} is true
+     * (admin setting naas_require_outcome_oauth). While it is off, a signed post is still
+     * checked so that the settings page can tell the admin that NaaS already signs grades
+     * (config naas_outcome_signed_seen); the grade is stored whatever the result.
      *
      * @param string $xml Raw POX body
      * @param string|null $authorizationheader Authorization header value
@@ -57,8 +59,41 @@ class mod_naas_outcome {
     ): void {
         if (self::is_oauth_required()) {
             self::authenticate($xml, $authorizationheader, $requesturl, $credentials);
+        } else {
+            self::record_signed_outcome($xml, $authorizationheader, $requesturl, $credentials);
         }
         self::handle($xml);
+    }
+
+    /**
+     * While OAuth is optional, remember when a correctly signed outcome was last received.
+     *
+     * Never throws: an unsigned or badly signed post is still accepted in this mode.
+     *
+     * @param string $xml
+     * @param string|null $authorizationheader
+     * @param string|null $requesturl
+     * @param stdClass|null $credentials
+     * @return void
+     */
+    private static function record_signed_outcome(
+        string $xml,
+        ?string $authorizationheader,
+        ?string $requesturl,
+        ?stdClass $credentials
+    ): void {
+        if ($authorizationheader === null) {
+            $authorizationheader = self::authorization_header_from_request();
+        }
+        if (stripos($authorizationheader, 'OAuth ') === false) {
+            return;
+        }
+        try {
+            self::authenticate($xml, $authorizationheader, $requesturl, $credentials);
+            set_config('naas_outcome_signed_seen', time(), 'naas');
+        } catch (\Throwable $e) {
+            return;
+        }
     }
 
     /**

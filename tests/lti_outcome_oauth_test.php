@@ -260,6 +260,74 @@ class lti_outcome_oauth_test extends advanced_testcase {
 
         $grades = grade_get_grades($course->id, 'mod', 'naas', $naas->id, $user->id);
         $this->assertEquals(60.0, (float) $grades->items[0]->grades[$user->id]->grade);
+        $this->assertEmpty(get_config('naas', 'naas_outcome_signed_seen'));
+    }
+
+    /**
+     * While OAuth is optional, a correctly signed post is recorded so the admin knows NaaS signs.
+     */
+    public function test_process_records_signed_outcome_when_oauth_optional(): void {
+        $this->resetAfterTest(true);
+        set_config('naas_require_outcome_oauth', 0, 'naas');
+        [$course, $naas, $user, $sourcedid] = $this->create_graded_attempt('oauth-seen-1');
+
+        $body = $this->sample_body($sourcedid, '0.7');
+        $header = lti_outcome_oauth::sign(self::KEY, self::SECRET, $body, self::URL);
+        $credentials = (object) ['key' => self::KEY, 'secret' => self::SECRET];
+
+        $before = time();
+        \mod_naas_outcome::process($body, $header, self::URL, $credentials);
+
+        $this->assertGreaterThanOrEqual($before, (int) get_config('naas', 'naas_outcome_signed_seen'));
+        $grades = grade_get_grades($course->id, 'mod', 'naas', $naas->id, $user->id);
+        $this->assertEquals(70.0, (float) $grades->items[0]->grades[$user->id]->grade);
+    }
+
+    /**
+     * While OAuth is optional, a badly signed post is still graded but not recorded as signed.
+     */
+    public function test_process_ignores_bad_signature_when_oauth_optional(): void {
+        $this->resetAfterTest(true);
+        set_config('naas_require_outcome_oauth', 0, 'naas');
+        [$course, $naas, $user, $sourcedid] = $this->create_graded_attempt('oauth-bad-1');
+
+        $body = $this->sample_body($sourcedid, '0.5');
+        $header = lti_outcome_oauth::sign(self::KEY, 'wrong-secret', $body, self::URL);
+        $credentials = (object) ['key' => self::KEY, 'secret' => self::SECRET];
+
+        \mod_naas_outcome::process($body, $header, self::URL, $credentials);
+
+        $this->assertEmpty(get_config('naas', 'naas_outcome_signed_seen'));
+        $grades = grade_get_grades($course->id, 'mod', 'naas', $naas->id, $user->id);
+        $this->assertEquals(50.0, (float) $grades->items[0]->grades[$user->id]->grade);
+    }
+
+    /**
+     * Create a course, a graded Nugget activity, an enrolled learner and one launched attempt.
+     *
+     * @param string $sourcedid
+     * @return array [course, naas module, user, sourcedid]
+     */
+    private function create_graded_attempt(string $sourcedid): array {
+        global $DB;
+
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $naas = $this->getDataGenerator()->create_module('naas', [
+            'course' => $course->id,
+            'grade_method' => NAAS_ATTEMPTLAST,
+            'completion' => COMPLETION_TRACKING_AUTOMATIC,
+            'completionusegrade' => 1,
+        ]);
+        $user = $this->getDataGenerator()->create_user();
+        $this->getDataGenerator()->enrol_user($user->id, $course->id);
+        $DB->insert_record('naas_activity_outcome', [
+            'user_id' => $user->id,
+            'activity_id' => $naas->cmid,
+            'sourced_id' => $sourcedid,
+            'date_added' => time(),
+        ]);
+
+        return [$course, $naas, $user, $sourcedid];
     }
 
     /**
