@@ -27,6 +27,7 @@ namespace mod_naas;
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
+require_once($CFG->libdir . '/completionlib.php');
 require_once($CFG->dirroot . '/course/modlib.php');
 require_once($CFG->dirroot . '/mod/naas/lib.php');
 require_once($CFG->dirroot . '/mod/naas/mod_form.php');
@@ -111,6 +112,8 @@ final class mod_form_test extends advanced_testcase {
             'instance' => 0,
             'coursemodule' => 0,
             'cmidnumber' => '',
+            // Moodle 4.1 reads this key unguarded when availability is enabled.
+            'availabilityconditionsjson' => '',
         ], $overrides);
     }
 
@@ -202,11 +205,10 @@ final class mod_form_test extends advanced_testcase {
             'courseid' => $course->id,
         ]);
         $this->assertNotFalse($item);
-        $exported = $mform->exportValues([$maxfield]);
-        $this->assertArrayHasKey($maxfield, $exported);
+        // On Moodle 4.1, exportValues() with an element list breaks on text elements, so read the value directly.
         $this->assertEquals(
             \format_float($item->grademax, 2),
-            \format_float((float) $exported[$maxfield], 2)
+            \format_float((float) $mform->getElementValue($maxfield), 2)
         );
     }
 
@@ -285,11 +287,11 @@ final class mod_form_test extends advanced_testcase {
         $this->init_test_page($context, $course);
         $form = new mod_naas_mod_form($data, $cw->section, $cm, $course);
 
-        $base = ['nugget_id' => '', 'maxgrade' => 100, 'completion' => COMPLETION_TRACKING_DISABLED];
+        $base = ['nugget_id' => '', 'maxgrade' => 100, 'completion' => COMPLETION_TRACKING_NONE];
         $errors = $form->validation($this->validation_payload($base), []);
         $this->assertArrayHasKey('name', $errors);
 
-        $base = ['nugget_id' => 'nid-1', 'maxgrade' => 0, 'completion' => COMPLETION_TRACKING_DISABLED];
+        $base = ['nugget_id' => 'nid-1', 'maxgrade' => 0, 'completion' => COMPLETION_TRACKING_NONE];
         $errors = $form->validation($this->validation_payload($base), []);
         $this->assertArrayHasKey('maxgrade', $errors);
     }
@@ -315,7 +317,7 @@ final class mod_form_test extends advanced_testcase {
         $errors = $form->validation($this->validation_payload([
             'nugget_id' => 'nid-1',
             'maxgrade' => 100,
-            'completion' => COMPLETION_TRACKING_DISABLED,
+            'completion' => COMPLETION_TRACKING_NONE,
         ]), []);
         $this->assertArrayNotHasKey('cgu_agreement', $errors);
     }

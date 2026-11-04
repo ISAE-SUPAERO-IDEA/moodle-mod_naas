@@ -27,6 +27,7 @@ namespace mod_naas;
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
+require_once($CFG->libdir . '/completionlib.php');
 require_once($CFG->dirroot . '/course/modlib.php');
 require_once($CFG->dirroot . '/mod/naas/lib.php');
 require_once($CFG->dirroot . '/mod/naas/mod_form.php');
@@ -89,6 +90,12 @@ final class mod_form_completion_test extends advanced_testcase {
     private function payload(array $overrides = []): array {
         return array_merge([
             'name' => 'Nugget',
+            // Read unguarded by moodleform_mod::validation() on Moodle 4.1.
+            'modulename' => 'naas',
+            'instance' => 0,
+            'coursemodule' => 0,
+            'cmidnumber' => '',
+            'availabilityconditionsjson' => '',
             'nugget_id' => 'nid-1',
             'cgu_agreement' => 1,
             'maxgrade' => 100,
