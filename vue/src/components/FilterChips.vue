@@ -28,30 +28,30 @@
     role="group"
     :aria-label="config.labels.active_filters || 'Active filters'"
   >
-    <VChip
+    <span
       v-for="chip in chips"
       :key="`${chip.key}-${chip.value}`"
-      class="filter-chip"
-      color="primary"
-      variant="outlined"
-      closable
-      size="small"
-      :aria-label="`Remove filter ${chip.label}`"
-      @click:close="emit('remove', chip.key, chip.value)"
+      class="naas-chip filter-chip"
     >
-      {{ chip.label }}
-    </VChip>
+      <span class="naas-chip__label">{{ chip.label }}</span>
+      <button
+        type="button"
+        class="naas-chip__close"
+        :aria-label="`Remove filter ${chip.label}`"
+        @click="emit('remove', chip.key, chip.value)"
+      >
+        <i class="fa fa-times" aria-hidden="true"></i>
+      </button>
+    </span>
 
-    <VChip
+    <button
       v-if="chips.length > 1"
-      class="filter-chip filter-chip-clear"
-      color="error"
-      variant="outlined"
-      size="small"
+      type="button"
+      class="naas-chip naas-chip--clear filter-chip filter-chip-clear"
       @click="emit('clear')"
     >
       {{ config.labels.clear_filters }}
-    </VChip>
+    </button>
   </div>
 </template>
 
@@ -96,11 +96,58 @@ const chips = computed(() => {
   margin-bottom: 1rem;
 }
 
-.filter-chip {
+.naas-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.15rem 0.65rem;
+  font-size: 0.8125rem;
   font-weight: 600;
+  line-height: 1.5;
+  color: var(--naas-primary, #0f6cbf);
+  background: var(--naas-surface, #fff);
+  border: 1px solid currentColor;
+  border-radius: var(--naas-radius-pill, 999px);
 }
 
-.filter-chip-clear {
+.naas-chip__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-right: -0.35rem;
+  padding: 0;
+  font-size: 0.75rem;
+  line-height: 1;
+  color: inherit;
+  background: transparent;
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.naas-chip__close:hover,
+.naas-chip__close:focus-visible {
+  background: var(--naas-primary-light, #dce9fa);
+}
+
+.naas-chip--clear {
+  font-family: inherit;
   font-weight: 500;
+  color: #dc3545; /* Bootstrap danger */
+  cursor: pointer;
+}
+
+.naas-chip--clear:hover,
+.naas-chip--clear:focus-visible {
+  color: #fff;
+  background: #dc3545;
+}
+
+.naas-chip__close:focus-visible,
+.naas-chip--clear:focus-visible {
+  outline: 2px solid var(--naas-primary, #0f6cbf);
+  outline-offset: 1px;
 }
 </style>

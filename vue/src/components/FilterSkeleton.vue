@@ -23,13 +23,29 @@
 -->
 <template>
   <div class="filter-skeleton" aria-hidden="true">
-    <VSkeletonLoader type="text, button, button" />
+    <span class="naas-skeleton skel-text" />
+    <span class="naas-skeleton skel-button" />
+    <span class="naas-skeleton skel-button" />
   </div>
 </template>
 
 <style scoped>
 .filter-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
   padding: 10px;
   width: 100%;
+}
+
+.skel-text {
+  width: 60%;
+  height: 0.85rem;
+  border-radius: var(--naas-radius-pill, 999px);
+}
+
+.skel-button {
+  width: 7.5rem;
+  height: 2.25rem;
 }
 </style>

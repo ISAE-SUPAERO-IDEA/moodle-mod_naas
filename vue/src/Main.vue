@@ -24,10 +24,10 @@
  */
 -->
 <template>
-  <VApp class="naas-widget">
+  <div class="naas-widget">
     <NuggetView v-if="config.component === 'NuggetView'" />
     <NuggetSearchWidget v-else />
-  </VApp>
+  </div>
 </template>
 
 <script setup lang="ts">

@@ -24,10 +24,10 @@
 <template>
   <div class="nugget-view-skeleton" aria-hidden="true">
     <div class="skel-toolbar">
-      <VSkeletonLoader class="skel-btn" type="button" />
-      <VSkeletonLoader class="skel-select" type="button" />
+      <span class="naas-skeleton skel-btn" />
+      <span class="naas-skeleton skel-select" />
     </div>
-    <VSkeletonLoader class="skel-iframe" type="image" />
+    <div class="naas-skeleton skel-iframe" />
   </div>
 </template>
 
@@ -54,11 +54,6 @@
 
 .skel-iframe {
   width: 100%;
-  height: 600px;
-}
-
-.skel-iframe :deep(.v-skeleton-loader__image),
-.skel-iframe :deep(.v-skeleton-loader__bone) {
   height: 600px;
 }
 </style>
