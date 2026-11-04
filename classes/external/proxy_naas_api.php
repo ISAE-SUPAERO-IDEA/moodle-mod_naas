@@ -153,6 +153,19 @@ class proxy_naas_api extends \external_api {
     }
 
     /**
+     * Reject callers who hold no active enrolment in the course.
+     *
+     * @param int $courseid Course the activity belongs to.
+     * @throws \moodle_exception error:not_enrolled when the current user is not actively enrolled.
+     */
+    protected static function require_active_course_enrolment(int $courseid): void {
+        $coursecontext = \context_course::instance($courseid);
+        if (!is_enrolled($coursecontext, null, '', true)) {
+            throw new \moodle_exception('error:not_enrolled', 'naas');
+        }
+    }
+
+    /**
      * True when the JSON already has a human-readable structure name.
      * @param string $json
      * @return bool
@@ -764,7 +777,7 @@ class proxy_naas_api extends \external_api {
         require_capability('mod/naas:admin', $context);
 
         $config = (object) array_merge((array) get_config('naas'), (array) $CFG);
-        $naas = new \mod_naas\naas_client($config);
+        $naas = static::make_naas_client($config);
 
         $url = '/nuggets/search?' . http_build_query([
                 'is_default_version' => true,
@@ -864,7 +877,7 @@ class proxy_naas_api extends \external_api {
             }
         }
 
-        $naas = self::make_naas_client($config);
+        $naas = static::make_naas_client($config);
         $url = "/nuggets/{$params['nuggetId']}/default_version";
         $result = self::sanitise_json_response($naas->request_raw('GET', $url));
 
@@ -915,15 +928,12 @@ class proxy_naas_api extends \external_api {
         $cm = get_coursemodule_from_id('naas', $params['cmId'], 0, false, MUST_EXIST);
 
         // Verify the calling user is actually enrolled in the module's course.
-        $coursecontext = \context_course::instance($cm->course);
-        if (!is_enrolled($coursecontext, null, '', true)) {
-            throw new \moodle_exception('error:not_enrolled', 'naas');
-        }
+        self::require_active_course_enrolment((int) $cm->course);
 
         $naasinstance = $DB->get_record('naas', ['id' => $cm->instance], '*', MUST_EXIST);
 
         $config = (object) array_merge((array) get_config('naas'), (array) $CFG);
-        $naas = new \mod_naas\naas_client($config);
+        $naas = static::make_naas_client($config);
 
         $url = "/nuggets/{$naasinstance->nugget_id}/default_version";
         return self::sanitise_json_response($naas->request_raw('GET', $url));
@@ -970,7 +980,7 @@ class proxy_naas_api extends \external_api {
         self::validate_id_param($params['versionId'], 'versionId');
 
         $config = (object) array_merge((array) get_config('naas'), (array) $CFG);
-        $naas = new \mod_naas\naas_client($config);
+        $naas = static::make_naas_client($config);
 
         $url = "/versions/{$params['versionId']}/preview_url";
         return self::sanitise_json_response($naas->request_raw('GET', $url));
@@ -1024,7 +1034,7 @@ class proxy_naas_api extends \external_api {
         }
 
         $config = (object) array_merge((array) get_config('naas'), (array) $CFG);
-        $naas = new \mod_naas\naas_client($config);
+        $naas = static::make_naas_client($config);
 
         $url = "/vocabularies/nugget_domains_vocabulary/{$params['domainKey']}";
         $result = self::sanitise_json_response($naas->request_raw('GET', $url));
@@ -1090,7 +1100,7 @@ class proxy_naas_api extends \external_api {
         }
 
         $config = (object) array_merge((array) get_config('naas'), (array) $CFG);
-        $naas = self::make_naas_client($config);
+        $naas = static::make_naas_client($config);
 
         $result = null;
         $lookups = array_values(array_unique([$structurekey, strtolower($structurekey)]));
@@ -1195,7 +1205,7 @@ class proxy_naas_api extends \external_api {
         }
 
         $config = (object) array_merge((array) get_config('naas'), (array) $CFG);
-        $naas = self::make_naas_client($config);
+        $naas = static::make_naas_client($config);
 
         $result = null;
         try {
@@ -1365,7 +1375,7 @@ class proxy_naas_api extends \external_api {
             }
         }
 
-        $naas = self::make_naas_client($config);
+        $naas = static::make_naas_client($config);
         $result = \mod_naas\catalogue_filters::constrain_search_json(
             self::sanitise_json_response($naas->request_raw('GET', self::search_url($searchoptionsarray))),
             $config
@@ -1440,7 +1450,7 @@ class proxy_naas_api extends \external_api {
             return json_encode($cached, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
         }
 
-        $naas = self::make_naas_client($config);
+        $naas = static::make_naas_client($config);
 
         $searchoptions = \mod_naas\catalogue_filters::apply([
             'is_default_version' => true,

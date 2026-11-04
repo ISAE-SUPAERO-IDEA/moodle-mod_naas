@@ -33,17 +33,15 @@ use advanced_testcase;
 use mod_naas\external\xapi;
 
 require_once(__DIR__ . '/../fixtures/stub_naas_client_for_xapi.php');
+require_once(__DIR__ . '/../fixtures/testable_naas_client.php');
 require_once(__DIR__ . '/../fixtures/xapi_enrol_test_proxy.php');
 
 /**
  * Tests for the xapi external service.
  *
- * Network-dependent tests (the happy-path POST to the NaaS API) are not
- * covered here — those require a live NaaS endpoint or a stub HTTP adapter
- * (see QUALITY_PHP.md H1 for the planned refactor).
- *
- * All tests below cover the security and validation gates that execute before
- * any network call is made.
+ * No test performs outbound HTTP: the NaaS client is replaced through
+ * xapi::make_naas_client() (see xapi_using()) with a stub that records the
+ * statement it receives, so the payload sent to NaaS can be asserted.
  *
  * @package    mod_naas
  * @copyright  2019 onwards ISAE-SUPAERO (https://www.isae-supaero.fr/).
@@ -59,7 +57,7 @@ class xapi_test extends advanced_testcase {
      */
     public function test_parameters_returns_correct_type(): void {
         $params = xapi::post_xapi_statement_parameters();
-        $this->assertTrue($params instanceof \core_external\external_function_parameters);
+        $this->assertTrue($params instanceof \external_function_parameters);
     }
 
     /**
@@ -67,7 +65,7 @@ class xapi_test extends advanced_testcase {
      */
     public function test_returns_descriptor_is_single_structure(): void {
         $returns = xapi::post_xapi_statement_returns();
-        $this->assertTrue($returns instanceof \core_external\external_single_structure);
+        $this->assertTrue($returns instanceof \external_single_structure);
     }
 
     /**
@@ -100,11 +98,7 @@ class xapi_test extends advanced_testcase {
     }
 
     /**
-     * Each of the three allowed verbs must pass verb validation (exception must
-     * not be thrown for verb itself — test stops before network call).
-     *
-     * We provoke a later exception (not_enrolled or require_login) to confirm
-     * the verb was accepted.
+     * Each of the three allowed verbs must pass validation and reach the NaaS client.
      *
      * @dataProvider allowed_verbs_provider
      * @param string $verb Allowed xAPI verb under test.
@@ -118,19 +112,12 @@ class xapi_test extends advanced_testcase {
         $naas   = $this->getDataGenerator()->create_module('naas', ['course' => $course->id]);
         $this->setUser($user);
 
-        // We do NOT assert a specific exception here — we only assert it is NOT.
-        // An invalid_parameter_exception caused by the verb.
-        try {
-            xapi::post_xapi_statement($verb, 'v1', $naas->cmid, null);
-            // If the call succeeded (real NaaS reachable), that is also fine.
-            $this->assertTrue(true);
-        } catch (\invalid_parameter_exception $e) {
-            // A verb-related invalid_parameter_exception would contain the verb.
-            $this->assertStringNotContainsString($verb, $e->debuginfo ?? '');
-        } catch (\Throwable $e) {
-            // Any other exception (network, moodle_exception…) is acceptable.
-            $this->assertTrue(true);
-        }
+        $client = $this->capturing_client();
+        $xapi = $this->xapi_using($client);
+        $result = $xapi::post_xapi_statement($verb, 'v1', $naas->cmid, null);
+
+        $this->assertSame(202, $result['statusCode']);
+        $this->assertSame("/versions/v1/records/{$verb}", $client->captured['service']);
     }
 
     /**
@@ -199,7 +186,6 @@ class xapi_test extends advanced_testcase {
 
     /**
      * A body exactly at the 4 096-byte limit must not be rejected for size.
-     * (It may fail for other reasons such as network unavailability.)
      */
     public function test_body_at_size_limit_is_not_rejected_for_size(): void {
         $this->resetAfterTest(true);
@@ -212,16 +198,12 @@ class xapi_test extends advanced_testcase {
 
         $exactsize = str_repeat('x', 4096);
 
-        try {
-            xapi::post_xapi_statement('experienced', 'version-1', $naas->cmid, $exactsize);
-            $this->assertTrue(true);
-        } catch (\invalid_parameter_exception $e) {
-            // Must not be a size-related rejection.
-            $this->assertStringNotContainsString('xapi_body_too_large', $e->getMessage());
-        } catch (\Throwable $e) {
-            // Any other failure (network, curl) is acceptable.
-            $this->assertTrue(true);
-        }
+        $client = $this->capturing_client();
+        $xapi = $this->xapi_using($client);
+        $result = $xapi::post_xapi_statement('experienced', 'version-1', $naas->cmid, $exactsize);
+
+        $this->assertSame(202, $result['statusCode']);
+        $this->assertSame('/versions/version-1/records/experienced', $client->captured['service']);
     }
 
     // Access control.
@@ -299,17 +281,20 @@ class xapi_test extends advanced_testcase {
         $this->getDataGenerator()->enrol_user($user->id, $course->id, 'student');
         $naas   = $this->getDataGenerator()->create_module('naas', ['course' => $course->id]);
         $this->setUser($user);
-        set_config('naas_endpoint', 'http://Invalid-endpoint-for-test.local', 'naas');
 
-        $this->expectException(\moodle_exception::class);
-        xapi::post_xapi_statement('experienced', 'version-1', $naas->cmid, '{"actor":{"mbox":"mailto:a@b"}}');
+        $client = $this->capturing_client();
+        $xapi = $this->xapi_using($client);
+        $xapi::post_xapi_statement('experienced', 'version-1', $naas->cmid, '{"actor":{"mbox":"mailto:a@b"}}');
+
+        $body = $client->captured['data']['body'];
+        $this->assertIsObject($body);
+        $this->assertSame('mailto:a@b', $body->actor->mbox);
     }
 
     /**
      * When $_SESSION contains resource_link_id it must be forwarded on the payload.
      */
     public function test_post_xapi_includes_resource_link_id_from_session(): void {
-        global $_SESSION;
         $this->resetAfterTest(true);
 
         $course = $this->getDataGenerator()->create_course();
@@ -318,11 +303,16 @@ class xapi_test extends advanced_testcase {
         $naas   = $this->getDataGenerator()->create_module('naas', ['course' => $course->id]);
         $this->setUser($user);
 
+        $client = $this->capturing_client();
+        $xapi = $this->xapi_using($client);
         $_SESSION['resource_link_id'] = 'lti-link-xyz';
-        set_config('naas_endpoint', 'http://Invalid-endpoint-for-test.local', 'naas');
+        try {
+            $xapi::post_xapi_statement('completed', 'version-1', $naas->cmid, null);
+        } finally {
+            unset($_SESSION['resource_link_id']);
+        }
 
-        $this->expectException(\moodle_exception::class);
-        xapi::post_xapi_statement('completed', 'version-1', $naas->cmid, null);
+        $this->assertSame('lti-link-xyz', $client->captured['data']['resource_link_id']);
     }
 
     /**
@@ -338,10 +328,14 @@ class xapi_test extends advanced_testcase {
         $this->getDataGenerator()->enrol_user($user->id, $course->id, 'student');
         $naas   = $this->getDataGenerator()->create_module('naas', ['course' => $course->id]);
         $this->setUser($user);
-        set_config('naas_endpoint', 'http://Invalid-endpoint-for-test.local', 'naas');
 
-        $this->expectException(\moodle_exception::class);
-        xapi::post_xapi_statement('rated', 'version-1', $naas->cmid, null);
+        $client = $this->capturing_client();
+        $xapi = $this->xapi_using($client);
+        $xapi::post_xapi_statement('rated', 'version-1', $naas->cmid, null);
+
+        $sent = $client->captured['data']['user'];
+        $this->assertSame('Anonymous User', $sent->name);
+        $this->assertSame('anonymous@naas-edu.eu', $sent->email);
     }
 
     /**
@@ -357,10 +351,14 @@ class xapi_test extends advanced_testcase {
         $this->getDataGenerator()->enrol_user($user->id, $course->id, 'student');
         $naas   = $this->getDataGenerator()->create_module('naas', ['course' => $course->id]);
         $this->setUser($user);
-        set_config('naas_endpoint', 'http://Invalid-endpoint-for-test.local', 'naas');
 
-        $this->expectException(\moodle_exception::class);
-        xapi::post_xapi_statement('experienced', 'version-1', $naas->cmid, null);
+        $client = $this->capturing_client();
+        $xapi = $this->xapi_using($client);
+        $xapi::post_xapi_statement('experienced', 'version-1', $naas->cmid, null);
+
+        $sent = $client->captured['data']['user'];
+        $this->assertSame($user->firstname . ' ' . $user->lastname, $sent->name);
+        $this->assertSame($user->email, $sent->email);
     }
 
     /**
@@ -374,22 +372,16 @@ class xapi_test extends advanced_testcase {
         $this->getDataGenerator()->enrol_user($user->id, $course->id, 'student');
         $naas   = $this->getDataGenerator()->create_module('naas', ['course' => $course->id]);
         $this->setUser($user);
-        set_config('naas_endpoint', 'http://Invalid-endpoint-for-test.local', 'naas');
 
-        $this->expectException(\moodle_exception::class);
-        xapi::post_xapi_statement('experienced', 'version-1', $naas->cmid, '');
+        $client = $this->capturing_client();
+        $xapi = $this->xapi_using($client);
+        $xapi::post_xapi_statement('experienced', 'version-1', $naas->cmid, '');
+
+        $this->assertEquals(new \stdClass(), $client->captured['data']['body']);
     }
 
     /**
      * Successful NaaS response must be returned as statusCode / statusMessage.
-     *
-     * Anonymous subclass of xapi must not live at file scope (externallib pulls
-     * require_phpunit_isolation). Only this test needs a separate PHP process.
-     * Class-wide runTestsInSeparateProcesses serializes globals and breaks
-     * PostgreSQL (PgSql\\Connection cannot be serialized), so only this method
-     * runs in its own process.
-     *
-     * @runInSeparateProcess
      */
     public function test_post_xapi_statement_returns_backend_status(): void {
         $this->resetAfterTest(true);
@@ -400,32 +392,8 @@ class xapi_test extends advanced_testcase {
         $naas = $this->getDataGenerator()->create_module('naas', ['course' => $course->id]);
         $this->setUser($user);
 
-        $stub = new stub_naas_client_for_xapi();
-
-        // Must not declare a named subclass of xapi at file scope: loading xapi.php.
-        // Pulls in externallib.php, which calls require_phpunit_isolation() and.
-        // Fails during PHPUnit suite discovery (parent process).
-        $testablemarker = new class extends xapi {
-            /** @var \mod_naas\naas_client|null */
-            public static $naasinjection = null;
-
-            /**
-             * Return the injected NaaS client.
-             *
-             * @param object $config
-             * @return \mod_naas\naas_client
-             */
-            protected static function make_naas_client(object $config): \mod_naas\naas_client {
-                return self::$naasinjection ?? parent::make_naas_client($config);
-            }
-        };
-        $testable = \get_class($testablemarker);
-        $testable::$naasinjection = $stub;
-        try {
-            $result = $testable::post_xapi_statement('experienced', 'version-1', $naas->cmid, null);
-        } finally {
-            $testable::$naasinjection = null;
-        }
+        $xapi = $this->xapi_using(new stub_naas_client_for_xapi());
+        $result = $xapi::post_xapi_statement('experienced', 'version-1', $naas->cmid, null);
 
         $this->assertSame(202, $result['statusCode']);
         $this->assertSame('Accepted', $result['statusMessage']);
@@ -478,5 +446,50 @@ class xapi_test extends advanced_testcase {
         } catch (\moodle_exception $e) {
             $this->assertSame('error:not_enrolled', $e->errorcode);
         }
+    }
+
+    /**
+     * Client stub that records the outbound statement and answers like an accepting NaaS.
+     *
+     * @return \mod_naas\testable_naas_client
+     */
+    private function capturing_client(): \mod_naas\testable_naas_client {
+        $client = new \mod_naas\testable_naas_client((object) [
+            'naas_endpoint' => 'https://Stub.example',
+            'naas_username' => 'u',
+            'naas_password' => 'p',
+            'naas_structure_id' => 's',
+        ]);
+        $client->stubjson = '{"payload":{"statusCode":202,"statusMessage":"Accepted"}}';
+        return $client;
+    }
+
+    /**
+     * Name of an xapi subclass whose HTTP client is $client.
+     *
+     * Every call sets the injected client, so a value left over from an
+     * earlier test is never used.
+     *
+     * @param \mod_naas\naas_client $client
+     * @return string
+     */
+    private function xapi_using(\mod_naas\naas_client $client): string {
+        $injectable = new class extends xapi {
+            /** @var \mod_naas\naas_client|null */
+            public static $naasinjection = null;
+
+            /**
+             * Return the injected NaaS client.
+             *
+             * @param object $config
+             * @return \mod_naas\naas_client
+             */
+            protected static function make_naas_client(object $config): \mod_naas\naas_client {
+                return self::$naasinjection ?? parent::make_naas_client($config);
+            }
+        };
+        $classname = \get_class($injectable);
+        $classname::$naasinjection = $client;
+        return $classname;
     }
 }

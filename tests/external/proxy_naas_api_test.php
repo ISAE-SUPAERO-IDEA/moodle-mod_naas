@@ -33,14 +33,16 @@ use advanced_testcase;
 use mod_naas\external\proxy_naas_api;
 
 require_once(__DIR__ . '/../fixtures/proxy_naas_api_enrol_test_proxy.php');
+require_once(__DIR__ . '/../fixtures/testable_naas_client.php');
 
 /**
  * Tests for the proxy_naas_api external service.
  *
- * Scope: security gates (auth, enrolment, capability) and input validation
- * that execute before any outbound HTTP call.  Network-dependent happy paths
- * are excluded until an HttpAdapter injection point exists in naas_client
- * (see QUALITY_PHP.md H1).
+ * Scope: security gates (auth, enrolment, capability), input validation, and
+ * the request each service sends.  No test performs outbound HTTP: the NaaS
+ * client is replaced through proxy_naas_api::make_naas_client() (see
+ * proxy_using()), either with a stub answering canned JSON or with one that
+ * fails like an unreachable endpoint.
  *
  * @package    mod_naas
  * @copyright  2019 onwards ISAE-SUPAERO (https://www.isae-supaero.fr/).
@@ -56,7 +58,7 @@ class proxy_naas_api_test extends advanced_testcase {
      */
     public function test_get_nugget_parameters_type(): void {
         $this->assertInstanceOf(
-            \core_external\external_function_parameters::class,
+            \external_function_parameters::class,
             proxy_naas_api::get_nugget_parameters()
         );
     }
@@ -66,7 +68,7 @@ class proxy_naas_api_test extends advanced_testcase {
      */
     public function test_search_nuggets_parameters_type(): void {
         $this->assertInstanceOf(
-            \core_external\external_function_parameters::class,
+            \external_function_parameters::class,
             proxy_naas_api::search_nuggets_parameters()
         );
     }
@@ -76,7 +78,7 @@ class proxy_naas_api_test extends advanced_testcase {
      */
     public function test_get_domain_parameters_type(): void {
         $this->assertInstanceOf(
-            \core_external\external_function_parameters::class,
+            \external_function_parameters::class,
             proxy_naas_api::get_domain_parameters()
         );
     }
@@ -86,60 +88,60 @@ class proxy_naas_api_test extends advanced_testcase {
      */
     public function test_get_structure_parameters_type(): void {
         $this->assertInstanceOf(
-            \core_external\external_function_parameters::class,
+            \external_function_parameters::class,
             proxy_naas_api::get_structure_parameters()
         );
     }
 
     public function test_test_config_parameters_type(): void {
-        $this->assertInstanceOf(\core_external\external_function_parameters::class, proxy_naas_api::test_config_parameters());
+        $this->assertInstanceOf(\external_function_parameters::class, proxy_naas_api::test_config_parameters());
     }
 
     public function test_test_config_returns_type(): void {
-        $this->assertInstanceOf(\core_external\external_value::class, proxy_naas_api::test_config_returns());
+        $this->assertInstanceOf(\external_value::class, proxy_naas_api::test_config_returns());
     }
 
     public function test_get_nugget_returns_type(): void {
-        $this->assertInstanceOf(\core_external\external_value::class, proxy_naas_api::get_nugget_returns());
+        $this->assertInstanceOf(\external_value::class, proxy_naas_api::get_nugget_returns());
     }
 
     public function test_view_nugget_returns_type(): void {
-        $this->assertInstanceOf(\core_external\external_value::class, proxy_naas_api::view_nugget_returns());
+        $this->assertInstanceOf(\external_value::class, proxy_naas_api::view_nugget_returns());
     }
 
     public function test_view_nugget_parameters_type(): void {
-        $this->assertInstanceOf(\core_external\external_function_parameters::class, proxy_naas_api::view_nugget_parameters());
+        $this->assertInstanceOf(\external_function_parameters::class, proxy_naas_api::view_nugget_parameters());
     }
 
     public function test_get_nugget_preview_parameters_type(): void {
         $this->assertInstanceOf(
-            \core_external\external_function_parameters::class,
+            \external_function_parameters::class,
             proxy_naas_api::get_nugget_preview_parameters()
         );
     }
 
     public function test_get_person_parameters_type(): void {
-        $this->assertInstanceOf(\core_external\external_function_parameters::class, proxy_naas_api::get_person_parameters());
+        $this->assertInstanceOf(\external_function_parameters::class, proxy_naas_api::get_person_parameters());
     }
 
     public function test_get_nugget_preview_returns_type(): void {
-        $this->assertInstanceOf(\core_external\external_value::class, proxy_naas_api::get_nugget_preview_returns());
+        $this->assertInstanceOf(\external_value::class, proxy_naas_api::get_nugget_preview_returns());
     }
 
     public function test_get_domain_returns_type(): void {
-        $this->assertInstanceOf(\core_external\external_value::class, proxy_naas_api::get_domain_returns());
+        $this->assertInstanceOf(\external_value::class, proxy_naas_api::get_domain_returns());
     }
 
     public function test_get_structure_returns_type(): void {
-        $this->assertInstanceOf(\core_external\external_value::class, proxy_naas_api::get_structure_returns());
+        $this->assertInstanceOf(\external_value::class, proxy_naas_api::get_structure_returns());
     }
 
     public function test_get_person_returns_type(): void {
-        $this->assertInstanceOf(\core_external\external_value::class, proxy_naas_api::get_person_returns());
+        $this->assertInstanceOf(\external_value::class, proxy_naas_api::get_person_returns());
     }
 
     public function test_search_nuggets_returns_type(): void {
-        $this->assertInstanceOf(\core_external\external_value::class, proxy_naas_api::search_nuggets_returns());
+        $this->assertInstanceOf(\external_value::class, proxy_naas_api::search_nuggets_returns());
     }
 
     // Test_config.
@@ -152,12 +154,15 @@ class proxy_naas_api_test extends advanced_testcase {
         proxy_naas_api::test_config();
     }
 
+    /**
+     * test_config() surfaces the transport failure of an unreachable NaaS endpoint.
+     */
     public function test_test_config_executes(): void {
         $this->resetAfterTest(true);
         $this->setAdminUser();
-        set_config('naas_endpoint', 'http://Invalid-endpoint-for-test.local', 'naas');
+        $proxy = $this->proxy_using($this->failing_client());
         $this->expectException(\moodle_exception::class);
-        proxy_naas_api::test_config();
+        $proxy::test_config();
     }
 
     // Get_nugget – authentication gate.
@@ -246,9 +251,10 @@ class proxy_naas_api_test extends advanced_testcase {
         $this->getDataGenerator()->enrol_user($user->id, $course->id, 'editingteacher');
         $this->setUser($user);
 
-        // Curl exception when it tries to connect to the dummy API.
+        // The stubbed transport fails like an unreachable NaaS endpoint.
+        $proxy = $this->proxy_using($this->failing_client());
         $this->expectException(\moodle_exception::class);
-        proxy_naas_api::get_nugget($course->id, 'valid-uuid-123');
+        $proxy::get_nugget($course->id, 'valid-uuid-123');
     }
 
     public function test_get_nugget_preview_requires_capability(): void {
@@ -268,10 +274,10 @@ class proxy_naas_api_test extends advanced_testcase {
         $user = $this->getDataGenerator()->create_user();
         $this->getDataGenerator()->enrol_user($user->id, $course->id, 'editingteacher');
         $this->setUser($user);
-        set_config('naas_endpoint', 'http://Invalid-endpoint-for-test.local', 'naas');
+        $proxy = $this->proxy_using($this->failing_client());
 
         $this->expectException(\moodle_exception::class);
-        proxy_naas_api::get_nugget_preview($course->id, 'valid-uuid-123');
+        $proxy::get_nugget_preview($course->id, 'valid-uuid-123');
     }
 
     public function test_get_nugget_spaces_rejected(): void {
@@ -374,8 +380,9 @@ class proxy_naas_api_test extends advanced_testcase {
         $this->getDataGenerator()->enrol_user($user->id, $course->id, 'student');
         $this->setUser($user);
 
+        $proxy = $this->proxy_using($this->failing_client());
         $this->expectException(\moodle_exception::class);
-        proxy_naas_api::view_nugget($naas->cmid);
+        $proxy::view_nugget($naas->cmid);
     }
 
     // Get_domain – validation.
@@ -422,8 +429,9 @@ class proxy_naas_api_test extends advanced_testcase {
         $this->getDataGenerator()->enrol_user($user->id, $course->id, 'editingteacher');
         $this->setUser($user);
 
+        $proxy = $this->proxy_using($this->failing_client());
         $this->expectException(\moodle_exception::class);
-        proxy_naas_api::get_domain($course->id, 'domainkey');
+        $proxy::get_domain($course->id, 'domainkey');
     }
 
     public function test_get_domain_special_chars_rejected(): void {
@@ -446,8 +454,15 @@ class proxy_naas_api_test extends advanced_testcase {
         $this->getDataGenerator()->enrol_user($student->id, $course->id, 'student');
         $this->setUser($student);
 
-        $this->expectException(\moodle_exception::class);
-        proxy_naas_api::get_domain($course->id, '01.02.03');
+        $client = $this->failing_client();
+        $proxy = $this->proxy_using($client);
+        try {
+            $proxy::get_domain($course->id, '01.02.03');
+            $this->fail('Expected the stubbed transport failure');
+        } catch (\moodle_exception $e) {
+            $this->assertSame('error:proxy_naas_api:curl', $e->errorcode);
+        }
+        $this->assertSame('/vocabularies/nugget_domains_vocabulary/01.02.03', $client->captured['service']);
     }
 
     // Get_structure – validation.
@@ -491,8 +506,9 @@ class proxy_naas_api_test extends advanced_testcase {
         $this->getDataGenerator()->enrol_user($user->id, $course->id, 'editingteacher');
         $this->setUser($user);
 
+        $proxy = $this->proxy_using($this->failing_client());
         $this->expectException(\moodle_exception::class);
-        proxy_naas_api::get_structure($course->id, 'uuid123');
+        $proxy::get_structure($course->id, 'uuid123');
     }
 
     /**
@@ -539,8 +555,9 @@ class proxy_naas_api_test extends advanced_testcase {
         $this->getDataGenerator()->enrol_user($user->id, $course->id, 'editingteacher');
         $this->setUser($user);
 
+        $proxy = $this->proxy_using($this->failing_client());
         $this->expectException(\moodle_exception::class);
-        proxy_naas_api::get_person($course->id, 'uuid123');
+        $proxy::get_person($course->id, 'uuid123');
     }
 
     public function test_get_person_special_chars_rejected(): void {
@@ -563,11 +580,15 @@ class proxy_naas_api_test extends advanced_testcase {
         $this->getDataGenerator()->enrol_user($student->id, $course->id, 'student');
         $this->setUser($student);
 
-        $this->expectException(\moodle_exception::class);
-        proxy_naas_api::get_person(
-            $course->id,
-            'authored_by:person:abcdef0123456789abcdef0123456789'
-        );
+        $client = $this->failing_client();
+        $proxy = $this->proxy_using($client);
+        try {
+            $proxy::get_person($course->id, 'authored_by:person:abcdef0123456789abcdef0123456789');
+            $this->fail('Expected the stubbed transport failure');
+        } catch (\moodle_exception $e) {
+            $this->assertSame('error:proxy_naas_api:curl', $e->errorcode);
+        }
+        $this->assertSame('/persons/abcdef0123456789abcdef0123456789', $client->captured['service']);
     }
 
     // Get_nugget_preview – validation.
@@ -622,10 +643,10 @@ class proxy_naas_api_test extends advanced_testcase {
         $user = $this->getDataGenerator()->create_user();
         $this->getDataGenerator()->enrol_user($user->id, $course->id, 'editingteacher');
         $this->setUser($user);
-        set_config('naas_endpoint', 'http://Invalid-endpoint-for-test.local', 'naas');
+        $proxy = $this->proxy_using($this->failing_client());
 
         $this->expectException(\moodle_exception::class);
-        proxy_naas_api::search_nuggets($course->id, ['fulltext' => 'foo']);
+        $proxy::search_nuggets($course->id, ['fulltext' => 'foo']);
     }
 
     /**
@@ -956,7 +977,7 @@ class proxy_naas_api_test extends advanced_testcase {
              * @param array|null $params
              */
             public function request_raw($protocol, $service, $data = null, $params = null) {
-                if (str_starts_with((string) $service, '/structures/')) {
+                if (strpos((string) $service, '/structures/') === 0) {
                     throw new \moodle_exception('error:naas_api:not_found', 'naas');
                 }
                 return json_encode([
@@ -1273,7 +1294,7 @@ class proxy_naas_api_test extends advanced_testcase {
              * @param array|null $params
              */
             public function request_raw($protocol, $service, $data = null, $params = null) {
-                if (str_starts_with((string) $service, '/persons/')) {
+                if (strpos((string) $service, '/persons/') === 0) {
                     if ($service === '/persons/search') {
                         return json_encode([
                             'items' => [
@@ -1317,6 +1338,8 @@ class proxy_naas_api_test extends advanced_testcase {
             $proxycls::$naasinjection = null;
         }
 
+        // The failed GET /persons listing is logged before the search fallback succeeds.
+        $this->assertDebuggingCalled('NAAS person catalog: error:naas_api:not_found', DEBUG_DEVELOPER);
         $this->assertStringContainsString('"firstname":"Ada"', $json);
         $this->assertStringContainsString('"lastname":"Lovelace"', $json);
     }
@@ -1333,10 +1356,16 @@ class proxy_naas_api_test extends advanced_testcase {
         $user   = $this->getDataGenerator()->create_user();
         $this->getDataGenerator()->enrol_user($user->id, $course->id, 'editingteacher');
         $this->setUser($user);
-        set_config('naas_endpoint', 'http://Invalid-endpoint-for-test.local', 'naas');
+        $client = $this->failing_client();
+        $proxy = $this->proxy_using($client);
 
-        $this->expectException(\moodle_exception::class);
-        proxy_naas_api::search_nuggets($course->id, ['fulltext' => 'nugget']);
+        try {
+            $proxy::search_nuggets($course->id, ['fulltext' => 'nugget']);
+            $this->fail('Expected the stubbed transport failure');
+        } catch (\moodle_exception $e) {
+            $this->assertSame('error:proxy_naas_api:curl', $e->errorcode);
+        }
+        $this->assertStringContainsString('page_size=6', $client->captured['service']);
     }
 
     /**
@@ -1349,11 +1378,17 @@ class proxy_naas_api_test extends advanced_testcase {
         $user   = $this->getDataGenerator()->create_user();
         $this->getDataGenerator()->enrol_user($user->id, $course->id, 'editingteacher');
         $this->setUser($user);
-        set_config('naas_endpoint', 'http://Invalid-endpoint-for-test.local', 'naas');
         set_config('naas_filter', 'type:video', 'naas');
+        $client = $this->failing_client();
+        $proxy = $this->proxy_using($client);
 
-        $this->expectException(\moodle_exception::class);
-        proxy_naas_api::search_nuggets($course->id, []);
+        try {
+            $proxy::search_nuggets($course->id, []);
+            $this->fail('Expected the stubbed transport failure');
+        } catch (\moodle_exception $e) {
+            $this->assertSame('error:proxy_naas_api:curl', $e->errorcode);
+        }
+        $this->assertStringContainsString('nql=type%3Avideo', $client->captured['service']);
     }
 
     /**
@@ -1451,6 +1486,53 @@ class proxy_naas_api_test extends advanced_testcase {
         $config = (object) array_merge((array) get_config('naas'), (array) $CFG);
         $client = $m->invoke(null, $config);
         $this->assertInstanceOf(\mod_naas\naas_client::class, $client);
+    }
+
+    /**
+     * Client stub whose transport fails like an unreachable NaaS endpoint.
+     *
+     * It records the request it received in $captured before throwing.
+     *
+     * @return \mod_naas\testable_naas_client
+     */
+    private function failing_client(): \mod_naas\testable_naas_client {
+        $client = new \mod_naas\testable_naas_client((object) [
+            'naas_endpoint' => 'https://Stub.example',
+            'naas_username' => 'u',
+            'naas_password' => 'p',
+            'naas_structure_id' => 's',
+        ]);
+        $client->stuberror = true;
+        return $client;
+    }
+
+    /**
+     * Name of a proxy_naas_api subclass whose HTTP client is $client.
+     *
+     * Every call sets the injected client, so a value left over from an
+     * earlier test is never used.
+     *
+     * @param \mod_naas\naas_client $client
+     * @return string
+     */
+    private function proxy_using(\mod_naas\naas_client $client): string {
+        $injectable = new class extends proxy_naas_api {
+            /** @var \mod_naas\naas_client|null */
+            public static $naasinjection = null;
+
+            /**
+             * Return the injected NaaS client.
+             *
+             * @param object $config
+             * @return \mod_naas\naas_client
+             */
+            protected static function make_naas_client(object $config): \mod_naas\naas_client {
+                return self::$naasinjection ?? parent::make_naas_client($config);
+            }
+        };
+        $classname = \get_class($injectable);
+        $classname::$naasinjection = $client;
+        return $classname;
     }
 
     /**

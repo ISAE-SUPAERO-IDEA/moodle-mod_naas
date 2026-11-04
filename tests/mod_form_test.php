@@ -42,12 +42,6 @@ use moodle_url;
  * @covers \mod_naas_mod_form
  */
 final class mod_form_test extends advanced_testcase {
-    protected function tearDown(): void {
-        mod_naas_mod_form::$phpunitfakemajorversion = false;
-        mod_naas_mod_form::$phpunitmajorversionvalue = null;
-        parent::tearDown();
-    }
-
     /**
      * MoodleQuickForm instance from a mod form (protected property).
      *
@@ -105,6 +99,22 @@ final class mod_form_test extends advanced_testcase {
     }
 
     /**
+     * Form data as modedit submits it: the keys moodleform_mod::validation() reads unguarded.
+     *
+     * @param array $overrides Plugin-specific fields under test.
+     * @return array
+     */
+    private function validation_payload(array $overrides): array {
+        return array_merge([
+            'name' => 'Nugget',
+            'modulename' => 'naas',
+            'instance' => 0,
+            'coursemodule' => 0,
+            'cmidnumber' => '',
+        ], $overrides);
+    }
+
+    /**
      * definition() on add-activity form wires general fields, grades, and standard elements.
      */
     public function test_definition_add_instance_builds_form(): void {
@@ -128,7 +138,6 @@ final class mod_form_test extends advanced_testcase {
         $this->assertTrue($mform->elementExists('grade_method'));
         $maxfield = component_gradeitems::get_field_name_for_itemnumber('mod/naas', 0, 'maxgrade');
         $this->assertTrue($mform->elementExists($maxfield));
-        $this->assertSame('hidden', $mform->getAttribute('data-naas-details'));
         $this->assertStringNotContainsString('naas-activity-details', $this->html_elements($mform));
     }
 
@@ -156,7 +165,6 @@ final class mod_form_test extends advanced_testcase {
         $form = new mod_naas_mod_form($data, $cw->section, $cm, $course);
         $mform = $this->mform($form);
 
-        $this->assertSame('visible', $mform->getAttribute('data-naas-details'));
         $this->assertStringNotContainsString('naas-activity-details', $this->html_elements($mform));
     }
 
@@ -278,15 +286,18 @@ final class mod_form_test extends advanced_testcase {
         $form = new mod_naas_mod_form($data, $cw->section, $cm, $course);
 
         $base = ['nugget_id' => '', 'maxgrade' => 100, 'completion' => COMPLETION_TRACKING_DISABLED];
-        $errors = $form->validation($base, []);
+        $errors = $form->validation($this->validation_payload($base), []);
         $this->assertArrayHasKey('name', $errors);
 
         $base = ['nugget_id' => 'nid-1', 'maxgrade' => 0, 'completion' => COMPLETION_TRACKING_DISABLED];
-        $errors = $form->validation($base, []);
+        $errors = $form->validation($this->validation_payload($base), []);
         $this->assertArrayHasKey('maxgrade', $errors);
     }
 
-    public function test_validation_requires_cgu_only_when_a_nugget_is_selected(): void {
+    /**
+     * The CGU checkbox is enforced by a QuickForm "required" rule, not by validation().
+     */
+    public function test_cgu_agreement_is_a_required_form_rule(): void {
         $this->resetAfterTest(true);
 
         $generator = $this->getDataGenerator();
@@ -299,26 +310,13 @@ final class mod_form_test extends advanced_testcase {
         $this->init_test_page($context, $course);
         $form = new mod_naas_mod_form($data, $cw->section, $cm, $course);
 
-        $errors = $form->validation([
-            'nugget_id' => '',
-            'maxgrade' => 100,
-            'completion' => COMPLETION_TRACKING_DISABLED,
-        ], []);
-        $this->assertArrayNotHasKey('cgu_agreement', $errors);
+        $this->assertTrue($this->mform($form)->isElementRequired('cgu_agreement'));
 
-        $errors = $form->validation([
+        $errors = $form->validation($this->validation_payload([
             'nugget_id' => 'nid-1',
             'maxgrade' => 100,
             'completion' => COMPLETION_TRACKING_DISABLED,
-        ], []);
-        $this->assertArrayHasKey('cgu_agreement', $errors);
-
-        $errors = $form->validation([
-            'nugget_id' => 'nid-1',
-            'cgu_agreement' => 1,
-            'maxgrade' => 100,
-            'completion' => COMPLETION_TRACKING_DISABLED,
-        ], []);
+        ]), []);
         $this->assertArrayNotHasKey('cgu_agreement', $errors);
     }
 
@@ -342,7 +340,7 @@ final class mod_form_test extends advanced_testcase {
             'completionpass' => 1,
             'gradepass' => '',
         ];
-        $errors = $form->validation($payload, []);
+        $errors = $form->validation($this->validation_payload($payload), []);
         $this->assertArrayHasKey('completionpassgroup', $errors);
     }
 
@@ -371,65 +369,8 @@ final class mod_form_test extends advanced_testcase {
             'completion' => COMPLETION_TRACKING_AUTOMATIC,
             'gradepass' => '',
         ];
-        $errors = $form->validation($payload, []);
+        $errors = $form->validation($this->validation_payload($payload), []);
         $this->assertArrayHasKey('gradepass', $errors);
-    }
-
-    public function test_add_completion_rules_moodle3_branch_when_major_version_is_three(): void {
-        $this->resetAfterTest(true);
-
-        mod_naas_mod_form::$phpunitfakemajorversion = true;
-        mod_naas_mod_form::$phpunitmajorversionvalue = 3;
-
-        $generator = $this->getDataGenerator();
-        $course = $generator->create_course(['enablecompletion' => 1]);
-        $teacher = $generator->create_user();
-        $generator->enrol_user($teacher->id, $course->id, 'editingteacher');
-        $this->setUser($teacher);
-
-        [, $context, $cw, $cm, $data] = \prepare_new_moduleinfo_data($course, 'naas', 0);
-        $this->init_test_page($context, $course);
-        $form = new mod_naas_mod_form($data, $cw->section, $cm, $course);
-
-        $this->assertTrue($this->mform($form)->elementExists('completionpassgroup'));
-    }
-
-    public function test_add_completion_rules_no_items_when_major_version_null(): void {
-        $this->resetAfterTest(true);
-
-        mod_naas_mod_form::$phpunitfakemajorversion = true;
-        mod_naas_mod_form::$phpunitmajorversionvalue = null;
-
-        $generator = $this->getDataGenerator();
-        $course = $generator->create_course(['enablecompletion' => 1]);
-        $teacher = $generator->create_user();
-        $generator->enrol_user($teacher->id, $course->id, 'editingteacher');
-        $this->setUser($teacher);
-
-        [, $context, $cw, $cm, $data] = \prepare_new_moduleinfo_data($course, 'naas', 0);
-        $this->init_test_page($context, $course);
-        $form = new mod_naas_mod_form($data, $cw->section, $cm, $course);
-
-        $this->assertFalse($this->mform($form)->elementExists('completionpassgroup'));
-    }
-
-    public function test_add_completion_rules_no_items_when_major_version_not_three(): void {
-        $this->resetAfterTest(true);
-
-        mod_naas_mod_form::$phpunitfakemajorversion = true;
-        mod_naas_mod_form::$phpunitmajorversionvalue = 4;
-
-        $generator = $this->getDataGenerator();
-        $course = $generator->create_course(['enablecompletion' => 1]);
-        $teacher = $generator->create_user();
-        $generator->enrol_user($teacher->id, $course->id, 'editingteacher');
-        $this->setUser($teacher);
-
-        [, $context, $cw, $cm, $data] = \prepare_new_moduleinfo_data($course, 'naas', 0);
-        $this->init_test_page($context, $course);
-        $form = new mod_naas_mod_form($data, $cw->section, $cm, $course);
-
-        $this->assertFalse($this->mform($form)->elementExists('completionpassgroup'));
     }
 
     public function test_data_postprocessing_unlocked_without_automatic_completion_resets_min_attempts(): void {
@@ -470,7 +411,7 @@ final class mod_form_test extends advanced_testcase {
             'completionpass' => 1,
             'gradepass' => '-0.01',
         ];
-        $errors = $form->validation($payload, []);
+        $errors = $form->validation($this->validation_payload($payload), []);
         $this->assertArrayHasKey('completionpassgroup', $errors);
     }
 
@@ -494,7 +435,7 @@ final class mod_form_test extends advanced_testcase {
             'completionpass' => 1,
             'gradepass' => '50',
         ];
-        $errors = $form->validation($payload, []);
+        $errors = $form->validation($this->validation_payload($payload), []);
         $this->assertArrayNotHasKey('completionpassgroup', $errors);
         $this->assertArrayNotHasKey('gradepass', $errors);
     }

@@ -8,3 +8,4 @@ phpstan-results.sarif
 /vue/*.log
 /naas.tar.gz
 /naas.zip
+/phpunit.xml

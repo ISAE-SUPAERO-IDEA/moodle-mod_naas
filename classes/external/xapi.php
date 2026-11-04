@@ -104,10 +104,7 @@ class xapi extends \external_api {
         require_capability('mod/naas:view', $context);
 
         // Verify the calling user is enrolled in the module's course.
-        $coursecontext = \context_course::instance($cm->course);
-        if (!is_enrolled($coursecontext, null, '', true)) {
-            throw new \moodle_exception('error:not_enrolled', 'naas');
-        }
+        self::require_active_course_enrolment((int) $cm->course);
 
         // Get user info.
         $config = (object) array_merge((array) \get_config('naas'), (array) $CFG);
@@ -130,12 +127,35 @@ class xapi extends \external_api {
 
         // Send to NaaS.
         $config = (object) array_merge((array) get_config('naas'), (array) $CFG);
-        $naas = new \mod_naas\naas_client($config);
+        $naas = static::make_naas_client($config);
         $response = $naas->post_xapi_statement($params['verb'], $params['version_id'], $data);
 
         return [
           "statusCode" => $response->statusCode,
           "statusMessage" => $response->statusMessage,
         ];
+    }
+
+    /**
+     * Factory so tests can stub the NaaS HTTP client.
+     *
+     * @param object $config Merged plugin and site configuration.
+     * @return \mod_naas\naas_client
+     */
+    protected static function make_naas_client(object $config): \mod_naas\naas_client {
+        return new \mod_naas\naas_client($config);
+    }
+
+    /**
+     * Reject callers who hold no active enrolment in the course.
+     *
+     * @param int $courseid Course the activity belongs to.
+     * @throws \moodle_exception error:not_enrolled when the current user is not actively enrolled.
+     */
+    protected static function require_active_course_enrolment(int $courseid): void {
+        $coursecontext = \context_course::instance($courseid);
+        if (!is_enrolled($coursecontext, null, '', true)) {
+            throw new \moodle_exception('error:not_enrolled', 'naas');
+        }
     }
 }
