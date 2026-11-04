@@ -115,8 +115,6 @@ class lti_outcome_oauth {
             throw new \moodle_exception('error:oauth_invalid', 'naas');
         }
 
-        self::assert_nonce_unused($oauthparams['oauth_nonce']);
-
         $store = new lti\TrivialOAuthDataStore();
         $store->add_consumer($key, $secret);
         $server = new lti\OAuthServer($store);
@@ -135,20 +133,28 @@ class lti_outcome_oauth {
         } catch (\Exception $e) {
             throw new \moodle_exception('error:oauth_invalid', 'naas');
         }
+
+        // Only a correctly signed request may consume a nonce, so unsigned posts cannot fill the cache.
+        self::assert_nonce_unused($key, $oauthparams['oauth_nonce']);
     }
 
     /**
-     * Reject a replayed oauth_nonce within the timestamp window.
+     * Reject a replayed oauth_nonce within the timestamp window, then remember it.
      *
+     * The nonce is chosen by the sender and may contain any character, while the
+     * cache uses simple keys (a-z, 0-9, _), so it is stored under a hash.
+     *
+     * @param string $key Consumer key the nonce belongs to
      * @param string $nonce
      * @return void
      * @throws \moodle_exception
      */
-    private static function assert_nonce_unused(string $nonce): void {
+    private static function assert_nonce_unused(string $key, string $nonce): void {
         $cache = \cache::make('mod_naas', 'oauth_nonces');
-        if ($cache->get($nonce) !== false) {
+        $cachekey = 'n_' . sha1($key . "\n" . $nonce);
+        if ($cache->get($cachekey) !== false) {
             throw new \moodle_exception('error:oauth_invalid', 'naas');
         }
-        $cache->set($nonce, 1);
+        $cache->set($cachekey, 1);
     }
 }

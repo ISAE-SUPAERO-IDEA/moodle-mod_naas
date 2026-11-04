@@ -116,6 +116,42 @@ class lti_outcome_oauth_test extends advanced_testcase {
     }
 
     /**
+     * A nonce with characters outside the cache's simple-key alphabet is accepted, then rejected on replay.
+     */
+    public function test_verify_accepts_nonce_with_special_characters(): void {
+        $this->resetAfterTest(true);
+
+        $body = $this->sample_body('src-uuid-nonce', '0.4');
+        $header = $this->sign_with_nonce($body, self::URL, '7f9c2b1e-3d4a-4e5f-9a8b/c+d=e.f');
+
+        lti_outcome_oauth::verify(self::KEY, self::SECRET, $body, $header, self::URL);
+
+        $this->expectException(\moodle_exception::class);
+        lti_outcome_oauth::verify(self::KEY, self::SECRET, $body, $header, self::URL);
+    }
+
+    /**
+     * A forged request must not consume the nonce of the genuine request that reuses it.
+     */
+    public function test_rejected_signature_does_not_consume_nonce(): void {
+        $this->resetAfterTest(true);
+
+        $nonce = 'shared-nonce-123';
+        $body = $this->sample_body('src-forged', '0.3');
+        $forged = $this->sign_with_nonce($body, self::URL, $nonce, 'attacker-secret');
+        try {
+            lti_outcome_oauth::verify(self::KEY, self::SECRET, $body, $forged, self::URL);
+            $this->fail('A request signed with the wrong secret must be rejected');
+        } catch (\moodle_exception $e) {
+            $this->assertSame('error:oauth_invalid', $e->errorcode);
+        }
+
+        $genuine = $this->sign_with_nonce($body, self::URL, $nonce);
+        lti_outcome_oauth::verify(self::KEY, self::SECRET, $body, $genuine, self::URL);
+        $this->assertTrue(true);
+    }
+
+    /**
      * process() with injected credentials runs authenticate then handle when OAuth is required.
      */
     public function test_process_with_valid_signature_updates_grade(): void {
@@ -224,6 +260,29 @@ class lti_outcome_oauth_test extends advanced_testcase {
 
         $grades = grade_get_grades($course->id, 'mod', 'naas', $naas->id, $user->id);
         $this->assertEquals(60.0, (float) $grades->items[0]->grades[$user->id]->grade);
+    }
+
+    /**
+     * Sign a body like lti_outcome_oauth::sign(), with a chosen nonce and secret.
+     *
+     * @param string $body
+     * @param string $url
+     * @param string $nonce
+     * @param string $secret
+     * @return string Authorization header line
+     */
+    private function sign_with_nonce(string $body, string $url, string $nonce, string $secret = self::SECRET): string {
+        global $CFG;
+        require_once($CFG->dirroot . '/mod/lti/OAuth.php');
+
+        $consumer = new \moodle\mod\lti\OAuthConsumer(self::KEY, $secret);
+        $params = [
+            'oauth_body_hash' => base64_encode(sha1($body, true)),
+            'oauth_nonce' => $nonce,
+        ];
+        $request = \moodle\mod\lti\OAuthRequest::from_consumer_and_token($consumer, null, 'POST', $url, $params);
+        $request->sign_request(new \moodle\mod\lti\OAuthSignatureMethod_HMAC_SHA1(), $consumer, null);
+        return $request->to_header();
     }
 
     /**
