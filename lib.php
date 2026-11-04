@@ -284,64 +284,6 @@ function naas_get_coursemodule_info($coursemodule) {
 }
 
 /**
- * Return a list of page types
- * @param string $pagetype current page type
- * @param stdClass $parentcontext Block's parent context
- * @param stdClass $currentcontext Current context of block
- */
-function naas_page_type_list($pagetype, $parentcontext, $currentcontext) {
-    $modulepagetype = ['mod-url-*' => get_string('page-mod-url-x', 'url')];
-    return $modulepagetype;
-}
-
-/**
- * Export URL resource contents
- * @param object $cm
- * @return array of file content
- */
-function naas_export_contents($cm) {
-    global $CFG, $DB;
-    require_once("$CFG->dirroot/mod/url/locallib.php");
-    $contents = [];
-    $context = context_module::instance($cm->id);
-
-    $course = $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST);
-    $urlrecord = $DB->get_record('url', ['id' => $cm->instance], '*', MUST_EXIST);
-
-    $fullurl = str_replace('&amp;', '&', url_get_full_url($urlrecord, $cm, $course));
-    $isurl = clean_param($fullurl, PARAM_URL);
-    if (empty($isurl)) {
-        return null;
-    }
-
-    $url = [];
-    $url['type'] = 'url';
-    $url['filename']     = clean_param(format_string($urlrecord->name), PARAM_FILE);
-    $url['filepath']     = null;
-    $url['filesize']     = 0;
-    $url['fileurl']      = $fullurl;
-    $url['timecreated']  = null;
-    $url['timemodified'] = $urlrecord->timemodified;
-    $url['sortorder']    = null;
-    $url['userid']       = null;
-    $url['author']       = null;
-    $url['license']      = null;
-    $contents[] = $url;
-
-    return $contents;
-}
-
-/**
- * Register the ability to handle drag and drop file uploads
- * @return array containing details of the files / types the mod can handle
- */
-function naas_dndupload_register() {
-    return ['types' => [
-        ['identifier' => 'url', 'message' => get_string('createurl', 'url')],
-    ]];
-}
-
-/**
  * Mark the activity completed (if required) and trigger the course_module_viewed event.
  *
  * @param  stdClass $course     course object
