@@ -118,7 +118,10 @@ import { ref, computed, watch } from "vue";
 import FilterSkeleton from "./FilterSkeleton.vue";
 import { useNaasConfig } from "@/composables/useNaasConfig";
 import { useEntityResolvers } from "@/composables/useEntityResolvers";
-import type { AggregationResult } from "@/types/nugget.types";
+import type {
+  AggregationResult,
+  CatalogueFacetLabels,
+} from "@/types/nugget.types";
 import {
   aggregationFor,
   applyResolvedLabels,
@@ -166,7 +169,7 @@ const props = defineProps<{
   activeFilters: Record<string, string[]>;
   loading?: boolean;
   prefetch?: boolean;
-  networkLabels?: Record<string, Record<string, string>>;
+  networkLabels?: CatalogueFacetLabels;
 }>();
 const emit = defineEmits<{
   (

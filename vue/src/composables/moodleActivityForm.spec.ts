@@ -61,7 +61,7 @@ describe("Moodle activity form bridge", () => {
   it("fills name, description, hidden ids, and shows the panel on select", () => {
     const setContent = vi.fn();
     (
-      window as Window & {
+      window as unknown as Window & {
         tinyMCE: { get: () => { setContent: typeof setContent } };
       }
     ).tinyMCE = {

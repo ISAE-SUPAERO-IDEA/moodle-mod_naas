@@ -280,7 +280,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount, watch, nextTick } from "vue";
-import debounce from "debounce";
+import { debounce } from "@/utils/debounce";
 import NuggetSearchFilter from "./NuggetSearchFilter.vue";
 import NuggetPost from "./NuggetPost.vue";
 import NuggetSkeleton from "./NuggetSkeleton.vue";
