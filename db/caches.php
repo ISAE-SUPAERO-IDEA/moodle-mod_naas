@@ -61,4 +61,11 @@ $definitions = [
         'simplekeys' => true,
         'simpledata' => true,
     ],
+    // oauth_nonce values seen on Basic Outcomes posts; TTL covers the 5-minute timestamp window.
+    'oauth_nonces' => [
+        'mode'       => cache_store::MODE_APPLICATION,
+        'ttl'        => 600,
+        'simplekeys' => true,
+        'simpledata' => true,
+    ],
 ];

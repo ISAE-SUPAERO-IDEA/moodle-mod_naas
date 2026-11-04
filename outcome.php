@@ -37,7 +37,92 @@ require_once(__DIR__ . '/lib.php');
  */
 class mod_naas_outcome {
     /**
+     * Apply a replaceResult body (HTTP entrypoint).
+     *
+     * OAuth verification runs only when {@see self::is_oauth_required()} is true
+     * (admin setting naas_require_outcome_oauth).
+     *
+     * @param string $xml Raw POX body
+     * @param string|null $authorizationheader Authorization header value
+     * @param string|null $requesturl Absolute URL of this request (OAuth base string)
+     * @param stdClass|null $credentials Optional key/secret (tests); otherwise loaded from NaaS
+     * @return void
+     * @throws moodle_exception
+     */
+    public static function process(
+        string $xml,
+        ?string $authorizationheader = null,
+        ?string $requesturl = null,
+        ?stdClass $credentials = null
+    ): void {
+        if (self::is_oauth_required()) {
+            self::authenticate($xml, $authorizationheader, $requesturl, $credentials);
+        }
+        self::handle($xml);
+    }
+
+    /**
+     * Whether admin requires OAuth body-hash on grade passback.
+     *
+     * Default is off so the plugin can ship before NaaS signs LisOutcome posts.
+     *
+     * @return bool
+     */
+    public static function is_oauth_required(): bool {
+        return !empty(get_config('naas', 'naas_require_outcome_oauth'));
+    }
+
+    /**
+     * Verify the OAuth body-hash signature of a replaceResult post.
+     *
+     * @param string $xml
+     * @param string|null $authorizationheader
+     * @param string|null $requesturl
+     * @param stdClass|null $credentials Object with key and secret; null resolves via NaaS
+     * @return void
+     * @throws moodle_exception
+     */
+    public static function authenticate(
+        string $xml,
+        ?string $authorizationheader = null,
+        ?string $requesturl = null,
+        ?stdClass $credentials = null
+    ): void {
+        global $CFG;
+
+        if ($authorizationheader === null) {
+            $authorizationheader = self::authorization_header_from_request();
+        }
+        if ($requesturl === null) {
+            $requesturl = $CFG->wwwroot . '/mod/naas/outcome.php';
+            if (!empty($_SERVER['QUERY_STRING'])) {
+                $requesturl .= '?' . $_SERVER['QUERY_STRING'];
+            }
+        }
+
+        if ($credentials === null) {
+            [$sourcedid] = self::parse_replace_result($xml);
+            $credentials = self::resolve_lti_credentials($sourcedid);
+        }
+
+        if (empty($credentials->key) || empty($credentials->secret)) {
+            throw new moodle_exception('error:oauth_invalid', 'naas');
+        }
+
+        \mod_naas\lti_outcome_oauth::verify(
+            (string) $credentials->key,
+            (string) $credentials->secret,
+            $xml,
+            $authorizationheader,
+            $requesturl
+        );
+    }
+
+    /**
      * Parse a replaceResult body and store the grade.
+     *
+     * Callers that receive the body over HTTP must run {@see self::authenticate()} first
+     * (or use {@see self::process()}). Unit tests may call handle() directly with fixtures.
      *
      * @param string $xml IMS LTI outcomes XML
      * @return void
@@ -47,6 +132,11 @@ class mod_naas_outcome {
         global $DB;
 
         [$sourcedid, $score] = self::parse_replace_result($xml);
+
+        $scorevalue = (float) $score;
+        if ($scorevalue < 0.0 || $scorevalue > 1.0) {
+            throw new moodle_exception('error:invalid_score', 'naas');
+        }
 
         $records = $DB->get_records('naas_activity_outcome', ['sourced_id' => $sourcedid]);
         if (!$records) {
@@ -67,13 +157,16 @@ class mod_naas_outcome {
         $itemnumber = 0;
 
         $existinggrades = grade_get_grades($course->id, 'mod', 'naas', $cm->instance, $userid);
+        if (empty($existinggrades->items[$itemnumber])) {
+            throw new \coding_exception('Missing grade item for NaaS outcome');
+        }
         $existinggradesdata = $existinggrades->items[$itemnumber]->grades;
         $grademax = $existinggrades->items[$itemnumber]->grademax;
 
         $grade = new stdClass();
         $grade->userid = $userid;
         // Score is normalised between 0 and 1. Round so binary fractions such as 0.85 land on the scale.
-        $grade->rawgrade = round((float) $score * (float) $grademax, 5);
+        $grade->rawgrade = round($scorevalue * (float) $grademax, 5);
 
         $grademethod = $naasinstance->grade_method;
         if (!in_array((string) $grademethod, [NAAS_GRADEHIGHEST, NAAS_ATTEMPTFIRST, NAAS_ATTEMPTLAST], true)) {
@@ -87,7 +180,7 @@ class mod_naas_outcome {
 
         // The outcome closes the attempt. Record it before the grade so that any completion
         // recalculation triggered by the grade change already counts this attempt.
-        \mod_naas\attempts::mark_completed($sourcedid, (float) $score);
+        \mod_naas\attempts::mark_completed($sourcedid, $scorevalue);
 
         if ($grademethod == NAAS_GRADEHIGHEST) {
             $currenthighestgrade = -1;
@@ -129,6 +222,38 @@ class mod_naas_outcome {
     }
 
     /**
+     * Load the LTI key/secret for the nugget that owns this sourcedId.
+     *
+     * @param string $sourcedid
+     * @return stdClass {key, secret}
+     * @throws moodle_exception
+     */
+    public static function resolve_lti_credentials(string $sourcedid): stdClass {
+        global $DB, $CFG;
+
+        $record = $DB->get_record('naas_activity_outcome', ['sourced_id' => $sourcedid], '*', IGNORE_MISSING);
+        if (!$record) {
+            throw new moodle_exception('error:unknown_sourced_id', 'naas');
+        }
+
+        $cm = get_coursemodule_from_id('naas', $record->activity_id, 0, false, MUST_EXIST);
+        $naasinstance = $DB->get_record('naas', ['id' => $cm->instance], '*', MUST_EXIST);
+
+        $config = (object) array_merge((array) get_config('naas'), (array) $CFG);
+        $client = new \mod_naas\naas_client($config);
+        $ltconfig = $client->get_nugget_lti_config($naasinstance->nugget_id);
+
+        if ($ltconfig === null || empty($ltconfig->key) || empty($ltconfig->secret)) {
+            throw new moodle_exception('error:oauth_invalid', 'naas');
+        }
+
+        return (object) [
+            'key' => (string) $ltconfig->key,
+            'secret' => (string) $ltconfig->secret,
+        ];
+    }
+
+    /**
      * Read sourcedId and score from a replaceResult document.
      *
      * External entities are not loaded (LIBXML_NONET).
@@ -137,7 +262,7 @@ class mod_naas_outcome {
      * @return array{0: string, 1: string} sourcedId and normalised score
      * @throws moodle_exception
      */
-    private static function parse_replace_result(string $xml): array {
+    public static function parse_replace_result(string $xml): array {
         $previous = libxml_use_internal_errors(true);
         // Drop namespace declarations so default-xmlns LTI documents are readable with SimpleXML.
         // LIBXML_NONET still blocks external entities.
@@ -172,9 +297,31 @@ class mod_naas_outcome {
         $stripped = preg_replace('/\sxmlns(:[A-Za-z0-9_]+)?="[^"]*"/', '', $xml);
         return preg_replace('/(<\/?)[A-Za-z0-9_.-]+:/', '$1', $stripped ?? $xml);
     }
+
+    /**
+     * Read the Authorization header from the current HTTP request.
+     *
+     * @return string
+     */
+    private static function authorization_header_from_request(): string {
+        if (!empty($_SERVER['HTTP_AUTHORIZATION'])) {
+            return (string) $_SERVER['HTTP_AUTHORIZATION'];
+        }
+        if (!empty($_SERVER['REDIRECT_HTTP_AUTHORIZATION'])) {
+            return (string) $_SERVER['REDIRECT_HTTP_AUTHORIZATION'];
+        }
+        if (function_exists('getallheaders')) {
+            foreach (getallheaders() as $name => $value) {
+                if (strcasecmp($name, 'Authorization') === 0) {
+                    return (string) $value;
+                }
+            }
+        }
+        return '';
+    }
 }
 
-// Web entrypoint. Tests include this file and call mod_naas_outcome::handle() directly.
+// Web entrypoint. Tests include this file and call mod_naas_outcome methods directly.
 if (!defined('PHPUNIT_TEST') || !PHPUNIT_TEST) {
-    mod_naas_outcome::handle(file_get_contents('php://input') ?: '');
+    mod_naas_outcome::process(file_get_contents('php://input') ?: '');
 }

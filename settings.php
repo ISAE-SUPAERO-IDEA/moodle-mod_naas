@@ -225,6 +225,14 @@ if ($hassiteconfig) {
         0
     ));
 
+    // Off by default until NaaS signs Basic Outcomes; enable after deploying LisOutcome OAuth.
+    $settings->add(new admin_setting_configcheckbox(
+        'naas/naas_require_outcome_oauth',
+        get_string('naas_settings_require_outcome_oauth', 'naas'),
+        get_string('naas_settings_require_outcome_oauth_help', 'naas'),
+        0
+    ));
+
     $settings->add(new admin_setting_configtext(
         'naas/naas_refresh_limit',
         get_string('naas_refresh_limit', 'naas'),
