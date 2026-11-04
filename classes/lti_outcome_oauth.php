@@ -30,7 +30,7 @@ global $CFG;
 require_once($CFG->dirroot . '/mod/lti/OAuth.php');
 require_once($CFG->dirroot . '/mod/lti/TrivialStore.php');
 
-use moodle\mod\lti as lti;
+use moodle\mod\lti;
 
 /**
  * Sign and verify LTI Basic Outcomes POX posts (OAuth body hash).
@@ -93,9 +93,11 @@ class lti_outcome_oauth {
         }
 
         $oauthparams = lti\OAuthUtil::split_header($authorizationheader);
-        if (empty($oauthparams['oauth_consumer_key']) || empty($oauthparams['oauth_body_hash'])
-                || empty($oauthparams['oauth_signature']) || empty($oauthparams['oauth_timestamp'])
-                || empty($oauthparams['oauth_nonce'])) {
+        if (
+            empty($oauthparams['oauth_consumer_key']) || empty($oauthparams['oauth_body_hash'])
+            || empty($oauthparams['oauth_signature']) || empty($oauthparams['oauth_timestamp'])
+            || empty($oauthparams['oauth_nonce'])
+        ) {
             throw new \moodle_exception('error:oauth_invalid', 'naas');
         }
 

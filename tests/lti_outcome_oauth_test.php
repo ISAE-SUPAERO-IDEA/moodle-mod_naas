@@ -32,6 +32,11 @@ require_once($CFG->dirroot . '/mod/naas/outcome.php');
 use advanced_testcase;
 
 /**
+ * Tests for the OAuth body-hash signing and verification of LTI Basic Outcomes.
+ *
+ * @package   mod_naas
+ * @copyright 2019 onwards ISAE-SUPAERO (https://www.isae-supaero.fr/)
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @covers \mod_naas\lti_outcome_oauth
  * @covers \mod_naas_outcome::authenticate
  * @covers \mod_naas_outcome::process
@@ -222,6 +227,8 @@ class lti_outcome_oauth_test extends advanced_testcase {
     }
 
     /**
+     * Build a replaceResult POX body.
+     *
      * @param string $sourcedid
      * @param string $score
      * @return string
