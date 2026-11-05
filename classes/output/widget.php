@@ -78,6 +78,12 @@ class widget implements renderable, templatable {
     public function export_for_template($output): stdClass {
         global $CFG;
 
+        // Only the activity form browses the catalogue. The learner view must not
+        // receive the cached catalogue (producers, author labels, card texts).
+        $snapshot = $this->component === 'NuggetSearchWidget'
+            ? \mod_naas\catalogue_cache::export_for_widget()
+            : null;
+
         $widgetconfig = [
             "moodle_url" => $CFG->wwwroot,
             "naas_endpoint" => (string) get_config('naas', 'naas_endpoint'),
@@ -86,7 +92,7 @@ class widget implements renderable, templatable {
             "nugget_id" => $this->nuggetid,
             "courseId" => $this->courseid,
             "cm_id" => $this->cmid,
-            "catalogue_snapshot" => \mod_naas\catalogue_cache::export_for_widget(),
+            "catalogue_snapshot" => $snapshot,
             "license_filter" => \mod_naas\catalogue_filters::widget_license_config(),
             "labels" => [
                 "error_generic_user_message" => get_string("error:generic_user_message", "naas"),
