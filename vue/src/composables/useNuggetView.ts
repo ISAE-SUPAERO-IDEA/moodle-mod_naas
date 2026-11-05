@@ -37,12 +37,10 @@ export function useNuggetView() {
   const error = ref<string | null>(null);
 
   async function load() {
-    console.log("[NaaS] useNuggetView.load() called, cm_id=", config.cm_id);
     try {
       loading.value = true;
       error.value = null;
       const raw = await service.viewNugget(config.cm_id);
-      console.log("[NaaS] viewNugget response:", raw);
       nugget.value = await enrich(raw);
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
@@ -53,10 +51,7 @@ export function useNuggetView() {
     }
   }
 
-  onMounted(() => {
-    console.log("[NaaS] NuggetView onMounted — starting load");
-    load();
-  });
+  onMounted(load);
 
   return { nugget, loading, error, load };
 }
