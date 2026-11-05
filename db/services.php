@@ -28,7 +28,7 @@ $functions = [
         'classname' => 'mod_naas\external\proxy_naas_api',
         'methodname' => 'test_config',
         'description' => 'Test the plugin configuration',
-        'type' => 'read',
+        'type' => 'write',
         'ajax' => true,
         'capabilities' => 'mod/naas:admin',
     ],

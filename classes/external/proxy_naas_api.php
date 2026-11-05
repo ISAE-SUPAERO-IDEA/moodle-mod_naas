@@ -1025,6 +1025,8 @@ class proxy_naas_api extends \external_api {
         $context = \context_course::instance($params['courseId']);
         self::validate_context($context);
         require_capability('mod/naas:view', $context);
+        // Vocabulary lookups only read caches and NaaS: do not hold the session lock.
+        \core\session\manager::write_close();
 
         self::validate_domain_key($params['domainKey']);
 
@@ -1081,6 +1083,8 @@ class proxy_naas_api extends \external_api {
         $context = \context_course::instance($params['courseId']);
         self::validate_context($context);
         require_capability('mod/naas:view', $context);
+        // Vocabulary lookups only read caches and NaaS: do not hold the session lock.
+        \core\session\manager::write_close();
 
         $structurekey = self::normalize_structure_key($params['structureKey']);
         self::validate_id_param($structurekey, 'structureKey');
@@ -1188,6 +1192,8 @@ class proxy_naas_api extends \external_api {
         $context = \context_course::instance($params['courseId']);
         self::validate_context($context);
         require_capability('mod/naas:view', $context);
+        // Vocabulary lookups only read caches and NaaS: do not hold the session lock.
+        \core\session\manager::write_close();
 
         $personkey = \mod_naas\catalogue_cache::normalize_person_key($params['personKey']);
         self::validate_person_key($personkey);
