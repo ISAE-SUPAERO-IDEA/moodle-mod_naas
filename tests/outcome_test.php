@@ -207,50 +207,40 @@ class outcome_test extends advanced_testcase {
         $this->assertEquals(50.0, (float) $gradesb->items[0]->grades[$userb->id]->grade);
     }
 
-    // XXE / malformed XML — pending script refactor.
+    // XXE / malformed XML.
 
     /**
-     * Parsing outcome.php input with a DOCTYPE entity must not expand the
-     * entity (XXE protection via LIBXML_NONET).
+     * An external entity in the outcome body must never be expanded.
      *
-     * Requires outcome.php to be refactored into a testable class (C1 in
-     * QUALITY_PHP.md).
+     * The fixture points the entity at a temporary file with a known content; the
+     * parsed sourcedId must not contain it. The same document without the entity
+     * reference parses, so a rejection cannot come from a broken fixture.
      */
     public function test_xxe_payload_rejected(): void {
         global $CFG;
-        $this->resetAfterTest(true);
         require_once($CFG->dirroot . '/mod/naas/outcome.php');
 
-        $xml = <<<XML
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE replace [<!ENTITY xxe SYSTEM "file://Note: /nonexistent_file">]>.
-<imsx_POXEnvelopeRequest>
-  <imsx_POXBody>
-    <replaceResultRequest>
-      <resultRecord>
-        <sourcedGUID>
-          <sourcedId>unknown123</sourcedId>
-        </sourcedGUID>
-        <result>
-          <resultScore>
-            <score>0.8</score>
-          </resultScore>
-        </result>
-      </resultRecord>
-    </replaceResultRequest>
-  </imsx_POXBody>
-</imsx_POXEnvelopeRequest>
-XML;
+        $secretfile = make_request_directory() . '/secret.txt';
+        file_put_contents($secretfile, 'naas-xxe-marker');
+        $xml = str_replace(
+            'file:///etc/passwd',
+            'file://' . $secretfile,
+            file_get_contents(__DIR__ . '/fixtures/lti_response_xxe.xml')
+        );
 
-        $this->expectException(\moodle_exception::class);
-        // If it prevents XXE, it either fails XML parsing or reaches the unknown_sourced_id guard.
-        \mod_naas_outcome::handle($xml);
+        [$plainid] = \mod_naas_outcome::parse_replace_result(str_replace('&xxe;', 'plain-id', $xml));
+        $this->assertSame('plain-id', $plainid);
+
+        try {
+            [$sourcedid] = \mod_naas_outcome::parse_replace_result($xml);
+            $this->assertStringNotContainsString('naas-xxe-marker', $sourcedid);
+        } catch (\moodle_exception $e) {
+            $this->assertSame('error:malformed_xml', $e->errorcode);
+        }
     }
 
     /**
      * Malformed XML must throw an exception rather than silently failing.
-     *
-     * Requires outcome.php refactor (QUALITY_PHP.md C1 + C3).
      */
     public function test_malformed_xml_throws_exception(): void {
         global $CFG;
@@ -294,7 +284,7 @@ XML;
 
         $xml = <<<XML
 <?xml version="1.0" encoding="UTF-8"?>
-<imsx_POXEnvelopeRequest xmlns="http://Www.imsglobal.org/services/ltiv1p1/xsd/imsoms_v1p0">.
+<imsx_POXEnvelopeRequest xmlns="http://www.imsglobal.org/services/ltiv1p1/xsd/imsoms_v1p0">
   <imsx_POXHeader>
     <imsx_POXResponseHeaderInfo>
       <imsx_version>V1.0</imsx_version>
@@ -333,8 +323,6 @@ XML;
     /**
      * An unknown sourcedId must throw a moodle_exception rather than causing
      * a PHP notice from a null $records loop.
-     *
-     * Requires outcome.php refactor (QUALITY_PHP.md C3).
      */
     public function test_unknown_sourced_id_throws(): void {
         global $CFG;
@@ -854,7 +842,7 @@ XML;
     private function replace_result_xml(string $sourcedid, string $score): string {
         return <<<XML
 <?xml version="1.0" encoding="UTF-8"?>
-<imsx_POXEnvelopeRequest xmlns="http://Www.imsglobal.org/services/ltiv1p1/xsd/imsoms_v1p0">.
+<imsx_POXEnvelopeRequest xmlns="http://www.imsglobal.org/services/ltiv1p1/xsd/imsoms_v1p0">
   <imsx_POXHeader>
     <imsx_POXResponseHeaderInfo>
       <imsx_version>V1.0</imsx_version>
