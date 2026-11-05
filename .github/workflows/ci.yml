@@ -120,3 +120,41 @@ jobs:
       - name: Mark cancelled jobs as failed.
         if: ${{ cancelled() }}
         run: exit 1
+  widget:
+    name: Vue widget (type-check, tests, committed bundle)
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: yarn
+          cache-dependency-path: vue/yarn.lock
+
+      - name: Install dependencies
+        working-directory: vue
+        run: yarn install --frozen-lockfile
+
+      - name: Type-check
+        working-directory: vue
+        run: yarn type-check
+
+      - name: Unit tests
+        working-directory: vue
+        run: yarn test
+
+      - name: Build
+        working-directory: vue
+        run: yarn build
+
+      - name: Committed bundle matches the sources
+        run: |
+          if [ -n "$(git status --porcelain -- assets/vue)" ]; then
+            git status --short -- assets/vue
+            echo "::error::assets/vue differs from a fresh build. Run 'yarn build' in vue/ (and 'yarn bump-version' for a release) and commit the result."
+            exit 1
+          fi
