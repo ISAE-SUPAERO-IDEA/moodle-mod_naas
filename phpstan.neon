@@ -8,7 +8,6 @@ parameters:
         - settings.php
         - mod_form.php
         - outcome.php
-        - renderer.php
         - version.php
         - classes
     scanDirectories:
