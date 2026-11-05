@@ -376,7 +376,9 @@ class naas_lti_test extends advanced_testcase {
         $output = naas_lti::lti_launch($naas->cmid, '', $client);
 
         $this->assertStringContainsString(get_string('error:naas_api:invalid_credentials', 'naas'), $output);
+        $this->assertStringContainsString('alert-danger', $output);
         $this->assertStringContainsString('naas-launch-error', $output);
+        $this->assertStringNotContainsString('<style', $output);
         $this->assertDebuggingNotCalled();
     }
 

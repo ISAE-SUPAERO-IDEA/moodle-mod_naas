@@ -225,33 +225,24 @@ class naas_lti {
     }
 
     /**
-     * Render a clean inline error message in place of the nugget.
-     * @param string $message
+     * Render a NaaS API failure as a core error notification in place of the nugget.
+     *
+     * The naas-launch-error class lets Behat and tests tell this case apart.
+     *
+     * @param string $message Plain-text message, escaped here.
      * @return string
      */
-    private static function render_launch_error($message) {
-        $message = htmlspecialchars($message, ENT_QUOTES);
-        return <<<HTML
-<style>
-.error-message {
-  color: #721c24;
-  background-color: #f8d7da;
-  border: 1px solid #f5c6cb;
-  padding: 12px;
-  border-radius: 4px;
-  font-size: 14px;
-  font-weight: bold;
-  margin: 10px 0;
-  display: flex;
-  align-items: center;
-}
-
-.error-message::before {
-  content: "⚠️";
-  margin-right: 8px;
-}
-</style>
-    <div class="error-message naas-launch-error">$message</div>
-HTML;
+    private static function render_launch_error(string $message): string {
+        global $PAGE;
+        $notification = new \core\output\notification(s($message), \core\output\notification::NOTIFY_ERROR);
+        $notification->set_show_closebutton(false);
+        $notification->set_extra_classes(['naas-launch-error']);
+        // Render the template directly: the CLI renderer used by PHPUnit and cron
+        // would otherwise print plain text and drop the marker class.
+        $renderer = $PAGE->get_renderer('core');
+        return $renderer->render_from_template(
+            $notification->get_template_name(),
+            $notification->export_for_template($renderer)
+        );
     }
 }
