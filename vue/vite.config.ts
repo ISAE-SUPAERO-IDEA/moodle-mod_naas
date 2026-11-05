@@ -26,8 +26,8 @@ import { resolve } from "path";
 import { readFileSync } from "fs";
 import type { OutputBundle, NormalizedOutputOptions } from "rollup";
 
-// Bump this when releasing — mirrors the AMD widget_init.js reference.
-const BUNDLE_VERSION = "2026110401";
+// Bump with `yarn bump-version`, which also updates widget::BUNDLE_VERSION in classes/output/widget.php.
+const BUNDLE_VERSION = "2026110500";
 
 // Reads the emitted style.css and prepends a self-injecting <style> block
 // into the IIFE JS so Moodle pages get the styles without a separate link tag.
