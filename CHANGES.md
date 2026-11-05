@@ -16,9 +16,12 @@ _All notable changes to the NaaS Moodle plugin will be documented in this file._
 - The attempts limit is also enforced when the result arrives, so launches opened in parallel cannot exceed it
 - Grades outside 0–1 and grade submissions for activities without a grade item are rejected
 - Domain codes with dots and e-mail author keys no longer break the vocabulary cache when debugging is on
+- The completion condition shows "Complete when all attempts are used" when only that option is ticked
 
 ### Security
 - Stricter validation of NaaS identifiers and xAPI statements, enrolment check on the proxy web services, external entities disabled when reading grade submissions
+- The Nugget id stored in an activity is validated before it is used in a NaaS request
+- HTML descriptions imported from NaaS keep only basic formatting (no scripts, event handlers or unsafe links) before they are put in the description editor
 
 ### Upgrade notes
 - Requires Node 22 to rebuild the widget; the bundle is now `assets/vue/naas_widget-<version>.js`
