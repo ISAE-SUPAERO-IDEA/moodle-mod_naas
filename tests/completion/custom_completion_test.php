@@ -87,16 +87,20 @@ class custom_completion_test extends advanced_testcase {
     }
 
     /**
-     * When "attempts exhausted" is enabled, the pass/exhaust description string must be used.
+     * The pass/exhaust rule label matches the flags that are ticked.
+     *
+     * @dataProvider pass_or_exhaust_label_provider
+     * @param int $completionpass
+     * @param string $expectedstring
      */
-    public function test_get_custom_rule_descriptions_pass_or_exhaust_label(): void {
+    public function test_get_custom_rule_descriptions_pass_or_exhaust_label(int $completionpass, string $expectedstring): void {
         $this->resetAfterTest(true);
 
         $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
         $naas   = $this->getDataGenerator()->create_module('naas', [
             'course' => $course->id,
             'completion' => COMPLETION_TRACKING_AUTOMATIC,
-            'completionpass' => 0,
+            'completionpass' => $completionpass,
             'completionattemptsexhausted' => 1,
         ]);
         $user = $this->getDataGenerator()->create_user();
@@ -106,9 +110,21 @@ class custom_completion_test extends advanced_testcase {
         $descriptions = $completion->get_custom_rule_descriptions();
 
         $this->assertSame(
-            get_string('completiondetail:passorexhaust', 'naas'),
+            get_string($expectedstring, 'naas'),
             $descriptions['completionpassorattemptsexhausted']
         );
+    }
+
+    /**
+     * Exhaustion alone, and pass or exhaustion.
+     *
+     * @return array
+     */
+    public static function pass_or_exhaust_label_provider(): array {
+        return [
+            'all attempts used only' => [0, 'completiondetail:exhaust'],
+            'passing grade or all attempts used' => [1, 'completiondetail:passorexhaust'],
+        ];
     }
 
     /**

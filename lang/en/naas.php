@@ -40,6 +40,7 @@ $string["cgu_agreement"] = "I have read and agree to the <a target=\"_blank\" hr
 $string["clear_filters"] = "Clear filters";
 $string["click_to_replace"] = "Replace the selected nugget";
 $string["complete_nugget"] = "I Finished My Learning With This Nugget";
+$string["completiondetail:exhaust"] = "Complete when all attempts are used";
 $string["completiondetail:minattempts"] = 'Minimum number of attempts required: {$a}';
 $string["completiondetail:passgrade"] = "Complete on passing grade";
 $string["completiondetail:passorexhaust"] = "Complete on pass or exhaustion";

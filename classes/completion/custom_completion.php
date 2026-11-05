@@ -142,8 +142,11 @@ class custom_completion extends activity_custom_completion {
         }
 
         $completionpassorattempts = $this->cm->customdata['customcompletionrules']['completionpassorattemptsexhausted'] ?? [];
-        if (!empty($completionpassorattempts['completionattemptsexhausted'])) {
+        $exhaustaccepted = !empty($completionpassorattempts['completionattemptsexhausted']);
+        if ($exhaustaccepted && !empty($completionpassorattempts['completionpass'])) {
             $passorallattemptslabel = get_string('completiondetail:passorexhaust', 'naas');
+        } else if ($exhaustaccepted) {
+            $passorallattemptslabel = get_string('completiondetail:exhaust', 'naas');
         } else {
             $passorallattemptslabel = get_string('completiondetail:passgrade', 'naas');
         }
