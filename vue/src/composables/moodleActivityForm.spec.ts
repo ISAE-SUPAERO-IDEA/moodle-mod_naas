@@ -43,6 +43,28 @@ describe("descriptionToHtml", () => {
       "<p>Already html</p>"
     );
   });
+
+  it("drops scripts and event handlers from NaaS markup", () => {
+    expect(
+      descriptionToHtml(
+        '<p onclick="steal()">Intro<script>steal()</script><img src=x onerror="steal()"></p>'
+      )
+    ).toBe("<p>Intro</p>");
+  });
+
+  it("keeps safe links and strips javascript: links", () => {
+    expect(
+      descriptionToHtml(
+        '<p><a href="https://naas.example/x" target="_blank">ok</a> <a href="javascript:steal()">bad</a></p>'
+      )
+    ).toBe('<p><a href="https://naas.example/x">ok</a> <a>bad</a></p>');
+  });
+
+  it("unwraps unknown tags but keeps their text", () => {
+    expect(
+      descriptionToHtml("<div><section><strong>Bold</strong> text</section></div>")
+    ).toBe("<strong>Bold</strong> text");
+  });
 });
 
 describe("Moodle activity form bridge", () => {

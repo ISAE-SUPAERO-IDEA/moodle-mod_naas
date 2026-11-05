@@ -55,13 +55,70 @@ export function setActivityDetailsVisible(visible: boolean): void {
   );
 }
 
+/** Formatting tags kept from a NaaS description; everything else is unwrapped or dropped. */
+const DESCRIPTION_TAGS = new Set([
+  "P", "BR", "STRONG", "B", "EM", "I", "U", "UL", "OL", "LI", "A",
+  "H2", "H3", "H4", "H5", "H6", "BLOCKQUOTE", "CODE", "PRE", "SPAN", "SUB", "SUP",
+]);
+/** Elements removed together with their content. */
+const DESCRIPTION_DROPPED_TAGS = new Set([
+  "SCRIPT", "STYLE", "IFRAME", "FRAME", "OBJECT", "EMBED", "TEMPLATE", "SVG", "MATH",
+  "NOSCRIPT", "LINK", "META", "BASE", "FORM", "INPUT", "BUTTON", "TEXTAREA", "SELECT",
+]);
+const SAFE_HREF = /^(https?:|mailto:)/i;
+
+function sanitiseChildren(node: Node): void {
+  for (const child of Array.from(node.childNodes)) {
+    if (child.nodeType === Node.TEXT_NODE) {
+      continue;
+    }
+    if (child.nodeType !== Node.ELEMENT_NODE) {
+      child.remove();
+      continue;
+    }
+    const element = child as Element;
+    const tag = element.tagName.toUpperCase();
+    if (DESCRIPTION_DROPPED_TAGS.has(tag)) {
+      element.remove();
+      continue;
+    }
+    sanitiseChildren(element);
+    if (!DESCRIPTION_TAGS.has(tag)) {
+      element.replaceWith(...Array.from(element.childNodes));
+      continue;
+    }
+    for (const attribute of Array.from(element.attributes)) {
+      const keep =
+        tag === "A" &&
+        attribute.name === "href" &&
+        SAFE_HREF.test(attribute.value.trim());
+      if (!keep) {
+        element.removeAttribute(attribute.name);
+      }
+    }
+  }
+}
+
+/**
+ * Keep only basic formatting from NaaS-supplied HTML.
+ *
+ * The result is written into the description editor, and Atto sets it with
+ * innerHTML without cleaning it, so scripts, event handlers and unsafe links
+ * must not survive. DOMParser documents are inert: nothing runs while parsing.
+ */
+export function sanitiseDescriptionHtml(html: string): string {
+  const doc = new DOMParser().parseFromString(html, "text/html");
+  sanitiseChildren(doc.body);
+  return doc.body.innerHTML;
+}
+
 export function descriptionToHtml(resume: string): string {
   const text = resume.trim();
   if (!text) {
     return "";
   }
   if (/^\s*</.test(text)) {
-    return text;
+    return sanitiseDescriptionHtml(text);
   }
   const escaped = text
     .replace(/&/g, "&amp;")
