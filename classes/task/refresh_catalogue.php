@@ -107,9 +107,7 @@ class refresh_catalogue extends \core\task\scheduled_task {
                 continue;
             }
             try {
-                $raw = proxy_naas_api::sanitise_json_response(
-                    $naas->request_raw('GET', proxy_naas_api::search_url($options))
-                );
+                $raw = self::fetch_search($naas, $options, $config);
                 if (search_cache::store($key, $options, $raw, $config) !== null) {
                     $refreshed++;
                 }
@@ -123,6 +121,26 @@ class refresh_catalogue extends \core\task\scheduled_task {
             }
         }
         return $refreshed;
+    }
+
+    /**
+     * Run one search on NaaS and keep only the nuggets the licence settings allow.
+     *
+     * Same filtering as the live search in proxy_naas_api, so the cache never
+     * holds a nugget that the live path would hide.
+     *
+     * @param naas_client $naas
+     * @param array $options Search options as stored in the cache index.
+     * @param object $config Merged plugin and site configuration.
+     * @return string Sanitised and filtered JSON response.
+     */
+    public static function fetch_search(naas_client $naas, array $options, object $config): string {
+        return catalogue_filters::constrain_search_json(
+            proxy_naas_api::sanitise_json_response(
+                $naas->request_raw('GET', proxy_naas_api::search_url($options))
+            ),
+            $config
+        );
     }
 
     /**

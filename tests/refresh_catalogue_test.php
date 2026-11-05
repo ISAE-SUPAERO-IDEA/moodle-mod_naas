@@ -24,9 +24,14 @@
 
 namespace mod_naas;
 
+defined('MOODLE_INTERNAL') || die();
+
 use advanced_testcase;
+use mod_naas\catalogue_filters;
 use mod_naas\search_cache;
 use mod_naas\task\refresh_catalogue;
+
+require_once(__DIR__ . '/fixtures/testable_naas_client.php');
 
 /**
  * Tests for the scheduled catalogue refresh task.
@@ -69,5 +74,44 @@ final class refresh_catalogue_test extends advanced_testcase {
 
         $task = new refresh_catalogue();
         $this->assertNull($task->refresh(false));
+    }
+
+    /**
+     * The nightly refresh must drop the nuggets the licence settings hide, like the live search.
+     */
+    public function test_fetch_search_applies_the_licence_filters_before_caching(): void {
+        $config = (object) [
+            'naas_structure_id' => 'struct-ours',
+            'naas_license_filter' => catalogue_filters::LICENSE_COMMERCIAL,
+        ];
+        $client = new testable_naas_client((object) [
+            'naas_endpoint' => 'https://Stub.example',
+            'naas_username' => 'u',
+            'naas_password' => 'p',
+            'naas_structure_id' => 'struct-ours',
+        ]);
+        $client->stubjson = json_encode([
+            'payload' => [
+                'items' => [
+                    [
+                        'nugget_id' => 'keep',
+                        'access_licences' => [['structure_id' => 'struct-ours', 'rights' => ['co', 'uu']]],
+                    ],
+                    [
+                        'nugget_id' => 'drop',
+                        'access_licences' => [['structure_id' => 'struct-ours', 'rights' => ['nc', 'uu']]],
+                    ],
+                ],
+                'results_count' => 2,
+            ],
+        ]);
+        $options = ['is_default_version' => true, 'page_size' => 10];
+
+        $raw = refresh_catalogue::fetch_search($client, $options, $config);
+        $entry = search_cache::store(search_cache::canonical_key($options, $config), $options, $raw, $config);
+
+        $this->assertNotNull($entry);
+        $this->assertSame(['keep'], array_column($entry['search']['items'], 'nugget_id'));
+        $this->assertSame(1, $entry['results_count']);
     }
 }
