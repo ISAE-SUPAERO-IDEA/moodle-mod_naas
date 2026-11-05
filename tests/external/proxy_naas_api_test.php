@@ -385,6 +385,34 @@ class proxy_naas_api_test extends advanced_testcase {
         $proxy::view_nugget($naas->cmid);
     }
 
+    /**
+     * A stored nugget_id with path characters is rejected before any NaaS request.
+     */
+    public function test_view_nugget_rejects_path_in_stored_nugget_id(): void {
+        global $DB;
+        $this->resetAfterTest(true);
+        $course = $this->getDataGenerator()->create_course();
+        $naas = $this->getDataGenerator()->create_module('naas', ['course' => $course->id]);
+        $DB->set_field('naas', 'nugget_id', '../auth', ['id' => $naas->id]);
+        $user = $this->getDataGenerator()->create_user();
+        $this->getDataGenerator()->enrol_user($user->id, $course->id, 'student');
+        $this->setUser($user);
+
+        $client = new \mod_naas\testable_naas_client((object) [
+            'naas_endpoint' => 'https://Stub.example',
+            'naas_username' => 'u',
+            'naas_password' => 'p',
+            'naas_structure_id' => 's',
+        ]);
+        $proxy = $this->proxy_using($client);
+        try {
+            $proxy::view_nugget($naas->cmid);
+            $this->fail('A nugget_id containing a path must be rejected');
+        } catch (\invalid_parameter_exception $e) {
+            $this->assertSame([], $client->captured);
+        }
+    }
+
     // Get_domain – validation.
 
     /**

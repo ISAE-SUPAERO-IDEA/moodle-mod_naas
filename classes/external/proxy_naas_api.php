@@ -931,6 +931,8 @@ class proxy_naas_api extends \external_api {
         self::require_active_course_enrolment((int) $cm->course);
 
         $naasinstance = $DB->get_record('naas', ['id' => $cm->instance], '*', MUST_EXIST);
+        // The stored id comes from the activity form (PARAM_TEXT), so check it before it reaches the URL path.
+        self::validate_id_param((string) $naasinstance->nugget_id, 'nugget_id');
 
         $config = (object) array_merge((array) get_config('naas'), (array) $CFG);
         $naas = static::make_naas_client($config);
