@@ -119,6 +119,9 @@ class xapi extends \external_api {
             $data->body = new \stdClass();
         } else {
             $data->body = json_decode($params['body']);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                throw new \invalid_parameter_exception(get_string('error:xapi_body_invalid', 'naas'));
+            }
         }
 
         if (isset($_SESSION["resource_link_id"])) {
@@ -129,6 +132,9 @@ class xapi extends \external_api {
         $config = (object) array_merge((array) get_config('naas'), (array) $CFG);
         $naas = static::make_naas_client($config);
         $response = $naas->post_xapi_statement($params['verb'], $params['version_id'], $data);
+        if (!is_object($response) || !isset($response->statusCode)) {
+            throw new \moodle_exception('error:naas_server_unexpected', 'naas');
+        }
 
         return [
           "statusCode" => $response->statusCode,

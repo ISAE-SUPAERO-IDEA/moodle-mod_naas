@@ -196,7 +196,9 @@ class xapi_test extends advanced_testcase {
         $naas    = $this->getDataGenerator()->create_module('naas', ['course' => $course->id]);
         $this->setUser($user);
 
-        $exactsize = str_repeat('x', 4096);
+        // Valid JSON, exactly 4 096 bytes: {"a":"x…x"}.
+        $exactsize = '{"a":"' . str_repeat('x', 4096 - 8) . '"}';
+        $this->assertSame(4096, strlen($exactsize));
 
         $client = $this->capturing_client();
         $xapi = $this->xapi_using($client);
@@ -397,6 +399,68 @@ class xapi_test extends advanced_testcase {
 
         $this->assertSame(202, $result['statusCode']);
         $this->assertSame('Accepted', $result['statusMessage']);
+    }
+
+    /**
+     * A body that is not valid JSON must be refused before anything is sent to NaaS.
+     */
+    public function test_post_xapi_invalid_json_body_throws_without_calling_naas(): void {
+        $this->resetAfterTest(true);
+
+        $course = $this->getDataGenerator()->create_course();
+        $user = $this->getDataGenerator()->create_user();
+        $this->getDataGenerator()->enrol_user($user->id, $course->id, 'student');
+        $naas = $this->getDataGenerator()->create_module('naas', ['course' => $course->id]);
+        $this->setUser($user);
+
+        $client = $this->capturing_client();
+        $xapi = $this->xapi_using($client);
+        try {
+            $xapi::post_xapi_statement('experienced', 'version-1', $naas->cmid, '{"actor":');
+            $this->fail('Expected invalid_parameter_exception for a malformed body');
+        } catch (\invalid_parameter_exception $e) {
+            $this->assertStringContainsString(get_string('error:xapi_body_invalid', 'naas'), $e->getMessage());
+        }
+        $this->assertSame([], $client->captured);
+    }
+
+    /**
+     * An empty or error answer from NaaS must raise a clear exception, not a PHP warning.
+     *
+     * @dataProvider unusable_naas_response_provider
+     * @param string $stubjson Raw NaaS answer.
+     */
+    public function test_post_xapi_unusable_naas_response_throws(string $stubjson): void {
+        $this->resetAfterTest(true);
+
+        $course = $this->getDataGenerator()->create_course();
+        $user = $this->getDataGenerator()->create_user();
+        $this->getDataGenerator()->enrol_user($user->id, $course->id, 'student');
+        $naas = $this->getDataGenerator()->create_module('naas', ['course' => $course->id]);
+        $this->setUser($user);
+
+        $client = $this->capturing_client();
+        $client->stubjson = $stubjson;
+        $xapi = $this->xapi_using($client);
+        try {
+            $xapi::post_xapi_statement('experienced', 'version-1', $naas->cmid, null);
+            $this->fail('Expected moodle_exception for an unusable NaaS answer');
+        } catch (\moodle_exception $e) {
+            $this->assertSame('error:naas_server_unexpected', $e->errorcode);
+        }
+    }
+
+    /**
+     * NaaS answers that carry no status code.
+     *
+     * @return array
+     */
+    public static function unusable_naas_response_provider(): array {
+        return [
+            'empty body' => [''],
+            'error envelope' => ['{"error":"boom"}'],
+            'payload without status' => ['{"payload":{"foo":"bar"}}'],
+        ];
     }
 
     /**

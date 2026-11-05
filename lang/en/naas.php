@@ -74,6 +74,7 @@ $string["error:invalid_score"] = "The grade submission from NaaS has a score out
 $string["error:oauth_invalid"] = "The grade submission from NaaS could not be authenticated.";
 $string["error:unknown_sourced_id"] = "The grade submission from NaaS does not match any known learner session.";
 $string["error:invalid_xapi_verb"] = 'The xAPI verb \'{$a}\' is not allowed.';
+$string["error:xapi_body_invalid"] = "The xAPI statement body is not valid JSON.";
 $string["error:xapi_body_too_large"] = "The xAPI statement body exceeds the maximum allowed size.";
 $string["error:not_enrolled"] = "You are not enrolled in the course for this activity.";
 $string["error:must_be_strictly_positive"] = "This must be a strictly positive number.";
