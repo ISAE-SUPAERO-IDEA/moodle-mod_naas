@@ -510,8 +510,9 @@ class xapi_test extends advanced_testcase {
         $this->getDataGenerator()->enrol_user($user->id, $course->id, 'student');
         $this->setUser($user);
 
+        // The gate returns nothing and throws on refusal: getting past it is the check.
+        $this->expectNotToPerformAssertions();
         xapi_enrol_test_proxy::invoke_require_active_course_enrolment((int) $course->id);
-        $this->assertTrue(true);
     }
 
     /**

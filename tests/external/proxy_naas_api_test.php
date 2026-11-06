@@ -1474,8 +1474,9 @@ class proxy_naas_api_test extends advanced_testcase {
         $this->getDataGenerator()->enrol_user($user->id, $course->id, 'student');
         $this->setUser($user);
 
+        // The gate returns nothing and throws on refusal: getting past it is the check.
+        $this->expectNotToPerformAssertions();
         proxy_naas_api_enrol_test_proxy::invoke_require_active_course_enrolment((int) $course->id);
-        $this->assertTrue(true);
     }
 
     /**
@@ -1517,8 +1518,10 @@ class proxy_naas_api_test extends advanced_testcase {
     }
 
     public function test_validate_id_param_accepts_slug(): void {
+        // The validator returns nothing and throws on refusal: getting past it is the check.
+        $this->expectNotToPerformAssertions();
         $this->invoke_validate_id_param('valid_slug-01', 'testParam');
-        $this->assertTrue(true);
+        $this->invoke_validate_id_param('3f2b8c4e-1d2a-4b5c-9e8f-0a1b2c3d4e5f', 'testParam');
     }
 
     public function test_validate_id_param_rejects_invalid(): void {

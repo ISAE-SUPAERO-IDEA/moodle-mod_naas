@@ -570,12 +570,13 @@ class lib_test extends advanced_testcase {
         $this->assertArrayHasKey($user->id, $grades->items[0]->grades);
 
         // Test grade_item_delete.
+        $this->assertNotFalse(
+            \grade_item::fetch(['itemtype' => 'mod', 'itemmodule' => 'naas', 'iteminstance' => $naas->id])
+        );
         naas_grade_item_delete($naas);
-        \grade_item::fetch(['itemtype' => 'mod', 'itemmodule' => 'naas', 'iteminstance' => $naas->id]);
-        // Note: grade_item_delete in lib.php doesn't actually delete the record from DB,.
-        // It just marks it as deleted in the grade_update call (which often just nulls things or handles it in gradebook).
-        // But we can verify the call doesn't crash.
-        $this->assertTrue(true);
+        $this->assertFalse(
+            \grade_item::fetch(['itemtype' => 'mod', 'itemmodule' => 'naas', 'iteminstance' => $naas->id])
+        );
     }
 
     /**
@@ -591,10 +592,18 @@ class lib_test extends advanced_testcase {
         $nugget->course = $course->id;
         $nugget->cm_id = $naas->cmid;
 
-        naas_grade_item_update($nugget);
-        naas_grade_item_update($nugget, 'reset');
+        $user = $this->getDataGenerator()->create_user();
 
-        $this->assertTrue(true);
+        naas_grade_item_update($nugget);
+        $item = \grade_item::fetch(['itemtype' => 'mod', 'itemmodule' => 'naas', 'iteminstance' => $naas->id]);
+        $this->assertNotFalse($item);
+        $this->assertSame((string) $naas->cmid, (string) $item->idnumber);
+
+        naas_grade_item_update($nugget, [$user->id => (object) ['userid' => $user->id, 'rawgrade' => 50]]);
+        $this->assertNotFalse(\grade_grade::fetch(['itemid' => $item->id, 'userid' => $user->id]));
+
+        naas_grade_item_update($nugget, 'reset');
+        $this->assertFalse(\grade_grade::fetch(['itemid' => $item->id, 'userid' => $user->id]));
     }
 
     /**

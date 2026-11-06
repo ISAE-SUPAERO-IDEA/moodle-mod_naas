@@ -58,8 +58,9 @@ class lti_outcome_oauth_test extends advanced_testcase {
         $body = $this->sample_body('src-ok', '0.9');
         $header = lti_outcome_oauth::sign(self::KEY, self::SECRET, $body, self::URL);
 
+        // Verify() returns nothing and throws on refusal: getting past it is the check.
+        $this->expectNotToPerformAssertions();
         lti_outcome_oauth::verify(self::KEY, self::SECRET, $body, $header, self::URL);
-        $this->assertTrue(true);
     }
 
     /**
@@ -148,7 +149,14 @@ class lti_outcome_oauth_test extends advanced_testcase {
 
         $genuine = $this->sign_with_nonce($body, self::URL, $nonce);
         lti_outcome_oauth::verify(self::KEY, self::SECRET, $body, $genuine, self::URL);
-        $this->assertTrue(true);
+
+        // The genuine request consumed the nonce: replaying it is now refused.
+        try {
+            lti_outcome_oauth::verify(self::KEY, self::SECRET, $body, $genuine, self::URL);
+            $this->fail('Replaying the genuine request must be rejected');
+        } catch (\moodle_exception $e) {
+            $this->assertSame('error:oauth_invalid', $e->errorcode);
+        }
     }
 
     /**
