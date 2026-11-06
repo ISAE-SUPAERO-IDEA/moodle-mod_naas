@@ -132,6 +132,8 @@ class widget implements renderable, templatable {
                 "clear_search" => get_string('clear_search', 'naas'),
                 "remove_filter" => get_string('remove_filter', 'naas'),
                 "duration_minutes" => get_string('duration_minutes', 'naas'),
+                "unknown_author" => get_string('unknown_author', 'naas'),
+                "unknown_producer" => get_string('unknown_producer', 'naas'),
                 "metadata" => [
                     "description" => get_string('description', 'naas'),
                     "in_brief" => get_string('in_brief', 'naas'),

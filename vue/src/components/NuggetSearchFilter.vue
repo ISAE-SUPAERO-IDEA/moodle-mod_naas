@@ -126,6 +126,7 @@ import {
   aggregationFor,
   applyResolvedLabels,
   facetNeedsNetworkLabels,
+  withFallbackLabels,
   hasMoreAuthors,
   mapAggregationBuckets,
   selectedKeysFor,
@@ -400,9 +401,18 @@ async function resolveFacetLabels(agg: MappedAggregation): Promise<void> {
         }
       }
     }
-    resolvedLabels.value = { ...resolvedLabels.value, [agg.name]: labels };
+    // Authors and producers NaaS cannot name get a readable fallback, kept for
+    // the rest of the page so they are not requested again.
+    const fallback =
+      agg.name === "authors"
+        ? config.labels.unknown_author
+        : agg.name === "producers"
+        ? config.labels.unknown_producer
+        : "";
+    const named = fallback ? withFallbackLabels(labels, keys, fallback) : labels;
+    resolvedLabels.value = { ...resolvedLabels.value, [agg.name]: named };
     aggregations.value = aggregations.value.map((item) =>
-      item.name === agg.name ? applyResolvedLabels(item, labels, titles) : item
+      item.name === agg.name ? applyResolvedLabels(item, named, titles) : item
     );
     const updated = findAggregation(agg.name);
     if (updated?.buckets.some((bucket) => bucket.selected)) {

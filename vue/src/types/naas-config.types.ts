@@ -96,6 +96,8 @@ export interface NaasLabels {
   clear_search: string;
   remove_filter: string;
   duration_minutes: string;
+  unknown_author: string;
+  unknown_producer: string;
   open_access?: string;
   all_nuggets: string;
   by_producers?: string;

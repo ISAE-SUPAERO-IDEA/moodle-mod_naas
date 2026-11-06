@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  withFallbackLabels,
   AUTHOR_PREVIEW_LIMIT,
   aggregationFor,
   applyResolvedLabels,
@@ -114,13 +115,15 @@ describe("searchAggregations", () => {
       buckets: [{ key: "d2", docCount: 8 }],
     };
 
-    expect(aggregationFor({ related_domains: related }, "related_domains")).toBe(
-      related
-    );
+    expect(
+      aggregationFor({ related_domains: related }, "related_domains")
+    ).toBe(related);
     expect(
       aggregationFor({ domains: aliased }, "related_domains")?.buckets[0].key
     ).toBe("d2");
-    expect(aggregationFor({ level: related }, "related_domains")).toBeUndefined();
+    expect(
+      aggregationFor({ level: related }, "related_domains")
+    ).toBeUndefined();
     expect(selectedKeysFor({ domains: ["d2"] }, "related_domains")).toEqual([
       "d2",
     ]);
@@ -130,5 +133,29 @@ describe("searchAggregations", () => {
         "related_domains"
       )
     ).toEqual(["d1"]);
+  });
+
+  describe("withFallbackLabels", () => {
+    const hash = "a3f5c2e19b7d4e6f8a0b1c2d3e4f5a6b";
+
+    it("names unresolved and raw keys with the fallback, keeps real names", () => {
+      expect(
+        withFallbackLabels(
+          { "jane@example.test": "Jane Doe", [hash]: hash },
+          ["jane@example.test", hash, "missing"],
+          "Unknown author"
+        )
+      ).toEqual({
+        "jane@example.test": "Jane Doe",
+        [hash]: "Unknown author",
+        missing: "Unknown author",
+      });
+    });
+
+    it("does not modify the labels it receives", () => {
+      const labels = { k: "" };
+      withFallbackLabels(labels, ["k"], "Unknown producer");
+      expect(labels).toEqual({ k: "" });
+    });
   });
 });

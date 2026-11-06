@@ -142,6 +142,30 @@ export function applyResolvedLabels(
   return { ...aggregation, buckets, labelsResolved };
 }
 
+/**
+ * Give a fallback label to every key that is still unnamed after resolution.
+ *
+ * The label is then reused by the filter list, the active-filter chip and later
+ * openings of the panel, so an unknown author or producer is neither shown as
+ * a raw hash nor requested again.
+ *
+ * @returns A copy of `labels` with the fallbacks added.
+ */
+export function withFallbackLabels(
+  labels: Record<string, string>,
+  keys: string[],
+  fallback: string
+): Record<string, string> {
+  const next = { ...labels };
+  for (const key of keys) {
+    const label = next[key];
+    if (!label || isRawEntityLabel(label, key)) {
+      next[key] = fallback;
+    }
+  }
+  return next;
+}
+
 export type NetworkAggregations = Record<string, AggregationResult | undefined>;
 
 /** NaaS has used related_domains and domains for the same vocabulary facet. */
