@@ -86,4 +86,17 @@ final class widget_test extends advanced_testcase {
 
         $this->assertNull($config['catalogue_snapshot']);
     }
+
+    /**
+     * The browser loads NaaS images through media.php: it no longer gets the NaaS API URL.
+     */
+    public function test_naas_endpoint_is_not_exported(): void {
+        $this->resetAfterTest(true);
+        set_config('naas_endpoint', 'https://api.naas.example/api', 'naas');
+
+        foreach (['NuggetSearchWidget', 'NuggetView'] as $component) {
+            $config = $this->exported_config($component);
+            $this->assertArrayNotHasKey('naas_endpoint', $config);
+        }
+    }
 }

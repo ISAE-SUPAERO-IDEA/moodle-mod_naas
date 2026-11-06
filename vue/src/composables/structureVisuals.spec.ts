@@ -7,6 +7,10 @@ import {
   normalizeStructureKey,
   structureVisuals,
 } from "./structureVisuals";
+import { createMediaRouter } from "./mediaUrls";
+
+const MEDIA = "https://moodle.test/mod/naas/media.php";
+const media = createMediaRouter("https://moodle.test/", 7);
 
 describe("structureVisuals", () => {
   it("prefers acronym and separate logo/cover URLs", () => {
@@ -61,25 +65,37 @@ describe("structureVisuals", () => {
     });
   });
 
-  it("resolves relative media paths against the NaaS origin", () => {
+  it("sends relative media paths to media.php, which resolves them on NaaS", () => {
     expect(
-      structureVisuals(
-        { logo: { path: "/files/logo.svg" } },
-        "ISAE",
-        "https://api.naas-edu.eu/api"
-      ).logoUrl
-    ).toBe("https://api.naas-edu.eu/files/logo.svg");
+      structureVisuals({ logo: { path: "/files/logo.svg" } }, "ISAE", media)
+        .logoUrl
+    ).toBe(`${MEDIA}?course=7&src=%2Ffiles%2Flogo.svg`);
   });
 
-  it("resolves a file object id to a files URL", () => {
+  it("resolves a file object id to a files URL served by media.php", () => {
     expect(
       structureVisuals(
         { logo: { id: "11111111-2222-4333-8444-555555555555" } },
         "ISAE",
-        "https://api.naas-edu.eu/api"
+        media
       ).logoUrl
     ).toBe(
-      "https://api.naas-edu.eu/files/11111111-2222-4333-8444-555555555555"
+      `${MEDIA}?course=7&src=%2Ffiles%2F11111111-2222-4333-8444-555555555555`
+    );
+  });
+
+  it("routes absolute NaaS image URLs through media.php", () => {
+    expect(
+      structureVisuals(
+        {
+          structure_thumbnail_url:
+            "https://api.example/api/thumbnails/structure/abc/thumbnail",
+        },
+        "abc",
+        media
+      ).logoUrl
+    ).toBe(
+      `${MEDIA}?course=7&src=https%3A%2F%2Fapi.example%2Fapi%2Fthumbnails%2Fstructure%2Fabc%2Fthumbnail`
     );
   });
 
@@ -105,15 +121,11 @@ describe("structureVisuals", () => {
   it("builds thumbnail URLs from the structure id when the payload has no media", () => {
     const key = "06d37c13-6ffe-4c4a-a9e3-ac227652f98c";
     expect(
-      structureVisuals(
-        { acronym: "ISAE", name: "ISAE-SUPAERO" },
-        key,
-        "https://api.naas-edu.eu/api"
-      )
+      structureVisuals({ acronym: "ISAE", name: "ISAE-SUPAERO" }, key, media)
     ).toMatchObject({
       acronym: "ISAE",
-      logoUrl: `https://api.naas-edu.eu/api/thumbnails/structure/${key}/thumbnail`,
-      imageUrl: `https://api.naas-edu.eu/api/thumbnails/structure/${key}/banner`,
+      logoUrl: `${MEDIA}?course=7&structure=${key}&variant=thumbnail`,
+      imageUrl: `${MEDIA}?course=7&structure=${key}&variant=banner`,
       hasCover: true,
     });
   });
@@ -169,12 +181,12 @@ describe("structureVisuals", () => {
   });
 
   it("strips relationship prefixes and looks up labels by either form", () => {
-    expect(
-      normalizePersonKey("authored_by:person:abcdef0123456789")
-    ).toBe("abcdef0123456789");
-    expect(
-      normalizeStructureKey("managed_by:structure:isae-uuid")
-    ).toBe("isae-uuid");
+    expect(normalizePersonKey("authored_by:person:abcdef0123456789")).toBe(
+      "abcdef0123456789"
+    );
+    expect(normalizeStructureKey("managed_by:structure:isae-uuid")).toBe(
+      "isae-uuid"
+    );
     expect(
       lookupLabel(
         { "isae-uuid": "ISAE" },
@@ -182,9 +194,7 @@ describe("structureVisuals", () => {
         normalizeStructureKey
       )
     ).toBe("ISAE");
-    expect(
-      isRawEntityLabel("authored_by:person:abcdef0123456789")
-    ).toBe(true);
+    expect(isRawEntityLabel("authored_by:person:abcdef0123456789")).toBe(true);
     expect(isRawEntityLabel("ISAE", "managed_by:structure:x")).toBe(false);
   });
 });

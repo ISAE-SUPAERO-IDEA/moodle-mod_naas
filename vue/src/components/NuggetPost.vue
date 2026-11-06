@@ -37,7 +37,7 @@
     <div class="nugget-thumb-wrap">
       <img
         class="nugget-thumb"
-        :src="nugget.nugget_thumbnail_url + '?width=700&height=394'"
+        :src="media.image(nugget.nugget_thumbnail_url, 700, 394)"
         alt=""
         loading="lazy"
       />
@@ -115,6 +115,7 @@ import { ref, computed } from "vue";
 import NuggetAboutModal from "./NuggetAboutModal.vue";
 import NuggetViewModal from "./NuggetViewModal.vue";
 import { useNaasConfig } from "@/composables/useNaasConfig";
+import { createMediaRouter } from "@/composables/mediaUrls";
 import type { Nugget } from "@/types/nugget.types";
 
 const props = defineProps<{
@@ -129,6 +130,7 @@ const emit = defineEmits<{
 }>();
 
 const config = useNaasConfig();
+const media = createMediaRouter(config.moodle_url, config.courseId);
 
 const showAbout = ref(false);
 const showPreview = ref(false);

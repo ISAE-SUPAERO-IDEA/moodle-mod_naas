@@ -23,6 +23,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+import type { MediaRouter } from "./mediaUrls";
+
 const LOGO_KEYS = [
   "structure_thumbnail_url",
   "structureThumbnailUrl",
@@ -181,17 +183,16 @@ export function lookupLabel(
 
 function defaultStructureMedia(
   structureId: string,
-  baseUrl: string
+  media?: MediaRouter
 ): { logoUrl: string; imageUrl: string } {
   const id = normalizeStructureKey(structureId);
-  const root = baseUrl.trim().replace(/\/+$/, "");
-  if (!id || !root || !/^https?:\/\//i.test(root)) {
+  // Same rule as media.php: anything else would only produce a broken image.
+  if (!media || !/^[A-Za-z0-9_-]{1,128}$/.test(id)) {
     return { logoUrl: "", imageUrl: "" };
   }
-  const encoded = encodeURIComponent(id);
   return {
-    logoUrl: `${root}/thumbnails/structure/${encoded}/thumbnail`,
-    imageUrl: `${root}/thumbnails/structure/${encoded}/banner`,
+    logoUrl: media.structure(id, "thumbnail"),
+    imageUrl: media.structure(id, "banner"),
   };
 }
 
@@ -208,26 +209,15 @@ function looksLikeMediaUrl(value: string): boolean {
   );
 }
 
-function resolveMediaUrl(value: string, baseUrl = ""): string {
+function resolveMediaUrl(value: string, media?: MediaRouter): string {
   if (!value) {
     return "";
   }
-  if (/^(https?:)?\/\//i.test(value) || value.startsWith("data:")) {
+  if (value.startsWith("data:")) {
     return value;
   }
-  const base = baseUrl.trim();
-  if (!base || !/^https?:\/\//i.test(base)) {
-    return value;
-  }
-  try {
-    const origin = new URL(base).origin;
-    if (value.startsWith("/")) {
-      return `${origin}${value}`;
-    }
-    return new URL(value, base.endsWith("/") ? base : `${base}/`).toString();
-  } catch {
-    return value;
-  }
+  // media.php resolves relative URLs against the NaaS API URL and checks the host.
+  return media ? media.image(value) : value;
 }
 
 function displayText(value: unknown, depth = 0): string {
@@ -414,17 +404,23 @@ function rawString(value: unknown): string {
   return typeof value === "string" && value.trim() ? value.trim() : "";
 }
 
+/**
+ * Display name and images of a structure.
+ *
+ * @param media Routes image URLs through Moodle (media.php). Without it, absolute
+ *   URLs are kept as they are and no default image is built (unit tests).
+ */
 export function structureVisuals(
   entity: unknown,
   fallbackKey = "",
-  mediaBaseUrl = ""
+  media?: MediaRouter
 ): StructureVisuals {
   const record = unwrapEntity(entity) ?? {};
   const structureId = normalizeStructureKey(
     firstMatching(record, ["structure_id", "structureId"], rawString) ||
       fallbackKey
   );
-  const defaults = defaultStructureMedia(structureId, mediaBaseUrl);
+  const defaults = defaultStructureMedia(structureId, media);
   const acronym = firstMatching(record, ACRONYM_KEYS, displayText);
   const name = firstMatching(record, NAME_KEYS, displayText);
   const fallbackLabel =
@@ -432,13 +428,11 @@ export function structureVisuals(
       ? fallbackKey
       : "";
   const logoUrl =
-    resolveMediaUrl(firstMatching(record, LOGO_KEYS, mediaUrl), mediaBaseUrl) ||
+    resolveMediaUrl(firstMatching(record, LOGO_KEYS, mediaUrl), media) ||
     defaults.logoUrl;
   const coverUrl =
-    resolveMediaUrl(
-      firstMatching(record, IMAGE_KEYS, mediaUrl),
-      mediaBaseUrl
-    ) || defaults.imageUrl;
+    resolveMediaUrl(firstMatching(record, IMAGE_KEYS, mediaUrl), media) ||
+    defaults.imageUrl;
   const imageUrl = coverUrl || logoUrl;
   return {
     name: name || acronym || fallbackLabel,

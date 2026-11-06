@@ -151,7 +151,6 @@ export interface NaasConfig {
   mount_point: string;
   component: "NuggetView" | "NuggetSearchWidget";
   moodle_url: string;
-  naas_endpoint?: string;
   cm_id: number;
   courseId: number;
   nugget_id?: string;

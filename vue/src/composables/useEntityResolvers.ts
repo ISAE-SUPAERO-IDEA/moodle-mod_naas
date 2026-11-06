@@ -24,6 +24,7 @@
 import { unwrapNaasPayload } from "@/service/unwrapNaasPayload";
 import { useMoodleService } from "./useMoodleService";
 import { useNaasConfig } from "./useNaasConfig";
+import { createMediaRouter } from "./mediaUrls";
 import {
   normalizePersonKey,
   structureVisuals,
@@ -48,6 +49,7 @@ function stringField(
 export function useEntityResolvers() {
   const service = useMoodleService();
   const config = useNaasConfig();
+  const media = createMediaRouter(config.moodle_url, config.courseId);
 
   async function getDomainLabel(key: string): Promise<string> {
     try {
@@ -71,11 +73,11 @@ export function useEntityResolvers() {
     try {
       const structure = await service.getStructure(key, config.courseId);
       return fromVisuals(
-        structureVisuals(structure, key, config.naas_endpoint ?? "")
+        structureVisuals(structure, key, media)
       );
     } catch {
       return fromVisuals(
-        structureVisuals(null, key, config.naas_endpoint ?? "")
+        structureVisuals(null, key, media)
       );
     }
   }
@@ -90,11 +92,11 @@ export function useEntityResolvers() {
       const visuals = structureVisuals(
         structure,
         key,
-        config.naas_endpoint ?? ""
+        media
       );
       return visuals;
     } catch {
-      return structureVisuals(null, key, config.naas_endpoint ?? "");
+      return structureVisuals(null, key, media);
     }
   }
 
@@ -106,7 +108,7 @@ export function useEntityResolvers() {
     if (!producer) {
       return null;
     }
-    return structureVisuals(producer, key, config.naas_endpoint ?? "");
+    return structureVisuals(producer, key, media);
   }
 
   async function getPersonName(personKey: string): Promise<string> {

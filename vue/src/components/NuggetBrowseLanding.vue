@@ -127,6 +127,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
 import { useNaasConfig } from "@/composables/useNaasConfig";
+import { createMediaRouter } from "@/composables/mediaUrls";
 import { useEntityResolvers } from "@/composables/useEntityResolvers";
 import { matchCachedProducer } from "@/composables/catalogueSnapshot";
 import {
@@ -161,6 +162,7 @@ const emit = defineEmits<{
 }>();
 
 const config = useNaasConfig();
+const media = createMediaRouter(config.moodle_url, config.courseId);
 const { getStructureVisuals } = useEntityResolvers();
 
 const labels = computed(() => ({
@@ -265,7 +267,7 @@ function directoryVisuals(key: string) {
   if (!row) {
     return null;
   }
-  const visuals = structureVisuals(row, key, config.naas_endpoint ?? "");
+  const visuals = structureVisuals(row, key, media);
   const hasName =
     (visuals.acronym && !isRawEntityLabel(visuals.acronym, key)) ||
     (visuals.name && !isRawEntityLabel(visuals.name, key));
@@ -303,7 +305,7 @@ watch(
       const key = String(bucket.key);
       const visuals =
         directoryVisuals(key) ??
-        structureVisuals(null, key, config.naas_endpoint ?? "");
+        structureVisuals(null, key, media);
       return {
         id: key,
         count: bucketDocCount(bucket),

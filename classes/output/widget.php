@@ -86,7 +86,6 @@ class widget implements renderable, templatable {
 
         $widgetconfig = [
             "moodle_url" => $CFG->wwwroot,
-            "naas_endpoint" => (string) get_config('naas', 'naas_endpoint'),
             "mount_point" => "#naas_widget",
             "component" => $this->component,
             "nugget_id" => $this->nuggetid,

@@ -44,12 +44,14 @@ describe("useEntityResolvers", () => {
     const { getStructureVisuals } = withProviders({ getStructure }, () =>
       useEntityResolvers()
     );
+    // The logo goes through media.php; the cover falls back to the NaaS banner.
     await expect(getStructureVisuals("hash-2")).resolves.toMatchObject({
       acronym: "ISAE",
       name: "ISAE-SUPAERO",
-      logoUrl: "https://cdn.example.test/logo.svg",
-      imageUrl: "https://cdn.example.test/logo.svg",
-      hasCover: false,
+      logoUrl:
+        "/mod/naas/media.php?course=7&src=https%3A%2F%2Fcdn.example.test%2Flogo.svg",
+      imageUrl: "/mod/naas/media.php?course=7&structure=hash-2&variant=banner",
+      hasCover: true,
     });
   });
 
@@ -60,7 +62,7 @@ describe("useEntityResolvers", () => {
       () => useEntityResolvers(),
       {
         courseId: 7,
-        naas_endpoint: "https://api.example.test/api",
+        moodle_url: "https://moodle.test",
         catalogue_snapshot: {
           producers: [
             {
@@ -87,6 +89,9 @@ describe("useEntityResolvers", () => {
     ).resolves.toMatchObject({
       acronym: "ISAE",
       name: "ISAE-SUPAERO",
+      // Images go through Moodle, never straight to NaaS.
+      logoUrl:
+        "https://moodle.test/mod/naas/media.php?course=7&src=https%3A%2F%2Fapi.example.test%2Fapi%2Fthumbnails%2Fstructure%2Fisae-supaero%2Fthumbnail",
     });
     expect(getStructure).not.toHaveBeenCalled();
   });
