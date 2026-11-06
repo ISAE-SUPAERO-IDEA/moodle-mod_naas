@@ -48,6 +48,8 @@ final class version_php_test extends advanced_testcase {
         $this->assertMatchesRegularExpression('/^20\d{8}$/', (string) $plugin->version);
         $this->assertMatchesRegularExpression('/^\d+\.\d+\.\d+$/', $plugin->release);
         $this->assertSame(2022041900, (int) $plugin->requires);
+        // Keep in line with the Moodle branches of the CI matrix (.github/workflows/ci.yml).
+        $this->assertSame([401, 405], $plugin->supported);
         $this->assertSame(0, (int) $plugin->cron);
         $this->assertSame(MATURITY_STABLE, $plugin->maturity);
 
