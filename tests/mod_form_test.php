@@ -215,10 +215,7 @@ final class mod_form_test extends advanced_testcase {
     public function test_data_preprocessing_sets_default_completion_min_attempts(): void {
         $this->resetAfterTest(true);
 
-        $form = $this->getMockBuilder(mod_naas_mod_form::class)
-            ->disableOriginalConstructor()
-            ->setMethodsExcept(['data_preprocessing'])
-            ->getMock();
+        $form = $this->make_bare_form();
 
         $data = [];
         $form->data_preprocessing($data);
@@ -232,10 +229,7 @@ final class mod_form_test extends advanced_testcase {
     public function test_data_postprocessing_resets_min_attempts_when_locked_or_not_auto(): void {
         $this->resetAfterTest(true);
 
-        $form = $this->getMockBuilder(mod_naas_mod_form::class)
-            ->disableOriginalConstructor()
-            ->setMethodsExcept(['data_postprocessing'])
-            ->getMock();
+        $form = $this->make_bare_form();
 
         $data = (object) [
             'completionunlocked' => 1,
@@ -378,10 +372,7 @@ final class mod_form_test extends advanced_testcase {
     public function test_data_postprocessing_unlocked_without_automatic_completion_resets_min_attempts(): void {
         $this->resetAfterTest(true);
 
-        $form = $this->getMockBuilder(mod_naas_mod_form::class)
-            ->disableOriginalConstructor()
-            ->setMethodsExcept(['data_postprocessing'])
-            ->getMock();
+        $form = $this->make_bare_form();
 
         $data = (object) [
             'completionunlocked' => 1,
@@ -442,13 +433,30 @@ final class mod_form_test extends advanced_testcase {
         $this->assertArrayNotHasKey('gradepass', $errors);
     }
 
+    /**
+     * A form built without its constructor, to call the completion helpers directly.
+     *
+     * Only get_suffix() (Moodle 4.3+) is stubbed, so the completion fields carry no suffix.
+     * setMethodsExcept() is gone from the PHPUnit of Moodle 5.0, onlyMethods() works everywhere.
+     *
+     * @return mod_naas_mod_form
+     */
+    private function make_bare_form(): mod_naas_mod_form {
+        $stubbed = method_exists(mod_naas_mod_form::class, 'get_suffix') ? ['get_suffix'] : [];
+        $form = $this->getMockBuilder(mod_naas_mod_form::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods($stubbed)
+            ->getMock();
+        if ($stubbed) {
+            $form->method('get_suffix')->willReturn('');
+        }
+        return $form;
+    }
+
     public function test_completion_rule_enabled(): void {
         $this->resetAfterTest(true);
 
-        $form = $this->getMockBuilder(mod_naas_mod_form::class)
-            ->disableOriginalConstructor()
-            ->setMethodsExcept(['completion_rule_enabled'])
-            ->getMock();
+        $form = $this->make_bare_form();
 
         $this->assertTrue($form->completion_rule_enabled(['completionpass' => 1]));
         $this->assertFalse($form->completion_rule_enabled(['completionpass' => 0]));
