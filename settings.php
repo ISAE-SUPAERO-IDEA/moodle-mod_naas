@@ -67,8 +67,7 @@ if ($hassiteconfig) {
         'naas/naas_password',
         get_string('naas_settings_password', 'naas'),
         get_string('naas_settings_password_help', 'naas'),
-        '',
-        PARAM_TEXT
+        ''
     ));
 
     $settings->add(new admin_setting_configtext(
@@ -126,14 +125,14 @@ if ($hassiteconfig) {
         'naas/naas_privacy_learner_mail',
         get_string('naas_settings_privacy_learner_mail', 'naas'),
         get_string('naas_settings_privacy_learner_mail_help', 'naas'),
-        1
+        '1'
     ));
 
     $settings->add(new admin_setting_configcheckbox(
         'naas/naas_privacy_learner_name',
         get_string('naas_settings_privacy_learner_name', 'naas'),
         get_string('naas_settings_privacy_learner_name_help', 'naas'),
-        1
+        '1'
     ));
 
     // Learner experience.
@@ -147,14 +146,14 @@ if ($hassiteconfig) {
         'naas/naas_feedback',
         get_string('naas_settings_feedback', 'naas'),
         get_string('naas_settings_feedback_help', 'naas'),
-        1
+        '1'
     ));
 
     $settings->add(new admin_setting_configcheckbox(
         'naas/naas_nugbot',
         get_string('naas_settings_nugbot', 'naas'),
         get_string('naas_settings_nugbot_help', 'naas'),
-        0
+        '0'
     ));
 
     // Catalogue.
@@ -244,7 +243,7 @@ if ($hassiteconfig) {
         'naas/naas_timeout',
         get_string('naas_settings_timeout', 'naas'),
         get_string('naas_settings_timeout_help', 'naas'),
-        10,
+        '10',
         PARAM_INT
     ));
 
@@ -252,7 +251,7 @@ if ($hassiteconfig) {
         'naas/naas_ssl_noverify',
         get_string('naas_settings_ssl_noverify', 'naas'),
         get_string('naas_settings_ssl_noverify_help', 'naas'),
-        0
+        '0'
     ));
 
     // Off by default until NaaS signs Basic Outcomes; enable after deploying LisOutcome OAuth.
@@ -260,14 +259,14 @@ if ($hassiteconfig) {
         'naas/naas_require_outcome_oauth',
         get_string('naas_settings_require_outcome_oauth', 'naas'),
         get_string('naas_settings_require_outcome_oauth_help', 'naas'),
-        0
+        '0'
     ));
 
     $settings->add(new admin_setting_configtext(
         'naas/naas_refresh_limit',
         get_string('naas_refresh_limit', 'naas'),
         get_string('naas_refresh_limit_desc', 'naas', \mod_naas\search_cache::MAX_ENTRIES),
-        \mod_naas\task\refresh_catalogue::DEFAULT_LIMIT,
+        (string) \mod_naas\task\refresh_catalogue::DEFAULT_LIMIT,
         PARAM_INT
     ));
 }

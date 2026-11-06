@@ -95,7 +95,7 @@ class catalogue_filters {
         }
         $hadpayload = isset($decoded['payload']) && is_array($decoded['payload']);
         $body = $hadpayload ? $decoded['payload'] : $decoded;
-        if (!is_array($body) || !isset($body['items']) || !is_array($body['items'])) {
+        if (!isset($body['items']) || !is_array($body['items'])) {
             return $json;
         }
         $filtered = [];

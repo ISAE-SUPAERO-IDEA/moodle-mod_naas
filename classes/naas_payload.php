@@ -58,7 +58,7 @@ class naas_payload {
                 $current = $current['payload'];
                 continue;
             }
-            if (is_object($current) && isset($current->payload) && $current->payload !== null) {
+            if (is_object($current) && isset($current->payload)) {
                 $current = $current->payload;
                 continue;
             }

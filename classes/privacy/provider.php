@@ -131,8 +131,7 @@ class provider implements
 
         global $DB;
 
-        if (empty($contextlist)) {
-            echo"empty contexts";
+        if (!count($contextlist)) {
             return;
         }
 
@@ -224,7 +223,7 @@ class provider implements
     /**
      * Delete all user data which matches the specified context.
      *
-     * @param context $context A user context.
+     * @param \context $context A user context.
      */
     public static function delete_data_for_all_users_in_context(\context $context) {
         global $DB;

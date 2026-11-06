@@ -212,9 +212,10 @@ class media_proxy {
             'CURLOPT_MAXFILESIZE' => self::MAX_BYTES,
             'CURLOPT_FOLLOWLOCATION' => false,
         ]);
-        $bytes = $curl->get($url);
+        // The curl client returns false on a transport error: an empty string is refused below.
+        $bytes = (string) $curl->get($url);
         $code = (int) ($curl->get_info()['http_code'] ?? 0);
-        $usable = !$curl->get_errno() && $code === 200 && is_string($bytes) && $bytes !== ''
+        $usable = !$curl->get_errno() && $code === 200 && $bytes !== ''
             && strlen($bytes) <= self::MAX_BYTES;
         if (!$usable) {
             throw new \moodle_exception('error:naas_media_unavailable', 'naas');

@@ -54,7 +54,7 @@ naas_define_module_constants();
 /**
  * Return the major moodle version
  *
- * @return array
+ * @return int|null
  */
 function get_moodle_major_version() {
     global $CFG;
@@ -256,8 +256,8 @@ function naas_delete_instance($id) {
  * when printing this activity in a course listing.  See get_array_of_activities() in course/lib.php.
  *
  * @param stdClass $coursemodule The coursemodule object (record).
- * @return cached_cm_info An object on information that the courses
- *                        will know about (most noticeably, an icon).
+ * @return cached_cm_info|null An object on information that the courses
+ *                        will know about (most noticeably, an icon), or null for an unknown instance.
  */
 function naas_get_coursemodule_info($coursemodule) {
     global $CFG, $DB;
@@ -383,7 +383,7 @@ function naas_extend_settings_navigation(settings_navigation $settings, navigati
 /**
  * Update the grade items for a Nugget activity.
  * @param object $nugget
- * @param object $grades
+ * @param array|object|string|null $grades Grades to write, 'reset' to reset them, or null
  * @return mixed
  */
 function naas_grade_item_update($nugget, $grades = null) {

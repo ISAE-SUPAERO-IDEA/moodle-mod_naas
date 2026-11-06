@@ -35,7 +35,7 @@ class naas_widget {
      * Render this NaaS widget as HTML
      * @param int $nuggetid
      * @param int $courseid
-     * @param int $cmid
+     * @param int|null $cmid Course module id, or null on the activity form of a new activity
      * @param string $component
      * @return string
      */

@@ -66,12 +66,7 @@ class mod_util {
 
         foreach ($modinfo->cms as $mod) {
             $format = \course_get_format($COURSE);
-            if (method_exists($format, 'get_last_section_number')) {
-                $numsections = $format->get_last_section_number();
-            } else {
-                $opts = \course_get_format($COURSE)->get_format_options();
-                $numsections = isset($opts['numsections']) ? $opts['numsections'] : 0;
-            }
+            $numsections = $format->get_last_section_number();
             if ($numsections && $mod->sectionnum > $numsections) {
                 break;
             }

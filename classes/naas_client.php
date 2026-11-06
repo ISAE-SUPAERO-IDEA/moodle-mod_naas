@@ -18,6 +18,7 @@ namespace mod_naas;
 
 defined('MOODLE_INTERNAL') || die();
 
+global $CFG;
 require_once($CFG->libdir . '/filelib.php');
 
 /**
@@ -162,7 +163,7 @@ class naas_client {
         $error = $curl->error;
 
         $isnaasapi = false;
-        if (is_object($curl) && method_exists($curl, 'getResponse')) {
+        if (method_exists($curl, 'getResponse')) {
             $responseheaders = $curl->getResponse();
             if (is_array($responseheaders)) {
                 foreach ($responseheaders as $name => $value) {
@@ -243,8 +244,8 @@ class naas_client {
      * Send a request
      * @param string $protocol
      * @param string $service
-     * @param array $data
-     * @param array $params
+     * @param array|object|null $data
+     * @param array|null $params
      * @return mixed
      */
     public function request($protocol, $service, $data = null, $params = null) {
