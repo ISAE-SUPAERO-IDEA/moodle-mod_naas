@@ -35,7 +35,7 @@
 
 namespace mod_naas;
 
-use mod_naas\external\proxy_naas_api;
+use mod_naas\external\naas_external_base;
 
 /**
  * Refreshes the `nugget_documents` cache for the Nuggets used by activities.
@@ -126,7 +126,7 @@ class nugget_revalidator {
                 continue;
             }
             try {
-                $json = proxy_naas_api::sanitise_json_response(
+                $json = naas_external_base::sanitise_json_response(
                     $naas->request_raw('GET', '/nuggets/' . $id . '/default_version')
                 );
                 if (nugget_cache::store($id, $json, $config)) {
@@ -170,7 +170,7 @@ class nugget_revalidator {
      * @return array<string, array>|null
      */
     private static function fetch_batch(naas_client $naas, array $chunk): ?array {
-        $json = proxy_naas_api::sanitise_json_response($naas->request_raw('GET', '/nuggets', null, [
+        $json = naas_external_base::sanitise_json_response($naas->request_raw('GET', '/nuggets', null, [
             'nugget_ids' => $chunk,
             'is_default_version' => 'true',
             'page_size' => count($chunk),

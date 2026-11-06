@@ -24,10 +24,12 @@
 
 namespace mod_naas;
 
+use mod_naas\external\naas_external_base;
+
 /**
  * Resolve a NaaS person (author) key to its JSON record: cache, NaaS, then the person catalogue.
  *
- * Moved out of proxy_naas_api (which keeps the web service, parameter checks and access
+ * Moved out of the get_person web service (which keeps parameter checks and access
  * control); the requests sent to NaaS are unchanged.
  *
  * @package   mod_naas
@@ -230,7 +232,7 @@ class person_lookup {
                 'page_size' => self::PERSON_CATALOG_PAGE_SIZE,
                 'page' => $page,
             ]);
-            $decoded = json_decode(\mod_naas\external\proxy_naas_api::sanitise_json_response($raw));
+            $decoded = json_decode(naas_external_base::sanitise_json_response($raw));
             $items = array_merge($items, self::list_items($decoded));
             if ($page >= structure_lookup::list_page_count($decoded) - 1) {
                 break;
@@ -422,7 +424,7 @@ class person_lookup {
 
         $result = null;
         try {
-            $result = self::enrich_json(\mod_naas\external\proxy_naas_api::sanitise_json_response(
+            $result = self::enrich_json(naas_external_base::sanitise_json_response(
                 $naas->request_raw('GET', '/persons/' . rawurlencode($personkey))
             ));
         } catch (\moodle_exception $e) {

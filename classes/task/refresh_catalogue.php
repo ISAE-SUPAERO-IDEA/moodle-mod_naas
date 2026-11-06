@@ -33,7 +33,7 @@ use mod_naas\catalogue_cache;
 use mod_naas\catalogue_export;
 use mod_naas\catalogue_filters;
 use mod_naas\catalogue_warmer;
-use mod_naas\external\proxy_naas_api;
+use mod_naas\external\naas_external_base;
 use mod_naas\naas_client;
 use mod_naas\nugget_revalidator;
 use mod_naas\search_cache;
@@ -136,7 +136,7 @@ class refresh_catalogue extends \core\task\scheduled_task {
     /**
      * Run one search on NaaS and keep only the nuggets the licence settings allow.
      *
-     * Same filtering as the live search in proxy_naas_api, so the cache never
+     * Same filtering as the live search of the search_nuggets web service, so the cache never
      * holds a nugget that the live path would hide.
      *
      * @param naas_client $naas
@@ -146,8 +146,8 @@ class refresh_catalogue extends \core\task\scheduled_task {
      */
     public static function fetch_search(naas_client $naas, array $options, object $config): string {
         return catalogue_filters::constrain_search_json(
-            proxy_naas_api::sanitise_json_response(
-                $naas->request_raw('GET', proxy_naas_api::search_url($options))
+            naas_external_base::sanitise_json_response(
+                $naas->request_raw('GET', naas_external_base::search_url($options))
             ),
             $config
         );

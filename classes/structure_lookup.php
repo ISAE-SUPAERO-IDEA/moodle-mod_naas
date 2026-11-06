@@ -24,10 +24,12 @@
 
 namespace mod_naas;
 
+use mod_naas\external\naas_external_base;
+
 /**
  * Resolve a NaaS structure (producer) key to its JSON record: cache, catalogue snapshot, then NaaS.
  *
- * Moved out of proxy_naas_api (which keeps the web service, parameter checks and access
+ * Moved out of the get_structure web service (which keeps parameter checks and access
  * control); the requests sent to NaaS are unchanged.
  *
  * @package   mod_naas
@@ -297,7 +299,7 @@ class structure_lookup {
         $items = [];
         for ($page = 0; $page < self::PRODUCER_CATALOG_MAX_PAGES; $page++) {
             $raw = $naas->request_raw('GET', $path, null, $query + ['page' => $page]);
-            $decoded = json_decode(\mod_naas\external\proxy_naas_api::sanitise_json_response($raw));
+            $decoded = json_decode(naas_external_base::sanitise_json_response($raw));
             $items = array_merge($items, self::list_items($decoded));
             if ($page >= self::list_page_count($decoded) - 1) {
                 break;
@@ -328,7 +330,7 @@ class structure_lookup {
                     'structure_id' => $structurekey,
                     'page_size' => 5,
                 ]);
-                foreach (self::list_items(json_decode(\mod_naas\external\proxy_naas_api::sanitise_json_response($raw))) as $item) {
+                foreach (self::list_items(json_decode(naas_external_base::sanitise_json_response($raw))) as $item) {
                     $record = self::normalise_record($item);
                     $wrapped = json_encode(['payload' => $record], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
                     if (self::json_has_name($wrapped)) {
@@ -387,7 +389,7 @@ class structure_lookup {
         $lookups = array_values(array_unique([$structurekey, strtolower($structurekey)]));
         foreach ($lookups as $lookupkey) {
             try {
-                $candidate = \mod_naas\external\proxy_naas_api::sanitise_json_response(
+                $candidate = naas_external_base::sanitise_json_response(
                     $naas->request_raw('GET', '/structures/' . rawurlencode($lookupkey))
                 );
                 if (self::json_has_name($candidate)) {

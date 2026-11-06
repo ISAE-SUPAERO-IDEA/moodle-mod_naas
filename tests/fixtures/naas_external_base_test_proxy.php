@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Test proxy for the proxy_naas_api enrolment gate.
+ * Test proxy for the protected helpers of the NaaS web services.
  *
  * @package    mod_naas
  * @copyright  2019 onwards ISAE-SUPAERO (https://www.isae-supaero.fr/)
@@ -25,9 +25,38 @@
 namespace mod_naas\external;
 
 /**
- * Invokes {@see proxy_naas_api::require_active_course_enrolment()} from tests without reflection (PCOV-friendly).
+ * Calls the protected helpers of {@see naas_external_base} from tests without reflection (PCOV-friendly).
  */
-final class proxy_naas_api_enrol_test_proxy extends proxy_naas_api {
+final class naas_external_base_test_proxy extends naas_external_base {
+    /**
+     * Call the UUID/slug check.
+     *
+     * @param string $value
+     * @param string $paramname
+     */
+    public static function invoke_validate_id_param(string $value, string $paramname): void {
+        self::validate_id_param($value, $paramname);
+    }
+
+    /**
+     * Build the merged plugin and site configuration.
+     *
+     * @return object
+     */
+    public static function invoke_naas_config(): object {
+        return self::naas_config();
+    }
+
+    /**
+     * Build the real NaaS client.
+     *
+     * @param object $config
+     * @return \mod_naas\naas_client
+     */
+    public static function invoke_make_naas_client(object $config): \mod_naas\naas_client {
+        return self::make_naas_client($config);
+    }
+
     /**
      * Call the active enrolment gate.
      *

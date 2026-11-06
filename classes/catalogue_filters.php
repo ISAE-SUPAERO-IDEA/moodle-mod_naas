@@ -53,7 +53,7 @@ class catalogue_filters {
     /**
      * Merge the site NQL textarea and access-licence rights into search options.
      *
-     * The `nql` value is left unencoded; {@see proxy_naas_api::search_url()}
+     * The `nql` value is left unencoded; {@see \mod_naas\external\naas_external_base::search_url()}
      * encodes query parameters once.
      *
      * @param array $options
