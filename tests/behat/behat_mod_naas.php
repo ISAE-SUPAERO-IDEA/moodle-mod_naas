@@ -27,6 +27,8 @@
 
 require_once(__DIR__ . '/../../../../lib/behat/behat_base.php');
 
+use Behat\Gherkin\Node\TableNode;
+use Behat\Mink\Element\NodeElement;
 use Behat\Mink\Exception\ExpectationException;
 
 /**
@@ -84,26 +86,180 @@ class behat_mod_naas extends behat_base {
     }
 
     /**
-     * launch.php either renders the LTI auto-post form or a load error when the API is unavailable.
+     * Check where the LTI 1.1 launch form rendered by launch.php posts to.
      *
-     * @Then /^the naas launch page should show an LTI form or a load error$/
+     * Run it without @javascript: the form submits itself as soon as a browser runs its script.
+     *
+     * @Then /^the naas launch form should post to "(?P<url>(?:[^"]|\\")*)"$/
+     * @param string $url Expected form action.
      */
-    public function the_naas_launch_page_should_show_an_lti_form_or_a_load_error(): void {
-        $content = $this->getSession()->getPage()->getContent();
-        if (strpos($content, 'ltiLaunchForm') !== false) {
-            return;
+    public function the_naas_launch_form_should_post_to(string $url): void {
+        $form = $this->get_naas_launch_form();
+        $method = strtoupper((string) $form->getAttribute('method'));
+        if ($method !== 'POST') {
+            throw new ExpectationException(
+                "The naas launch form uses method \"{$method}\", expected \"POST\".",
+                $this->getSession()
+            );
         }
-        $needle = get_string('cannot_get_nugget', 'naas');
-        if (strpos($content, $needle) !== false) {
-            return;
+        $action = (string) $form->getAttribute('action');
+        if ($action !== $url) {
+            throw new ExpectationException(
+                "The naas launch form posts to \"{$action}\", expected \"{$url}\".",
+                $this->getSession()
+            );
         }
-        // Any NaaS API failure (credentials, endpoint, not found) uses this marker.
-        if (strpos($content, 'naas-launch-error') !== false) {
-            return;
+    }
+
+    /**
+     * Check the values of some LTI launch parameters.
+     *
+     * Each value must match exactly, unless it is wrapped in slashes: "/^[0-9a-f]{32}$/" is a regular expression.
+     *
+     * @Then /^the naas launch form should contain the following fields:$/
+     * @param TableNode $table Two columns: name, value.
+     */
+    public function the_naas_launch_form_should_contain_the_following_fields(TableNode $table): void {
+        $fields = $this->get_naas_launch_fields();
+        foreach ($table->getColumnsHash() as $row) {
+            $name = $row['name'];
+            $expected = $row['value'];
+            if (!array_key_exists($name, $fields)) {
+                throw new ExpectationException("The naas launch form has no \"{$name}\" field.", $this->getSession());
+            }
+            $actual = $fields[$name];
+            $isregex = strlen($expected) > 1 && $expected[0] === '/' && substr($expected, -1) === '/';
+            if ($isregex) {
+                $matches = preg_match('~' . str_replace('~', '\~', substr($expected, 1, -1)) . '~', $actual) === 1;
+            } else {
+                $matches = $actual === $expected;
+            }
+            if (!$matches) {
+                throw new ExpectationException(
+                    "The naas launch field \"{$name}\" is \"{$actual}\", expected \"{$expected}\".",
+                    $this->getSession()
+                );
+            }
         }
-        throw new ExpectationException(
-            'Neither LTI launch form nor nugget load error was found on the naas launch page.',
-            $this->getSession()
-        );
+    }
+
+    /**
+     * Check that the LTI launch form does not send a parameter (eg. personal data the site keeps private).
+     *
+     * @Then /^the naas launch form should not contain the "(?P<name>(?:[^"]|\\")*)" field$/
+     * @param string $name LTI parameter name.
+     */
+    public function the_naas_launch_form_should_not_contain_the_field(string $name): void {
+        if (array_key_exists($name, $this->get_naas_launch_fields())) {
+            throw new ExpectationException(
+                "The naas launch form should not send the \"{$name}\" field.",
+                $this->getSession()
+            );
+        }
+    }
+
+    /**
+     * Check the OAuth 1.0 HMAC-SHA1 signature of the LTI launch form against a consumer secret.
+     *
+     * The signature is computed again from the posted fields and the form action, as the tool provider does.
+     *
+     * @Then /^the naas launch form should be signed with secret "(?P<secret>(?:[^"]|\\")*)"$/
+     * @param string $secret OAuth consumer secret.
+     */
+    public function the_naas_launch_form_should_be_signed_with_secret(string $secret): void {
+        $fields = $this->get_naas_launch_fields();
+        if (empty($fields['oauth_signature'])) {
+            throw new ExpectationException('The naas launch form has no oauth_signature field.', $this->getSession());
+        }
+        $signature = $fields['oauth_signature'];
+        unset($fields['oauth_signature']);
+
+        // OAuth Core 1.0, section 9.1: parameters sorted by name, then the signature base string.
+        ksort($fields, SORT_STRING);
+        $pairs = [];
+        foreach ($fields as $name => $value) {
+            $pairs[] = rawurlencode($name) . '=' . rawurlencode($value);
+        }
+        $url = (string) $this->get_naas_launch_form()->getAttribute('action');
+        $basestring = 'POST&' . rawurlencode($url) . '&' . rawurlencode(implode('&', $pairs));
+        $expected = base64_encode(hash_hmac('sha1', $basestring, rawurlencode($secret) . '&', true));
+
+        if (!hash_equals($expected, $signature)) {
+            throw new ExpectationException(
+                "The naas launch signature \"{$signature}\" does not match secret \"{$secret}\" (expected \"{$expected}\").",
+                $this->getSession()
+            );
+        }
+    }
+
+    /**
+     * Check that the LTI launch reports its outcome to the activity, for a session recorded for the user.
+     *
+     * NaaS posts the grade back to lis_outcome_service_url with lis_result_sourcedid,
+     * which must match the naas_activity_outcome row written at launch.
+     *
+     * @Then /^the naas launch form should send the outcome of "(?P<username>(?:[^"]|\\")*)" to "(?P<activityname>(?:[^"]|\\")*)"$/
+     * @param string $username Learner who launched the Nugget.
+     * @param string $activityname Name of the naas activity.
+     */
+    public function the_naas_launch_form_should_send_the_outcome_of_to(string $username, string $activityname): void {
+        global $CFG, $DB;
+        $cm = $this->get_cm_by_activity_name('naas', $activityname);
+        $userid = $DB->get_field('user', 'id', ['username' => $username], MUST_EXIST);
+        $fields = $this->get_naas_launch_fields();
+
+        $expected = [
+            'context_id' => (string) $cm->id,
+            'lis_outcome_service_url' => $CFG->wwwroot . '/mod/naas/outcome.php?id=' . $cm->id,
+        ];
+        foreach ($expected as $name => $value) {
+            $actual = $fields[$name] ?? null;
+            if ($actual !== $value) {
+                throw new ExpectationException(
+                    "The naas launch field \"{$name}\" is \"" . (string) $actual . "\", expected \"{$value}\".",
+                    $this->getSession()
+                );
+            }
+        }
+
+        $sourcedid = $fields['lis_result_sourcedid'] ?? '';
+        $recorded = $sourcedid !== '' && $DB->record_exists('naas_activity_outcome', [
+            'sourced_id' => $sourcedid,
+            'activity_id' => $cm->id,
+            'user_id' => $userid,
+        ]);
+        if (!$recorded) {
+            throw new ExpectationException(
+                "No naas launch session \"{$sourcedid}\" was recorded for \"{$username}\" on \"{$activityname}\".",
+                $this->getSession()
+            );
+        }
+    }
+
+    /**
+     * The LTI launch form rendered by launch.php.
+     *
+     * @return NodeElement
+     * @throws ExpectationException When the page has no launch form.
+     */
+    protected function get_naas_launch_form(): NodeElement {
+        $form = $this->getSession()->getPage()->find('css', 'form#ltiLaunchForm');
+        if ($form === null) {
+            throw new ExpectationException('The page has no naas LTI launch form (#ltiLaunchForm).', $this->getSession());
+        }
+        return $form;
+    }
+
+    /**
+     * The hidden fields of the LTI launch form, by name.
+     *
+     * @return array Field values keyed by field name.
+     */
+    protected function get_naas_launch_fields(): array {
+        $fields = [];
+        foreach ($this->get_naas_launch_form()->findAll('css', 'input[type=hidden]') as $input) {
+            $fields[(string) $input->getAttribute('name')] = (string) $input->getAttribute('value');
+        }
+        return $fields;
     }
 }
