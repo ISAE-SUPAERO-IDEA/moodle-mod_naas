@@ -132,64 +132,70 @@
           {{ config.labels.checking_updates }}
         </p>
 
+        <!-- Skeleton cards on initial load -->
         <div
+          v-if="loading"
           class="nugget-grid"
           :class="{ 'nugget-grid--rows': nuggetLayout === 'row' }"
-          role="listbox"
-          :aria-label="config.labels.search"
-          aria-multiselectable="false"
-          @keydown="onGridKeydown"
+          aria-hidden="true"
         >
-          <!-- Skeleton cards on initial load -->
-          <template v-if="loading">
-            <div
-              v-for="n in skeletonCount"
-              :key="`skel-${n}`"
-              class="nugget-grid-item"
-            >
-              <NuggetSkeleton :variant="nuggetLayout" :delay="n - 1" />
-            </div>
-          </template>
+          <div
+            v-for="n in skeletonCount"
+            :key="`skel-${n}`"
+            class="nugget-grid-item"
+          >
+            <NuggetSkeleton :variant="nuggetLayout" :delay="n - 1" />
+          </div>
+        </div>
 
-          <template v-else>
-            <div
-              v-for="(nugget, index) in nuggets"
+        <template v-else>
+          <!--
+            A plain list of cards: each card is an article named after its
+            Nugget, its actions are real buttons, and the current pick shows
+            as the pressed state of its Select button.
+          -->
+          <ul
+            v-if="nuggets.length || loadingMore"
+            class="nugget-grid"
+            :class="{ 'nugget-grid--rows': nuggetLayout === 'row' }"
+            role="list"
+            :aria-label="config.labels.search"
+            @keydown="onGridKeydown"
+          >
+            <li
+              v-for="nugget in nuggets"
               :key="nugget.nugget_id"
               class="nugget-grid-item"
-              role="option"
-              :aria-selected="nugget.nugget_id === selectedId"
-              :tabindex="focusedIndex === index ? 0 : -1"
-              :ref="(el) => setItemRef(el, index)"
-              @focus="focusedIndex = index"
-              @keydown.enter.prevent="clickOnNugget(nugget)"
             >
               <NuggetPost
                 :nugget="nugget"
                 :selection="true"
+                :selected="nugget.nugget_id === selectedId"
                 :variant="nuggetLayout"
                 :class="{
                   'nugget-post-selected': nugget.nugget_id === selectedId,
                 }"
                 @SelectButton="clickOnNugget"
               />
-            </div>
+            </li>
 
             <!-- Skeleton row appended while loading more -->
             <template v-if="loadingMore">
-              <div
+              <li
                 v-for="n in 3"
                 :key="`more-skel-${n}`"
                 class="nugget-grid-item"
+                aria-hidden="true"
               >
                 <NuggetSkeleton :variant="nuggetLayout" :delay="n - 1" />
-              </div>
+              </li>
             </template>
+          </ul>
 
-            <div v-if="nuggets.length === 0" class="no-results">
-              {{ config.labels.nugget_search_no_result }}
-            </div>
-          </template>
-        </div>
+          <p v-else class="no-results">
+            {{ config.labels.nugget_search_no_result }}
+          </p>
+        </template>
 
         <div
           v-if="hasMore && !loading"
@@ -223,12 +229,18 @@
         </div>
       </div>
     </div>
-
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onBeforeUnmount, watch, nextTick } from "vue";
+import {
+  ref,
+  computed,
+  onMounted,
+  onBeforeUnmount,
+  watch,
+  nextTick,
+} from "vue";
 import { debounce } from "@/utils/debounce";
 import NuggetSearchBar from "./NuggetSearchBar.vue";
 import NuggetPost from "./NuggetPost.vue";
@@ -287,8 +299,6 @@ const formError = ref(readNuggetFormError());
 watch(selectedNugget, (nugget) => {
   if (nugget) formError.value = "";
 });
-const focusedIndex = ref(0);
-const itemRefs: HTMLElement[] = [];
 
 type CatalogueTab = "producers" | "all";
 type NuggetLayout = "card" | "row";
@@ -318,24 +328,30 @@ const {
   applyCatalogueStamp,
 });
 
-function setItemRef(el: unknown, index: number) {
-  if (el instanceof HTMLElement) itemRefs[index] = el;
-}
+const GRID_STEPS: Record<string, number> = {
+  ArrowRight: 1,
+  ArrowDown: 1,
+  ArrowLeft: -1,
+  ArrowUp: -1,
+};
 
+/**
+ * Arrow keys jump between cards: focus lands on the Select button of the
+ * next or previous card. Tab still walks every button in order.
+ */
 function onGridKeydown(e: KeyboardEvent) {
-  if (!nuggets.value.length) return;
-  if (e.key === "ArrowRight" || e.key === "ArrowDown") {
-    e.preventDefault();
-    focusedIndex.value = Math.min(
-      focusedIndex.value + 1,
-      nuggets.value.length - 1
-    );
-    itemRefs[focusedIndex.value]?.focus();
-  } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
-    e.preventDefault();
-    focusedIndex.value = Math.max(focusedIndex.value - 1, 0);
-    itemRefs[focusedIndex.value]?.focus();
-  }
+  const step = GRID_STEPS[e.key];
+  const list = e.currentTarget;
+  const target = e.target instanceof HTMLElement ? e.target : null;
+  if (!step || !(list instanceof HTMLElement) || !target) return;
+  const buttons = Array.from(
+    list.querySelectorAll<HTMLElement>(".nugget-grid-item .nugget-btn-select")
+  );
+  const card = target.closest(".nugget-grid-item");
+  const index = buttons.findIndex((button) => card?.contains(button));
+  if (index < 0) return;
+  e.preventDefault();
+  buttons[Math.min(Math.max(index + step, 0), buttons.length - 1)].focus();
 }
 
 const selectedNuggetLoading = ref(false);
@@ -385,10 +401,6 @@ async function doSearch(append = false) {
     }
     const loaded = append ? nuggets.value.length : result.items?.length ?? 0;
     hasMore.value = loaded < result.results_count;
-  }
-  if (!append) {
-    focusedIndex.value = 0;
-    itemRefs.length = 0;
   }
 }
 
@@ -591,7 +603,7 @@ onMounted(async () => {
 .search-results {
   width: 100%;
   max-width: 100%;
-  margin-bottom:3rem;
+  margin-bottom: 3rem;
   min-width: 0;
 }
 
@@ -686,6 +698,9 @@ onMounted(async () => {
 
 /* ── Nugget grid: 3 cards per row ──────────────────────────────────────── */
 .nugget-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1.25rem;
@@ -775,5 +790,4 @@ onMounted(async () => {
   width: 100%;
   height: 1px;
 }
-
 </style>

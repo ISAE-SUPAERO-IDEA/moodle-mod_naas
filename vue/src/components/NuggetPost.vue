@@ -22,12 +22,18 @@
  */
 -->
 <template>
-  <div class="nugget-post" :class="{ 'nugget-post--row': variant === 'row' }">
+  <div
+    class="nugget-post"
+    :class="{ 'nugget-post--row': variant === 'row' }"
+    role="article"
+    :aria-label="nugget.name"
+  >
     <button
       v-if="replaceable"
       type="button"
       class="nugget-clear-btn"
       :aria-label="config.labels.click_to_replace"
+      :aria-describedby="titleId"
       :title="config.labels.click_to_replace"
       @click.stop="emit('ReplaceButton', nugget)"
     >
@@ -43,7 +49,7 @@
       />
       <div class="nugget-thumb-badges">
         <span v-if="nugget.duration" class="nugget-badge nugget-badge-duration">
-          <i class="icon fa fa-clock-o" />
+          <i class="icon fa fa-clock-o" aria-hidden="true" />
           {{ nugget.duration }}&thinsp;min
         </span>
         <span v-if="licenseLabel" class="nugget-badge nugget-badge-license">
@@ -54,13 +60,10 @@
 
     <!-- Body -->
     <div class="nugget-body">
-      <h4 class="nugget-title" :title="nugget.name">
+      <h4 :id="titleId" class="nugget-title" :title="nugget.name">
         {{ truncate(nugget.name, variant === "row" ? 90 : 60) }}
       </h4>
-      <p
-        v-if="variant === 'row' && description"
-        class="nugget-description"
-      >
+      <p v-if="variant === 'row' && description" class="nugget-description">
         {{ description }}
       </p>
       <p
@@ -77,6 +80,8 @@
         v-if="selection"
         type="button"
         class="nugget-btn nugget-btn-select"
+        :aria-pressed="selected ? 'true' : 'false'"
+        :aria-describedby="titleId"
         @click="emit('SelectButton', nugget)"
       >
         {{ config.labels.select_button }}
@@ -84,6 +89,7 @@
       <button
         type="button"
         class="nugget-btn nugget-btn-outline"
+        :aria-describedby="titleId"
         @click="showAbout = true"
       >
         {{ config.labels.about }}
@@ -91,6 +97,7 @@
       <button
         type="button"
         class="nugget-btn nugget-btn-ghost"
+        :aria-describedby="titleId"
         @click="showPreview = true"
       >
         {{ config.labels.preview_button }}
@@ -111,7 +118,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, useId } from "vue";
 import NuggetAboutModal from "./NuggetAboutModal.vue";
 import NuggetViewModal from "./NuggetViewModal.vue";
 import { useNaasConfig } from "@/composables/useNaasConfig";
@@ -121,6 +128,8 @@ import type { Nugget } from "@/types/nugget.types";
 const props = defineProps<{
   nugget: Nugget;
   selection?: boolean;
+  /** This card is the current pick: exposed as the Select button's pressed state. */
+  selected?: boolean;
   replaceable?: boolean;
   variant?: "card" | "row";
 }>();
@@ -132,6 +141,7 @@ const emit = defineEmits<{
 const config = useNaasConfig();
 const media = createMediaRouter(config.moodle_url, config.courseId);
 
+const titleId = useId();
 const showAbout = ref(false);
 const showPreview = ref(false);
 
@@ -149,9 +159,7 @@ const licenseLabel = computed(() => {
   if (raw === undefined || raw === null || raw === "") {
     return "";
   }
-  return (
-    config.labels.metadata[`license_${raw}`] ?? String(raw)
-  );
+  return config.labels.metadata[`license_${raw}`] ?? String(raw);
 });
 
 function stripHtml(value?: string): string {
