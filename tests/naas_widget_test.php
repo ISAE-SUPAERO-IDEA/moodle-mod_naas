@@ -43,14 +43,14 @@ use moodle_url;
  */
 class naas_widget_test extends advanced_testcase {
     /**
-     * Extract the JSON object assigned to window.NAAS from rendered HTML (handles `;` inside strings).
+     * Extract the JSON object of the naas_config data block from rendered HTML.
      *
      * @param string $html
      * @return string
      */
     private function extract_naas_widget_json_string(string $html): string {
-        if (!preg_match('/window\.NAAS\s*=\s*(\{)/s', $html, $m, PREG_OFFSET_CAPTURE)) {
-            $this->fail('Rendered HTML did not contain window.NAAS assignment');
+        if (!preg_match('/<script type="application\/json" id="naas_config">\s*(\{)/s', $html, $m, PREG_OFFSET_CAPTURE)) {
+            $this->fail('Rendered HTML did not contain the naas_config JSON block');
         }
         return $this->slice_balanced_json_object($html, $m[1][1]);
     }
@@ -94,7 +94,7 @@ class naas_widget_test extends advanced_testcase {
                 }
             }
         }
-        $this->fail('Unclosed JSON object in window.NAAS assignment');
+        $this->fail('Unclosed JSON object in the naas_config block');
     }
 
     /**

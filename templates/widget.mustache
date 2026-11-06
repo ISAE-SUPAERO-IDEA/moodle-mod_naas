@@ -19,6 +19,10 @@
 
     Template for the NaaS widget.
 
+    The configuration is a JSON data block, not an executed script, so the page
+    works under a Content Security Policy without 'unsafe-inline'. config is
+    encoded with JSON_HEX_TAG, so it cannot close the <script> element.
+
     Example context (json):
     {
         "config": "{\"moodle_url\":\"https://moodle.example.com\",\"mount_point\":\"#naas_widget\",\"component\":\"mod_naas\",\"nugget_id\":123,\"courseId\":5,\"cm_id\":15,\"labels\":{\"search\":\"Search\"} }",
@@ -26,9 +30,7 @@
     }
 }}
 <div id="naas_widget" class="naas-widget-host"></div>
-<script>
-    window.NAAS = {{{config}}};
-</script>
+<script type="application/json" id="naas_config">{{{config}}}</script>
 {{#js}}
 require(['core/first', '{{{widgetjsurl}}}'], function() {
     // The widget bundle mounts itself on #naas_widget once loaded.
