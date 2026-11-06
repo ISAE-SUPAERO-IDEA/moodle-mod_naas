@@ -32,12 +32,16 @@ _All notable changes to the NaaS Moodle plugin will be documented in this file._
 - Structures and persons NaaS cannot name are remembered for an hour instead of being looked up on every page
 - The widget sends one request for identical lookups made at the same time (for example the same author on several cards)
 - The privacy export no longer prints text when there is nothing to export
+- Requests to NaaS with several parameters were sent with `&amp;` between them, so NaaS ignored the page size and page of the producer and person listings
+- On Moodle 4.x, the "About" entry of the activity navigation opens the Nugget's About dialog again (it did nothing)
 
 ### Accessibility
 - The About, preview and rating dialogs close with Escape, take the focus when they open and give it back when they close, and are labelled by their title
 - Every widget text comes from the language file (no hard-coded English left)
 - The dialogs keep the keyboard focus inside them (Tab and Shift+Tab cycle through their controls)
 - Search results are a list of named cards with real buttons; the selected Nugget is announced as pressed, and the arrow keys move between cards
+- Text and controls meet the WCAG AA contrast ratios; rating stars are outlined when empty and filled when chosen
+- The closed filter panel can no longer be reached with the keyboard, the clear-search button is 24 px wide, and the Nugget frames have a title
 
 ### Security
 - Stricter validation of NaaS identifiers and xAPI statements, enrolment check on the proxy web services, external entities disabled when reading grade submissions
@@ -61,6 +65,9 @@ _All notable changes to the NaaS Moodle plugin will be documented in this file._
 - CI: PHPStan at level 5 and blocking, PHP and widget coverage measured with minimums, Behat scenarios for the search widget against a fake NaaS
 - Widget build tools updated (Vite 6, Vitest 4, vue-tsc 3): no known vulnerability left in the JavaScript dependencies
 - CI: Moodle 5.0 added to the test matrix (PostgreSQL 14)
+- Opening an activity form no longer calls NaaS for the selected Nugget when its stored copy is less than a day old: the nightly task revalidates the Nuggets of every activity, in batches when NaaS supports `nugget_ids` and one by one otherwise
+- `NuggetSearchWidget.vue` is split into results, grid and selected-Nugget components and query and selection composables
+- Tests: PHPUnit metadata also written as attributes (no deprecation on Moodle 5.0 / PHPUnit 11), widget coverage at 100 %, PHP coverage raised, Behat checks the widget, the preview and the About dialog with axe (WCAG 2.2 AA)
 - The catalogue cache is split into `catalogue_cache`, `catalogue_producers`, `catalogue_export` and `catalogue_warmer`; the widget filter panel into a facet column, a label composable and selection helpers
 - Tests: component tests for the whole widget (coverage minimum raised to 90 % of lines), Behat checks the signed LTI 1.1 launch form and the unknown-Nugget error
 
