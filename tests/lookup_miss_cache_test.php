@@ -26,6 +26,8 @@ namespace mod_naas;
 
 use advanced_testcase;
 
+#[\PHPUnit\Framework\Attributes\CoversClass(\mod_naas\structure_lookup::class)]
+#[\PHPUnit\Framework\Attributes\CoversClass(\mod_naas\person_lookup::class)]
 /**
  * Tests for the negative cache of structure_lookup and person_lookup.
  *

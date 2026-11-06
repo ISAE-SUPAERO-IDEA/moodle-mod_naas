@@ -29,6 +29,7 @@ namespace mod_naas;
 
 use advanced_testcase;
 
+#[\PHPUnit\Framework\Attributes\CoversNothing]
 /**
  * Checks the metadata declared in version.php.
  *
@@ -87,6 +88,7 @@ final class version_php_test extends advanced_testcase {
      *
      * @runInSeparateProcess
      */
+    #[\PHPUnit\Framework\Attributes\RunInSeparateProcess]
     public function test_version_php_loads_in_separate_process(): void {
         global $CFG, $plugin;
 

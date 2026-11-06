@@ -27,6 +27,7 @@ namespace mod_naas;
 use advanced_testcase;
 use mod_naas\naas_payload;
 
+#[\PHPUnit\Framework\Attributes\CoversClass(\mod_naas\naas_payload::class)]
 /**
  * Tests for NaaS response payload parsing.
  *

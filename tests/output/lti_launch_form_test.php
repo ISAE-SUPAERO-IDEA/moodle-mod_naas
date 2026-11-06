@@ -28,6 +28,7 @@ use basic_testcase;
 use mod_naas\output\lti_launch_form;
 use stdClass;
 
+#[\PHPUnit\Framework\Attributes\CoversClass(\mod_naas\output\lti_launch_form::class)]
 /**
  * Tests for mod_naas\output\lti_launch_form.
  *

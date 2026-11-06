@@ -39,6 +39,7 @@ use stdClass;
 
 require_once(__DIR__ . '/fixtures/testable_naas_client.php');
 
+#[\PHPUnit\Framework\Attributes\CoversClass(\mod_naas\naas_client::class)]
 /**
  * Tests for mod_naas\naas_client.
  *

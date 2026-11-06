@@ -31,6 +31,7 @@ require_once($CFG->libdir . '/adminlib.php');
 
 use advanced_testcase;
 
+#[\PHPUnit\Framework\Attributes\CoversNothing]
 /**
  * Root script smoke tests for index, launch, and settings.
  *

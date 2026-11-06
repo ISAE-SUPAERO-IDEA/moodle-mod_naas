@@ -29,6 +29,7 @@ use mod_naas\catalogue_cache;
 use mod_naas\catalogue_producers;
 use mod_naas\search_cache;
 
+#[\PHPUnit\Framework\Attributes\CoversClass(\mod_naas\search_cache::class)]
 /**
  * Tests for the cached Nugget search index.
  *

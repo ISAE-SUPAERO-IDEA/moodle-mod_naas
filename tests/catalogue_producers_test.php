@@ -27,6 +27,7 @@ namespace mod_naas;
 use advanced_testcase;
 use mod_naas\catalogue_cache;
 
+#[\PHPUnit\Framework\Attributes\CoversClass(\mod_naas\catalogue_producers::class)]
 /**
  * Tests for the producer table of the catalogue snapshot.
  *

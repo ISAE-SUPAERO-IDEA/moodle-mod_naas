@@ -28,6 +28,7 @@ use advanced_testcase;
 use mod_naas\catalogue_cache;
 use mod_naas\catalogue_producers;
 
+#[\PHPUnit\Framework\Attributes\CoversClass(\mod_naas\catalogue_export::class)]
 /**
  * Tests for the widget snapshot and the landing probe payload.
  *

@@ -37,6 +37,7 @@ use core_grades\component_gradeitems;
 use mod_naas_mod_form;
 use moodle_url;
 
+#[\PHPUnit\Framework\Attributes\CoversClass(\mod_naas_mod_form::class)]
 /**
  * Tests for the activity settings form.
  *

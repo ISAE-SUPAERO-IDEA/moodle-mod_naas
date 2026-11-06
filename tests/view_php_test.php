@@ -27,6 +27,7 @@ namespace mod_naas;
 
 use advanced_testcase;
 
+#[\PHPUnit\Framework\Attributes\CoversNothing]
 /**
  * Tests for the activity view script.
  *

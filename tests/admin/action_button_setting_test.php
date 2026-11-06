@@ -26,6 +26,7 @@ namespace mod_naas\admin;
 
 use advanced_testcase;
 
+#[\PHPUnit\Framework\Attributes\CoversClass(\mod_naas\admin\action_button_setting::class)]
 /**
  * Tests for the action buttons of the plugin settings page.
  *
@@ -67,6 +68,7 @@ final class action_button_setting_test extends advanced_testcase {
      * @param string $name
      * @param array $action
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('button_provider')]
     public function test_does_not_persist(string $name, array $action): void {
         $setting = new action_button_setting($name, $action['label'], 'Info', $action);
 
@@ -84,6 +86,7 @@ final class action_button_setting_test extends advanced_testcase {
      * @param string $name
      * @param array $action
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('button_provider')]
     public function test_output_renders_the_button_and_its_result_region(string $name, array $action): void {
         global $PAGE;
 

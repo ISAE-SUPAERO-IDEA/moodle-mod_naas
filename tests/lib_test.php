@@ -32,6 +32,23 @@ require_once($CFG->dirroot . '/mod/naas/lib.php');
 use advanced_testcase;
 use stdClass;
 
+#[\PHPUnit\Framework\Attributes\CoversFunction('get_moodle_major_version')]
+#[\PHPUnit\Framework\Attributes\CoversFunction('lti_get_jwt_claim_mapping_test')]
+#[\PHPUnit\Framework\Attributes\CoversFunction('naas_define_module_constants')]
+#[\PHPUnit\Framework\Attributes\CoversFunction('naas_add_instance')]
+#[\PHPUnit\Framework\Attributes\CoversFunction('naas_check_updates_since')]
+#[\PHPUnit\Framework\Attributes\CoversFunction('naas_delete_instance')]
+#[\PHPUnit\Framework\Attributes\CoversFunction('naas_extend_settings_navigation')]
+#[\PHPUnit\Framework\Attributes\CoversFunction('naas_get_coursemodule_info')]
+#[\PHPUnit\Framework\Attributes\CoversFunction('naas_get_post_actions')]
+#[\PHPUnit\Framework\Attributes\CoversFunction('naas_get_view_actions')]
+#[\PHPUnit\Framework\Attributes\CoversFunction('naas_grade_item_delete')]
+#[\PHPUnit\Framework\Attributes\CoversFunction('naas_grade_item_update')]
+#[\PHPUnit\Framework\Attributes\CoversFunction('naas_reset_userdata')]
+#[\PHPUnit\Framework\Attributes\CoversFunction('naas_supports')]
+#[\PHPUnit\Framework\Attributes\CoversFunction('naas_update_grades')]
+#[\PHPUnit\Framework\Attributes\CoversFunction('naas_update_instance')]
+#[\PHPUnit\Framework\Attributes\CoversFunction('naas_view')]
 /**
  * Tests for the public API functions in mod_naas/lib.php.
  *
@@ -87,6 +104,7 @@ final class lib_test extends advanced_testcase {
      * @param string|int $feature
      * @param mixed $expected
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('naas_supports_cases_provider')]
     public function test_supports_all_declared_features($feature, $expected): void {
         $this->assertSame($expected, naas_supports($feature));
     }

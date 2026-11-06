@@ -27,6 +27,7 @@ namespace mod_naas\event;
 use advanced_testcase;
 use mod_naas\event\course_module_viewed;
 
+#[\PHPUnit\Framework\Attributes\CoversClass(\mod_naas\event\course_module_viewed::class)]
 /**
  * Tests for course_module_viewed event.
  *

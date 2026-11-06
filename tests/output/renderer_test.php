@@ -30,6 +30,7 @@ use mod_naas\output\index_page;
 use mod_naas\output\lti_launch_form;
 use stdClass;
 
+#[\PHPUnit\Framework\Attributes\CoversClass(\mod_naas\output\renderer::class)]
 /**
  * Tests for mod_naas\output\renderer.
  *

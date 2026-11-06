@@ -34,6 +34,7 @@ use advanced_testcase;
 use mod_naas\attempts;
 use mod_naas\completion\custom_completion;
 
+#[\PHPUnit\Framework\Attributes\CoversClass(\mod_naas\completion\custom_completion::class)]
 /**
  * Tests for mod_naas\completion\custom_completion.
  *
@@ -93,6 +94,7 @@ final class custom_completion_test extends advanced_testcase {
      * @param int $completionpass
      * @param string $expectedstring
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('pass_or_exhaust_label_provider')]
     public function test_get_custom_rule_descriptions_pass_or_exhaust_label(int $completionpass, string $expectedstring): void {
         $this->resetAfterTest(true);
 

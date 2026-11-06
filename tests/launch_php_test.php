@@ -26,6 +26,7 @@ namespace mod_naas;
 
 use advanced_testcase;
 
+#[\PHPUnit\Framework\Attributes\CoversNothing]
 /**
  * Tests for the LTI launch script.
  *

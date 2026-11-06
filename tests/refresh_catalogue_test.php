@@ -33,6 +33,7 @@ use mod_naas\task\refresh_catalogue;
 
 require_once(__DIR__ . '/fixtures/testable_naas_client.php');
 
+#[\PHPUnit\Framework\Attributes\CoversClass(\mod_naas\task\refresh_catalogue::class)]
 /**
  * Tests for the scheduled catalogue refresh task.
  *

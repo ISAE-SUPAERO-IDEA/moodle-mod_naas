@@ -38,6 +38,7 @@ use advanced_testcase;
 use gradeitem;
 use stdClass;
 
+#[\PHPUnit\Framework\Attributes\CoversNothing]
 /**
  * Tests for the outcome / grading logic of mod_naas.
  *

@@ -44,6 +44,7 @@ use advanced_testcase;
 use mod_naas\naas_lti;
 use stdClass;
 
+#[\PHPUnit\Framework\Attributes\CoversClass(\mod_naas\naas_lti::class)]
 /**
  * Tests for mod_naas\naas_lti.
  *

@@ -33,6 +33,7 @@ use advanced_testcase;
 use mod_naas\naas_widget;
 use moodle_url;
 
+#[\PHPUnit\Framework\Attributes\CoversClass(\mod_naas\naas_widget::class)]
 /**
  * Tests for mod_naas\naas_widget.
  *
@@ -99,8 +100,6 @@ final class naas_widget_test extends advanced_testcase {
 
     /**
      * Test naas_get_grading_options.
-     *
-     * @covers \mod_naas\naas_widget::naas_get_grading_options
      */
     public function test_naas_get_grading_options(): void {
         $this->resetAfterTest(true);
@@ -119,8 +118,6 @@ final class naas_widget_test extends advanced_testcase {
 
     /**
      * Test naas_widget_html builds config and renders the widget template.
-     *
-     * @covers \mod_naas\naas_widget::naas_widget_html
      */
     public function test_naas_widget_html(): void {
         global $CFG, $PAGE;

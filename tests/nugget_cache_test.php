@@ -27,6 +27,7 @@ namespace mod_naas;
 use advanced_testcase;
 use mod_naas\nugget_cache;
 
+#[\PHPUnit\Framework\Attributes\CoversClass(\mod_naas\nugget_cache::class)]
 /**
  * Tests for the Nugget document cache.
  *

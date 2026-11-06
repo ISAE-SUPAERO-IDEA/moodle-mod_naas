@@ -30,6 +30,7 @@ use mod_naas\catalogue_cache;
 use mod_naas\nugget_cache;
 use mod_naas\vocabulary_lookup;
 
+#[\PHPUnit\Framework\Attributes\CoversClass(\mod_naas\cache_refresh::class)]
 /**
  * Tests for the admin cache purge and rebuild.
  *

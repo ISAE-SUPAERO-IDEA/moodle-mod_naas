@@ -29,6 +29,7 @@ use mod_naas\output\index_page;
 use moodle_url;
 use stdClass;
 
+#[\PHPUnit\Framework\Attributes\CoversClass(\mod_naas\output\index_page::class)]
 /**
  * Tests for mod_naas\output\index_page.
  *

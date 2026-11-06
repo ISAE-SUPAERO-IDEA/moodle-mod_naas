@@ -30,6 +30,7 @@ use core_privacy\local\request\writer;
 use core_privacy\tests\provider_testcase;
 use mod_naas\privacy\provider;
 
+#[\PHPUnit\Framework\Attributes\CoversClass(\mod_naas\privacy\provider::class)]
 /**
  * Tests for mod_naas\privacy\provider.
  *

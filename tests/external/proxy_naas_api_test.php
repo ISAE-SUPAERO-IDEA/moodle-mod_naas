@@ -35,6 +35,7 @@ use mod_naas\external\proxy_naas_api;
 require_once(__DIR__ . '/../fixtures/proxy_naas_api_enrol_test_proxy.php');
 require_once(__DIR__ . '/../fixtures/testable_naas_client.php');
 
+#[\PHPUnit\Framework\Attributes\CoversClass(\mod_naas\external\proxy_naas_api::class)]
 /**
  * Tests for the proxy_naas_api external service.
  *
@@ -61,6 +62,7 @@ final class proxy_naas_api_test extends advanced_testcase {
      * @param string $classname
      * @param string $methodname
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('declared_service_provider')]
     public function test_declared_service_is_fully_described(string $classname, string $methodname): void {
         $this->assertTrue(method_exists($classname, $methodname), "{$classname}::{$methodname} is missing");
         $this->assertInstanceOf(
@@ -232,6 +234,7 @@ final class proxy_naas_api_test extends advanced_testcase {
      * @param string $previewurl URL NaaS returns.
      * @param bool $allowed
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('preview_url_provider')]
     public function test_get_nugget_preview_only_returns_a_web_page_url(string $previewurl, bool $allowed): void {
         $this->resetAfterTest(true);
         set_config('naas_endpoint', 'http://naas.local/api', 'naas');
@@ -749,6 +752,7 @@ final class proxy_naas_api_test extends advanced_testcase {
      * @dataProvider invalid_ids_provider
      * @param string $badid Nugget id that must be rejected.
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('invalid_ids_provider')]
     public function test_invalid_ids_throw_exception(string $badid): void {
         $this->resetAfterTest(true);
         $course = $this->getDataGenerator()->create_course();
@@ -1495,8 +1499,6 @@ final class proxy_naas_api_test extends advanced_testcase {
 
     /**
      * An enrolled user passes the active enrolment gate.
-     *
-     * @covers \mod_naas\external\proxy_naas_api::require_active_course_enrolment
      */
     public function test_require_active_course_enrolment_passes_when_enrolled(): void {
         $this->resetAfterTest(true);
@@ -1513,8 +1515,6 @@ final class proxy_naas_api_test extends advanced_testcase {
 
     /**
      * A user who is not actively enrolled is rejected.
-     *
-     * @covers \mod_naas\external\proxy_naas_api::require_active_course_enrolment
      */
     public function test_require_active_course_enrolment_throws_when_not_actively_enrolled(): void {
         $this->resetAfterTest(true);

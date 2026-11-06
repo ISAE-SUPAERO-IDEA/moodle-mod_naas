@@ -31,6 +31,9 @@ require_once($CFG->dirroot . '/mod/naas/outcome.php');
 
 use advanced_testcase;
 
+#[\PHPUnit\Framework\Attributes\CoversClass(\mod_naas\lti_outcome_oauth::class)]
+#[\PHPUnit\Framework\Attributes\CoversMethod(\mod_naas_outcome::class, 'authenticate')]
+#[\PHPUnit\Framework\Attributes\CoversMethod(\mod_naas_outcome::class, 'process')]
 /**
  * Tests for the OAuth body-hash signing and verification of LTI Basic Outcomes.
  *

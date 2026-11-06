@@ -27,6 +27,7 @@ namespace mod_naas;
 use advanced_testcase;
 use mod_naas\vocabulary_lookup;
 
+#[\PHPUnit\Framework\Attributes\CoversClass(\mod_naas\vocabulary_lookup::class)]
 /**
  * Tests for facet vocabulary lookup.
  *

@@ -29,6 +29,7 @@ namespace mod_naas;
 
 use advanced_testcase;
 
+#[\PHPUnit\Framework\Attributes\CoversFunction('naas_define_module_constants')]
 /**
  * Covers the module constants defined in lib.php.
  *
@@ -40,6 +41,7 @@ final class lib_constants_coverage_test extends advanced_testcase {
      *
      * @runInSeparateProcess
      */
+    #[\PHPUnit\Framework\Attributes\RunInSeparateProcess]
     public function test_lib_php_constant_defines_run_under_coverage(): void {
         global $CFG;
 

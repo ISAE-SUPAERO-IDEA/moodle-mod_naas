@@ -36,6 +36,7 @@ use advanced_testcase;
 use mod_naas_mod_form;
 use moodle_url;
 
+#[\PHPUnit\Framework\Attributes\CoversClass(\mod_naas_mod_form::class)]
 /**
  * Tests for the attempts select and the custom completion rules of the activity settings form.
  *

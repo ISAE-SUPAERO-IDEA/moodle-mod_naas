@@ -28,6 +28,7 @@ use advanced_testcase;
 use mod_naas\catalogue_cache;
 use mod_naas\catalogue_export;
 
+#[\PHPUnit\Framework\Attributes\CoversClass(\mod_naas\output\widget::class)]
 /**
  * Tests for the widget configuration exported to window.NAAS.
  *

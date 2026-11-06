@@ -27,6 +27,7 @@ namespace mod_naas;
 use advanced_testcase;
 use mod_naas\mod_util;
 
+#[\PHPUnit\Framework\Attributes\CoversMethod(\mod_naas\mod_util::class, 'get_next_activity_url')]
 /**
  * Tests for mod_naas\mod_util.
  *

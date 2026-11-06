@@ -27,6 +27,7 @@ namespace mod_naas;
 use advanced_testcase;
 use mod_naas\catalogue_filters;
 
+#[\PHPUnit\Framework\Attributes\CoversClass(\mod_naas\catalogue_cache::class)]
 /**
  * Tests for the catalogue snapshot record, its fingerprint and key helpers.
  *

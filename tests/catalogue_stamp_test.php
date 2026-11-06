@@ -27,6 +27,7 @@ namespace mod_naas;
 use advanced_testcase;
 use mod_naas\catalogue_stamp;
 
+#[\PHPUnit\Framework\Attributes\CoversClass(\mod_naas\catalogue_stamp::class)]
 /**
  * Tests for catalogue freshness stamps.
  *

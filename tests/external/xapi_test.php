@@ -36,6 +36,7 @@ require_once(__DIR__ . '/../fixtures/stub_naas_client_for_xapi.php');
 require_once(__DIR__ . '/../fixtures/testable_naas_client.php');
 require_once(__DIR__ . '/../fixtures/xapi_enrol_test_proxy.php');
 
+#[\PHPUnit\Framework\Attributes\CoversClass(\mod_naas\external\xapi::class)]
 /**
  * Tests for the xapi external service.
  *
@@ -103,6 +104,7 @@ final class xapi_test extends advanced_testcase {
      * @dataProvider allowed_verbs_provider
      * @param string $verb Allowed xAPI verb under test.
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('allowed_verbs_provider')]
     public function test_allowed_verbs_pass_validation(string $verb): void {
         $this->resetAfterTest(true);
 
@@ -452,6 +454,7 @@ final class xapi_test extends advanced_testcase {
      * @dataProvider unusable_naas_response_provider
      * @param string $stubjson Raw NaaS answer.
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('unusable_naas_response_provider')]
     public function test_post_xapi_unusable_naas_response_throws(string $stubjson): void {
         $this->resetAfterTest(true);
 
@@ -499,8 +502,6 @@ final class xapi_test extends advanced_testcase {
 
     /**
      * require_active_course_enrolment must not throw when the user has an active enrolment.
-     *
-     * @covers \mod_naas\external\xapi::require_active_course_enrolment
      */
     public function test_require_active_course_enrolment_passes_when_enrolled(): void {
         $this->resetAfterTest(true);
@@ -517,8 +518,6 @@ final class xapi_test extends advanced_testcase {
 
     /**
      * require_active_course_enrolment must throw error:not_enrolled when there is no active enrolment.
-     *
-     * @covers \mod_naas\external\xapi::require_active_course_enrolment
      */
     public function test_require_active_course_enrolment_throws_when_not_actively_enrolled(): void {
         $this->resetAfterTest(true);
