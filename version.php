@@ -24,7 +24,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version        = 2026110604;                  // The current module version (Date: YYYYMMDDXX).
+$plugin->version        = 2026110605;                  // The current module version (Date: YYYYMMDDXX).
 $plugin->release        = "3.0.0";                     // Vue 3 widget, catalogue cache.
 $plugin->requires       = 2022041900;                  // Requires this Moodle version.
 $plugin->supported      = [401, 500];                  // Moodle 4.1 to 5.0, tested by the CI.
