@@ -103,6 +103,26 @@ describe("NuggetCompletionModal", () => {
     expect(all[1].getAttribute("aria-checked")).toBe("false");
   });
 
+  it("fills the stars up to the rating and outlines the others", async () => {
+    const { dialog, flush } = await openCompletion();
+    const all = stars(dialog);
+    const shapes = () =>
+      all.map((s) =>
+        s.querySelector("i")?.classList.contains("fa-star") ? "full" : "empty"
+      );
+    expect(shapes()).toEqual(["empty", "empty", "empty", "empty", "empty"]);
+
+    // Stars are listed from 5 down to 1: picking "3 out of 5" fills 3, 2 and 1.
+    all[2].click();
+    await flush();
+    expect(shapes()).toEqual(["empty", "empty", "full", "full", "full"]);
+    expect(
+      all.every(
+        (s) => s.querySelector("i")?.getAttribute("aria-hidden") === "true"
+      )
+    ).toBe(true);
+  });
+
   it("sends the rating once as an xAPI statement", async () => {
     const { dialog, service, flush } = await openCompletion();
     const send = dialog.querySelector<HTMLButtonElement>("#send-rating")!;
@@ -175,6 +195,42 @@ describe("NuggetCompletionModal", () => {
       behavior: "smooth",
       block: "start",
     });
+  });
+
+  it("jumps to the next activity's anchor when it is not on this page", async () => {
+    addCourseLinks("https://moodle.test/course/view.php#section-3");
+    vi.useFakeTimers();
+    const props = reactive({ nugget: makeNugget(), visible: true });
+    mounted = mountComponent(NuggetCompletionModal, props, providers());
+    await vi.runAllTimersAsync();
+
+    openDialog().querySelector<HTMLAnchorElement>(".nav-btn-next")!.click();
+    vi.advanceTimersByTime(100);
+    expect(window.location.hash).toBe("#section-3");
+  });
+
+  it("goes back to the course when the next link names no activity", async () => {
+    window.location.hash = "";
+    const back = `${window.location.origin}${window.location.pathname}#course-top`;
+    document.body.insertAdjacentHTML(
+      "beforeend",
+      `<div class="course-button"><a href="${back}">Course</a></div>
+       <a id="next-activity-link" href="https://moodle.test/course/view.php?section=2">Next</a>`
+    );
+    const { dialog, emitted } = await openCompletion();
+
+    dialog.querySelector<HTMLAnchorElement>(".nav-btn-next")!.click();
+    expect(emitted.close).toHaveLength(1);
+    expect(window.location.href).toBe(back);
+  });
+
+  it("closes from the close button and the backdrop, not from the dialog", async () => {
+    const { dialog, emitted } = await openCompletion();
+    dialog.click();
+    expect(emitted.close).toBeUndefined();
+    dialog.querySelector<HTMLButtonElement>(".btn-close")!.click();
+    document.querySelector<HTMLElement>(".nugget-modal-backdrop")!.click();
+    expect(emitted.close).toHaveLength(2);
   });
 
   it("closes on Escape and traps Tab from the close button to the links", async () => {

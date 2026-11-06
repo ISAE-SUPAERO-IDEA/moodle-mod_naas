@@ -73,7 +73,7 @@
       id="naas-filters-collapse"
       class="filters-collapse"
       :class="{ 'filters-collapse--open': open }"
-      :aria-hidden="!open"
+      :inert="!open || undefined"
     >
       <div class="filters-collapse-clip">
         <div class="filters-collapse-panel">
@@ -170,7 +170,7 @@ const config = useNaasConfig();
 
 .search-field-input {
   width: 100%;
-  padding: 0.5rem 2.25rem 0.5rem 2.25rem;
+  padding: 0.5rem 2.75rem 0.5rem 2.25rem;
   border: 1.5px solid var(--naas-border, #dee2e6);
   border-radius: var(--naas-radius-pill, 999px);
   background: var(--naas-surface, #fff);
@@ -183,7 +183,7 @@ const config = useNaasConfig();
 }
 
 .search-field-input::placeholder {
-  color: var(--naas-text-subtle, #adb5bd);
+  color: var(--naas-text-muted, #6c757d);
 }
 
 .search-field-input:focus {
@@ -194,16 +194,17 @@ const config = useNaasConfig();
 .search-field-clear {
   position: absolute;
   right: 0.75rem;
-  background: var(--naas-text-subtle, #adb5bd);
+  background: var(--naas-text-muted, #6c757d);
   color: #fff;
   border: none;
   border-radius: 50%;
-  width: 1.1rem;
-  height: 1.1rem;
+  /* 24 px: the minimum touch target size (WCAG 2.5.8). */
+  width: 1.5rem;
+  height: 1.5rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.8rem;
+  font-size: 1rem;
   line-height: 1;
   cursor: pointer;
   padding: 0;
@@ -211,7 +212,7 @@ const config = useNaasConfig();
 }
 
 .search-field-clear:hover {
-  background: var(--naas-text-muted, #6c757d);
+  background: #495057;
 }
 
 /* ── Filters toggle button ─────────────────────────────────────────────── */
@@ -245,10 +246,11 @@ const config = useNaasConfig();
   outline: none;
 }
 
-.filters-toggle-btn--open {
+/* Doubled class: stays dark blue on hover too (4.36:1 for primary on primary-light). */
+.filters-toggle-btn.filters-toggle-btn--open {
   border-color: var(--naas-primary, #0f6cbf);
   background: var(--naas-primary-light, #dce9fa);
-  color: var(--naas-primary, #0f6cbf);
+  color: var(--naas-primary-dark, #0a4a8f);
   box-shadow: 0 0 0 3px rgba(15, 108, 191, 0.12);
 }
 

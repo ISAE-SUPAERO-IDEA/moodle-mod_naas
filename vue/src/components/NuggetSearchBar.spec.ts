@@ -126,7 +126,8 @@ describe("NuggetSearchBar", () => {
     const panel = el.querySelector("#naas-filters-collapse")!;
     expect(toggle.getAttribute("aria-controls")).toBe("naas-filters-collapse");
     expect(toggle.getAttribute("aria-expanded")).toBe("false");
-    expect(panel.getAttribute("aria-hidden")).toBe("true");
+    // Closed: out of the tab order and hidden from assistive technology.
+    expect(panel.hasAttribute("inert")).toBe(true);
 
     toggle.click();
     expect(emitted["update:open"]).toEqual([[true]]);
@@ -134,7 +135,7 @@ describe("NuggetSearchBar", () => {
     props.open = true;
     await flush();
     expect(toggle.getAttribute("aria-expanded")).toBe("true");
-    expect(panel.getAttribute("aria-hidden")).toBe("false");
+    expect(panel.hasAttribute("inert")).toBe(false);
     expect(panel.classList.contains("filters-collapse--open")).toBe(true);
     expect(filterStub.props[filterStub.props.length - 1]?.prefetch).toBe(true);
   });

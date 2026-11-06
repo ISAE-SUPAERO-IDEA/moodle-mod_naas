@@ -52,6 +52,7 @@
             <iframe
               v-if="previewUrl"
               id="naas-preview-frame"
+              :title="fillLabel(config.labels.preview_title, nugget.name)"
               :src="previewUrl"
               class="preview-iframe"
               allowfullscreen

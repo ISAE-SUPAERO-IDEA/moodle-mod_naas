@@ -77,6 +77,10 @@ describe("NuggetViewModal", () => {
     expect(
       document.getElementById("naas-preview-frame")?.getAttribute("src")
     ).toBe("https://naas.test/preview");
+    // The frame is named for screen readers (axe rule frame-title).
+    expect(
+      document.getElementById("naas-preview-frame")?.getAttribute("title")
+    ).toBe("Preview: Aircraft design basics");
   });
 
   it("never loads a non-web URL into the iframe", async () => {

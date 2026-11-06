@@ -71,7 +71,15 @@
                 @click="savedRating = MAX_SCORE + 1 - i"
                 @keydown.enter.space.prevent="savedRating = MAX_SCORE + 1 - i"
               >
-                <i class="icon fa fa-star" />
+                <i
+                  class="icon fa"
+                  :class="
+                    savedRating !== null && MAX_SCORE + 1 - i <= savedRating
+                      ? 'fa-star'
+                      : 'fa-star-o'
+                  "
+                  aria-hidden="true"
+                />
               </span>
             </div>
             <button
@@ -166,6 +174,8 @@ onMounted(() => {
 });
 
 function rate(score: number | null) {
+  // Send is disabled until a star is picked; kept for direct callers.
+  /* v8 ignore next -- @preserve */
   if (!score) return;
   postStatement({
     id: config.cm_id,
@@ -178,6 +188,8 @@ function rate(score: number | null) {
 
 function goToNextResource() {
   emit("close");
+  // The link calling this only renders with a target.
+  /* v8 ignore next -- @preserve */
   if (!nextUnitLink.value) return;
 
   const idMatch = nextUnitLink.value.match(/id=(\d+)/);
@@ -278,8 +290,10 @@ function goToNextResource() {
   margin-bottom: 1.25rem;
 }
 
+/* Empty stars are outlined, chosen ones filled: the state never relies on colour
+   alone, and both colours keep 3:1 against the white dialog (WCAG 1.4.11). */
 .star {
-  color: #d1d5db;
+  color: #6b7280;
   padding: 0 2px;
   cursor: pointer;
   transition: color 0.12s ease, transform 0.12s ease;
@@ -297,13 +311,13 @@ function goToNextResource() {
 
 .star:hover,
 .star:hover ~ .star {
-  color: #f59e0b;
+  color: #b45309;
   transform: scale(1.12);
 }
 
 .star.checked,
 .star.checked ~ span {
-  color: #f59e0b;
+  color: #b45309;
 }
 
 .rating-submit-btn {
@@ -332,11 +346,17 @@ function goToNextResource() {
 }
 
 .rating-submit-btn--sent {
-  background: #16a34a;
+  background: #15803d;
+}
+
+/* "Sent" is a confirmation to read, not a greyed-out control: keep it opaque. */
+.rating-submit-btn--sent:disabled {
+  opacity: 1;
+  cursor: default;
 }
 
 .rating-submit-btn--sent:not(:disabled):hover {
-  background: #15803d;
+  background: #166534;
 }
 
 .rating-description {
@@ -354,7 +374,7 @@ function goToNextResource() {
 .learning-outcomes-label {
   font-size: 0.85rem;
   font-weight: 600;
-  color: var(--naas-text-muted, #6c757d);
+  color: #5c636a; /* muted grey reaching 4.5:1 on the #f8f9fa band */
   margin: 0 0 0.5rem;
   text-transform: uppercase;
   letter-spacing: 0.04em;

@@ -167,8 +167,9 @@ function stripHtml(value?: string): string {
   if (!raw) {
     return "";
   }
-  const text =
-    new DOMParser().parseFromString(raw, "text/html").body.textContent ?? "";
+  // An element's textContent is never null (only a document's is).
+  const text = new DOMParser().parseFromString(raw, "text/html").body
+    .textContent!;
   return text.replace(/\s+/g, " ").trim();
 }
 
@@ -404,11 +405,12 @@ function truncate(text: string, length: number): string {
 
 .nugget-btn-outline:hover {
   background: var(--naas-primary-light, #dce9fa);
+  color: var(--naas-primary-dark, #0a4a8f);
 }
 
 .nugget-btn-ghost {
   background: transparent;
-  color: var(--naas-text-muted, #6c757d);
+  color: #5c636a; /* muted grey reaching 4.5:1 on the #f8f9fa footer */
   border-color: var(--naas-border, #dee2e6);
 }
 
