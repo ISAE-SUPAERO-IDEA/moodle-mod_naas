@@ -9,3 +9,4 @@ phpstan-results.sarif
 /naas.tar.gz
 /naas.zip
 /phpunit.xml
+.idea/
