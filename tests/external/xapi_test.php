@@ -273,6 +273,28 @@ class xapi_test extends advanced_testcase {
     }
 
     /**
+     * A site admin passes require_login and every capability check, so only the
+     * enrolment gate can stop them: removing it must make this test fail.
+     */
+    public function test_post_xapi_rejects_a_non_enrolled_admin(): void {
+        $this->resetAfterTest(true);
+
+        $course = $this->getDataGenerator()->create_course();
+        $naas = $this->getDataGenerator()->create_module('naas', ['course' => $course->id]);
+        $this->setAdminUser();
+
+        $client = $this->capturing_client();
+        $xapi = $this->xapi_using($client);
+        try {
+            $xapi::post_xapi_statement('experienced', 'version-1', $naas->cmid, null);
+            $this->fail('Expected error:not_enrolled for an admin without enrolment');
+        } catch (\moodle_exception $e) {
+            $this->assertSame('error:not_enrolled', $e->errorcode);
+        }
+        $this->assertSame([], $client->captured);
+    }
+
+    /**
      * A non-null JSON body must be decoded into an object on the payload sent to the client.
      */
     public function test_post_xapi_with_json_body_decodes_for_payload(): void {

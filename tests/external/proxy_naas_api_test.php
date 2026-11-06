@@ -353,6 +353,25 @@ class proxy_naas_api_test extends advanced_testcase {
         }
     }
 
+    /**
+     * A site admin passes require_login and every capability check, so only the
+     * enrolment gate can stop them: removing it must make this test fail.
+     */
+    public function test_view_nugget_rejects_a_non_enrolled_admin(): void {
+        $this->resetAfterTest(true);
+
+        $course = $this->getDataGenerator()->create_course();
+        $naas = $this->getDataGenerator()->create_module('naas', ['course' => $course->id]);
+        $this->setAdminUser();
+
+        try {
+            proxy_naas_api::view_nugget($naas->cmid);
+            $this->fail('Expected error:not_enrolled for an admin without enrolment');
+        } catch (\moodle_exception $e) {
+            $this->assertSame('error:not_enrolled', $e->errorcode);
+        }
+    }
+
     public function test_view_nugget_requires_capability(): void {
         global $DB;
         $this->resetAfterTest(true);
