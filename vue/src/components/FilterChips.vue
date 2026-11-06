@@ -22,25 +22,32 @@
  */
 -->
 <template>
-  <div v-if="chips.length" class="filter-chips" role="group" :aria-label="config.labels.active_filters || 'Active filters'">
+  <div
+    v-if="chips.length"
+    class="filter-chips"
+    role="group"
+    :aria-label="config.labels.active_filters"
+  >
     <span
       v-for="chip in chips"
       :key="`${chip.key}-${chip.value}`"
-      class="filter-chip"
+      class="naas-chip filter-chip"
     >
-      <span class="filter-chip-label">{{ chip.label }}</span>
+      <span class="naas-chip__label">{{ chip.label }}</span>
       <button
         type="button"
-        class="filter-chip-remove"
-        :aria-label="`Remove filter ${chip.label}`"
+        class="naas-chip__close"
+        :aria-label="fillLabel(config.labels.remove_filter, chip.label)"
         @click="emit('remove', chip.key, chip.value)"
-      >×</button>
+      >
+        <i class="fa fa-times" aria-hidden="true"></i>
+      </button>
     </span>
 
     <button
       v-if="chips.length > 1"
       type="button"
-      class="filter-chip filter-chip-clear"
+      class="naas-chip naas-chip--clear filter-chip filter-chip-clear"
       @click="emit('clear')"
     >
       {{ config.labels.clear_filters }}
@@ -49,35 +56,36 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import { useNaasConfig } from '@/composables/useNaasConfig'
+import { computed } from "vue";
+import { useNaasConfig } from "@/composables/useNaasConfig";
+import { fillLabel } from "@/utils/fillLabel";
 
 const props = defineProps<{
-  filters: Record<string, string[]>
-  labels: Record<string, string>
-  bucketCaptions?: Record<string, string>
-}>()
+  filters: Record<string, string[]>;
+  labels: Record<string, string>;
+  bucketCaptions?: Record<string, string>;
+}>();
 
 const emit = defineEmits<{
-  (e: 'remove', key: string, value: string): void
-  (e: 'clear'): void
-}>()
+  (e: "remove", key: string, value: string): void;
+  (e: "clear"): void;
+}>();
 
-const config = useNaasConfig()
+const config = useNaasConfig();
 
 const chips = computed(() => {
-  const result: { key: string; value: string; label: string }[] = []
+  const result: { key: string; value: string; label: string }[] = [];
   for (const [key, values] of Object.entries(props.filters)) {
     for (const value of values) {
       result.push({
         key,
         value,
         label: props.bucketCaptions?.[value] ?? value,
-      })
+      });
     }
   }
-  return result
-})
+  return result;
+});
 </script>
 
 <style scoped>
@@ -89,54 +97,58 @@ const chips = computed(() => {
   margin-bottom: 1rem;
 }
 
-.filter-chip {
+.naas-chip {
   display: inline-flex;
   align-items: center;
-  gap: 0.3rem;
-  padding: 0.3rem 0.75rem;
-  background: var(--naas-primary-light, #dce9fa);
-  color: var(--naas-primary, #0f6cbf);
-  border: 1.5px solid var(--naas-primary, #0f6cbf);
-  border-radius: 50px;
-  font-size: 0.8rem;
+  gap: 0.35rem;
+  padding: 0.15rem 0.65rem;
+  font-size: 0.8125rem;
   font-weight: 600;
-  white-space: nowrap;
-  line-height: 1.2;
+  line-height: 1.5;
+  color: var(--naas-primary, #0f6cbf);
+  background: var(--naas-surface, #fff);
+  border: 1px solid currentColor;
+  border-radius: var(--naas-radius-pill, 999px);
 }
 
-.filter-chip-remove {
+.naas-chip__close {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: var(--naas-primary, #0f6cbf);
-  color: #fff;
-  border: none;
-  border-radius: 50%;
-  width: 16px;
-  height: 16px;
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-right: -0.35rem;
+  padding: 0;
   font-size: 0.75rem;
   line-height: 1;
-  padding: 0;
-  cursor: pointer;
-  flex-shrink: 0;
-  transition: background var(--naas-transition, 0.18s ease);
-}
-
-.filter-chip-remove:hover {
-  background: var(--naas-primary-hover, #0a58ca);
-}
-
-.filter-chip-clear {
+  color: inherit;
   background: transparent;
-  color: #842029;
-  border: 1.5px solid #f5c2c7;
+  border: 0;
+  border-radius: 50%;
   cursor: pointer;
-  font-weight: 500;
-  transition: background var(--naas-transition, 0.18s ease), border-color var(--naas-transition, 0.18s ease);
 }
 
-.filter-chip-clear:hover {
-  background: #f8d7da;
-  border-color: #f1aeb5;
+.naas-chip__close:hover,
+.naas-chip__close:focus-visible {
+  background: var(--naas-primary-light, #dce9fa);
+}
+
+.naas-chip--clear {
+  font-family: inherit;
+  font-weight: 500;
+  color: #dc3545; /* Bootstrap danger */
+  cursor: pointer;
+}
+
+.naas-chip--clear:hover,
+.naas-chip--clear:focus-visible {
+  color: #fff;
+  background: #dc3545;
+}
+
+.naas-chip__close:focus-visible,
+.naas-chip--clear:focus-visible {
+  outline: 2px solid var(--naas-primary, #0f6cbf);
+  outline-offset: 1px;
 }
 </style>

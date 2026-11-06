@@ -21,17 +21,17 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-import { useMoodleService } from './useMoodleService'
-import type { XapiParams } from '@/types/nugget.types'
+import { useMoodleService } from "./useMoodleService";
+import type { XapiParams } from "@/types/nugget.types";
 
 export function useXapi() {
-  const service = useMoodleService()
+  const service = useMoodleService();
 
   function postStatement(params: XapiParams): void {
     service.postXapiStatement(params).catch((err) => {
-      console.warn('[NaaS xAPI] failed to post statement', err)
-    })
+      console.warn("[NaaS xAPI] failed to post statement", err);
+    });
   }
 
-  return { postStatement }
+  return { postStatement };
 }

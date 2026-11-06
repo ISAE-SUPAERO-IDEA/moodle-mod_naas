@@ -25,23 +25,37 @@
   <Teleport to="body">
     <transition name="modal-fade">
       <div v-if="visible" class="nugget-modal-backdrop" @click="close">
-        <div id="nugget-preview-modal" class="nugget-modal" @click.stop.prevent>
-          <div class="container h-100">
-            <div class="nugget-modal-header row justify-content-between align-items-start">
-              <h2>{{ config.labels.metadata.preview }}{{ nugget.name }}</h2>
-              <button type="button" class="btn-close" @click="close">✕</button>
-            </div>
-            <div class="nugget-modal-body">
-              <div class="nugget-view">
-                <iframe
-                  v-if="previewUrl"
-                  id="lti-frame"
-                  :src="previewUrl"
-                  class="preview-iframe"
-                  allowfullscreen
-                />
-              </div>
-            </div>
+        <div
+          id="nugget-preview-modal"
+          ref="dialog"
+          class="nugget-modal"
+          role="dialog"
+          aria-modal="true"
+          :aria-labelledby="titleId"
+          tabindex="-1"
+          @click.stop.prevent
+        >
+          <div class="nugget-modal-header">
+            <h2 :id="titleId">
+              {{ fillLabel(config.labels.preview_title, nugget.name) }}
+            </h2>
+            <button
+              type="button"
+              class="btn-close"
+              :aria-label="config.labels.close"
+              @click="close"
+            >
+              ✕
+            </button>
+          </div>
+          <div class="nugget-modal-body">
+            <iframe
+              v-if="previewUrl"
+              id="naas-preview-frame"
+              :src="previewUrl"
+              class="preview-iframe"
+              allowfullscreen
+            />
           </div>
         </div>
       </div>
@@ -50,41 +64,49 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
-import { useNaasConfig } from '@/composables/useNaasConfig'
-import { useMoodleService } from '@/composables/useMoodleService'
-import type { Nugget } from '@/types/nugget.types'
+import { ref, useId, watch } from "vue";
+import { useNaasConfig } from "@/composables/useNaasConfig";
+import { useModalA11y } from "@/composables/useModalA11y";
+import { fillLabel } from "@/utils/fillLabel";
+import { useMoodleService } from "@/composables/useMoodleService";
+import type { Nugget } from "@/types/nugget.types";
 
-const props = defineProps<{ nugget: Nugget; visible: boolean }>()
-const emit = defineEmits<{ (e: 'close'): void }>()
+const props = defineProps<{ nugget: Nugget; visible: boolean }>();
+const emit = defineEmits<{ (e: "close"): void }>();
 
-const config = useNaasConfig()
-const service = useMoodleService()
+const config = useNaasConfig();
+const service = useMoodleService();
 
-const previewUrl = ref<string | null>(null)
+const previewUrl = ref<string | null>(null);
 
 watch(
   () => props.visible,
   async (visible) => {
     if (!visible) {
-      previewUrl.value = null
-      return
+      previewUrl.value = null;
+      return;
     }
     try {
-      previewUrl.value = await service.getNuggetPreview(
+      const url = await service.getNuggetPreview(
         props.nugget.version_id,
         config.courseId
-      )
+      );
+      // Moodle already checks it; never put anything but a web page in the iframe.
+      previewUrl.value = /^https?:\/\//i.test(url) ? url : null;
     } catch (e) {
-      console.warn('[NaaS] preview load failed', e)
+      console.warn("[NaaS] preview load failed", e);
     }
   }
-)
+);
 
 function close() {
-  previewUrl.value = null
-  emit('close')
+  previewUrl.value = null;
+  emit("close");
 }
+
+const dialog = ref<HTMLElement | null>(null);
+const titleId = useId();
+useModalA11y(() => props.visible, dialog, close);
 </script>
 
 <style scoped>
@@ -97,21 +119,28 @@ function close() {
   -webkit-backdrop-filter: blur(4px);
   display: flex;
   justify-content: center;
-  align-items: flex-start;
+  align-items: stretch;
   z-index: 1060;
-  padding: 3vh 1rem 2rem;
+  padding: 1rem;
 }
 
 /* ── Modal panel ── */
+/* The dialog takes focus when it opens; no outline around the whole box. */
+.nugget-modal:focus {
+  outline: none;
+}
+
 .nugget-modal {
-  width: 100%;
-  max-width: 1100px;
-  height: 88vh;
+  width: min(1100px, 100%);
+  height: 100%;
+  max-height: 100%;
+  margin: 0 auto;
   background: var(--naas-surface, #fff);
-  box-shadow: var(--naas-shadow-lg, 0 12px 40px rgba(0,0,0,.18));
+  box-shadow: var(--naas-shadow-lg, 0 12px 40px rgba(0, 0, 0, 0.18));
   border-radius: var(--naas-radius-xl, 16px);
   display: flex;
   flex-direction: column;
+  min-height: 0;
   overflow: hidden;
 }
 
@@ -154,7 +183,7 @@ function close() {
   border-radius: var(--naas-radius, 8px);
   cursor: pointer;
   transition: color var(--naas-transition, 0.18s ease),
-              background var(--naas-transition, 0.18s ease);
+    background var(--naas-transition, 0.18s ease);
 }
 
 .btn-close:hover {
@@ -162,22 +191,19 @@ function close() {
   background: var(--naas-surface-muted, #f8f9fa);
 }
 
-/* ── Body (iframe fills it) ── */
+/* ── Body (iframe fills remaining height; no extra scrollbar) ── */
 .nugget-modal-body {
-  flex: 1;
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
   overflow: hidden;
   padding: 0;
   margin: 0;
 }
 
-.nugget-view {
-  height: 100%;
-  margin: 0;
-  padding: 0;
-}
-
 .preview-iframe {
   display: block;
+  flex: 1 1 auto;
   width: 100%;
   height: 100%;
   border: none;

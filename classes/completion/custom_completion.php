@@ -20,6 +20,7 @@ use context_module;
 use core_completion\activity_custom_completion;
 use grade_grade;
 use grade_item;
+use mod_naas\attempts;
 use naas;
 
 /**
@@ -39,31 +40,59 @@ class custom_completion extends activity_custom_completion {
      * @return bool True if the passing grade (or no attempts left) requirement is disabled or met.
      */
     protected function check_passing_grade_or_all_attempts(): bool {
-        global $CFG;
+        global $CFG, $DB;
         require_once($CFG->libdir . '/gradelib.php');
 
-        $completionpassorattempts = $this->cm->customdata['customcompletionrules']['completionpassorattemptsexhausted'];
+        // Omitted when both flags are off. An empty set means the rule is a no-op.
+        $completionpassorattempts = $this->cm->customdata['customcompletionrules']['completionpassorattemptsexhausted'] ?? [];
+        $passrequired = !empty($completionpassorattempts['completionpass']);
+        $exhaustaccepted = !empty($completionpassorattempts['completionattemptsexhausted']);
 
-        if (empty($completionpassorattempts['completionpass'])) {
+        if (!$passrequired && !$exhaustaccepted) {
             return true;
         }
 
-        // Check for passing grade.
-        $item = grade_item::fetch([
-            'courseid' => $this->cm->get_course()->id,
-            'itemtype' => 'mod',
-            'itemmodule' => 'naas',
-            'iteminstance' => $this->cm->instance,
-            'outcomeid' => null,
-        ]);
-        if ($item) {
-            $grades = grade_grade::fetch_users_grades($item, [$this->userid], false);
-            if (!empty($grades[$this->userid]) && $grades[$this->userid]->is_passed($item)) {
-                return true;
+        if ($passrequired) {
+            // Check for passing grade.
+            $item = grade_item::fetch([
+                'courseid' => $this->cm->get_course()->id,
+                'itemtype' => 'mod',
+                'itemmodule' => 'naas',
+                'iteminstance' => $this->cm->instance,
+                'outcomeid' => null,
+            ]);
+            if ($item) {
+                $grades = grade_grade::fetch_users_grades($item, [$this->userid], false);
+                if (!empty($grades[$this->userid]) && $grades[$this->userid]->is_passed($item)) {
+                    return true;
+                }
+            }
+            if (!$exhaustaccepted) {
+                return false;
             }
         }
 
-        return false;
+        // Only attempts that received an LTI outcome count. attempts = 0 means unlimited, so it never exhausts.
+        $maxattempts = (int) $DB->get_field('naas', 'attempts', ['id' => $this->cm->instance]);
+
+        return attempts::is_exhausted($maxattempts, $this->cm->id, $this->userid);
+    }
+
+    /**
+     * Check the minimum-attempts requirement for completion.
+     *
+     * An attempt is a naas_activity_outcome row that received its LTI outcome
+     * (see \mod_naas\attempts). Launches without an outcome do not count.
+     *
+     * @return bool True when the minimum is unset or the learner completed enough attempts.
+     */
+    protected function check_min_attempts(): bool {
+        $minattempts = $this->cm->customdata['customcompletionrules']['completionminattempts'] ?? 0;
+        if (empty($minattempts)) {
+            return true;
+        }
+
+        return attempts::count_completed($this->cm->id, $this->userid) >= (int) $minattempts;
     }
 
     /**
@@ -79,6 +108,9 @@ class custom_completion extends activity_custom_completion {
             case 'completionpassorattemptsexhausted':
                 $status = static::check_passing_grade_or_all_attempts();
                 break;
+            case 'completionminattempts':
+                $status = static::check_min_attempts();
+                break;
         }
 
         return empty($status) ? COMPLETION_INCOMPLETE : COMPLETION_COMPLETE;
@@ -92,6 +124,7 @@ class custom_completion extends activity_custom_completion {
     public static function get_defined_custom_rules(): array {
         return [
             'completionpassorattemptsexhausted',
+            'completionminattempts',
         ];
     }
 
@@ -101,16 +134,25 @@ class custom_completion extends activity_custom_completion {
      * @return array
      */
     public function get_custom_rule_descriptions(): array {
+        $descriptions = [];
+
+        $minattempts = $this->cm->customdata['customcompletionrules']['completionminattempts'] ?? 0;
+        if (!empty($minattempts)) {
+            $descriptions['completionminattempts'] = get_string('completiondetail:minattempts', 'naas', $minattempts);
+        }
+
         $completionpassorattempts = $this->cm->customdata['customcompletionrules']['completionpassorattemptsexhausted'] ?? [];
-        if (!empty($completionpassorattempts['completionattemptsexhausted'])) {
+        $exhaustaccepted = !empty($completionpassorattempts['completionattemptsexhausted']);
+        if ($exhaustaccepted && !empty($completionpassorattempts['completionpass'])) {
             $passorallattemptslabel = get_string('completiondetail:passorexhaust', 'naas');
+        } else if ($exhaustaccepted) {
+            $passorallattemptslabel = get_string('completiondetail:exhaust', 'naas');
         } else {
             $passorallattemptslabel = get_string('completiondetail:passgrade', 'naas');
         }
+        $descriptions['completionpassorattemptsexhausted'] = $passorallattemptslabel;
 
-        return [
-            'completionpassorattemptsexhausted' => $passorallattemptslabel,
-        ];
+        return $descriptions;
     }
 
     /**
@@ -121,6 +163,7 @@ class custom_completion extends activity_custom_completion {
     public function get_sort_order(): array {
         return [
             'completionview',
+            'completionminattempts',
             'completionusegrade',
             'completionpassorattemptsexhausted',
         ];

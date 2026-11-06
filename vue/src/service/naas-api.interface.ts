@@ -20,18 +20,34 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-import type { Nugget, SearchOptions, SearchResult, XapiParams } from '../types/nugget.types'
-import type { Person } from '../types/person.types'
-import type { Domain } from '../types/domain.types'
-import type { Structure } from '../types/structure.types'
+import type {
+  CatalogueCheck,
+  Nugget,
+  SearchMode,
+  SearchOptions,
+  SearchResult,
+  XapiParams,
+} from "../types/nugget.types";
+import type { Person } from "../types/person.types";
+import type { Domain } from "../types/domain.types";
+import type { Structure } from "../types/structure.types";
 
 export interface INaasApiService {
-  getNugget(nuggetId: string, courseId: number): Promise<Nugget>
-  viewNugget(cmId: number): Promise<Nugget>
-  getPerson(personKey: string, courseId: number): Promise<Person>
-  getDomain(domainKey: string, courseId: number): Promise<Domain>
-  getStructure(structureKey: string, courseId: number): Promise<Structure>
-  searchNuggets(searchOptions: SearchOptions, courseId: number): Promise<SearchResult>
-  getNuggetPreview(versionId: string, courseId: number): Promise<string>
-  postXapiStatement(params: XapiParams): Promise<void>
+  getNugget(
+    nuggetId: string,
+    courseId: number,
+    mode?: SearchMode
+  ): Promise<Nugget>;
+  viewNugget(cmId: number): Promise<Nugget>;
+  getPerson(personKey: string, courseId: number): Promise<Person>;
+  getDomain(domainKey: string, courseId: number): Promise<Domain>;
+  getStructure(structureKey: string, courseId: number): Promise<Structure>;
+  searchNuggets(
+    searchOptions: SearchOptions,
+    courseId: number,
+    mode?: SearchMode
+  ): Promise<SearchResult>;
+  checkCatalogue(courseId: number): Promise<CatalogueCheck>;
+  getNuggetPreview(versionId: string, courseId: number): Promise<string>;
+  postXapiStatement(params: XapiParams): Promise<void>;
 }

@@ -33,10 +33,11 @@ class naas_lti {
      * Launch LTI content.
      * @param int $naasinstanceid
      * @param string $language
-     * @return void
+     * @param naas_client|null $client Optional client. Tests pass a double so launch stays offline.
+     * @return string HTML for the launch form, or an inline error
      * @throws \Random\RandomException
      */
-    public static function lti_launch($naasinstanceid, $language = "") {
+    public static function lti_launch($naasinstanceid, $language = "", ?naas_client $client = null) {
         global $PAGE;
         global $DB;
         global $CFG;
@@ -47,15 +48,26 @@ class naas_lti {
         $context = \context_module::instance($cm->id);
         $course = $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST);
 
+        // Learners cannot start another attempt once every allowed attempt received its outcome.
+        // Users who can edit the activity (teachers) preview it without limit, like mod_quiz.
+        if (
+            attempts::is_exhausted((int) $naasinstance->attempts, $cm->id, $USER->id)
+            && !has_capability('mod/naas:addinstance', $context)
+        ) {
+            return $OUTPUT->notification(get_string('nomoreattempts', 'naas'), \core\output\notification::NOTIFY_ERROR);
+        }
+
         // Retrieve LTI config from NaaS server.
         $config = (object) array_merge((array) \get_config('naas'), (array) $CFG);
-        $naas = new \mod_naas\naas_client($config);
+        if ($client === null) {
+            $client = \mod_naas\naas_client::create($config);
+        }
         // Any NaaS API failure here (eg. an invalid institute / structure_id) must be
         // rendered as a clean inline message in place of the nugget, not bubble up as
         // Moodle's raw exception page.
         try {
-            $nuggetdata = $naas->get_nugget_data($naasinstance->nugget_id);
-            $nuggetconfig = $naas->get_nugget_lti_config($naasinstance->nugget_id);
+            $nuggetdata = $client->get_nugget_data($naasinstance->nugget_id);
+            $nuggetconfig = $client->get_nugget_lti_config($naasinstance->nugget_id);
             if (
                 $language != ""
                 && isset($nuggetdata)
@@ -70,31 +82,32 @@ class naas_lti {
                     }
                 }
                 if ($matchingnugget != null && isset($matchingnugget->nugget_id)) {
-                    $nuggetconfig = $naas->get_nugget_lti_config($matchingnugget->nugget_id);
+                    $nuggetconfig = $client->get_nugget_lti_config($matchingnugget->nugget_id);
                 }
             }
         } catch (\moodle_exception $e) {
-            debugging("NAAS: could not load nugget: " . $e->getMessage(), DEBUG_DEVELOPER);
-            self::render_launch_error($e->getMessage());
-            return;
+            // Expected when the site has no valid NaaS login. Render it inline.
+            // debugging() would fail Behat, which treats this page as a smoke test.
+            return self::render_launch_error($e->getMessage());
         }
 
         if ($nuggetconfig == null || isset($nuggetconfig->error)) {
             $errormessage = get_string("cannot_get_nugget", "naas");
-            echo $OUTPUT->notification($errormessage, \core\output\notification::NOTIFY_ERROR);
-            return;
+            return $OUTPUT->notification($errormessage, \core\output\notification::NOTIFY_ERROR);
         }
 
-        // Configure LTI module.
-        $PAGE->set_course($course);
+        // Skip when this request already selected the same course.
+        // Calling set_course() again throws once the theme has been initialised.
+        if ((int) $PAGE->course->id !== (int) $course->id) {
+            $PAGE->set_course($course);
+        }
 
         // See: https://moodle.org/mod/forum/discuss.php?d=335734.
         // Configure launch data.
         $launchurl = clean_param($nuggetconfig->url, PARAM_URL);
         if (empty($launchurl)) {
             $errormessage = get_string("cannot_get_nugget", "naas");
-            echo $OUTPUT->notification($errormessage, \core\output\notification::NOTIFY_ERROR);
-            return;
+            return $OUTPUT->notification($errormessage, \core\output\notification::NOTIFY_ERROR);
         }
         $key = $nuggetconfig->key;
         $secret = $nuggetconfig->secret;
@@ -104,7 +117,8 @@ class naas_lti {
         $activityid = $cm->id;
         $sourcedid = bin2hex(random_bytes(16)); // 16 bytes to obtain a 32-character hexadecimal string.
 
-        // Insert a record in the database.
+        // Insert a record in the database. It becomes a completed attempt once NaaS posts the
+        // outcome for this sourced id (see \mod_naas\attempts); a bare launch counts for nothing.
         $newrecord = new \stdClass();
         $newrecord->user_id = $userid;
         $newrecord->activity_id = $activityid;
@@ -124,12 +138,7 @@ class naas_lti {
             )
         );
 
-        $custom = [
-            "hostname" => $CFG->wwwroot, // Used by feedback feature.
-            "is_authenticated" => true, // Required by feedback feature.
-            "css" => $config->naas_css,
-            "feedback" => ($config->naas_feedback === "1") ? "on" : "off",
-        ];
+        $custom = self::lti_custom_options($config);
 
         $launchdata = [
             "lti_version" => "LTI-1p0",
@@ -152,10 +161,10 @@ class naas_lti {
             "custom_naas" => json_encode($custom),
         ];
 
-        if ($config->naas_privacy_learner_name) {
+        if (!empty($config->naas_privacy_learner_name)) {
             $launchdata["lis_person_name_full"] = $USER->firstname . " " . $USER->lastname;
         }
-        if ($config->naas_privacy_learner_mail) {
+        if (!empty($config->naas_privacy_learner_mail)) {
             $launchdata["lis_person_contact_email_primary"] = $USER->email;
         }
 
@@ -191,37 +200,49 @@ class naas_lti {
         }
 
         $form = new \mod_naas\output\lti_launch_form($launchurl, $fields);
-        echo $OUTPUT->render_from_template('mod_naas/lti_launch_form', $form->export_for_template($OUTPUT));
+        return $OUTPUT->render_from_template('mod_naas/lti_launch_form', $form->export_for_template($OUTPUT));
     }
 
     /**
-     * Render a clean inline error message in place of the nugget.
-     * @param string $message
-     * @return void
+     * Options sent to NaaS as the LTI custom_naas JSON body.
+     *
+     * NaaS copies this object onto the learner session. feature.nugbot is read
+     * as a boolean when the player decides whether to load nugbot.js.
+     *
+     * @param object $config Plugin config merged with $CFG
+     * @return array
      */
-    private static function render_launch_error($message) {
-        $message = htmlspecialchars($message, ENT_QUOTES);
-        echo <<<HTML
-<style>
-.error-message {
-  color: #721c24;
-  background-color: #f8d7da;
-  border: 1px solid #f5c6cb;
-  padding: 12px;
-  border-radius: 4px;
-  font-size: 14px;
-  font-weight: bold;
-  margin: 10px 0;
-  display: flex;
-  align-items: center;
-}
+    public static function lti_custom_options(object $config): array {
+        global $CFG;
 
-.error-message::before {
-  content: "⚠️";
-  margin-right: 8px;
-}
-</style>
-    <div class="error-message">$message</div>
-HTML;
+        return [
+            'hostname' => $CFG->wwwroot,
+            'is_authenticated' => true,
+            'css' => $config->naas_css ?? '',
+            'feedback' => (!empty($config->naas_feedback) && (string) $config->naas_feedback === '1') ? 'on' : 'off',
+            'feature.nugbot' => !empty($config->naas_nugbot) && (string) $config->naas_nugbot === '1',
+        ];
+    }
+
+    /**
+     * Render a NaaS API failure as a core error notification in place of the nugget.
+     *
+     * The naas-launch-error class lets Behat and tests tell this case apart.
+     *
+     * @param string $message Plain-text message, escaped here.
+     * @return string
+     */
+    private static function render_launch_error(string $message): string {
+        global $PAGE;
+        $notification = new \core\output\notification(s($message), \core\output\notification::NOTIFY_ERROR);
+        $notification->set_show_closebutton(false);
+        $notification->set_extra_classes(['naas-launch-error']);
+        // Render the template directly: the CLI renderer used by PHPUnit and cron
+        // would otherwise print plain text and drop the marker class.
+        $renderer = $PAGE->get_renderer('core');
+        return $renderer->render_from_template(
+            $notification->get_template_name(),
+            $notification->export_for_template($renderer)
+        );
     }
 }

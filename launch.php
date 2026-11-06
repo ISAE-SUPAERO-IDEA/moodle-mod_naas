@@ -22,7 +22,9 @@
  * @package mod_naas
  */
 
-require_once('../../config.php');
+require_once(__DIR__ . '/../../config.php');
+
+global $DB;
 
 // Get data from DB.
 $id = required_param('id', PARAM_INT); // Course Module ID.
@@ -35,4 +37,8 @@ $course = $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST);
 require_login($course, true, $cm);
 require_capability('mod/naas:view', $context);
 
-\mod_naas\naas_lti::lti_launch($id, $language);
+// This page fills the player iframe: a minimal standalone document around the form or the error.
+echo "<!DOCTYPE html>\n<html lang=\"" . current_language() . "\">\n<head><meta charset=\"utf-8\"><title>"
+    . format_string($cm->name, true, ['context' => $context]) . "</title></head>\n<body>\n";
+echo \mod_naas\naas_lti::lti_launch($id, $language);
+echo "\n</body>\n</html>\n";
