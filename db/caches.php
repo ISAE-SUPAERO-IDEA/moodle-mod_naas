@@ -61,6 +61,13 @@ $definitions = [
         'simplekeys' => true,
         'simpledata' => true,
     ],
+    // NaaS images served by media.php (thumbnails, logos, banners).
+    'media' => [
+        'mode'       => cache_store::MODE_APPLICATION,
+        'ttl'        => 86400, // 24 hours, like the browser cache.
+        'simplekeys' => true,
+        'simpledata' => false,
+    ],
     // OAuth nonces seen on Basic Outcomes posts; TTL covers the 5-minute timestamp window.
     'oauth_nonces' => [
         'mode'       => cache_store::MODE_APPLICATION,
