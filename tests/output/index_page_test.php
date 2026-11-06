@@ -37,7 +37,7 @@ use stdClass;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later.
  * @covers \mod_naas\output\index_page
  */
-class index_page_test extends basic_testcase {
+final class index_page_test extends basic_testcase {
     // Helpers.
 
     /**

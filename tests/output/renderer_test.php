@@ -38,7 +38,7 @@ use stdClass;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later.
  * @covers \mod_naas\output\renderer
  */
-class renderer_test extends advanced_testcase {
+final class renderer_test extends advanced_testcase {
     /**
      * Test render_view_page.
      */

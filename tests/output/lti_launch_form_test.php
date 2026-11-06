@@ -39,7 +39,7 @@ use stdClass;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later.
  * @covers \mod_naas\output\lti_launch_form
  */
-class lti_launch_form_test extends basic_testcase {
+final class lti_launch_form_test extends basic_testcase {
     /** @var string Sample launch URL used across tests. */
     private const SAMPLE_URL = 'https://Naas.example.com/lti/launch';
 

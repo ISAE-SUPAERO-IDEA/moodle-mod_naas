@@ -47,7 +47,7 @@ use stdClass;
  * @copyright  2019 onwards ISAE-SUPAERO (https://www.isae-supaero.fr/).
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later.
  */
-class outcome_test extends advanced_testcase {
+final class outcome_test extends advanced_testcase {
     // NAAS_GRADEHIGHEST strategy.
 
     /**

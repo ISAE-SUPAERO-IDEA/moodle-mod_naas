@@ -62,7 +62,7 @@ use stdClass;
  * @covers ::naas_update_instance
  * @covers ::naas_view
  */
-class lib_test extends advanced_testcase {
+final class lib_test extends advanced_testcase {
     /**
      * Module constants must be defined and naas_define_module_constants() must be idempotent.
      */

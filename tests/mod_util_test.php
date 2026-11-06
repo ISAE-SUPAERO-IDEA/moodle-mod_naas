@@ -36,7 +36,7 @@ use mod_naas\mod_util;
  * @coversDefaultClass \mod_naas\mod_util
  * @covers ::get_next_activity_url
  */
-class mod_util_test extends advanced_testcase {
+final class mod_util_test extends advanced_testcase {
     /**
      * Test get_next_activity_url.
      */

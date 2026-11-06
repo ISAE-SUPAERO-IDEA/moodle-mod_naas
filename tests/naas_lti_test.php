@@ -52,7 +52,7 @@ use stdClass;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later.
  * @covers \mod_naas\naas_lti
  */
-class naas_lti_test extends advanced_testcase {
+final class naas_lti_test extends advanced_testcase {
     public function setUp(): void {
         parent::setUp();
         $_SERVER['SERVER_NAME'] = 'localhost';

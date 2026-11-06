@@ -41,7 +41,7 @@ use moodle_url;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later.
  * @covers \mod_naas\naas_widget
  */
-class naas_widget_test extends advanced_testcase {
+final class naas_widget_test extends advanced_testcase {
     /**
      * Extract the JSON object of the naas_config data block from rendered HTML.
      *

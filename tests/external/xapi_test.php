@@ -49,7 +49,7 @@ require_once(__DIR__ . '/../fixtures/xapi_enrol_test_proxy.php');
  * @coversDefaultClass \mod_naas\external\xapi
  * @covers \mod_naas\external\xapi
  */
-class xapi_test extends advanced_testcase {
+final class xapi_test extends advanced_testcase {
     // Parameter schema.
 
     /**
@@ -57,7 +57,7 @@ class xapi_test extends advanced_testcase {
      */
     public function test_parameters_returns_correct_type(): void {
         $params = xapi::post_xapi_statement_parameters();
-        $this->assertTrue($params instanceof \external_function_parameters);
+        $this->assertTrue($params instanceof \core_external\external_function_parameters);
     }
 
     /**
@@ -65,7 +65,7 @@ class xapi_test extends advanced_testcase {
      */
     public function test_returns_descriptor_is_single_structure(): void {
         $returns = xapi::post_xapi_statement_returns();
-        $this->assertTrue($returns instanceof \external_single_structure);
+        $this->assertTrue($returns instanceof \core_external\external_single_structure);
     }
 
     /**

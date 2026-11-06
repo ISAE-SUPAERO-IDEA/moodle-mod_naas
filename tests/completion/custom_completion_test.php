@@ -42,7 +42,7 @@ use mod_naas\completion\custom_completion;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later.
  * @covers \mod_naas\completion\custom_completion
  */
-class custom_completion_test extends advanced_testcase {
+final class custom_completion_test extends advanced_testcase {
     // Defined custom rules.
 
     /**

@@ -50,7 +50,7 @@ require_once(__DIR__ . '/../fixtures/testable_naas_client.php');
  * @coversDefaultClass \mod_naas\external\proxy_naas_api
  * @covers \mod_naas\external\proxy_naas_api
  */
-class proxy_naas_api_test extends advanced_testcase {
+final class proxy_naas_api_test extends advanced_testcase {
     // Web service declarations.
 
     /**
@@ -63,8 +63,14 @@ class proxy_naas_api_test extends advanced_testcase {
      */
     public function test_declared_service_is_fully_described(string $classname, string $methodname): void {
         $this->assertTrue(method_exists($classname, $methodname), "{$classname}::{$methodname} is missing");
-        $this->assertInstanceOf(\external_function_parameters::class, call_user_func([$classname, $methodname . '_parameters']));
-        $this->assertInstanceOf(\external_description::class, call_user_func([$classname, $methodname . '_returns']));
+        $this->assertInstanceOf(
+            \core_external\external_function_parameters::class,
+            call_user_func([$classname, $methodname . '_parameters'])
+        );
+        $this->assertInstanceOf(
+            \core_external\external_description::class,
+            call_user_func([$classname, $methodname . '_returns'])
+        );
     }
 
     /**

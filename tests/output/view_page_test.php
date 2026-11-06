@@ -40,7 +40,7 @@ use stdClass;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later.
  * @covers \mod_naas\output\view_page
  */
-class view_page_test extends basic_testcase {
+final class view_page_test extends basic_testcase {
     // Helpers.
 
     /**

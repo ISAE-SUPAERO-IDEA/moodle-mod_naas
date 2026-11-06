@@ -35,7 +35,7 @@ use mod_naas\event\course_module_viewed;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later.
  * @covers \mod_naas\event\course_module_viewed
  */
-class course_module_viewed_test extends advanced_testcase {
+final class course_module_viewed_test extends advanced_testcase {
     /**
      * Test the event content and mapping.
      */

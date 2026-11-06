@@ -25,8 +25,22 @@
 namespace mod_naas\external;
 
 defined('MOODLE_INTERNAL') || die();
-global $CFG;
-require_once($CFG->libdir . '/externallib.php');
+// Moodle 4.2+ provides the core_external classes. On Moodle 4.1 they only exist under their
+// old global names: load them and give them the new names, so one code base runs on both.
+// (Including lib/externallib.php on 4.2+ would force every unit test into a separate process.)
+if (!class_exists('\\core_external\\external_api')) {
+    global $CFG;
+    require_once($CFG->libdir . '/externallib.php');
+    $legacyclasses = [
+        'external_api', 'external_description', 'external_value', 'external_single_structure',
+        'external_multiple_structure', 'external_function_parameters',
+    ];
+    foreach ($legacyclasses as $legacyclass) {
+        if (!class_exists('\\core_external\\' . $legacyclass, false)) {
+            class_alias($legacyclass, 'core_external\\' . $legacyclass);
+        }
+    }
+}
 
 /**
  * Proxy requests from the user agent to the naas-api.
@@ -36,7 +50,7 @@ require_once($CFG->libdir . '/externallib.php');
  * @author John Tranier
  * @author Bruno Ilponse
  */
-class proxy_naas_api extends \external_api {
+class proxy_naas_api extends \core_external\external_api {
     /** Regex matching RFC 4122 UUIDs and simple alphanumeric slugs (no path separators). */
     private const UUID_SLUG_PATTERN = '/^[a-zA-Z0-9_\-]{1,128}$/';
     /**
@@ -114,15 +128,15 @@ class proxy_naas_api extends \external_api {
     /**
      * Test config parameters description.
      */
-    public static function test_config_parameters(): \external_function_parameters {
-        return new \external_function_parameters([]);
+    public static function test_config_parameters(): \core_external\external_function_parameters {
+        return new \core_external\external_function_parameters([]);
     }
 
     /**
      * Test config return description.
      */
     public static function test_config_returns() {
-        return new \external_value(PARAM_RAW, 'API response');
+        return new \core_external\external_value(PARAM_RAW, 'API response');
     }
 
     /**
@@ -152,15 +166,15 @@ class proxy_naas_api extends \external_api {
     /**
      * Refresh cache parameters description.
      */
-    public static function refresh_cache_parameters(): \external_function_parameters {
-        return new \external_function_parameters([]);
+    public static function refresh_cache_parameters(): \core_external\external_function_parameters {
+        return new \core_external\external_function_parameters([]);
     }
 
     /**
      * Refresh cache return description.
      */
     public static function refresh_cache_returns() {
-        return new \external_value(PARAM_RAW, 'Status message');
+        return new \core_external\external_value(PARAM_RAW, 'Status message');
     }
 
     /**
@@ -180,11 +194,11 @@ class proxy_naas_api extends \external_api {
      * Get nugget parameters description.
      */
     public static function get_nugget_parameters() {
-        return new \external_function_parameters(
+        return new \core_external\external_function_parameters(
             [
-                'courseId' => new \external_value(PARAM_INT, 'Course ID'),
-                'nuggetId' => new \external_value(PARAM_TEXT, 'Nugget ID'),
-                'mode' => new \external_value(
+                'courseId' => new \core_external\external_value(PARAM_INT, 'Course ID'),
+                'nuggetId' => new \core_external\external_value(PARAM_TEXT, 'Nugget ID'),
+                'mode' => new \core_external\external_value(
                     PARAM_ALPHAEXT,
                     'cache_first to serve a stored document, revalidate to force a live call',
                     VALUE_DEFAULT,
@@ -198,7 +212,7 @@ class proxy_naas_api extends \external_api {
      * Get nugget return description.
      */
     public static function get_nugget_returns() {
-        return new \external_value(PARAM_RAW, 'API response');
+        return new \core_external\external_value(PARAM_RAW, 'API response');
     }
 
     /**
@@ -252,19 +266,19 @@ class proxy_naas_api extends \external_api {
      * View nugget parameters description.
      */
     public static function view_nugget_parameters() {
-        return new \external_function_parameters(
+        return new \core_external\external_function_parameters(
             [
-                'cmId' => new \external_value(PARAM_INT, 'Course Module ID'),
+                'cmId' => new \core_external\external_value(PARAM_INT, 'Course Module ID'),
             ]
         );
     }
 
     /**
      * View nugget returns description.
-     * @return \external_value
+     * @return \core_external\external_value
      */
     public static function view_nugget_returns() {
-        return new \external_value(PARAM_RAW, 'API response');
+        return new \core_external\external_value(PARAM_RAW, 'API response');
     }
 
     /**
@@ -305,20 +319,20 @@ class proxy_naas_api extends \external_api {
      * Get nugget preview parameters description.
      */
     public static function get_nugget_preview_parameters() {
-        return new \external_function_parameters(
+        return new \core_external\external_function_parameters(
             [
-                'courseId' => new \external_value(PARAM_INT, 'Course ID'),
-                'versionId' => new \external_value(PARAM_TEXT, 'Version ID'),
+                'courseId' => new \core_external\external_value(PARAM_INT, 'Course ID'),
+                'versionId' => new \core_external\external_value(PARAM_TEXT, 'Version ID'),
             ]
         );
     }
 
     /**
      * Get nugget preview returns description.
-     * @return \external_value
+     * @return \core_external\external_value
      */
     public static function get_nugget_preview_returns() {
-        return new \external_value(PARAM_RAW, 'API response');
+        return new \core_external\external_value(PARAM_RAW, 'API response');
     }
 
     /**
@@ -360,20 +374,20 @@ class proxy_naas_api extends \external_api {
      * Get domain parameters description.
      */
     public static function get_domain_parameters() {
-        return new \external_function_parameters(
+        return new \core_external\external_function_parameters(
             [
-                'courseId' => new \external_value(PARAM_INT, 'Course ID'),
-                'domainKey' => new \external_value(PARAM_TEXT, 'Domain Key'),
+                'courseId' => new \core_external\external_value(PARAM_INT, 'Course ID'),
+                'domainKey' => new \core_external\external_value(PARAM_TEXT, 'Domain Key'),
             ]
         );
     }
 
     /**
      * Get domain returns description.
-     * @return \external_value
+     * @return \core_external\external_value
      */
     public static function get_domain_returns() {
-        return new \external_value(PARAM_RAW, 'API response');
+        return new \core_external\external_value(PARAM_RAW, 'API response');
     }
 
     /**
@@ -418,20 +432,20 @@ class proxy_naas_api extends \external_api {
      * Get structure parameters description.
      */
     public static function get_structure_parameters() {
-        return new \external_function_parameters(
+        return new \core_external\external_function_parameters(
             [
-                'courseId' => new \external_value(PARAM_INT, 'Course ID'),
-                'structureKey' => new \external_value(PARAM_TEXT, 'Structure Key'),
+                'courseId' => new \core_external\external_value(PARAM_INT, 'Course ID'),
+                'structureKey' => new \core_external\external_value(PARAM_TEXT, 'Structure Key'),
             ]
         );
     }
 
     /**
      * Get structure returns description.
-     * @return \external_value
+     * @return \core_external\external_value
      */
     public static function get_structure_returns() {
-        return new \external_value(PARAM_RAW, 'API response');
+        return new \core_external\external_value(PARAM_RAW, 'API response');
     }
 
     /**
@@ -465,20 +479,20 @@ class proxy_naas_api extends \external_api {
      * Get person parameters description.
      */
     public static function get_person_parameters() {
-        return new \external_function_parameters(
+        return new \core_external\external_function_parameters(
             [
-                'courseId' => new \external_value(PARAM_INT, 'Course ID'),
-                'personKey' => new \external_value(PARAM_TEXT, 'Person Key'),
+                'courseId' => new \core_external\external_value(PARAM_INT, 'Course ID'),
+                'personKey' => new \core_external\external_value(PARAM_TEXT, 'Person Key'),
             ]
         );
     }
 
     /**
      * Get person returns description.
-     * @return \external_value
+     * @return \core_external\external_value
      */
     public static function get_person_returns() {
-        return new \external_value(PARAM_RAW, 'API response');
+        return new \core_external\external_value(PARAM_RAW, 'API response');
     }
 
     /**
@@ -512,52 +526,52 @@ class proxy_naas_api extends \external_api {
      * Search nuggets parameters description.
      */
     public static function search_nuggets_parameters() {
-        return new \external_function_parameters(
+        return new \core_external\external_function_parameters(
             [
-                'courseId' => new \external_value(PARAM_INT, 'Course ID'),
-                'searchOptions' => new \external_single_structure(
+                'courseId' => new \core_external\external_value(PARAM_INT, 'Course ID'),
+                'searchOptions' => new \core_external\external_single_structure(
                     [
-                        'fulltext' => new \external_value(PARAM_TEXT, 'Full text search', VALUE_OPTIONAL),
-                        'page_size' => new \external_value(PARAM_INT, 'Number of results per page', VALUE_OPTIONAL),
-                        'page' => new \external_value(PARAM_INT, 'Page number', VALUE_OPTIONAL),
-                        'related_domains' => new \external_multiple_structure(
-                            new \external_value(PARAM_TEXT, 'Single domain value'),
+                        'fulltext' => new \core_external\external_value(PARAM_TEXT, 'Full text search', VALUE_OPTIONAL),
+                        'page_size' => new \core_external\external_value(PARAM_INT, 'Number of results per page', VALUE_OPTIONAL),
+                        'page' => new \core_external\external_value(PARAM_INT, 'Page number', VALUE_OPTIONAL),
+                        'related_domains' => new \core_external\external_multiple_structure(
+                            new \core_external\external_value(PARAM_TEXT, 'Single domain value'),
                             'Domain filter',
                             VALUE_OPTIONAL
                         ),
-                        'structure' => new \external_value(PARAM_TEXT, 'Structure filter', VALUE_OPTIONAL),
-                        'language' => new \external_multiple_structure(
-                            new \external_value(PARAM_TEXT, 'Single language value'),
+                        'structure' => new \core_external\external_value(PARAM_TEXT, 'Structure filter', VALUE_OPTIONAL),
+                        'language' => new \core_external\external_multiple_structure(
+                            new \core_external\external_value(PARAM_TEXT, 'Single language value'),
                             'Language filter',
                             VALUE_OPTIONAL
                         ),
-                        'level' => new \external_multiple_structure(
-                            new \external_value(PARAM_TEXT, 'Single level value', VALUE_OPTIONAL),
+                        'level' => new \core_external\external_multiple_structure(
+                            new \core_external\external_value(PARAM_TEXT, 'Single level value', VALUE_OPTIONAL),
                             'Level filter',
                             VALUE_OPTIONAL
                         ),
-                        'tags' => new \external_multiple_structure(
-                            new \external_value(PARAM_TEXT, 'Single tag value'),
+                        'tags' => new \core_external\external_multiple_structure(
+                            new \core_external\external_value(PARAM_TEXT, 'Single tag value'),
                             'Tags filter',
                             VALUE_OPTIONAL
                         ),
-                        'producers' => new \external_multiple_structure(
-                            new \external_value(PARAM_TEXT, 'Single producer value'),
+                        'producers' => new \core_external\external_multiple_structure(
+                            new \core_external\external_value(PARAM_TEXT, 'Single producer value'),
                             'Producers filter',
                             VALUE_OPTIONAL
                         ),
-                        'authors' => new \external_multiple_structure(
-                            new \external_value(PARAM_TEXT, 'Single author value'),
+                        'authors' => new \core_external\external_multiple_structure(
+                            new \core_external\external_value(PARAM_TEXT, 'Single author value'),
                             'Authors filter',
                             VALUE_OPTIONAL
                         ),
-                        'type' => new \external_multiple_structure(
-                            new \external_value(PARAM_TEXT, 'Single type value'),
+                        'type' => new \core_external\external_multiple_structure(
+                            new \core_external\external_value(PARAM_TEXT, 'Single type value'),
                             'Type filter',
                             VALUE_OPTIONAL
                         ),
-                        'license' => new \external_multiple_structure(
-                            new \external_value(PARAM_TEXT, 'Single licence value'),
+                        'license' => new \core_external\external_multiple_structure(
+                            new \core_external\external_value(PARAM_TEXT, 'Single licence value'),
                             'Licence filter',
                             VALUE_OPTIONAL
                         ),
@@ -566,7 +580,7 @@ class proxy_naas_api extends \external_api {
                     VALUE_DEFAULT,
                     []
                 ),
-                'mode' => new \external_value(
+                'mode' => new \core_external\external_value(
                     PARAM_ALPHAEXT,
                     'cache_first to serve a cached page when one exists, revalidate to force a live call',
                     VALUE_DEFAULT,
@@ -578,10 +592,10 @@ class proxy_naas_api extends \external_api {
 
     /**
      * Search nuggets returns description.
-     * @return \external_value
+     * @return \core_external\external_value
      */
     public static function search_nuggets_returns() {
-        return new \external_value(PARAM_RAW, 'API response');
+        return new \core_external\external_value(PARAM_RAW, 'API response');
     }
 
     /**
@@ -674,17 +688,17 @@ class proxy_naas_api extends \external_api {
      * Check catalogue parameters description.
      */
     public static function check_catalogue_parameters() {
-        return new \external_function_parameters([
-            'courseId' => new \external_value(PARAM_INT, 'Course ID'),
+        return new \core_external\external_function_parameters([
+            'courseId' => new \core_external\external_value(PARAM_INT, 'Course ID'),
         ]);
     }
 
     /**
      * Check catalogue returns description.
-     * @return \external_value
+     * @return \core_external\external_value
      */
     public static function check_catalogue_returns() {
-        return new \external_value(PARAM_RAW, 'API response');
+        return new \core_external\external_value(PARAM_RAW, 'API response');
     }
 
     /**

@@ -41,7 +41,7 @@ use advanced_testcase;
  * @covers \mod_naas_outcome::authenticate
  * @covers \mod_naas_outcome::process
  */
-class lti_outcome_oauth_test extends advanced_testcase {
+final class lti_outcome_oauth_test extends advanced_testcase {
     /** @var string */
     private const KEY = 'structure-test-key';
     /** @var string */

@@ -25,8 +25,22 @@
 namespace mod_naas\external;
 
 defined('MOODLE_INTERNAL') || die();
-global $CFG;
-require_once($CFG->libdir . '/externallib.php');
+// Moodle 4.2+ provides the core_external classes. On Moodle 4.1 they only exist under their
+// old global names: load them and give them the new names, so one code base runs on both.
+// (Including lib/externallib.php on 4.2+ would force every unit test into a separate process.)
+if (!class_exists('\\core_external\\external_api')) {
+    global $CFG;
+    require_once($CFG->libdir . '/externallib.php');
+    $legacyclasses = [
+        'external_api', 'external_description', 'external_value', 'external_single_structure',
+        'external_multiple_structure', 'external_function_parameters',
+    ];
+    foreach ($legacyclasses as $legacyclass) {
+        if (!class_exists('\\core_external\\' . $legacyclass, false)) {
+            class_alias($legacyclass, 'core_external\\' . $legacyclass);
+        }
+    }
+}
 
 /**
  * External Service to send xAPI statements to the NaaS platform.
@@ -36,7 +50,7 @@ require_once($CFG->libdir . '/externallib.php');
  * @author John Tranier
  * @author Bruno Ilponse
  */
-class xapi extends \external_api {
+class xapi extends \core_external\external_api {
     /** Allowed xAPI verbs forwarded to the NaaS API. */
     private const ALLOWED_VERBS = ['experienced', 'completed', 'rated'];
 
@@ -47,11 +61,11 @@ class xapi extends \external_api {
      * Parameters definition for post_xapi_statement
      */
     public static function post_xapi_statement_parameters() {
-        return new \external_function_parameters([
-            'verb' => new \external_value(PARAM_TEXT, 'XAPI verb'),
-            'version_id' => new \external_value(PARAM_TEXT, 'Version ID'),
-            'id' => new \external_value(PARAM_INT, 'Course Module ID'),
-            'body' => new \external_value(PARAM_RAW, 'XAPI statement body', VALUE_DEFAULT, null),
+        return new \core_external\external_function_parameters([
+            'verb' => new \core_external\external_value(PARAM_TEXT, 'XAPI verb'),
+            'version_id' => new \core_external\external_value(PARAM_TEXT, 'Version ID'),
+            'id' => new \core_external\external_value(PARAM_INT, 'Course Module ID'),
+            'body' => new \core_external\external_value(PARAM_RAW, 'XAPI statement body', VALUE_DEFAULT, null),
         ]);
     }
 
@@ -59,9 +73,9 @@ class xapi extends \external_api {
      * Returns description
      */
     public static function post_xapi_statement_returns() {
-        return new \external_single_structure([
-            'statusCode' => new \external_value(PARAM_INT, 'HTTP status code of the response'),
-            'statusMessage' => new \external_value(PARAM_TEXT, 'HTTP status message of the response'),
+        return new \core_external\external_single_structure([
+            'statusCode' => new \core_external\external_value(PARAM_INT, 'HTTP status code of the response'),
+            'statusMessage' => new \core_external\external_value(PARAM_TEXT, 'HTTP status message of the response'),
         ]);
     }
 
