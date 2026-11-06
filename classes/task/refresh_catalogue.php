@@ -88,7 +88,7 @@ class refresh_catalogue extends \core\task\scheduled_task {
             return null;
         }
 
-        $naas = new naas_client($config);
+        $naas = naas_client::create($config);
 
         // Producer names and logos change rarely, but nothing else evicts them.
         \cache::make('mod_naas', \mod_naas\vocabulary_lookup::CACHE_AREA)->delete('producer_catalog_v3');

@@ -69,7 +69,7 @@ class cache_refresh {
         \cache::make('mod_naas', nugget_cache::CACHE_AREA)->purge();
 
         try {
-            $naas = new naas_client($config);
+            $naas = naas_client::create($config);
             person_lookup::warm_catalog($naas);
         } catch (\Throwable $e) {
             debugging('NAAS person catalog refresh failed: ' . $e->getMessage(), DEBUG_DEVELOPER);

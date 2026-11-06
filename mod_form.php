@@ -42,7 +42,7 @@ class mod_naas_mod_form extends moodleform_mod {
         $mform = $this->_form;
 
         $config = (object) array_merge((array) get_config('naas'), (array) $CFG);
-        $naas = new \mod_naas\naas_client($config);
+        $naas = \mod_naas\naas_client::create($config);
 
         // -------------------------------------------------------
         $mform->addElement('header', 'general', get_string('general', 'form'));

@@ -109,7 +109,7 @@ class proxy_naas_api extends \core_external\external_api {
      * @return \mod_naas\naas_client
      */
     protected static function make_naas_client(object $config): \mod_naas\naas_client {
-        return new \mod_naas\naas_client($config);
+        return \mod_naas\naas_client::create($config);
     }
 
     /**

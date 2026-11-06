@@ -59,6 +59,24 @@ class naas_client {
     }
 
     /**
+     * The client every caller should use.
+     *
+     * On a Behat test site this is a fake NaaS that answers from fixtures
+     * (tests/behat/fixtures), so acceptance tests never reach a real server.
+     *
+     * @param object $config Merged plugin and site configuration.
+     * @return naas_client
+     */
+    public static function create(object $config): naas_client {
+        global $CFG;
+        if (defined('BEHAT_SITE_RUNNING') && BEHAT_SITE_RUNNING) {
+            require_once($CFG->dirroot . '/mod/naas/tests/behat/fixtures/behat_naas_client.php');
+            return new behat_naas_client($config);
+        }
+        return new naas_client($config);
+    }
+
+    /**
      * Build the HTTP client for one request.
      *
      * @return object

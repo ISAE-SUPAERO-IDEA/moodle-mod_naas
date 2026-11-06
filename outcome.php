@@ -308,7 +308,7 @@ class mod_naas_outcome {
         $naasinstance = $DB->get_record('naas', ['id' => $cm->instance], '*', MUST_EXIST);
 
         $config = (object) array_merge((array) get_config('naas'), (array) $CFG);
-        $client = new \mod_naas\naas_client($config);
+        $client = \mod_naas\naas_client::create($config);
         $ltconfig = $client->get_nugget_lti_config($naasinstance->nugget_id);
 
         if ($ltconfig === null || empty($ltconfig->key) || empty($ltconfig->secret)) {

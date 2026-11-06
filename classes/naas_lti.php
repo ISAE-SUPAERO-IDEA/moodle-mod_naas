@@ -60,7 +60,7 @@ class naas_lti {
         // Retrieve LTI config from NaaS server.
         $config = (object) array_merge((array) \get_config('naas'), (array) $CFG);
         if ($client === null) {
-            $client = new \mod_naas\naas_client($config);
+            $client = \mod_naas\naas_client::create($config);
         }
         // Any NaaS API failure here (eg. an invalid institute / structure_id) must be
         // rendered as a clean inline message in place of the nugget, not bubble up as
