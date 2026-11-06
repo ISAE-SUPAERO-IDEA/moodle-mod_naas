@@ -229,6 +229,34 @@ class media_proxy {
     }
 
     /**
+     * Whether a NaaS-supplied URL may be loaded in an iframe (Nugget preview).
+     *
+     * HTTPS anywhere, or the scheme and host of the configured NaaS API (local
+     * development over HTTP). Never javascript:, data: or other schemes.
+     *
+     * @param string $url
+     * @param string $endpoint Configured NaaS API URL.
+     * @return bool
+     */
+    public static function is_frame_url_allowed(string $url, string $endpoint): bool {
+        $parts = parse_url(trim($url));
+        $scheme = strtolower($parts['scheme'] ?? '');
+        $host = strtolower($parts['host'] ?? '');
+        if ($host === '' || isset($parts['user']) || isset($parts['pass'])) {
+            return false;
+        }
+        if ($scheme === 'https') {
+            return true;
+        }
+        try {
+            $base = self::endpoint_parts($endpoint);
+        } catch (\invalid_parameter_exception $e) {
+            return false;
+        }
+        return $scheme === $base['scheme'] && $host === $base['host'];
+    }
+
+    /**
      * Headers for an image response. SVG gets a sandbox so a script in it can
      * never run, even when the URL is opened directly.
      *

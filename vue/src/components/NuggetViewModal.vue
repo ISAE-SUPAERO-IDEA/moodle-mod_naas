@@ -87,10 +87,12 @@ watch(
       return;
     }
     try {
-      previewUrl.value = await service.getNuggetPreview(
+      const url = await service.getNuggetPreview(
         props.nugget.version_id,
         config.courseId
       );
+      // Moodle already checks it; never put anything but a web page in the iframe.
+      previewUrl.value = /^https?:\/\//i.test(url) ? url : null;
     } catch (e) {
       console.warn("[NaaS] preview load failed", e);
     }

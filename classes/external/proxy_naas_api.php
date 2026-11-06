@@ -985,7 +985,15 @@ class proxy_naas_api extends \external_api {
         $naas = static::make_naas_client($config);
 
         $url = "/versions/{$params['versionId']}/preview_url";
-        return self::sanitise_json_response($naas->request_raw('GET', $url));
+        $response = self::sanitise_json_response($naas->request_raw('GET', $url));
+
+        // The widget puts this URL in an iframe: only let a web page URL through.
+        $decoded = json_decode($response, true);
+        $previewurl = is_array($decoded) ? ($decoded['payload'] ?? null) : $decoded;
+        if (!is_string($previewurl) || !\mod_naas\media_proxy::is_frame_url_allowed($previewurl, $config->naas_endpoint ?? '')) {
+            throw new \moodle_exception('error:naas_server_unexpected', 'naas');
+        }
+        return $response;
     }
 
     /**

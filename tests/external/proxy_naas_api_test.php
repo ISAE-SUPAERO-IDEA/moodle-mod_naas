@@ -219,6 +219,51 @@ class proxy_naas_api_test extends advanced_testcase {
         $proxy::get_nugget_preview($course->id, 'valid-uuid-123');
     }
 
+    /**
+     * The preview URL ends up in an iframe: only a web page URL may come back.
+     *
+     * @dataProvider preview_url_provider
+     * @param string $previewurl URL NaaS returns.
+     * @param bool $allowed
+     */
+    public function test_get_nugget_preview_only_returns_a_web_page_url(string $previewurl, bool $allowed): void {
+        $this->resetAfterTest(true);
+        set_config('naas_endpoint', 'http://naas.local/api', 'naas');
+        $course = $this->getDataGenerator()->create_course();
+        $user = $this->getDataGenerator()->create_user();
+        $this->getDataGenerator()->enrol_user($user->id, $course->id, 'editingteacher');
+        $this->setUser($user);
+        $client = new \mod_naas\testable_naas_client((object) [
+            'naas_endpoint' => 'http://naas.local/api',
+            'naas_username' => 'u',
+            'naas_password' => 'p',
+            'naas_structure_id' => 's',
+        ]);
+        $client->stubjson = json_encode(['payload' => $previewurl]);
+        $proxy = $this->proxy_using($client);
+
+        if (!$allowed) {
+            $this->expectException(\moodle_exception::class);
+        }
+        $result = json_decode($proxy::get_nugget_preview($course->id, 'valid-uuid-123'), true);
+        $this->assertSame($previewurl, $result['payload']);
+    }
+
+    /**
+     * Preview URLs NaaS may return.
+     *
+     * @return array
+     */
+    public static function preview_url_provider(): array {
+        return [
+            'https player' => ['https://player.naas.example/preview/abc', true],
+            'local NaaS over http' => ['http://naas.local/preview/abc', true],
+            'http elsewhere' => ['http://evil.example/preview', false],
+            'javascript' => ['javascript:alert(document.cookie)', false],
+            'data' => ['data:text/html,<script>alert(1)</script>', false],
+        ];
+    }
+
     public function test_get_nugget_spaces_rejected(): void {
         $this->resetAfterTest(true);
 
