@@ -58,6 +58,15 @@ final class search_cache_test extends advanced_testcase {
     }
 
     /**
+     * Fingerprint of the current connection.
+     *
+     * @return string
+     */
+    private function fingerprint(): string {
+        return catalogue_cache::fingerprint($this->config());
+    }
+
+    /**
      * A NaaS-shaped search body.
      *
      * @param array $items
@@ -305,13 +314,13 @@ final class search_cache_test extends advanced_testcase {
         $key = search_cache::canonical_key($options, $this->config());
         search_cache::store($key, $options, $this->body([$this->hit('n1')]), $this->config());
 
-        $this->assertArrayHasKey($key, search_cache::refreshable(40, 2592000));
+        $this->assertArrayHasKey($key, search_cache::refreshable(40, 2592000, $this->fingerprint()));
         // A cutoff shorter than the entry's age excludes it.
-        $this->assertSame([], search_cache::refreshable(40, -1));
+        $this->assertSame([], search_cache::refreshable(40, -1, $this->fingerprint()));
     }
 
     public function test_refreshable_returns_nothing_on_an_empty_index(): void {
-        $this->assertSame([], search_cache::refreshable(40, 2592000));
+        $this->assertSame([], search_cache::refreshable(40, 2592000, $this->fingerprint()));
     }
 
     public function test_refreshable_honours_the_limit(): void {
@@ -320,7 +329,7 @@ final class search_cache_test extends advanced_testcase {
             $key = search_cache::canonical_key($options, $this->config());
             search_cache::store($key, $options, $this->body([$this->hit('n' . $i)]), $this->config());
         }
-        $this->assertCount(3, search_cache::refreshable(3, 2592000));
+        $this->assertCount(3, search_cache::refreshable(3, 2592000, $this->fingerprint()));
     }
 
     /**
@@ -374,6 +383,30 @@ final class search_cache_test extends advanced_testcase {
 
         $this->assertNull(search_cache::get($key, $this->config()));
         $this->assertSame([], search_cache::index());
+    }
+
+    public function test_refreshable_ignores_entries_of_another_connection(): void {
+        $options = ['page_size' => 9];
+        $key = search_cache::canonical_key($options, $this->config());
+        search_cache::store($key, $options, $this->body([$this->hit('n1')]), $this->config());
+
+        $this->assertArrayHasKey($key, search_cache::refreshable(40, 2592000, $this->fingerprint()));
+        $this->assertSame([], search_cache::refreshable(40, 2592000, 'another-connection'));
+    }
+
+    public function test_forget_other_connections_drops_unreachable_entries(): void {
+        $options = ['page_size' => 9];
+        $oldkey = search_cache::canonical_key($options, $this->config());
+        search_cache::store($oldkey, $options, $this->body([$this->hit('n1')]), $this->config());
+
+        // The admin points the plugin at another NaaS: the old key can no longer be read.
+        set_config('naas_endpoint', 'https://other.example.test/api', 'naas');
+        $newkey = search_cache::canonical_key($options, $this->config());
+        search_cache::store($newkey, $options, $this->body([$this->hit('n2')]), $this->config());
+
+        $this->assertSame(1, search_cache::forget_other_connections($this->fingerprint()));
+        $this->assertSame([$newkey], array_keys(search_cache::index()));
+        $this->assertNotNull(search_cache::get($newkey, $this->config()));
     }
 
     public function test_purge_forgets_every_query(): void {

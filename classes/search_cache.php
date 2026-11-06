@@ -159,7 +159,7 @@ class search_cache {
         $stored = self::with_index_lock(function () use ($key, $options, $entry) {
             $cache = \cache::make('mod_naas', self::CACHE_AREA);
             $cache->set($key, json_encode($entry, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
-            self::index_put($key, $options, $entry['cached_at']);
+            self::index_put($key, $options, $entry['cached_at'], $entry['fingerprint']);
         });
         return $stored ? $entry : null;
     }
@@ -243,22 +243,51 @@ class search_cache {
     }
 
     /**
-     * Entries worth refreshing, most recently read first.
+     * Entries worth refreshing for the current connection, most recently read first.
      *
      * @param int $limit
      * @param int $maxage Skip anything unread for longer than this.
+     * @param string $fingerprint Current connection (catalogue_cache::fingerprint()).
      * @return array Key => index record.
      */
-    public static function refreshable(int $limit, int $maxage): array {
+    public static function refreshable(int $limit, int $maxage, string $fingerprint): array {
         $index = self::index();
         $cutoff = time() - $maxage;
-        $index = array_filter($index, function ($record) use ($cutoff) {
-            return (int) ($record['last_read_at'] ?? 0) >= $cutoff;
+        $index = array_filter($index, function ($record) use ($cutoff, $fingerprint) {
+            return (int) ($record['last_read_at'] ?? 0) >= $cutoff
+                && ($record['fingerprint'] ?? '') === $fingerprint;
         });
         uasort($index, function ($a, $b) {
             return (int) ($b['last_read_at'] ?? 0) <=> (int) ($a['last_read_at'] ?? 0);
         });
         return array_slice($index, 0, max(0, $limit), true);
+    }
+
+    /**
+     * Drop the entries cached for another connection (other URL, account or filter).
+     *
+     * Their keys include the old connection, so no search can read them again.
+     *
+     * @param string $fingerprint Current connection (catalogue_cache::fingerprint()).
+     * @return int Number of entries dropped.
+     */
+    public static function forget_other_connections(string $fingerprint): int {
+        $dropped = 0;
+        self::with_index_lock(function () use ($fingerprint, &$dropped) {
+            $index = self::index();
+            $cache = \cache::make('mod_naas', self::CACHE_AREA);
+            foreach ($index as $key => $record) {
+                if (($record['fingerprint'] ?? '') !== $fingerprint) {
+                    $cache->delete($key);
+                    unset($index[$key]);
+                    $dropped++;
+                }
+            }
+            if ($dropped) {
+                self::index_store($index);
+            }
+        });
+        return $dropped;
     }
 
     /**
@@ -316,11 +345,13 @@ class search_cache {
      * @param string $key
      * @param array $options
      * @param int $now
+     * @param string $fingerprint Connection the entry belongs to.
      */
-    private static function index_put(string $key, array $options, int $now): void {
+    private static function index_put(string $key, array $options, int $now, string $fingerprint): void {
         $index = self::index();
         $index[$key] = [
             'query' => $options,
+            'fingerprint' => $fingerprint,
             'cached_at' => $now,
             'last_read_at' => (int) ($index[$key]['last_read_at'] ?? $now),
         ];

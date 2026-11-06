@@ -94,8 +94,12 @@ class refresh_catalogue extends \core\task\scheduled_task {
         \cache::make('mod_naas', \mod_naas\vocabulary_lookup::CACHE_AREA)->delete('producer_catalog_v3');
         catalogue_cache::warm($naas, $config);
 
+        $fingerprint = catalogue_cache::fingerprint($config);
+        // Entries of an earlier connection can never be read again: do not refresh them.
+        search_cache::forget_other_connections($fingerprint);
+
         $limit = self::effective_limit();
-        $entries = search_cache::refreshable($limit, self::MAX_AGE);
+        $entries = search_cache::refreshable($limit, self::MAX_AGE, $fingerprint);
         if (!$entries) {
             $entries = $this->seed_entries($config, $limit);
         }
