@@ -21,7 +21,7 @@ Run them from this `vue/` folder.
 | `yarn dev` | Start the Vite dev server with `dev_config.js` as `window.NAAS` |
 | `yarn type-check` | Type-check the application (`vue-tsc -p tsconfig.app.json`) |
 | `yarn test` | Run the unit tests (Vitest, jsdom) |
-| `yarn build` | Type-check, then write the bundle and `style.css` to `../assets/vue/` |
+| `yarn build` | Type-check, then write the bundle (CSS included) to `../assets/vue/` |
 | `yarn bump-version [YYYYMMDDnn]` | Rename the bundle (defaults to today's date) |
 | `yarn lint` | Format the sources with Prettier |
 

@@ -29,8 +29,8 @@ import type { OutputBundle, NormalizedOutputOptions } from "rollup";
 // Bump with `yarn bump-version`, which also updates widget::BUNDLE_VERSION in classes/output/widget.php.
 const BUNDLE_VERSION = "2026110500";
 
-// Reads the emitted style.css and prepends a self-injecting <style> block
-// into the IIFE JS so Moodle pages get the styles without a separate link tag.
+// Moves the emitted CSS into a self-injecting <style> block at the top of the
+// IIFE JS, so Moodle pages get the styles without a separate link tag.
 function inlineCssPlugin() {
   return {
     name: "inline-css-into-iife",
@@ -59,6 +59,8 @@ function inlineCssPlugin() {
       jsChunk.code =
         `;(function(){var s=document.createElement('style');s.textContent=\`${cssStr}\`;document.head.appendChild(s);})();` +
         jsChunk.code;
+      // The CSS now lives in the bundle: do not also write a style.css nobody loads.
+      delete bundle[cssChunk.fileName];
     },
   };
 }
