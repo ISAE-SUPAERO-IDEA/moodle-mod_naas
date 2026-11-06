@@ -48,7 +48,8 @@ final class version_php_test extends advanced_testcase {
         $this->assertSame('mod_naas', $plugin->component);
         $this->assertMatchesRegularExpression('/^20\d{8}$/', (string) $plugin->version);
         $this->assertMatchesRegularExpression('/^\d+\.\d+\.\d+$/', $plugin->release);
-        $this->assertSame(2022041900, (int) $plugin->requires);
+        // Moodle 4.1, the oldest branch of the CI matrix and the lower bound of $plugin->supported.
+        $this->assertSame(2022112800, (int) $plugin->requires);
         // Keep in line with the Moodle branches of the CI matrix (.github/workflows/ci.yml).
         $this->assertSame([401, 500], $plugin->supported);
         $this->assertSame(0, (int) $plugin->cron);
@@ -56,7 +57,7 @@ final class version_php_test extends advanced_testcase {
 
         $this->assertIsArray($plugin->dependencies);
         $this->assertArrayHasKey('mod_lti', $plugin->dependencies);
-        $this->assertGreaterThanOrEqual(2022041900, (int) $plugin->dependencies['mod_lti']);
+        $this->assertGreaterThanOrEqual(2022112800, (int) $plugin->dependencies['mod_lti']);
         // The plugin no longer borrows anything from mod_url (strings, drag and drop, page types).
         $this->assertSame(['mod_lti'], array_keys($plugin->dependencies));
     }

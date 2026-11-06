@@ -48,7 +48,7 @@ The main features of the Nuggets plugin are as follows:
 ## Installation
 
 ### Requirements
-- Moodle 4.0 or later (the plugin has been tested successfully up to Moodle 5.0)
+- Moodle 4.1 to 5.0 (the CI tests 4.1, 4.4, 4.5 and 5.0)
 - PHP 7.4 (the plugin has been tested successfully up to PHP 8.3)
 
 ### Plugin settings
