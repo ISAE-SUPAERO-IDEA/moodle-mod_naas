@@ -138,6 +138,55 @@ jobs:
       - name: Mark cancelled jobs as failed.
         if: ${{ cancelled() }}
         run: exit 1
+  coverage:
+    name: PHP coverage (Moodle 4.5, PHP 8.3)
+    runs-on: ubuntu-22.04
+
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_USER: 'postgres'
+          POSTGRES_HOST_AUTH_METHOD: 'trust'
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 3
+
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+        with:
+          path: plugin
+
+      - name: Setup PHP 8.3 with pcov
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          ini-values: max_input_vars=5000
+          coverage: pcov
+
+      - name: Initialise moodle-plugin-ci
+        run: |
+          composer create-project -n --no-dev --prefer-dist moodlehq/moodle-plugin-ci ci ^4
+          echo $(cd ci/bin; pwd) >> $GITHUB_PATH
+          echo $(cd ci/vendor/bin; pwd) >> $GITHUB_PATH
+          sudo locale-gen en_AU.UTF-8
+          echo "NVM_DIR=$HOME/.nvm" >> $GITHUB_ENV
+
+      - name: Install moodle-plugin-ci
+        run: moodle-plugin-ci install --plugin ./plugin --db-host=127.0.0.1
+        env:
+          DB: pgsql
+          MOODLE_BRANCH: MOODLE_405_STABLE
+
+      - name: PHPUnit with coverage
+        run: moodle-plugin-ci phpunit --coverage-pcov --coverage-text --coverage-clover
+
+      # The report covers all of Moodle: keep the plugin's own files and apply the minimum.
+      # Raise it as tests are added; 70.7 % of lines on 2026-11-06.
+      - name: Coverage of mod_naas
+        run: php plugin/.github/scripts/plugin-coverage.php coverage.xml 68
+
   widget:
     name: Vue widget (type-check, tests, committed bundle)
     runs-on: ubuntu-22.04
@@ -161,9 +210,10 @@ jobs:
         working-directory: vue
         run: yarn type-check
 
-      - name: Unit tests
+      # Runs the tests with coverage; fails below the thresholds in vitest.config.ts.
+      - name: Unit tests with coverage
         working-directory: vue
-        run: yarn test
+        run: yarn coverage
 
       - name: Build
         working-directory: vue
