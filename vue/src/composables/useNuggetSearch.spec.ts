@@ -1,3 +1,25 @@
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * Tests for useNuggetSearch (paging memory, revalidation, saved selection).
+ *
+ * @copyright  2026 ISAE-SUPAERO (https://www.isae-supaero.fr/)
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 import { describe, it, expect, vi } from "vitest";
 import { createApp } from "vue";
 import { queryKey, sameFreshness, useNuggetSearch } from "./useNuggetSearch";
@@ -548,7 +570,344 @@ describe("useNuggetSearch", () => {
   });
 });
 
+describe("useNuggetSearch revalidation queue", () => {
+  const hit = (id = "n1") => ({
+    items: [{ ...nugget, nugget_id: id }],
+    results_count: 1,
+    aggregations: {},
+    _cache: { hit: true, cached_at: 10, digest: digest() },
+  });
+  const quiet = () => ({
+    getPerson: vi.fn().mockResolvedValue(null),
+    getDomain: vi.fn().mockResolvedValue(null),
+  });
+
+  it("holds a cached page's revalidation until the probe reports a move, then runs it once", async () => {
+    const searchNuggets = vi.fn().mockResolvedValue(hit());
+    const { search, holdRevalidation, applyCatalogueStamp } = withProviders(
+      { searchNuggets, ...quiet() },
+      () => useNuggetSearch()
+    );
+
+    holdRevalidation();
+    await search({ page_size: 9, producers: ["p1"] });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(searchNuggets).toHaveBeenCalledTimes(1);
+
+    expect(
+      applyCatalogueStamp(
+        { results_count: 2, newest_modification_date: "2026-09-18" },
+        { results_count: 1, newest_modification_date: "2026-09-17" }
+      )
+    ).toBe(true);
+    await vi.waitFor(() => expect(searchNuggets).toHaveBeenCalledTimes(2));
+    expect(searchNuggets.mock.calls[1][2]).toBe("revalidate");
+
+    // Back on the same query: painted from memory, not revalidated twice.
+    await search({ page_size: 9, producers: ["p1"] });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(searchNuggets).toHaveBeenCalledTimes(2);
+  });
+
+  it("revalidates held pages when the probe could not read the catalogue", async () => {
+    const searchNuggets = vi.fn().mockResolvedValue(hit());
+    const { search, holdRevalidation, applyCatalogueStamp } = withProviders(
+      { searchNuggets, ...quiet() },
+      () => useNuggetSearch()
+    );
+
+    holdRevalidation();
+    await search({ page_size: 9 });
+    expect(applyCatalogueStamp(null, null)).toBe(true);
+    await vi.waitFor(() => expect(searchNuggets).toHaveBeenCalledTimes(2));
+  });
+
+  it("forgets the oldest page beyond thirty remembered queries", async () => {
+    const searchNuggets = vi.fn(async (options: { page?: number }) => ({
+      items: [{ ...nugget, nugget_id: `n${options.page}` }],
+      results_count: 1,
+      aggregations: {},
+    }));
+    const { search, nuggets } = withProviders(
+      { searchNuggets, ...quiet() },
+      () => useNuggetSearch()
+    );
+
+    // A remembered page still gets a background "revalidate" call; only
+    // "cache_first" calls mean the page had to be fetched again.
+    const fetches = () =>
+      searchNuggets.mock.calls.filter(
+        (call) => (call as unknown[])[2] === "cache_first"
+      ).length;
+
+    for (let page = 0; page <= 30; page++) {
+      await search({ page_size: 1, page });
+    }
+    expect(fetches()).toBe(31);
+
+    await search({ page_size: 1, page: 1 });
+    expect(fetches()).toBe(31);
+    expect(nuggets.value[0].nugget_id).toBe("n1");
+
+    await search({ page_size: 1, page: 0 });
+    expect(fetches()).toBe(32);
+  });
+
+  it("hydrates only from a snapshot, and files it under a query only when told which", async () => {
+    const searchNuggets = vi.fn().mockResolvedValue(hit());
+    const without = withProviders({ searchNuggets, ...quiet() }, () =>
+      useNuggetSearch({ initialLoading: true })
+    );
+    expect(without.hydrateFromSnapshot({ page_size: 9 })).toBe(false);
+    expect(without.loading.value).toBe(true);
+
+    const withSnapshot = withProviders(
+      { searchNuggets, ...quiet() },
+      () => useNuggetSearch(),
+      {
+        courseId: 7,
+        catalogue_snapshot: {
+          search: { items: [nugget], aggregations: {}, results_count: 1 },
+        },
+      }
+    );
+    expect(withSnapshot.hydrateFromSnapshot()).toBe(true);
+    expect(withSnapshot.nuggets.value[0].nugget_id).toBe("n1");
+    await withSnapshot.search({ page_size: 9 });
+    expect(searchNuggets.mock.calls[0][2]).toBe("cache_first");
+  });
+
+  it("enriches the cards even if the caller cleared the result meanwhile", async () => {
+    let resolvePerson!: (value: unknown) => void;
+    const getPerson = vi.fn(
+      () => new Promise((resolve) => (resolvePerson = resolve))
+    );
+    const searchNuggets = vi.fn().mockResolvedValue({
+      items: [nugget],
+      results_count: 1,
+      aggregations: {},
+    });
+    const { search, nuggets, searchResult } = withProviders(
+      { searchNuggets, getPerson, getDomain: vi.fn().mockResolvedValue(null) },
+      () => useNuggetSearch()
+    );
+
+    await search({ page_size: 9 });
+    searchResult.value = null;
+    resolvePerson({ firstname: "Ada" });
+    await vi.waitFor(() =>
+      expect(nuggets.value[0].authors_data).toEqual([{ firstname: "Ada" }])
+    );
+    expect(searchResult.value).toBeNull();
+  });
+
+  it("paints an empty grid when Moodle returns a result without items", async () => {
+    const searchNuggets = vi
+      .fn()
+      .mockResolvedValue({ results_count: 0, aggregations: {} });
+    const { search, nuggets, error } = withProviders(
+      { searchNuggets, ...quiet() },
+      () => useNuggetSearch()
+    );
+    const result = await search({ page_size: 9 });
+    expect(result?.items).toEqual([]);
+    expect(nuggets.value).toEqual([]);
+    expect(error.value).toBeNull();
+  });
+
+  it("drops the answer and the error of a superseded search", async () => {
+    const calls: Array<{
+      resolve: (v: unknown) => void;
+      reject: (e: unknown) => void;
+    }> = [];
+    const searchNuggets = vi.fn(
+      () => new Promise((resolve, reject) => calls.push({ resolve, reject }))
+    );
+    const { search, nuggets, error, loading } = withProviders(
+      { searchNuggets, ...quiet() },
+      () => useNuggetSearch()
+    );
+
+    const stale = search({ page_size: 9, fulltext: "old" });
+    const failing = search({ page_size: 9, fulltext: "older" });
+    const current = search({ page_size: 9, fulltext: "new" });
+    await vi.waitFor(() => expect(calls).toHaveLength(3));
+    calls[2].resolve({ ...hit("new"), _cache: undefined });
+    await current;
+    expect(loading.value).toBe(false);
+
+    calls[0].resolve(hit("old"));
+    calls[1].reject(new Error("late failure"));
+    expect(await stale).toBeNull();
+    expect(await failing).toBeNull();
+    expect(nuggets.value.map((n) => n.nugget_id)).toEqual(["new"]);
+    expect(error.value).toBeNull();
+  });
+});
+
+describe("getNuggetById", () => {
+  const cached = (version = "v1") => ({
+    hit: true,
+    cached_at: 10,
+    digest: { modification_date: "2026-01-01", version_id: version },
+  });
+  const vocabulary = {
+    persons: { a1: { email: "ada@example.com", firstname: "Ada" } },
+    domains: { d1: { id: "d1", label: "Math" } },
+  };
+
+  function setup(getNugget: ReturnType<typeof vi.fn>, naasConfig?: object) {
+    const getPerson = vi.fn().mockResolvedValue({ firstname: "Grace" });
+    const getDomain = vi.fn().mockResolvedValue({ id: "d1", label: "Physics" });
+    const searchNuggets = vi.fn().mockResolvedValue({
+      items: [{ ...nugget, nugget_id: "from-search" }],
+      results_count: 1,
+      aggregations: {},
+    });
+    const api = withProviders(
+      { getNugget, getPerson, getDomain, searchNuggets },
+      () => useNuggetSearch(),
+      naasConfig
+    );
+    return { ...api, getPerson, getDomain };
+  }
+
+  it("resolves authors and domains the stored document did not carry", async () => {
+    const getNugget = vi.fn().mockResolvedValue({ ...nugget });
+    const { getNuggetById, getPerson } = setup(getNugget);
+
+    const found = await getNuggetById("n1");
+    expect(getNugget).toHaveBeenCalledWith("n1", 7, "cache_first");
+    expect(getPerson).toHaveBeenCalledWith("a1", 7);
+    expect(found?.authors_data).toEqual([{ firstname: "Grace" }]);
+    expect(found?.domains_data).toEqual([{ id: "d1", label: "Physics" }]);
+  });
+
+  it("reports a newer version found after a stored document was shown", async () => {
+    const getNugget = vi
+      .fn()
+      .mockResolvedValueOnce({ ...nugget, vocabulary, _cache: cached("v1") })
+      .mockResolvedValueOnce({
+        ...nugget,
+        name: "Alpha v2",
+        vocabulary,
+        _cache: { ...cached("v2"), hit: false },
+      });
+    const { getNuggetById } = setup(getNugget);
+    const onRevalidated = vi.fn();
+
+    const shown = await getNuggetById("n1", onRevalidated);
+    expect(shown?.authors_data?.[0].firstname).toBe("Ada");
+    await vi.waitFor(() => expect(onRevalidated).toHaveBeenCalledTimes(1));
+    expect(getNugget.mock.calls[1]).toEqual(["n1", 7, "revalidate"]);
+    expect(onRevalidated.mock.calls[0][0]).toMatchObject({ name: "Alpha v2" });
+  });
+
+  it("stays quiet when NaaS still has the same version", async () => {
+    const getNugget = vi
+      .fn()
+      .mockResolvedValueOnce({ ...nugget, vocabulary, _cache: cached() })
+      .mockResolvedValueOnce({ ...nugget, vocabulary, _cache: cached() });
+    const { getNuggetById } = setup(getNugget);
+    const onRevalidated = vi.fn();
+
+    await getNuggetById("n1", onRevalidated);
+    await vi.waitFor(() => expect(getNugget).toHaveBeenCalledTimes(2));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(onRevalidated).not.toHaveBeenCalled();
+  });
+
+  it("repaints when the modification date moved or no digest came back", async () => {
+    const moved = {
+      ...cached(),
+      digest: { modification_date: "2026-02-02", version_id: "v1" },
+    };
+    const getNugget = vi
+      .fn()
+      .mockResolvedValueOnce({ ...nugget, vocabulary, _cache: cached() })
+      .mockResolvedValueOnce({ ...nugget, vocabulary, _cache: moved })
+      .mockResolvedValueOnce({ ...nugget, vocabulary, _cache: cached() })
+      .mockResolvedValueOnce({ ...nugget, vocabulary });
+    const { getNuggetById } = setup(getNugget);
+    const onRevalidated = vi.fn();
+
+    await getNuggetById("n1", onRevalidated);
+    await vi.waitFor(() => expect(onRevalidated).toHaveBeenCalledTimes(1));
+    await getNuggetById("n2", onRevalidated);
+    await vi.waitFor(() => expect(onRevalidated).toHaveBeenCalledTimes(2));
+  });
+
+  it("keeps the stored document when the live check fails", async () => {
+    const getNugget = vi
+      .fn()
+      .mockResolvedValueOnce({ ...nugget, vocabulary, _cache: cached() })
+      .mockRejectedValueOnce(new Error("offline"));
+    const { getNuggetById, error } = setup(getNugget);
+    const onRevalidated = vi.fn();
+
+    expect(await getNuggetById("n1", onRevalidated)).toMatchObject({
+      nugget_id: "n1",
+    });
+    await vi.waitFor(() => expect(getNugget).toHaveBeenCalledTimes(2));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(onRevalidated).not.toHaveBeenCalled();
+    expect(error.value).toBeNull();
+  });
+
+  it("does not revalidate without a callback to report to", async () => {
+    const getNugget = vi
+      .fn()
+      .mockResolvedValue({ ...nugget, vocabulary, _cache: cached() });
+    const { getNuggetById } = setup(getNugget);
+
+    await getNuggetById("n1");
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(getNugget).toHaveBeenCalledTimes(1);
+  });
+
+  it("falls back to a hit already on screen when Moodle cannot answer", async () => {
+    const getNugget = vi.fn().mockRejectedValue(new Error("offline"));
+    const { getNuggetById, search, error } = setup(getNugget);
+
+    await search({ page_size: 9 });
+    expect(await getNuggetById("from-search")).toMatchObject({
+      nugget_id: "from-search",
+    });
+    expect(error.value).toBeNull();
+  });
+
+  it("falls back to the catalogue snapshot, then reports the error", async () => {
+    const getNugget = vi.fn().mockRejectedValue(new Error("offline"));
+    const { getNuggetById, seedFromCache, error } = setup(getNugget, {
+      courseId: 7,
+      catalogue_snapshot: {
+        search: {
+          items: [{ ...nugget, nugget_id: "snap" }],
+          aggregations: {},
+          results_count: 1,
+        },
+      },
+    });
+
+    expect(seedFromCache("snap")?.nugget_id).toBe("snap");
+    expect(await getNuggetById("snap")).toMatchObject({ nugget_id: "snap" });
+    expect(error.value).toBeNull();
+
+    expect(await getNuggetById("missing")).toBeNull();
+    expect(error.value?.message).toBe("offline");
+  });
+});
+
 describe("queryKey", () => {
+  it("writes booleans as text so true and false differ", () => {
+    expect(queryKey({ page_size: 9, is_default_version: true } as never)).toBe(
+      '{"is_default_version":"true","page":"0","page_size":"9"}'
+    );
+    expect(
+      queryKey({ page_size: 9, is_default_version: false } as never)
+    ).toContain('"is_default_version":"false"');
+  });
+
   it("is stable across key order and array order", () => {
     expect(queryKey({ page_size: 9, producers: ["b", "a"] })).toBe(
       queryKey({ producers: ["a", "b"], page_size: 9 })

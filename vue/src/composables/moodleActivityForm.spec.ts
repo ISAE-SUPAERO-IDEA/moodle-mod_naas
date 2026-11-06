@@ -1,3 +1,25 @@
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * Tests for the bridge between the widget and the Moodle activity form.
+ *
+ * @copyright  2026 ISAE-SUPAERO (https://www.isae-supaero.fr/)
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   ACTIVITY_DETAILS_FORM_ATTR,
@@ -7,6 +29,7 @@ import {
   readNuggetFormError,
   restoreCguAgreement,
   setActivityDetailsVisible,
+  setMoodleActivityDescription,
   setMoodleActivityName,
   syncMoodleNuggetFields,
 } from "./moodleActivityForm";
@@ -63,8 +86,21 @@ describe("descriptionToHtml", () => {
 
   it("unwraps unknown tags but keeps their text", () => {
     expect(
-      descriptionToHtml("<div><section><strong>Bold</strong> text</section></div>")
+      descriptionToHtml(
+        "<div><section><strong>Bold</strong> text</section></div>"
+      )
     ).toBe("<strong>Bold</strong> text");
+  });
+
+  it("drops HTML comments and returns nothing for a blank description", () => {
+    expect(descriptionToHtml("<p>Kept<!-- hidden --></p>")).toBe("<p>Kept</p>");
+    expect(descriptionToHtml("   ")).toBe("");
+  });
+
+  it("turns blank lines into paragraphs and single newlines into breaks", () => {
+    expect(descriptionToHtml("One\ntwo\n\nThree & more")).toBe(
+      "<p>One<br>two</p><p>Three &amp; more</p>"
+    );
   });
 });
 
@@ -73,11 +109,15 @@ describe("Moodle activity form bridge", () => {
     document.body.innerHTML = `<form class="mform" ${ACTIVITY_DETAILS_FORM_ATTR}="hidden"><input id="id_name" /></form>`;
     setActivityDetailsVisible(true);
     expect(
-      document.querySelector("form.mform")?.getAttribute(ACTIVITY_DETAILS_FORM_ATTR)
+      document
+        .querySelector("form.mform")
+        ?.getAttribute(ACTIVITY_DETAILS_FORM_ATTR)
     ).toBe("visible");
     setActivityDetailsVisible(false);
     expect(
-      document.querySelector("form.mform")?.getAttribute(ACTIVITY_DETAILS_FORM_ATTR)
+      document
+        .querySelector("form.mform")
+        ?.getAttribute(ACTIVITY_DETAILS_FORM_ATTR)
     ).toBe("hidden");
   });
 
@@ -100,7 +140,9 @@ describe("Moodle activity form bridge", () => {
     `;
     syncMoodleNuggetFields(nugget());
     expect(
-      document.querySelector("form.mform")?.getAttribute(ACTIVITY_DETAILS_FORM_ATTR)
+      document
+        .querySelector("form.mform")
+        ?.getAttribute(ACTIVITY_DETAILS_FORM_ATTR)
     ).toBe("visible");
     expect((document.getElementById("id_name") as HTMLInputElement).value).toBe(
       "A skilled approach"
@@ -129,7 +171,9 @@ describe("Moodle activity form bridge", () => {
     `;
     syncMoodleNuggetFields(null);
     expect(
-      document.querySelector("form.mform")?.getAttribute(ACTIVITY_DETAILS_FORM_ATTR)
+      document
+        .querySelector("form.mform")
+        ?.getAttribute(ACTIVITY_DETAILS_FORM_ATTR)
     ).toBe("hidden");
     expect((document.getElementById("id_name") as HTMLInputElement).value).toBe(
       ""
@@ -140,6 +184,30 @@ describe("Moodle activity form bridge", () => {
     expect(
       (document.getElementsByName("nugget_id")[0] as HTMLInputElement).value
     ).toBe("");
+  });
+
+  it("writes an empty description for a nugget without resume, outside any form", () => {
+    document.body.innerHTML = `
+      <input id="id_name" />
+      <textarea name="introeditor[text]">old</textarea>
+    `;
+    syncMoodleNuggetFields(nugget({ resume: undefined }));
+    expect((document.getElementById("id_name") as HTMLInputElement).value).toBe(
+      "A skilled approach"
+    );
+    expect(
+      document.querySelector<HTMLTextAreaElement>('[name="introeditor[text]"]')
+        ?.value
+    ).toBe("");
+  });
+
+  it("leaves TinyMCE alone when it has no editor for the description", () => {
+    const get = vi.fn(() => null);
+    (window as unknown as Window & { tinyMCE: { get: typeof get } }).tinyMCE = {
+      get,
+    };
+    setMoodleActivityDescription("<p>x</p>");
+    expect(get).toHaveBeenCalledWith("id_introeditor");
   });
 
   it("writes the name field in isolation", () => {
@@ -206,7 +274,9 @@ describe("CGU agreement placement", () => {
 
     placeCguAgreement(anchor);
     expect(anchor.contains(item)).toBe(true);
-    expect(form.contains(document.getElementById("id_cgu_agreement"))).toBe(true);
+    expect(form.contains(document.getElementById("id_cgu_agreement"))).toBe(
+      true
+    );
 
     restoreCguAgreement();
     expect(item.parentElement).toBe(form);
@@ -227,5 +297,42 @@ describe("CGU agreement placement", () => {
       "fitem_id_cgu_agreement"
     );
     restoreCguAgreement();
+  });
+
+  it("does nothing without a CGU row or an anchor", () => {
+    document.body.innerHTML = '<div id="anchor"></div>';
+    const anchor = document.getElementById("anchor");
+    concealCguAgreement();
+    placeCguAgreement(anchor);
+    restoreCguAgreement();
+    expect(anchor?.childElementCount).toBe(0);
+
+    document.body.innerHTML =
+      '<form><div id="fitem_id_cgu_agreement"></div></form>';
+    placeCguAgreement(null);
+    expect(
+      document.getElementById("fitem_id_cgu_agreement")?.classList.length
+    ).toBe(0);
+  });
+
+  it("appends the row back when the element after it is gone", () => {
+    // No whitespace: the row's next sibling must be #after-cgu, not a text node.
+    document.body.innerHTML =
+      '<form><div id="fitem_id_cgu_agreement"></div><div id="after-cgu"></div>' +
+      '<div id="anchor"></div></form>';
+    const item = document.getElementById("fitem_id_cgu_agreement")!;
+    const anchor = document.getElementById("anchor")!;
+    placeCguAgreement(anchor);
+    // A second placement keeps the original home.
+    placeCguAgreement(anchor);
+    document.getElementById("after-cgu")!.remove();
+
+    restoreCguAgreement();
+    expect(item.parentElement?.tagName).toBe("FORM");
+    expect(item.parentElement?.lastElementChild).toBe(item);
+
+    // Already home: restoring again changes nothing.
+    restoreCguAgreement();
+    expect(item.parentElement?.lastElementChild).toBe(item);
   });
 });

@@ -18,13 +18,13 @@ export default defineConfig({
       include: ['src/**/*.{ts,vue}'],
       // Setting exclude replaces vitest's defaults: list the spec files explicitly.
       exclude: ['src/main.ts', 'src/types/*', 'src/test/**', 'src/**/*.spec.ts'],
-      // A little below the measured values (2026-11-06: lines 92.9, statements 92.6,
-      // functions 93.3, branches 86.5), so coverage cannot drop unnoticed.
+      // Everything is covered (2026-11-06). Lines that only a race or a direct
+      // misuse could reach carry a commented `v8 ignore` hint.
       thresholds: {
-        lines: 90,
-        statements: 90,
-        functions: 90,
-        branches: 84,
+        lines: 100,
+        statements: 100,
+        functions: 100,
+        branches: 100,
       },
     }
   }

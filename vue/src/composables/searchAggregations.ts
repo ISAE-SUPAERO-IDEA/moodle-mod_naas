@@ -49,15 +49,15 @@ export function captionForBucket(label: string, docCount: number): string {
  * which kept unresolved author keys in the six-row preview.
  */
 function compareBucketCaptions(
-  a: { help?: string; key: string; caption?: string },
-  b: { help?: string; key: string; caption?: string }
+  a: { help: string; key: string; caption: string },
+  b: { help: string; key: string; caption: string }
 ): number {
-  const aRaw = isRawEntityLabel(a.help ?? "", a.key);
-  const bRaw = isRawEntityLabel(b.help ?? "", b.key);
+  const aRaw = isRawEntityLabel(a.help, a.key);
+  const bRaw = isRawEntityLabel(b.help, b.key);
   if (aRaw !== bRaw) {
     return aRaw ? 1 : -1;
   }
-  return (a.caption ?? "").localeCompare(b.caption ?? "");
+  return a.caption.localeCompare(b.caption);
 }
 
 export interface MappedAggregation {
@@ -137,7 +137,7 @@ export function applyResolvedLabels(
   });
   buckets.sort(compareBucketCaptions);
   const labelsResolved = buckets.every(
-    (bucket) => !isRawEntityLabel(bucket.help ?? "", bucket.key)
+    (bucket) => !isRawEntityLabel(bucket.help, bucket.key)
   );
   return { ...aggregation, buckets, labelsResolved };
 }
@@ -200,4 +200,3 @@ export function selectedKeysFor(
   }
   return activeFilters.domains ?? [];
 }
-

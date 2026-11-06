@@ -62,6 +62,13 @@ describe("readNaasConfig", () => {
     expect(readNaasConfig().mount_point).toBe("#dev");
   });
 
+  it("rejects a block without text instead of returning null", () => {
+    const doc = {
+      getElementById: () => ({ textContent: null }),
+    } as unknown as Document;
+    expect(() => readNaasConfig(doc)).toThrow(SyntaxError);
+  });
+
   it("throws when no configuration is available", () => {
     expect(() => readNaasConfig()).toThrow(/no widget configuration/);
   });

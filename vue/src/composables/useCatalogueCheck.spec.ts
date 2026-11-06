@@ -115,6 +115,22 @@ describe("useCatalogueCheck", () => {
     expect(directory.absorbProducers).toHaveBeenCalledWith(rows);
   });
 
+  it("keeps the landing data a sparse check does not carry", async () => {
+    const { state, directory } = setup(
+      Promise.resolve({
+        stamp: STAMP,
+        aggregations: {},
+      } as unknown as CatalogueCheck)
+    );
+    await state.runCatalogueCheck();
+
+    expect(directory.mergeLabels).not.toHaveBeenCalled();
+    expect(directory.absorbProducers).not.toHaveBeenCalled();
+    expect(state.catalogueResultsCount.value).toBe(40);
+    expect(state.facetAggregations.value.producers.buckets[0].key).toBe("isae");
+    expect(state.catalogueLoading.value).toBe(false);
+  });
+
   it("distrusts cached pages and stops loading when the check fails", async () => {
     const { state, applyCatalogueStamp } = setup(
       Promise.reject(new Error("offline")),

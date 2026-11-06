@@ -127,6 +127,52 @@ describe("NuggetAboutModal", () => {
     expect(dialog.querySelector(".about-brief")).toBeNull();
   });
 
+  it("lists only the filled in-brief facts", async () => {
+    const { dialog } = await openAbout(
+      makeNugget({
+        language: "",
+        license: undefined,
+        domains_data: [],
+      })
+    );
+    const brief = Array.from(
+      dialog.querySelectorAll(".metadata-list > li")
+    ).map((li) => li.textContent?.replace(/\s+/g, " ").trim());
+    expect(brief).toEqual(["Duration: 5 min"]);
+  });
+
+  it("reads lists that PHP sent as objects, and hides empty ones", async () => {
+    const { dialog } = await openAbout(
+      makeNugget({
+        prerequisites: {} as unknown as string[],
+        references: {
+          0: "Anderson, Aircraft Performance",
+        } as unknown as string[],
+      })
+    );
+    expect(headings(dialog)).not.toContain("Prerequisites");
+    expect(headings(dialog)).toContain("References");
+    expect(dialog.querySelector(".about-list")?.textContent?.trim()).toBe(
+      "Anderson, Aircraft Performance"
+    );
+  });
+
+  it("shows an author without a bio by name only", async () => {
+    const { dialog } = await openAbout(
+      makeNugget({
+        authors_data: [
+          { firstname: "Grace", lastname: "Hopper", email: "g@example.com" },
+        ],
+      })
+    );
+    expect(dialog.querySelector("h5")?.textContent?.trim()).toBe(
+      "Grace Hopper"
+    );
+    expect(
+      dialog.querySelector("h5 + .nugget-modal-description")?.textContent
+    ).toBe("");
+  });
+
   it("shows an unknown license code as is", async () => {
     const { dialog } = await openAbout(makeNugget({ license: 9 }));
     expect(dialog.textContent?.replace(/\s+/g, " ")).toContain("License: 9");

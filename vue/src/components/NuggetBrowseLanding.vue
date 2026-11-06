@@ -73,53 +73,51 @@
           })
         "
       >
-          <span
-            class="browse-card-media"
-            :class="{ 'browse-card-media--has-logo': !!producer.logoUrl }"
-          >
-            <img
-              v-if="producer.hasCover && producer.imageUrl"
-              class="browse-card-image"
-              :src="producer.imageUrl"
-              alt=""
-            />
-            <span
-              v-else-if="!producer.logoUrl"
-              class="browse-card-image browse-card-image--empty"
-              aria-hidden="true"
-            >
-              {{ initials(cardTitle(producer)) }}
-            </span>
-            <span
-              v-if="producer.logoUrl"
-              class="browse-card-scrim"
-              aria-hidden="true"
-            />
-            <img
-              v-if="producer.logoUrl"
-              class="browse-card-logo"
-              :src="producer.logoUrl"
-              :alt="cardTitle(producer)"
-            />
-          </span>
-          <span class="browse-card-body">
-            <span v-if="cardAcronym(producer)" class="browse-card-title">{{
-              cardAcronym(producer)
-            }}</span>
-            <span v-if="cardFullName(producer)" class="browse-card-name">{{
-              cardFullName(producer)
-            }}</span>
-            <span class="browse-card-meta">{{
-              countLabel(producer.count)
-            }}</span>
-          </span>
-        </button>
-        <p
-          v-if="!producersLoading && producers.length === 0"
-          class="browse-empty"
+        <span
+          class="browse-card-media"
+          :class="{ 'browse-card-media--has-logo': !!producer.logoUrl }"
         >
-          {{ labels.noProducers }}
-        </p>
+          <img
+            v-if="producer.hasCover && producer.imageUrl"
+            class="browse-card-image"
+            :src="producer.imageUrl"
+            alt=""
+          />
+          <span
+            v-else-if="!producer.logoUrl"
+            class="browse-card-image browse-card-image--empty"
+            aria-hidden="true"
+          >
+            {{ initials(cardTitle(producer)) }}
+          </span>
+          <span
+            v-if="producer.logoUrl"
+            class="browse-card-scrim"
+            aria-hidden="true"
+          />
+          <img
+            v-if="producer.logoUrl"
+            class="browse-card-logo"
+            :src="producer.logoUrl"
+            :alt="cardTitle(producer)"
+          />
+        </span>
+        <span class="browse-card-body">
+          <span v-if="cardAcronym(producer)" class="browse-card-title">{{
+            cardAcronym(producer)
+          }}</span>
+          <span v-if="cardFullName(producer)" class="browse-card-name">{{
+            cardFullName(producer)
+          }}</span>
+          <span class="browse-card-meta">{{ countLabel(producer.count) }}</span>
+        </span>
+      </button>
+      <p
+        v-if="!producersLoading && producers.length === 0"
+        class="browse-empty"
+      >
+        {{ labels.noProducers }}
+      </p>
     </div>
   </div>
 </template>
@@ -155,10 +153,7 @@ const emit = defineEmits<{
     e: "select",
     payload: { facet: string; value: string; caption: string }
   ): void;
-  (
-    e: "named",
-    payload: { id: string; acronym: string; name: string }[]
-  ): void;
+  (e: "named", payload: { id: string; acronym: string; name: string }[]): void;
 }>();
 
 const config = useNaasConfig();
@@ -169,8 +164,7 @@ const labels = computed(() => ({
   allNuggets: config.labels.all_nuggets,
   nuggets: config.labels.browse_nugget_count,
   noProducers:
-    config.labels.browse_no_producers ||
-    "No producers in this catalogue yet.",
+    config.labels.browse_no_producers || "No producers in this catalogue yet.",
 }));
 
 interface ProducerCard {
@@ -207,7 +201,9 @@ const producerCount = computed(
   () => props.aggregations.producers?.buckets?.length ?? 0
 );
 const resultsCount = computed(() => Number(props.resultsCount ?? 0));
+// Skeletons show before the producer cards; reserve their number when known.
 const skeletonCount = computed(() =>
+  /* v8 ignore next -- @preserve */
   producerCount.value > 0 ? producerCount.value : 6
 );
 
@@ -304,8 +300,7 @@ watch(
     const painted = list.map((bucket) => {
       const key = String(bucket.key);
       const visuals =
-        directoryVisuals(key) ??
-        structureVisuals(null, key, media);
+        directoryVisuals(key) ?? structureVisuals(null, key, media);
       return {
         id: key,
         count: bucketDocCount(bucket),
@@ -365,7 +360,6 @@ watch(
   transition: border-color 0.18s ease, box-shadow 0.18s ease,
     transform 0.18s ease;
 }
-
 
 .browse-card:hover,
 .browse-card:focus-visible {

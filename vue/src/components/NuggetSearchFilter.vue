@@ -164,6 +164,8 @@ function switchFacet(aggregation: MappedAggregation, bucketKey: string) {
   const bucket = aggregation.buckets.find(
     (item) => item.key === bucketKey || item.query_value === bucketKey
   );
+  // The column only emits keys of this aggregation's buckets.
+  /* v8 ignore next -- @preserve */
   if (!bucket) return;
   bucket.selected = !bucket.selected;
   const { filters, captions } = collectSelection(aggregations.value);

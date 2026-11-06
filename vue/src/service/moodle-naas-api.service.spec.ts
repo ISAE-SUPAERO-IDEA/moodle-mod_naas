@@ -130,4 +130,88 @@ describe("web service calls", () => {
     await settle();
     expect(ajaxCall).toHaveBeenCalledTimes(2);
   });
+
+  it.each([
+    [
+      "getNugget",
+      () => moodleNaasApiService.getNugget("n1", 7),
+      "mod_naas_get_nugget",
+      { nuggetId: "n1", courseId: 7, mode: "cache_first" },
+    ],
+    [
+      "getNugget (revalidate)",
+      () => moodleNaasApiService.getNugget("n1", 7, "revalidate"),
+      "mod_naas_get_nugget",
+      { nuggetId: "n1", courseId: 7, mode: "revalidate" },
+    ],
+    [
+      "viewNugget",
+      () => moodleNaasApiService.viewNugget(42),
+      "mod_naas_view_nugget",
+      { cmId: 42 },
+    ],
+    [
+      "getDomain",
+      () => moodleNaasApiService.getDomain("01.02", 7),
+      "mod_naas_get_domain",
+      { domainKey: "01.02", courseId: 7 },
+    ],
+    [
+      "searchNuggets",
+      () => moodleNaasApiService.searchNuggets({ page_size: 9 }, 7),
+      "mod_naas_search_nuggets",
+      { searchOptions: { page_size: 9 }, courseId: 7, mode: "cache_first" },
+    ],
+    [
+      "searchNuggets (revalidate)",
+      () =>
+        moodleNaasApiService.searchNuggets({ page_size: 9 }, 7, "revalidate"),
+      "mod_naas_search_nuggets",
+      { searchOptions: { page_size: 9 }, courseId: 7, mode: "revalidate" },
+    ],
+    [
+      "checkCatalogue",
+      () => moodleNaasApiService.checkCatalogue(7),
+      "mod_naas_check_catalogue",
+      { courseId: 7 },
+    ],
+    [
+      "getNuggetPreview",
+      () => moodleNaasApiService.getNuggetPreview("v1", 7),
+      "mod_naas_get_nugget_preview",
+      { versionId: "v1", courseId: 7 },
+    ],
+    [
+      "postXapiStatement",
+      () =>
+        moodleNaasApiService.postXapiStatement({
+          id: 42,
+          verb: "completed",
+          version_id: "v1",
+        }),
+      "mod_naas_post_xapi_statement",
+      { id: 42, verb: "completed", version_id: "v1" },
+    ],
+  ])(
+    "%s calls %s with its arguments and unwraps the answer",
+    async (_name, call, methodname, args) => {
+      const result = call();
+      await settle();
+      expect(ajaxCall).toHaveBeenCalledWith([{ methodname, args }]);
+      deferreds[0].resolve('{"payload":{"ok":true}}');
+      await expect(result).resolves.toEqual({ ok: true });
+    }
+  );
+
+  it("serves a cached lookup again without calling Moodle", async () => {
+    const first = moodleNaasApiService.viewNugget(42);
+    await settle();
+    deferreds[0].resolve({ payload: { nugget_id: "n1" } });
+    await expect(first).resolves.toEqual({ nugget_id: "n1" });
+
+    await expect(moodleNaasApiService.viewNugget(42)).resolves.toEqual({
+      nugget_id: "n1",
+    });
+    expect(ajaxCall).toHaveBeenCalledTimes(1);
+  });
 });

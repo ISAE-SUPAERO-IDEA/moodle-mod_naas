@@ -87,7 +87,7 @@
                     <strong>{{
                       fillLabel(
                         config.labels.duration_minutes,
-                        nugget.duration ?? ""
+                        String(nugget.duration)
                       )
                     }}</strong>
                   </li>
@@ -221,8 +221,8 @@ useModalA11y(
 
 function stripHtml(value?: string): string {
   return (
-    new DOMParser().parseFromString(value ?? "", "text/html").body
-      .textContent ?? ""
+    // An element's textContent is never null (only a document's is).
+    new DOMParser().parseFromString(value ?? "", "text/html").body.textContent!
   );
 }
 

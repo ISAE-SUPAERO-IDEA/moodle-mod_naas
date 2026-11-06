@@ -20,7 +20,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { reactive } from "vue";
 import NuggetPost from "./NuggetPost.vue";
 import { mountComponent, type Mounted } from "@/test/mountComponent";
@@ -169,12 +169,48 @@ describe("NuggetPost", () => {
     expect(card.querySelector(".nugget-description")).toBeNull();
   });
 
-  it("opens the About dialog", async () => {
+  it("has no description or authors line for a Nugget without them", () => {
+    const { el } = mountPost({
+      nugget: makeNugget({ resume: "  ", authors_data: undefined }),
+      variant: "row",
+    });
+    expect(el.querySelector(".nugget-description")).toBeNull();
+    const authors = el.querySelector(".nugget-authors")!;
+    expect(authors.textContent?.trim()).toBe("");
+    expect(authors.classList.contains("nugget-authors--empty")).toBe(true);
+
+    mounted?.unmount();
+    const { el: noResume } = mountPost({
+      nugget: makeNugget({ resume: undefined }),
+      variant: "row",
+    });
+    expect(noResume.querySelector(".nugget-description")).toBeNull();
+  });
+
+  it("opens the About dialog and closes it again", async () => {
     const { el, flush } = mountPost({ nugget: makeNugget() });
     button(el, "About").click();
     await flush();
     const dialog = document.querySelector('[role="dialog"]')!;
     expect(dialog.textContent).toContain("About: Aircraft design basics");
+
+    dialog.querySelector<HTMLButtonElement>(".btn-close")!.click();
+    // The leave transition removes the dialog a frame later.
+    await vi.waitFor(() =>
+      expect(document.querySelector('[role="dialog"]')).toBeNull()
+    );
+  });
+
+  it("closes the preview dialog", async () => {
+    const { el, flush } = mountPost({ nugget: makeNugget() });
+    button(el, "Preview").click();
+    await flush();
+    document
+      .querySelector<HTMLButtonElement>("#nugget-preview-modal .btn-close")!
+      .click();
+    await vi.waitFor(() =>
+      expect(document.getElementById("nugget-preview-modal")).toBeNull()
+    );
   });
 
   it("opens the preview dialog and asks Moodle for the preview URL", async () => {

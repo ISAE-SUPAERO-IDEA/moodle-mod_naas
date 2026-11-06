@@ -172,6 +172,40 @@ describe("useModalA11y", () => {
     app.unmount();
   });
 
+  it("leaves other keys alone", async () => {
+    const { close, app } = await openWith(threeControls);
+    document.getElementById("middle")?.focus();
+    expect(pressKey("Enter")).toBe(true);
+    expect(document.activeElement?.id).toBe("middle");
+    expect(close).not.toHaveBeenCalled();
+    app.unmount();
+  });
+
+  it("pulls focus back onto a dialog that has no control", async () => {
+    const outside = document.createElement("button");
+    document.body.appendChild(outside);
+    const { app } = await openWith(() => h("p", "Only text"));
+
+    outside.focus();
+    expect(document.activeElement?.id).toBe("dialog");
+    app.unmount();
+  });
+
+  it("gives focus back to nothing when the opener was not an HTML element", async () => {
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("tabindex", "0");
+    document.body.appendChild(svg);
+    svg.focus();
+    expect(document.activeElement).toBe(svg);
+
+    const { visible, app } = await openWith(threeControls);
+    expect(document.activeElement?.id).toBe("dialog");
+    visible.value = false;
+    await nextTick();
+    expect(document.activeElement).not.toBe(svg);
+    app.unmount();
+  });
+
   it("stops trapping once closed", async () => {
     const outside = document.createElement("button");
     document.body.appendChild(outside);

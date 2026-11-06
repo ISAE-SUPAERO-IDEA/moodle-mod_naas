@@ -170,6 +170,156 @@ describe("NuggetBrowseLanding", () => {
     );
   });
 
+  it("reads snake_case counts and leaves a missing count blank", async () => {
+    const { el, flush } = mountLanding({
+      aggregations: {
+        producers: {
+          buckets: [{ key: "onera" }, { key: "isae-supaero", doc_count: 3 }],
+        },
+      },
+      directory: [...directory, { structure_id: "onera", acronym: "ONERA" }],
+    });
+    await flush();
+    expect(cardTitles(el)).toEqual(["ISAE", "ONERA"]);
+    const counts = Array.from(
+      el.querySelectorAll(".browse-card--producer .browse-card-meta")
+    ).map((m) => m.textContent);
+    expect(counts).toEqual(["3 Nuggets", ""]);
+  });
+
+  it("falls back to a built-in text when the empty-state string is missing", async () => {
+    const config = makeConfig();
+    config.labels.browse_no_producers = "";
+    mounted = mountComponent(
+      NuggetBrowseLanding,
+      { aggregations: {} },
+      providers(config, makeService())
+    );
+    await mounted.flush();
+    expect(mounted.el.querySelector(".browse-empty")?.textContent?.trim()).toBe(
+      "No producers in this catalogue yet."
+    );
+  });
+
+  it("shows the producer's cover behind its logo", async () => {
+    const { el, flush } = mountLanding({
+      aggregations: producerBuckets(["isae-supaero", 1]),
+      directory: [
+        {
+          ...directory[0],
+          structure_thumbnail_url: "https://naas.test/logo.png",
+          structure_banner_url: "https://naas.test/banner.png",
+        },
+      ],
+    });
+    await flush();
+    const card = el.querySelector(".browse-card--producer")!;
+    expect(card.querySelector(".browse-card-image")?.getAttribute("src")).toBe(
+      "https://moodle.test/mod/naas/media.php?course=7&src=https%3A%2F%2Fnaas.test%2Fbanner.png"
+    );
+    expect(card.querySelector(".browse-card-logo")?.getAttribute("alt")).toBe(
+      "ISAE"
+    );
+    expect(card.querySelector(".browse-card-scrim")).not.toBeNull();
+  });
+
+  it("shows only the logo when a producer has no cover", async () => {
+    const service = makeService({
+      getStructure: vi.fn().mockResolvedValue({
+        acronym: "LAB",
+        logo: "https://naas.test/lab.png",
+      }),
+    });
+    // Not a valid media.php id: no default banner is built.
+    const { el, flush } = mountLanding(
+      { aggregations: producerBuckets(["lab one", 1]) },
+      service
+    );
+    await flush();
+    const card = el.querySelector(".browse-card--producer")!;
+    expect(card.querySelector(".browse-card-image")).toBeNull();
+    expect(card.querySelector(".browse-card-logo")?.getAttribute("src")).toBe(
+      "https://moodle.test/mod/naas/media.php?course=7&src=https%3A%2F%2Fnaas.test%2Flab.png"
+    );
+  });
+
+  it("paints initials, or a question mark, when a producer has no image", async () => {
+    // Too long for media.php, so no default image either.
+    const longName = "x".repeat(130);
+    const longHash = "a".repeat(130);
+    const { el, flush, emitted } = mountLanding({
+      aggregations: producerBuckets([longName, 2], [longHash, 1]),
+    });
+    await flush();
+    const cards = el.querySelectorAll(".browse-card--producer");
+    expect(
+      cards[0].querySelector(".browse-card-image--empty")?.textContent?.trim()
+    ).toBe("XXX");
+    expect(
+      cards[1].querySelector(".browse-card-image--empty")?.textContent?.trim()
+    ).toBe("?");
+    expect(cards[1].hasAttribute("title")).toBe(false);
+    expect(cards[1].querySelector(".browse-card-title")).toBeNull();
+    expect(cards[1].querySelector(".browse-card-logo")).toBeNull();
+    // Only the card with a visible label is reported upstream.
+    expect(emitted.named).toEqual([
+      [[{ id: longName, acronym: "", name: longName }]],
+    ]);
+  });
+
+  it("trusts a directory row only when it carries a real name", async () => {
+    const service = makeService({
+      getStructure: vi.fn().mockResolvedValue({ acronym: "CNES" }),
+    });
+    const { el, flush } = mountLanding(
+      {
+        aggregations: producerBuckets(["onera", 2], ["cnes", 1]),
+        directory: [
+          { structure_id: "onera", acronym: "onera", name: "ONERA" },
+          { structure_id: "cnes" },
+        ],
+      },
+      service
+    );
+    await flush();
+    expect(service.getStructure).toHaveBeenCalledTimes(1);
+    expect(service.getStructure).toHaveBeenCalledWith("cnes", 7);
+    expect(cardTitles(el)).toEqual(["onera", "CNES"]);
+  });
+
+  it("does not report the same names twice", async () => {
+    const { props, flush, emitted } = mountLanding({
+      aggregations: producerBuckets(["isae-supaero", 4]),
+      directory,
+    });
+    await flush();
+    props.directory = [...directory];
+    await flush();
+    expect(emitted.named).toHaveLength(1);
+  });
+
+  it("drops a resolution that newer aggregations superseded", async () => {
+    let resolveFirst!: (value: unknown) => void;
+    const service = makeService({
+      getStructure: vi
+        .fn()
+        .mockReturnValueOnce(new Promise((resolve) => (resolveFirst = resolve)))
+        .mockResolvedValue({ acronym: "ONERA" }),
+    });
+    const { el, props, flush } = mountLanding(
+      { aggregations: producerBuckets(["enac", 1]) },
+      service
+    );
+    await flush();
+    props.aggregations = producerBuckets(["onera", 1]);
+    await flush();
+    expect(cardTitles(el)).toEqual(["ONERA"]);
+
+    resolveFirst({ acronym: "ENAC" });
+    await flush();
+    expect(cardTitles(el)).toEqual(["ONERA"]);
+  });
+
   it("repaints when the aggregations change", async () => {
     const { el, props, flush } = mountLanding({
       aggregations: producerBuckets(["isae-supaero", 2]),

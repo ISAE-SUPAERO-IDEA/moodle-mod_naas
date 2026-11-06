@@ -1,3 +1,25 @@
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * Tests for the search aggregation helpers (bucket mapping, labels, aliases).
+ *
+ * @copyright  2026 ISAE-SUPAERO (https://www.isae-supaero.fr/)
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 import { describe, expect, it } from "vitest";
 import {
   withFallbackLabels,
@@ -77,6 +99,52 @@ describe("searchAggregations", () => {
     expect(mapped.buckets[0].caption).toBe(captionForBucket("intermediate", 7));
   });
 
+  it("counts a bucket without any document count as empty", () => {
+    const mapped = mapAggregationBuckets(
+      "level",
+      [{ key: "beginner" }],
+      [],
+      (key) => key
+    );
+    expect(mapped.buckets[0].docCount).toBe(0);
+    expect(mapped.buckets[0].caption).toBe("beginner (0)");
+  });
+
+  it("keeps the open and show-all state of a facet being remapped", () => {
+    const mapped = mapAggregationBuckets(
+      "authors",
+      [{ key: "a1", docCount: 1 }],
+      [],
+      (key) => key,
+      { visible: true, showAll: true, labelsResolved: true }
+    );
+    expect(mapped).toMatchObject({
+      visible: true,
+      showAll: true,
+      labelsResolved: true,
+    });
+  });
+
+  it("falls back to the bucket key when neither a label nor a help exists", () => {
+    const resolved = applyResolvedLabels(
+      {
+        name: "producers",
+        buckets: [{ key: "isae", docCount: 3, title: "ISAE-SUPAERO" }],
+        visible: false,
+        showAll: false,
+        labelsResolved: false,
+      },
+      {}
+    );
+    expect(resolved.buckets[0]).toMatchObject({
+      help: "isae",
+      caption: "isae (3)",
+      title: "ISAE-SUPAERO",
+    });
+    // The caption is still the raw key, so the facet waits for a real name.
+    expect(resolved.labelsResolved).toBe(false);
+  });
+
   it("keeps resolved author names ahead of leftover hashes in the preview", () => {
     const hash = "0123456789abcdef0123456789abcdef";
     const mapped = mapAggregationBuckets(
@@ -133,6 +201,24 @@ describe("searchAggregations", () => {
         "related_domains"
       )
     ).toEqual(["d1"]);
+  });
+
+  it("sorts unnamed buckets after named ones and finds no alias for other facets", () => {
+    const hash = "0123456789abcdef0123456789abcdef";
+    const mapped = mapAggregationBuckets(
+      "authors",
+      [
+        { key: "author-1", docCount: 2 },
+        { key: hash, docCount: 9 },
+      ],
+      [],
+      (key) => (key === "author-1" ? "ADA LOVELACE" : key)
+    );
+    expect(mapped.buckets.map((b) => b.key)).toEqual(["author-1", hash]);
+    expect(aggregationFor({ domains: { buckets: [] } }, "authors")).toBe(
+      undefined
+    );
+    expect(selectedKeysFor({}, "related_domains")).toEqual([]);
   });
 
   describe("withFallbackLabels", () => {

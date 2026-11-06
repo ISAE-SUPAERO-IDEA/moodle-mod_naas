@@ -54,4 +54,17 @@ describe("createMediaRouter", () => {
       "data:image/png;base64,AAAA"
     );
   });
+
+  it("treats a missing URL or id from a loose payload as no image", () => {
+    const missing = undefined as unknown as string;
+    expect(media.image(missing)).toBe("");
+    expect(media.structure(missing, "banner")).toBe("");
+  });
+
+  it("serves from the site root when the Moodle URL is missing", () => {
+    const relative = createMediaRouter(undefined as unknown as string, 3);
+    expect(relative.structure("isae", "thumbnail")).toBe(
+      "/mod/naas/media.php?course=3&structure=isae&variant=thumbnail"
+    );
+  });
 });
