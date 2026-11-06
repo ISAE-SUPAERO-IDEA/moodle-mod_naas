@@ -27,7 +27,7 @@ import { readFileSync } from "fs";
 import type { OutputBundle, NormalizedOutputOptions } from "rollup";
 
 // Bump with `yarn bump-version`, which also updates widget::BUNDLE_VERSION in classes/output/widget.php.
-const BUNDLE_VERSION = "2026110603";
+const BUNDLE_VERSION = "2026110604";
 
 // Moves the emitted CSS into a self-injecting <style> block at the top of the
 // IIFE JS, so Moodle pages get the styles without a separate link tag.
