@@ -20,9 +20,10 @@
  * Reopening an activity form always cost a `/nuggets/{id}/default_version`
  * round-trip. The widget now paints the saved selection from whatever list
  * already held that hit, and this removes the NaaS hop from the confirmation
- * that follows: Moodle answers from its own copy, then the widget revalidates
- * in the background and swaps only if `modification_date` or `version_id`
- * moved.
+ * that follows: Moodle answers from its own copy. The nightly task refreshes
+ * the copies of every activity (nugget_revalidator); a copy older than a day is
+ * revalidated by the widget in the background, which swaps only if
+ * `modification_date` or `version_id` moved.
  *
  * @package   mod_naas
  * @copyright 2026 ISAE-SUPAERO

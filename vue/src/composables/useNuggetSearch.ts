@@ -97,6 +97,17 @@ export function sameFreshness(
   );
 }
 
+/**
+ * The nightly task (refresh_catalogue) revalidates the Nuggets of every activity:
+ * a stored document younger than this needs no NaaS call when a form opens.
+ */
+export const NUGGET_FRESH_SECONDS = 26 * 3600;
+
+/** Whether a stored document was written less than NUGGET_FRESH_SECONDS ago. */
+export function isRecent(cachedAt: number, now: number = Date.now()): boolean {
+  return now / 1000 - cachedAt < NUGGET_FRESH_SECONDS;
+}
+
 export function useNuggetSearch(opts: { initialLoading?: boolean } = {}) {
   const service = useMoodleService();
   const config = useNaasConfig();
@@ -367,6 +378,7 @@ export function useNuggetSearch(opts: { initialLoading?: boolean } = {}) {
    *
    * `onRevalidated` fires only when Moodle served a stored document and NaaS
    * then reported a newer one, so the card is never rebuilt for nothing.
+   * A document the nightly task refreshed less than a day ago is trusted as is.
    */
   async function getNuggetById(
     nuggetId: string,
@@ -381,7 +393,7 @@ export function useNuggetSearch(opts: { initialLoading?: boolean } = {}) {
       );
       const current = await completeNugget(raw);
 
-      if (raw._cache?.hit && onRevalidated) {
+      if (raw._cache?.hit && onRevalidated && !isRecent(raw._cache.cached_at)) {
         maybeRevalidate(`nugget:${nuggetId}`, () => {
           void service
             .getNugget(nuggetId, config.courseId, "revalidate")

@@ -57,7 +57,7 @@ $definitions = [
     ],
     'nugget_documents' => [
         'mode'       => cache_store::MODE_APPLICATION,
-        'ttl'        => 604800, // 7 days; revalidated by the widget on every form open.
+        'ttl'        => 604800, // 7 days; revalidated nightly (nugget_revalidator) and by stale forms.
         'simplekeys' => true,
         'simpledata' => true,
     ],

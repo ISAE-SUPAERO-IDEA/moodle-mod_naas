@@ -35,6 +35,7 @@ use mod_naas\catalogue_filters;
 use mod_naas\catalogue_warmer;
 use mod_naas\external\proxy_naas_api;
 use mod_naas\naas_client;
+use mod_naas\nugget_revalidator;
 use mod_naas\search_cache;
 
 /**
@@ -95,6 +96,9 @@ class refresh_catalogue extends \core\task\scheduled_task {
         // Producer names and logos change rarely, but nothing else evicts them.
         \cache::make('mod_naas', \mod_naas\vocabulary_lookup::CACHE_AREA)->delete('producer_catalog_v3');
         catalogue_warmer::warm($naas, $config);
+
+        // The Nuggets of the site's activities, so opening an activity form needs no NaaS call.
+        nugget_revalidator::refresh_documents($naas, $config, $trace);
 
         $fingerprint = catalogue_cache::fingerprint($config);
         // Entries of an earlier connection can never be read again: do not refresh them.
@@ -177,10 +181,8 @@ class refresh_catalogue extends \core\task\scheduled_task {
     private function seed_entries(object $config, int $limit): array {
         $snapshot = catalogue_export::export_for_widget();
         $producers = $snapshot['producers'] ?? [];
+        // The export always returns the aggregations as an array.
         $aggregations = $snapshot['search']['aggregations'] ?? [];
-        if (!is_array($aggregations)) {
-            $aggregations = [];
-        }
         usort($producers, function ($a, $b) {
             return (int) ($b['count'] ?? 0) <=> (int) ($a['count'] ?? 0);
         });
