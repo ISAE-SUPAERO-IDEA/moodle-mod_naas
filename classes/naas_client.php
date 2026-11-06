@@ -16,10 +16,13 @@
 
 namespace mod_naas;
 
+// @codeCoverageIgnoreStart
+// Runs once when the file is included, outside the class that PHPUnit @covers attributes lines to.
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 require_once($CFG->libdir . '/filelib.php');
+// @codeCoverageIgnoreEnd
 
 /**
  * Enables interaction with a NaaS Server
@@ -70,8 +73,11 @@ class naas_client {
     public static function create(object $config): naas_client {
         global $CFG;
         if (defined('BEHAT_SITE_RUNNING') && BEHAT_SITE_RUNNING) {
+            // @codeCoverageIgnoreStart
+            // Behat sites only (covered by the Behat suite): PHPUnit cannot define BEHAT_SITE_RUNNING in-process.
             require_once($CFG->dirroot . '/mod/naas/tests/behat/fixtures/behat_naas_client.php');
             return new behat_naas_client($config);
+            // @codeCoverageIgnoreEnd
         }
         return new naas_client($config);
     }
@@ -99,8 +105,8 @@ class naas_client {
     public function request_raw($protocol, $service, $data = null, $params = null) {
         $url = $this->config->naas_endpoint . $service;
         if ($params != null) {
-            // Remove indices from query params.
-            $query = preg_replace('/\%5B\d+\%5D/', '', http_build_query($params));
+            // Remove indices from query params. Moodle sets arg_separator.output to '&amp;': give '&' explicitly.
+            $query = preg_replace('/\%5B\d+\%5D/', '', http_build_query($params, '', '&'));
             $url .= "?" . $query;
         }
 
