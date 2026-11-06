@@ -41,6 +41,9 @@ type MoodleRequire = (
 ) => void;
 
 const cache = new Map<string, unknown>();
+// Requests still waiting for Moodle: an identical call joins the pending one
+// instead of sending the same web service request again.
+const pending = new Map<string, Promise<unknown>>();
 
 function cacheKey(method: string, args: Record<string, unknown>): string {
   return JSON.stringify({ method, args });
@@ -81,14 +84,36 @@ export function waitForRequirejs(
   });
 }
 
-async function callWebservice<T>(
+function callWebservice<T>(
   methodname: string,
   args: Record<string, unknown> = {},
   useCache = false
 ): Promise<T> {
   const key = cacheKey(methodname, args);
-  if (useCache && cache.has(key)) return cache.get(key) as T;
+  if (useCache && cache.has(key)) return Promise.resolve(cache.get(key) as T);
+  if (!useCache) return sendWebservice<T>(methodname, args, key, false);
 
+  const inflight = pending.get(key);
+  if (inflight) return inflight as Promise<T>;
+  const request = sendWebservice<T>(methodname, args, key, true).finally(() =>
+    pending.delete(key)
+  );
+  pending.set(key, request);
+  return request;
+}
+
+/** Forget cached and pending results (tests). */
+export function resetWebserviceCache(): void {
+  cache.clear();
+  pending.clear();
+}
+
+async function sendWebservice<T>(
+  methodname: string,
+  args: Record<string, unknown>,
+  key: string,
+  useCache: boolean
+): Promise<T> {
   const require = await waitForRequirejs();
 
   return new Promise<T>((resolve, reject) => {
