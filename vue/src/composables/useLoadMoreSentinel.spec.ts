@@ -39,7 +39,8 @@ beforeEach(() => {
   observers.length = 0;
   vi.stubGlobal(
     "IntersectionObserver",
-    vi.fn((callback: Callback) => {
+    // A regular function: the code under test calls it with `new`.
+    vi.fn(function (callback: Callback) {
       const observer = { callback, observe: vi.fn(), disconnect: vi.fn() };
       observers.push(observer);
       return observer;
