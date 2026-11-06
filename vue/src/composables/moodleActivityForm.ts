@@ -130,6 +130,21 @@ export function descriptionToHtml(resume: string): string {
 }
 
 /**
+ * Set a form field and tell Moodle about it, so the form change checker
+ * warns before leaving a form with unsaved changes.
+ */
+function setFormFieldValue(
+  field: HTMLInputElement | null,
+  value: string
+): void {
+  if (!field || field.value === value) {
+    return;
+  }
+  field.value = value;
+  field.dispatchEvent(new Event("change", { bubbles: true }));
+}
+
+/**
  * Validation error that Moodle put on the (hidden) name field, e.g. no Nugget chosen.
  *
  * @returns The error text, or "" when the form has no such error.
@@ -139,12 +154,10 @@ export function readNuggetFormError(): string {
 }
 
 export function setMoodleActivityName(name: string): void {
-  const nameField = document.getElementById(
-    "id_name"
-  ) as HTMLInputElement | null;
-  if (nameField) {
-    nameField.value = name;
-  }
+  setFormFieldValue(
+    document.getElementById("id_name") as HTMLInputElement | null,
+    name
+  );
 }
 
 export function setMoodleActivityDescription(html: string): void {
@@ -229,10 +242,8 @@ export function syncMoodleNuggetFields(nugget: Nugget | null): void {
     nugget ? descriptionToHtml(nugget.resume ?? "") : ""
   );
 
-  const nuggetIdField = document.getElementsByName(
-    "nugget_id"
-  )[0] as HTMLInputElement | null;
-  if (nuggetIdField) {
-    nuggetIdField.value = nugget?.nugget_id ?? "";
-  }
+  setFormFieldValue(
+    (document.getElementsByName("nugget_id")[0] as HTMLInputElement) ?? null,
+    nugget?.nugget_id ?? ""
+  );
 }

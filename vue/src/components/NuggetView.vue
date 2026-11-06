@@ -109,7 +109,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, nextTick } from "vue";
+import { ref, computed, watch, nextTick, onBeforeUnmount } from "vue";
 // @ts-expect-error iframe-resizer ships no type declarations
 import iframeResizeLib from "iframe-resizer/js/iframeResizer";
 const iframeResize = iframeResizeLib as (
@@ -145,17 +145,37 @@ const iframeUrl = computed(() => {
   return `launch.php?id=${config.cm_id}&triggerview=0&language=${language.value}`;
 });
 
+let setupTimer: ReturnType<typeof setTimeout> | null = null;
 let experiencedTimer: ReturnType<typeof setTimeout> | null = null;
 let visibilityObserver: IntersectionObserver | null = null;
 
+/** Stop the pending setup, the visibility observer and the xAPI timer. */
+function stopVisibilityTracking(): void {
+  if (setupTimer) {
+    clearTimeout(setupTimer);
+    setupTimer = null;
+  }
+  if (experiencedTimer) {
+    clearTimeout(experiencedTimer);
+    experiencedTimer = null;
+  }
+  visibilityObserver?.disconnect();
+  visibilityObserver = null;
+}
+
+onBeforeUnmount(stopVisibilityTracking);
+
 // React to the nugget loading: set language, init iframe-resizer, schedule xAPI.
 watch(nugget, (loaded) => {
+  // One observer per loaded nugget: drop the previous one first.
+  stopVisibilityTracking();
   if (!loaded) return;
   language.value = loaded.language;
 
   // Wait for the iframe to be in the DOM before attaching iframe-resizer.
   nextTick(() => {
-    setTimeout(() => {
+    setupTimer = setTimeout(() => {
+      setupTimer = null;
       iframeResize(
         {
           log: false,
@@ -165,7 +185,7 @@ watch(nugget, (loaded) => {
         "#lti-frame"
       );
 
-      // Delay "experienced" by 30 s of confirmed iframe visibility so accidental
+      // Delay "experienced" by 10 s of confirmed iframe visibility so accidental
       // landings do not pollute xAPI records.
       const iframe = document.getElementById("lti-frame");
       if (!iframe) return;
@@ -180,7 +200,9 @@ watch(nugget, (loaded) => {
                 verb: "experienced",
                 version_id: loaded.version_id,
               });
+              experiencedTimer = null;
               visibilityObserver?.disconnect();
+              visibilityObserver = null;
             }, 10000);
           } else if (!visible && experiencedTimer) {
             clearTimeout(experiencedTimer);

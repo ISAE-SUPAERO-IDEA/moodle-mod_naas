@@ -149,6 +149,27 @@ describe("Moodle activity form bridge", () => {
       "Title"
     );
   });
+
+  it("fires a bubbling change event so the Moodle change checker sees it", () => {
+    document.body.innerHTML =
+      '<form><input id="id_name" /><input type="hidden" name="nugget_id" /></form>';
+    const changed: string[] = [];
+    document
+      .querySelector("form")!
+      .addEventListener("change", (e) =>
+        changed.push(
+          (e.target as HTMLInputElement).id ||
+            (e.target as HTMLInputElement).name
+        )
+      );
+
+    syncMoodleNuggetFields(nugget());
+    expect(changed).toEqual(["id_name", "nugget_id"]);
+
+    changed.length = 0;
+    syncMoodleNuggetFields(nugget());
+    expect(changed).toEqual([]);
+  });
 });
 
 describe("readNuggetFormError", () => {
