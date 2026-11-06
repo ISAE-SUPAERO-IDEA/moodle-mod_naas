@@ -14,13 +14,16 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Rebuild the NaaS caches from the plugin settings page.
+ * Action buttons of the plugin settings page (Test connection, Refresh cache).
  *
- * @module     mod_naas/refresh_cache
+ * The button carries the web service, the result region and the string keys
+ * in data attributes (see templates/admin_action_button.mustache).
+ *
+ * @module     mod_naas/action_button
  * @copyright  2026 ISAE-SUPAERO (https://www.isae-supaero.fr/)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-define('mod_naas/refresh_cache', ['core/ajax', 'core/str'], function(Ajax, Str) {
+define('mod_naas/action_button', ['core/ajax', 'core/str'], function(Ajax, Str) {
 
     /**
      * User-facing text from a Moodle ajax exception. Never returns debuginfo.
@@ -79,12 +82,18 @@ define('mod_naas/refresh_cache', ['core/ajax', 'core/str'], function(Ajax, Str) 
 
     return {
         /**
-         * Bind the Refresh cache button.
+         * Bind one action button.
+         *
+         * @param {string} buttonId HTML id of the button rendered by admin_action_button.
          */
-        init: function() {
-            const button = document.getElementById('refreshcache');
-            const resultDiv = document.getElementById('cache-refresh-result');
-            if (!button || !resultDiv || button.dataset.naasBound) {
+        init: function(buttonId) {
+            const button = document.getElementById(buttonId);
+            if (!button || button.dataset.naasBound) {
+                return;
+            }
+            const resultDiv = document.getElementById(button.dataset.resultId);
+            const methodname = button.dataset.methodname;
+            if (!resultDiv || !methodname) {
                 return;
             }
             button.dataset.naasBound = '1';
@@ -119,18 +128,18 @@ define('mod_naas/refresh_cache', ['core/ajax', 'core/str'], function(Ajax, Str) 
                 };
 
                 Ajax.call([{
-                    methodname: 'mod_naas_refresh_cache',
+                    methodname: methodname,
                     args: {},
                 }])[0]
                     .then(function() {
-                        return Str.get_string('cache_refresh_success', 'naas');
+                        return Str.get_string(button.dataset.successString, 'naas');
                     })
                     .then(function(successString) {
                         showResult(resultDiv, 'alert alert-success', successString);
                         return null;
                     })
                     .catch(function(error) {
-                        return showFailure(resultDiv, error, 'cache_refresh_failed');
+                        return showFailure(resultDiv, error, button.dataset.failureString);
                     })
                     .always(reset)
                     // End on catch so the Moodle 4.1 promise lint accepts the chain.

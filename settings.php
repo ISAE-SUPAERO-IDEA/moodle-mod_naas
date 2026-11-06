@@ -79,10 +79,19 @@ if ($hassiteconfig) {
         PARAM_TEXT
     ));
 
-    $settings->add(new \mod_naas\admin\test_connection_setting(
+    $settings->add(new \mod_naas\admin\action_button_setting(
         'naas/test_connection_ui',
         get_string('test_connection', 'naas'),
-        get_string('test_connection_information', 'naas')
+        get_string('test_connection_information', 'naas'),
+        [
+            'buttonid' => 'testconnection',
+            'resultid' => 'connection-result',
+            'methodname' => 'mod_naas_test_config',
+            'label' => get_string('test_connection', 'naas'),
+            'pendinglabel' => get_string('connection_test_testing', 'naas'),
+            'successstring' => 'connection_test_success',
+            'failurestring' => 'connection_test_failed',
+        ]
     ));
 
     // Cache.
@@ -91,10 +100,19 @@ if ($hassiteconfig) {
         get_string('naas_settings_cache', 'naas'),
         get_string('naas_settings_cache_information', 'naas')
     ));
-    $settings->add(new \mod_naas\admin\refresh_cache_setting(
+    $settings->add(new \mod_naas\admin\action_button_setting(
         'naas/refresh_cache_ui',
         get_string('cache_refresh', 'naas'),
-        get_string('cache_refresh_information', 'naas')
+        get_string('cache_refresh_information', 'naas'),
+        [
+            'buttonid' => 'refreshcache',
+            'resultid' => 'cache-refresh-result',
+            'methodname' => 'mod_naas_refresh_cache',
+            'label' => get_string('cache_refresh', 'naas'),
+            'pendinglabel' => get_string('cache_refresh_testing', 'naas'),
+            'successstring' => 'cache_refresh_success',
+            'failurestring' => 'cache_refresh_failed',
+        ]
     ));
 
     // Privacy.

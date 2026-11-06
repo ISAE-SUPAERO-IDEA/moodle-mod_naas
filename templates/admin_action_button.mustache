@@ -15,29 +15,41 @@
     along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 }}
 {{!
-    @template mod_naas/admin_test_connection
+    @template mod_naas/admin_action_button
 
-    Test-connection control on the Nugget plugin administration page.
+    Action button on the Nugget plugin administration page (Test connection,
+    Refresh cache). The mod_naas/action_button AMD module reads the data
+    attributes, calls the web service and fills the result region.
 
     Context variables required for this template:
-    * buttonid - HTML id of the test button
+    * buttonid - HTML id of the button
     * resultid - HTML id of the result region
-    * buttonlabel - Visible button label
-    * testinglabel - Label shown while the request is in flight
+    * methodname - Web service the button calls
+    * label - Visible button label
+    * pendinglabel - Label shown while the request is in flight
+    * successstring - mod_naas string key shown on success
+    * failurestring - mod_naas string key shown on failure without a message
 
     Example context (json):
     {
         "buttonid": "testconnection",
         "resultid": "connection-result",
-        "buttonlabel": "Test connection",
-        "testinglabel": "Testing…"
+        "methodname": "mod_naas_test_config",
+        "label": "Test connection",
+        "pendinglabel": "Testing…",
+        "successstring": "connection_test_success",
+        "failurestring": "connection_test_failed"
     }
 }}
 <button type="button"
         class="btn btn-secondary"
         id="{{buttonid}}"
-        data-testing-label="{{testinglabel}}">
-    {{buttonlabel}}
+        data-methodname="{{methodname}}"
+        data-result-id="{{resultid}}"
+        data-success-string="{{successstring}}"
+        data-failure-string="{{failurestring}}"
+        data-testing-label="{{pendinglabel}}">
+    {{label}}
 </button>
 <div id="{{resultid}}"
      class="connection-result mt-2"

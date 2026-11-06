@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Tests for {@see \mod_naas\admin\test_connection_setting}.
+ * Tests for {@see \mod_naas\admin\action_button_setting}.
  *
  * @package    mod_naas
  * @copyright  2026 onwards ISAE-SUPAERO (https://www.isae-supaero.fr/)
@@ -24,29 +24,51 @@
 
 namespace mod_naas\admin;
 
-defined('MOODLE_INTERNAL') || die();
-
-global $CFG;
-require_once($CFG->libdir . '/adminlib.php');
-
 use advanced_testcase;
-use mod_naas\admin\test_connection_setting;
 
 /**
- * Tests for the test-connection admin setting.
+ * Tests for the action buttons of the plugin settings page.
  *
- * @covers \mod_naas\admin\test_connection_setting
+ * @covers \mod_naas\admin\action_button_setting
  */
-final class test_connection_setting_test extends advanced_testcase {
+final class action_button_setting_test extends advanced_testcase {
+    /**
+     * The two buttons of the settings page, as settings.php declares them.
+     *
+     * @return array
+     */
+    public static function button_provider(): array {
+        return [
+            'test connection' => ['naas/test_connection_ui', [
+                'buttonid' => 'testconnection',
+                'resultid' => 'connection-result',
+                'methodname' => 'mod_naas_test_config',
+                'label' => 'Test connection',
+                'pendinglabel' => 'Testing…',
+                'successstring' => 'connection_test_success',
+                'failurestring' => 'connection_test_failed',
+            ]],
+            'refresh cache' => ['naas/refresh_cache_ui', [
+                'buttonid' => 'refreshcache',
+                'resultid' => 'cache-refresh-result',
+                'methodname' => 'mod_naas_refresh_cache',
+                'label' => 'Refresh cache',
+                'pendinglabel' => 'Refreshing…',
+                'successstring' => 'cache_refresh_success',
+                'failurestring' => 'cache_refresh_failed',
+            ]],
+        ];
+    }
+
     /**
      * Display-only setting: nothing is read from or written to config.
+     *
+     * @dataProvider button_provider
+     * @param string $name
+     * @param array $action
      */
-    public function test_does_not_persist(): void {
-        $setting = new test_connection_setting(
-            'naas/test_connection_ui',
-            'Test connection',
-            'Info'
-        );
+    public function test_does_not_persist(string $name, array $action): void {
+        $setting = new action_button_setting($name, $action['label'], 'Info', $action);
 
         $this->assertTrue($setting->nosave);
         $this->assertTrue($setting->get_setting());
@@ -55,33 +77,48 @@ final class test_connection_setting_test extends advanced_testcase {
     }
 
     /**
-     * output_html() renders a real button and an aria-live result region.
+     * output_html() renders a real button that carries its web service and strings,
+     * an aria-live result region, and loads the shared AMD module for that button.
+     *
+     * @dataProvider button_provider
+     * @param string $name
+     * @param array $action
      */
-    public function test_output_contains_button_and_result_region(): void {
+    public function test_output_renders_the_button_and_its_result_region(string $name, array $action): void {
         global $PAGE;
 
         $this->resetAfterTest(true);
         $this->setAdminUser();
-
         $PAGE->set_context(\context_system::instance());
         $PAGE->set_url(new \moodle_url('/admin/settings.php', ['section' => 'modsettingnaas']));
 
-        $setting = new test_connection_setting(
-            'naas/test_connection_ui',
-            get_string('test_connection', 'naas'),
-            get_string('test_connection_information', 'naas')
-        );
+        $setting = new action_button_setting($name, $action['label'], 'Info', $action);
         $html = $setting->output_html('', '');
 
-        $this->assertStringContainsString('id="testconnection"', $html);
-        $this->assertStringContainsString('id="connection-result"', $html);
-        $this->assertStringContainsString('<button', $html);
-        $this->assertStringContainsString('type="button"', $html);
-        $this->assertStringNotContainsString('<a href="#"', $html);
+        $this->assertStringContainsString('<button type="button"', $html);
+        $this->assertStringContainsString('id="' . $action['buttonid'] . '"', $html);
+        $this->assertStringContainsString('data-methodname="' . $action['methodname'] . '"', $html);
+        $this->assertStringContainsString('data-result-id="' . $action['resultid'] . '"', $html);
+        $this->assertStringContainsString('data-success-string="' . $action['successstring'] . '"', $html);
+        $this->assertStringContainsString('data-failure-string="' . $action['failurestring'] . '"', $html);
+        $this->assertStringContainsString('id="' . $action['resultid'] . '"', $html);
         $this->assertStringContainsString('aria-live="polite"', $html);
         $this->assertStringContainsString('role="status"', $html);
-        $this->assertStringContainsString(get_string('test_connection', 'naas'), $html);
-        $this->assertStringContainsString(get_string('connection_test_testing', 'naas'), $html);
+        $this->assertStringContainsString($action['label'], $html);
+        $this->assertStringContainsString($action['pendinglabel'], $html);
+        $this->assertStringNotContainsString('<a href="#"', $html);
+
+        $js = $PAGE->requires->get_end_code();
+        $this->assertStringContainsString('mod_naas/action_button', $js);
+        $this->assertStringContainsString($action['buttonid'], $js);
+    }
+
+    /**
+     * A button without its web service or strings is a programming error.
+     */
+    public function test_missing_action_parameter_is_rejected(): void {
+        $this->expectException(\coding_exception::class);
+        new action_button_setting('naas/broken_ui', 'Broken', 'Info', ['buttonid' => 'broken']);
     }
 
     /**
