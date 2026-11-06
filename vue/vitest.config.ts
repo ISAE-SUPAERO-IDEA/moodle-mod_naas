@@ -17,14 +17,14 @@ export default defineConfig({
       reporter: ['text-summary', 'html', 'json-summary'],
       include: ['src/**/*.{ts,vue}'],
       // Setting exclude replaces vitest's defaults: list the spec files explicitly.
-      exclude: ['src/main.ts', 'src/types/*', 'src/**/*.spec.ts'],
-      // A little below the measured values (2026-11-06: lines 47.4, statements 46.4,
-      // functions 42.6, branches 41.7), so coverage cannot drop unnoticed.
+      exclude: ['src/main.ts', 'src/types/*', 'src/test/**', 'src/**/*.spec.ts'],
+      // A little below the measured values (2026-11-06: lines 92.9, statements 92.6,
+      // functions 93.3, branches 86.5), so coverage cannot drop unnoticed.
       thresholds: {
-        lines: 45,
-        statements: 44,
-        functions: 40,
-        branches: 39,
+        lines: 90,
+        statements: 90,
+        functions: 90,
+        branches: 84,
       },
     }
   }
