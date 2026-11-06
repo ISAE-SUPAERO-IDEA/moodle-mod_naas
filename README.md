@@ -125,8 +125,24 @@ The change log is available [here](CHANGES.md).
 The source code is available at [https://github.com/ISAE-SUPAERO-IDEA/moodle-mod_naas](https://github.com/ISAE-SUPAERO-IDEA/moodle-mod_naas).
 
 ## Development
-This Moodle plugin uses a VueJS component to handle the search and selection of a nugget. 
-See [vue/README.md](vue/README.md)
+The search, selection and display of Nuggets is a Vue 3 widget. Its sources are in `vue/`, and the
+compiled bundle is committed in `assets/vue/naas_widget-<version>.js`.
+
+Requirements: Node.js 22 and Yarn 1.
+
+```bash
+cd vue
+yarn install --frozen-lockfile
+yarn type-check && yarn test   # or ../run_test.sh
+yarn build                     # or ../run_build.sh, writes the bundle to assets/vue/
+```
+
+Whenever the widget sources change, give the bundle a new name so browsers do not reuse the old file:
+run `yarn bump-version` before `yarn build`, then commit the new bundle and the removal of the old one.
+The CI rebuilds the bundle and fails if it differs from the committed one.
+See [vue/README.md](vue/README.md) for details.
+
+Translations are managed on [AMOS](https://lang.moodle.org/): only the English strings (`lang/en`) live in this repository.
 
 
 ## Copyright
