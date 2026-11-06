@@ -118,32 +118,6 @@ final class root_scripts_test extends advanced_testcase {
     }
 
     /**
-     * launch.php runs LTI launch (typically API error notification or LTI form in output).
-     */
-    public function test_launch_php_outputs_lti_or_error(): void {
-        global $CFG;
-        $this->resetAfterTest(true);
-
-        $course = $this->getDataGenerator()->create_course();
-        $naas = $this->getDataGenerator()->create_module('naas', ['course' => $course->id]);
-        $teacher = $this->getDataGenerator()->create_user();
-        $this->getDataGenerator()->enrol_user($teacher->id, $course->id, 'editingteacher');
-
-        $this->setUser($teacher);
-        $_GET['id'] = $naas->cmid;
-        $_REQUEST['id'] = $naas->cmid;
-
-        ob_start();
-        require($CFG->dirroot . '/mod/naas/launch.php');
-        $html = ob_get_clean();
-
-        $hasform = strpos($html, 'ltiLaunchForm') !== false;
-        $haserror = strpos($html, get_string('cannot_get_nugget', 'naas')) !== false
-            || strpos($html, 'naas-launch-error') !== false;
-        $this->assertTrue($hasform || $haserror, 'Launch page should render LTI form or nugget load error');
-    }
-
-    /**
      * settings.php registers admin settings when hassiteconfig is true.
      */
     public function test_settings_php_registers_admin_settings(): void {

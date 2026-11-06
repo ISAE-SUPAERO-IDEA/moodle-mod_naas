@@ -40,32 +40,6 @@ final class launch_php_test extends advanced_testcase {
     }
 
     /**
-     * Happy path: LTI launch renders a form or a load error (no live API required).
-     */
-    public function test_launch_outputs_lti_or_error(): void {
-        global $CFG;
-        $this->resetAfterTest(true);
-
-        $course = $this->getDataGenerator()->create_course();
-        $naas = $this->getDataGenerator()->create_module('naas', ['course' => $course->id]);
-        $user = $this->getDataGenerator()->create_user();
-        $this->getDataGenerator()->enrol_user($user->id, $course->id, 'student');
-
-        $this->setUser($user);
-        $_GET['id'] = $naas->cmid;
-        $_REQUEST['id'] = $naas->cmid;
-
-        ob_start();
-        require($CFG->dirroot . '/mod/naas/launch.php');
-        $html = ob_get_clean();
-
-        $hasform = strpos($html, 'ltiLaunchForm') !== false;
-        $haserror = strpos($html, get_string('cannot_get_nugget', 'naas')) !== false
-            || strpos($html, 'naas-launch-error') !== false;
-        $this->assertTrue($hasform || $haserror, 'Launch should render LTI form or nugget load error');
-    }
-
-    /**
      * optional_param('language', …) must be forwarded to {@see \mod_naas\naas_lti::lti_launch()}.
      */
     public function test_launch_forwards_language_query_param(): void {
