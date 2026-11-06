@@ -294,39 +294,6 @@ function naas_get_coursemodule_info($coursemodule) {
 }
 
 /**
- * Return a list of page types
- * @param string $pagetype current page type
- * @param stdClass $parentcontext Block's parent context
- * @param stdClass $currentcontext Current context of block
- */
-function naas_page_type_list($pagetype, $parentcontext, $currentcontext) {
-    $modulepagetype = ['mod-url-*' => get_string('page-mod-url-x', 'url')];
-    return $modulepagetype;
-}
-
-/**
- * Export activity file contents.
- *
- * Nuggets are launched remotely and have no file payload.
- *
- * @param object $cm
- * @return array of file content
- */
-function naas_export_contents($cm) {
-    return [];
-}
-
-/**
- * Register the ability to handle drag and drop file uploads
- * @return array containing details of the files / types the mod can handle
- */
-function naas_dndupload_register() {
-    return ['types' => [
-        ['identifier' => 'url', 'message' => get_string('createurl', 'url')],
-    ]];
-}
-
-/**
  * Mark the activity completed (if required) and trigger the course_module_viewed event.
  *
  * @param  stdClass $course     course object

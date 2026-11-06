@@ -47,15 +47,12 @@ use stdClass;
  * @covers ::naas_add_instance
  * @covers ::naas_check_updates_since
  * @covers ::naas_delete_instance
- * @covers ::naas_dndupload_register
- * @covers ::naas_export_contents
  * @covers ::naas_extend_settings_navigation
  * @covers ::naas_get_coursemodule_info
  * @covers ::naas_get_post_actions
  * @covers ::naas_get_view_actions
  * @covers ::naas_grade_item_delete
  * @covers ::naas_grade_item_update
- * @covers ::naas_page_type_list
  * @covers ::naas_reset_userdata
  * @covers ::naas_supports
  * @covers ::naas_update_grades
@@ -505,25 +502,6 @@ final class lib_test extends advanced_testcase {
     }
 
     /**
-     * Test naas_page_type_list.
-     */
-    public function test_naas_page_type_list(): void {
-        $types = naas_page_type_list('some_page', null, null);
-        $this->assertIsArray($types);
-        $this->assertArrayHasKey('mod-url-*', $types);
-    }
-
-    /**
-     * Test naas_dndupload_register.
-     */
-    public function test_naas_dndupload_register(): void {
-        $register = naas_dndupload_register();
-        $this->assertIsArray($register);
-        $this->assertArrayHasKey('types', $register);
-        $this->assertEquals('url', $register['types'][0]['identifier']);
-    }
-
-    /**
      * Test naas_check_updates_since.
      */
     public function test_naas_check_updates_since(): void {
@@ -604,20 +582,6 @@ final class lib_test extends advanced_testcase {
 
         naas_grade_item_update($nugget, 'reset');
         $this->assertFalse(\grade_grade::fetch(['itemid' => $item->id, 'userid' => $user->id]));
-    }
-
-    /**
-     * Test naas_export_contents.
-     */
-    public function test_naas_export_contents(): void {
-        $this->resetAfterTest(true);
-        $course = $this->getDataGenerator()->create_course();
-        $naas = $this->getDataGenerator()->create_module('naas', ['course' => $course->id]);
-        $cm = get_coursemodule_from_instance('naas', $naas->id, $course->id, false, MUST_EXIST);
-
-        $contents = naas_export_contents($cm);
-        $this->assertIsArray($contents);
-        $this->assertSame([], $contents);
     }
 
     /**

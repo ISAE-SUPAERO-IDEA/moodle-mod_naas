@@ -56,6 +56,8 @@ final class version_php_test extends advanced_testcase {
         $this->assertIsArray($plugin->dependencies);
         $this->assertArrayHasKey('mod_lti', $plugin->dependencies);
         $this->assertGreaterThanOrEqual(2022041900, (int) $plugin->dependencies['mod_lti']);
+        // The plugin no longer borrows anything from mod_url (strings, drag and drop, page types).
+        $this->assertSame(['mod_lti'], array_keys($plugin->dependencies));
     }
 
     /**
