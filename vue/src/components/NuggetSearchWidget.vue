@@ -24,6 +24,13 @@
 -->
 <template>
   <div>
+    <div
+      v-if="formError && selectedNugget === null"
+      class="alert alert-danger"
+      role="alert"
+    >
+      {{ formError }}
+    </div>
     <div v-if="error" class="naas-error-banner" role="alert">
       <span
         >{{ config.labels.error_generic_user_message }} —
@@ -293,6 +300,7 @@ import { SEARCH_FIRST_PAGE, withSearchPage } from "@/composables/searchPaging";
 import {
   concealCguAgreement,
   placeCguAgreement,
+  readNuggetFormError,
   restoreCguAgreement,
   setActivityDetailsVisible,
   syncMoodleNuggetFields,
@@ -349,6 +357,11 @@ const activeFilterCount = computed(() =>
   Object.values(filters.value).reduce((sum, arr) => sum + arr.length, 0)
 );
 const selectedNugget = ref<Nugget | null>(null);
+// Moodle puts "no Nugget chosen" on the name field, hidden until a Nugget is selected.
+const formError = ref(readNuggetFormError());
+watch(selectedNugget, (nugget) => {
+  if (nugget) formError.value = "";
+});
 const focusedIndex = ref(0);
 const itemRefs: HTMLElement[] = [];
 

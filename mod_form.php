@@ -207,7 +207,8 @@ class mod_naas_mod_form extends moodleform_mod {
         $errors = parent::validation($data, $files);
 
         if (empty($data['nugget_id'])) {
-            $errors['name'] = get_string('required');
+            // The name row stays hidden until a Nugget is chosen: the widget shows this error above itself.
+            $errors['name'] = get_string('error:nugget_required', 'naas');
         }
 
         if ($data['maxgrade'] <= 0) {

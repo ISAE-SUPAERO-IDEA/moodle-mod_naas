@@ -4,6 +4,7 @@ import {
   concealCguAgreement,
   descriptionToHtml,
   placeCguAgreement,
+  readNuggetFormError,
   restoreCguAgreement,
   setActivityDetailsVisible,
   setMoodleActivityName,
@@ -147,6 +148,19 @@ describe("Moodle activity form bridge", () => {
     expect((document.getElementById("id_name") as HTMLInputElement).value).toBe(
       "Title"
     );
+  });
+});
+
+describe("readNuggetFormError", () => {
+  it("returns the error Moodle printed on the name field", () => {
+    document.body.innerHTML =
+      '<div class="form-control-feedback invalid-feedback" id="id_error_name"> Select a Nugget </div>';
+    expect(readNuggetFormError()).toBe("Select a Nugget");
+  });
+
+  it("returns an empty string when there is no error", () => {
+    document.body.innerHTML = '<input id="id_name" />';
+    expect(readNuggetFormError()).toBe("");
   });
 });
 

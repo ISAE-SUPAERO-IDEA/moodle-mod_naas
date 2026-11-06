@@ -158,6 +158,21 @@ final class mod_form_completion_test extends advanced_testcase {
     }
 
     /**
+     * Saving without a Nugget reports a specific error on the name field, which the widget shows.
+     */
+    public function test_validation_requires_a_nugget(): void {
+        $this->resetAfterTest(true);
+
+        $form = $this->new_form();
+
+        $errors = $form->validation($this->payload(['nugget_id' => '']), []);
+        $this->assertSame(get_string('error:nugget_required', 'naas'), $errors['name']);
+
+        $errors = $form->validation($this->payload(), []);
+        $this->assertArrayNotHasKey('name', $errors);
+    }
+
+    /**
      * The minimum number of attempts may not exceed the attempts allowed, unless unlimited.
      */
     public function test_validation_min_attempts_must_not_exceed_attempts_allowed(): void {

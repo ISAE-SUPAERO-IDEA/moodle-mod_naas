@@ -75,6 +75,7 @@ $string["error:unknown_sourced_id"] = "The grade submission from NaaS does not m
 $string["error:invalid_xapi_verb"] = 'The xAPI verb \'{$a}\' is not allowed.';
 $string["error:xapi_body_invalid"] = "The xAPI statement body is not valid JSON.";
 $string["error:xapi_body_too_large"] = "The xAPI statement body exceeds the maximum allowed size.";
+$string["error:nugget_required"] = "Select a Nugget before saving the activity.";
 $string["error:not_enrolled"] = "You are not enrolled in the course for this activity.";
 $string["error:must_be_strictly_positive"] = "This must be a strictly positive number.";
 $string['error:naas_api:bad_request'] = 'We couldn\'t process your request. Please contact support for assistance.';

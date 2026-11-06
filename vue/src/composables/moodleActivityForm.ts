@@ -129,6 +129,15 @@ export function descriptionToHtml(resume: string): string {
     .replace(/\n/g, "<br>")}</p>`;
 }
 
+/**
+ * Validation error that Moodle put on the (hidden) name field, e.g. no Nugget chosen.
+ *
+ * @returns The error text, or "" when the form has no such error.
+ */
+export function readNuggetFormError(): string {
+  return document.getElementById("id_error_name")?.textContent?.trim() ?? "";
+}
+
 export function setMoodleActivityName(name: string): void {
   const nameField = document.getElementById(
     "id_name"
