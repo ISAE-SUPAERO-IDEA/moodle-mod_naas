@@ -24,7 +24,7 @@ Feature: Course NaaS index
     When I am on the "Course 1" "naas index" page logged in as teacher1
     Then I should see "Nuggets"
     And I should see "Nugget A"
-    And I should see "Back to Course Index"
+    And I should see "Back to course index"
     And "table.mod_index" "css_element" should exist
 
   Scenario: Index shows a message when the course has no NaaS activities

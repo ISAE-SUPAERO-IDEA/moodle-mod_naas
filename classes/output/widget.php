@@ -107,6 +107,9 @@ class widget implements renderable, templatable {
                 "hide_authors" => get_string('hide_authors', 'naas'),
                 "no_nugget" => get_string('no_nugget', 'naas'),
                 "about" => get_string('about', 'naas'),
+                "about_title" => get_string('about_title', 'naas'),
+                "labelsep" => get_string('labelsep', 'langconfig'),
+                "preview_title" => get_string('preview_title', 'naas'),
                 "close" => get_string('closebuttontitle'),
                 "back_to_course" => get_string('back_to_course', 'naas'),
                 "next_unit" => get_string('next_unit', 'naas'),
@@ -131,7 +134,6 @@ class widget implements renderable, templatable {
                 "remove_filter" => get_string('remove_filter', 'naas'),
                 "duration_minutes" => get_string('duration_minutes', 'naas'),
                 "metadata" => [
-                    "preview" => get_string('preview', 'naas'),
                     "description" => get_string('description', 'naas'),
                     "in_brief" => get_string('in_brief', 'naas'),
                     "about_author" => get_string('about_author', 'naas'),

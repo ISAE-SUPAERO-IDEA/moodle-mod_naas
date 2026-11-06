@@ -22,10 +22,10 @@ Feature: View a NaaS activity
 
   Scenario: A student can open the NaaS activity view
     When I am on the "Nugget A" "naas activity" page logged in as student1
-    Then I should see "Back to Course Index"
+    Then I should see "Back to course index"
     And "#naas_widget" "css_element" should exist
 
   Scenario: A teacher can open the NaaS activity view
     When I am on the "Nugget A" "naas activity" page logged in as teacher1
-    Then I should see "Back to Course Index"
+    Then I should see "Back to course index"
     And "#naas_widget" "css_element" should exist

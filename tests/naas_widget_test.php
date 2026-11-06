@@ -181,7 +181,11 @@ class naas_widget_test extends advanced_testcase {
         $this->assertArrayHasKey('back_to_catalogue', $labels);
         $this->assertArrayNotHasKey('insertion_code_title', $labels);
         $this->assertArrayHasKey('metadata', $labels);
-        $this->assertArrayHasKey('preview', $labels['metadata']);
+        $this->assertArrayHasKey('description', $labels['metadata']);
+        // Titles are whole translatable strings with a {$a} placeholder, not concatenations.
+        $this->assertStringContainsString('{$a}', $labels['preview_title']);
+        $this->assertStringContainsString('{$a}', $labels['about_title']);
+        $this->assertSame(get_string('labelsep', 'langconfig'), $labels['labelsep']);
         $this->assertArrayHasKey('rating', $labels);
         $this->assertArrayHasKey('title', $labels['rating']);
         $this->assertArrayHasKey('learning_outcomes_desc', $labels);

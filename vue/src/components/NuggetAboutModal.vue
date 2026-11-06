@@ -40,7 +40,9 @@
           @click.stop
         >
           <div class="nugget-modal-header">
-            <h2 :id="titleId">{{ config.labels.about }} : {{ nugget.name }}</h2>
+            <h2 :id="titleId">
+              {{ fillLabel(config.labels.about_title, nugget.name) }}
+            </h2>
             <button
               type="button"
               class="btn-close"
@@ -63,7 +65,10 @@
 
                 <div v-if="isShown(nugget.authors_data)">
                   <h3>{{ config.labels.metadata.about_author }}</h3>
-                  <div v-for="author in nugget.authors_data" :key="author.email">
+                  <div
+                    v-for="author in nugget.authors_data"
+                    :key="author.email"
+                  >
                     <h5>{{ author.firstname }} {{ author.lastname }}</h5>
                     <span class="nugget-modal-description">{{
                       stripHtml(author.bio)
@@ -77,28 +82,33 @@
                 <ul class="metadata-list">
                   <li v-if="isShown(nugget.duration)">
                     <i class="icon fa fa-clock-o" aria-hidden="true" />
-                    {{ config.labels.metadata.duration }}:
+                    {{ config.labels.metadata.duration
+                    }}{{ config.labels.labelsep }}
                     <strong>{{
-                      fillLabel(config.labels.duration_minutes, nugget.duration ?? "")
+                      fillLabel(
+                        config.labels.duration_minutes,
+                        nugget.duration ?? ""
+                      )
                     }}</strong>
                   </li>
                   <li v-if="isShown(nugget.language)">
                     <i class="icon fa fa-globe" aria-hidden="true" />
-                    {{ config.labels.metadata.language }}:
+                    {{ config.labels.metadata.language
+                    }}{{ config.labels.labelsep }}
                     <strong>{{
                       config.labels.metadata[nugget.language]
                     }}</strong>
                   </li>
                   <li v-if="isShown(nugget.level)">
                     <i class="icon fa fa-arrow-up" aria-hidden="true" />
-                    {{ config.labels.metadata.level }}:
-                    <strong>{{
-                      config.labels.metadata[nugget.level!]
-                    }}</strong>
+                    {{ config.labels.metadata.level
+                    }}{{ config.labels.labelsep }}
+                    <strong>{{ config.labels.metadata[nugget.level!] }}</strong>
                   </li>
                   <li v-if="isShown(nugget.license)">
                     <i class="icon fa fa-id-card-o" aria-hidden="true" />
-                    {{ config.labels.metadata.license }}:
+                    {{ config.labels.metadata.license
+                    }}{{ config.labels.labelsep }}
                     <strong>{{
                       config.labels.metadata[`license_${nugget.license}`] ??
                       nugget.license
@@ -110,7 +120,8 @@
                   >
                     <i class="icon fa fa-home" aria-hidden="true" />
                     <span>
-                      {{ config.labels.metadata.field_of_study }}:
+                      {{ config.labels.metadata.field_of_study
+                      }}{{ config.labels.labelsep }}
                       <span class="meta-tags">
                         <span
                           v-for="item in nugget.domains_data"
@@ -128,7 +139,8 @@
                   >
                     <i class="icon fa fa-tag" aria-hidden="true" />
                     <span>
-                      {{ config.labels.metadata.tags }}:
+                      {{ config.labels.metadata.tags
+                      }}{{ config.labels.labelsep }}
                       <span class="meta-tags">
                         <span
                           v-for="tag in nugget.tags"
@@ -142,7 +154,8 @@
                   </li>
                   <li v-if="isShown(nugget.publication_date)">
                     <i class="icon fa fa-calendar" aria-hidden="true" />
-                    {{ config.labels.metadata.publication_date }}:
+                    {{ config.labels.metadata.publication_date
+                    }}{{ config.labels.labelsep }}
                     <strong>{{ formatDate(nugget.publication_date) }}</strong>
                   </li>
                 </ul>
@@ -158,7 +171,10 @@
               </ul>
             </div>
 
-            <div v-if="isShown(nugget.learning_outcomes)" class="metadata-field">
+            <div
+              v-if="isShown(nugget.learning_outcomes)"
+              class="metadata-field"
+            >
               <h3>{{ config.labels.metadata.learning_outcomes }}</h3>
               <ul class="about-list">
                 <li v-for="item in nugget.learning_outcomes" :key="item">
@@ -197,7 +213,11 @@ const config = useNaasConfig();
 
 const dialog = ref<HTMLElement | null>(null);
 const titleId = useId();
-useModalA11y(() => props.visible, dialog, () => emit("close"));
+useModalA11y(
+  () => props.visible,
+  dialog,
+  () => emit("close")
+);
 
 function stripHtml(value?: string): string {
   return (

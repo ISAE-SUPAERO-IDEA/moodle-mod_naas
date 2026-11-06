@@ -74,7 +74,13 @@ export interface NaasLabels {
   hide_authors: string;
   no_nugget: string;
   about: string;
+  /** "About: {$a}", filled with the Nugget name. */
+  about_title: string;
   close: string;
+  /** Moodle's label separator (langconfig labelsep), ": " in English. */
+  labelsep: string;
+  /** "Preview: {$a}", filled with the Nugget name. */
+  preview_title: string;
   back_to_course: string;
   show_more_nugget_button: string;
   select_button: string;

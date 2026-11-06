@@ -37,7 +37,7 @@
         >
           <div class="nugget-modal-header">
             <h2 :id="titleId">
-              {{ config.labels.metadata.preview }}{{ nugget.name }}
+              {{ fillLabel(config.labels.preview_title, nugget.name) }}
             </h2>
             <button
               type="button"
@@ -67,6 +67,7 @@
 import { ref, useId, watch } from "vue";
 import { useNaasConfig } from "@/composables/useNaasConfig";
 import { useModalA11y } from "@/composables/useModalA11y";
+import { fillLabel } from "@/utils/fillLabel";
 import { useMoodleService } from "@/composables/useMoodleService";
 import type { Nugget } from "@/types/nugget.types";
 
