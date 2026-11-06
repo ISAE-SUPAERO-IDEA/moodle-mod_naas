@@ -28,16 +28,22 @@
       <div
         v-if="visible"
         class="nugget-modal-backdrop"
-        role="dialog"
-        aria-modal="true"
         @click.self="emit('close')"
       >
-        <div class="nugget-modal" @click.stop>
+        <div
+          ref="dialog"
+          class="nugget-modal"
+          role="dialog"
+          aria-modal="true"
+          :aria-labelledby="titleId"
+          tabindex="-1"
+          @click.stop
+        >
           <div class="nugget-modal-header">
             <button
               type="button"
               class="btn-close"
-              :aria-label="config.labels.rating.title"
+              :aria-label="config.labels.close"
               @click="emit('close')"
             >
               ✕
@@ -45,7 +51,9 @@
           </div>
 
           <div class="nugget-modal-body">
-            <h2 class="rating-title">{{ config.labels.rating.title }}</h2>
+            <h2 :id="titleId" class="rating-title">
+              {{ config.labels.rating.title }}
+            </h2>
             <div
               class="rating"
               role="group"
@@ -122,8 +130,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, onMounted, useId } from "vue";
 import { useNaasConfig } from "@/composables/useNaasConfig";
+import { useModalA11y } from "@/composables/useModalA11y";
 import { useXapi } from "@/composables/useXapi";
 import type { Nugget } from "@/types/nugget.types";
 
@@ -135,6 +144,10 @@ const emit = defineEmits<{ (e: "close"): void }>();
 
 const config = useNaasConfig();
 const { postStatement } = useXapi();
+
+const dialog = ref<HTMLElement | null>(null);
+const titleId = useId();
+useModalA11y(() => props.visible, dialog, () => emit("close"));
 
 const savedRating = ref<number | null>(null);
 const ratingSent = ref(false);
@@ -195,6 +208,11 @@ function goToNextResource() {
   align-items: center;
   z-index: 1060;
   padding: 1.5rem;
+}
+
+/* The dialog takes focus when it opens; no outline around the whole box. */
+.nugget-modal:focus {
+  outline: none;
 }
 
 .nugget-modal {

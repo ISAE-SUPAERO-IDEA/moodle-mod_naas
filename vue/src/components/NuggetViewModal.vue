@@ -25,15 +25,33 @@
   <Teleport to="body">
     <transition name="modal-fade">
       <div v-if="visible" class="nugget-modal-backdrop" @click="close">
-        <div id="nugget-preview-modal" class="nugget-modal" @click.stop.prevent>
+        <div
+          id="nugget-preview-modal"
+          ref="dialog"
+          class="nugget-modal"
+          role="dialog"
+          aria-modal="true"
+          :aria-labelledby="titleId"
+          tabindex="-1"
+          @click.stop.prevent
+        >
           <div class="nugget-modal-header">
-            <h2>{{ config.labels.metadata.preview }}{{ nugget.name }}</h2>
-            <button type="button" class="btn-close" @click="close">✕</button>
+            <h2 :id="titleId">
+              {{ config.labels.metadata.preview }}{{ nugget.name }}
+            </h2>
+            <button
+              type="button"
+              class="btn-close"
+              :aria-label="config.labels.close"
+              @click="close"
+            >
+              ✕
+            </button>
           </div>
           <div class="nugget-modal-body">
             <iframe
               v-if="previewUrl"
-              id="lti-frame"
+              id="naas-preview-frame"
               :src="previewUrl"
               class="preview-iframe"
               allowfullscreen
@@ -46,8 +64,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { ref, useId, watch } from "vue";
 import { useNaasConfig } from "@/composables/useNaasConfig";
+import { useModalA11y } from "@/composables/useModalA11y";
 import { useMoodleService } from "@/composables/useMoodleService";
 import type { Nugget } from "@/types/nugget.types";
 
@@ -81,6 +100,10 @@ function close() {
   previewUrl.value = null;
   emit("close");
 }
+
+const dialog = ref<HTMLElement | null>(null);
+const titleId = useId();
+useModalA11y(() => props.visible, dialog, close);
 </script>
 
 <style scoped>
@@ -99,6 +122,11 @@ function close() {
 }
 
 /* ── Modal panel ── */
+/* The dialog takes focus when it opens; no outline around the whole box. */
+.nugget-modal:focus {
+  outline: none;
+}
+
 .nugget-modal {
   width: min(1100px, 100%);
   height: 100%;

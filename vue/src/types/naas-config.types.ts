@@ -74,6 +74,7 @@ export interface NaasLabels {
   hide_authors: string;
   no_nugget: string;
   about: string;
+  close: string;
   back_to_course: string;
   show_more_nugget_button: string;
   select_button: string;

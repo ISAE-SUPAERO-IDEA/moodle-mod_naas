@@ -28,17 +28,23 @@
       <div
         v-if="visible"
         class="nugget-modal-backdrop"
-        role="dialog"
-        aria-modal="true"
         @click.self="emit('close')"
       >
-        <div class="nugget-modal" @click.stop>
+        <div
+          ref="dialog"
+          class="nugget-modal"
+          role="dialog"
+          aria-modal="true"
+          :aria-labelledby="titleId"
+          tabindex="-1"
+          @click.stop
+        >
           <div class="nugget-modal-header">
-            <h2>{{ config.labels.about }} : {{ nugget.name }}</h2>
+            <h2 :id="titleId">{{ config.labels.about }} : {{ nugget.name }}</h2>
             <button
               type="button"
               class="btn-close"
-              :aria-label="config.labels.about"
+              :aria-label="config.labels.close"
               @click="emit('close')"
             >
               ✕
@@ -175,8 +181,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref, useId } from "vue";
 import { formatShortDate } from "@/composables/formatDate";
+import { useModalA11y } from "@/composables/useModalA11y";
 import { useNaasConfig } from "@/composables/useNaasConfig";
 import type { Nugget } from "@/types/nugget.types";
 
@@ -184,6 +191,10 @@ const props = defineProps<{ nugget: Nugget; visible: boolean }>();
 const emit = defineEmits<{ (e: "close"): void }>();
 
 const config = useNaasConfig();
+
+const dialog = ref<HTMLElement | null>(null);
+const titleId = useId();
+useModalA11y(() => props.visible, dialog, () => emit("close"));
 
 function stripHtml(value?: string): string {
   return (
@@ -228,6 +239,11 @@ const inBriefShown = computed(
   z-index: 1060;
   padding: 3vh 1rem 2rem;
   overflow-y: auto;
+}
+
+/* The dialog takes focus when it opens; no outline around the whole box. */
+.nugget-modal:focus {
+  outline: none;
 }
 
 .nugget-modal {

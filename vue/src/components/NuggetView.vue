@@ -34,14 +34,14 @@
 
     <div id="nugget-info-button">
       <div>
-        <a
+        <button
           v-if="aboutButton"
-          href="javascript:;"
+          type="button"
           class="btn btn-primary"
           @click="showAbout = true"
         >
           {{ config.labels.about }}
-        </a>
+        </button>
         <select
           v-if="nugget"
           class="language-select"
