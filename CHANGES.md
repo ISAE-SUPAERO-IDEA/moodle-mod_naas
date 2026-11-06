@@ -60,13 +60,15 @@ _All notable changes to the NaaS Moodle plugin will be documented in this file._
 - The "Test connection" and "Refresh cache" buttons share one admin setting and one AMD module
 - Moodle 4.4 and 4.5: the web services no longer load `lib/externallib.php` (they use the `core_external` classes, with a compatibility layer on Moodle 4.1)
 - CI: Moodle 4.4 and 4.5 added to the test matrix, PHP 8.0 dropped, and the build fails if fewer PHPUnit tests than expected run
-- Supported Moodle versions declared: 4.1 to 5.0
+- Supported Moodle versions declared: 4.1 to 5.0; the plugin now requires Moodle 4.1
 - The plugin no longer depends on `mod_url` (leftover page-type, drag-and-drop and content-export callbacks removed)
 - CI: PHPStan at level 5 and blocking, PHP and widget coverage measured with minimums, Behat scenarios for the search widget against a fake NaaS
 - Widget build tools updated (Vite 6, Vitest 4, vue-tsc 3): no known vulnerability left in the JavaScript dependencies
 - CI: Moodle 5.0 added to the test matrix (PostgreSQL 14)
 - Opening an activity form no longer calls NaaS for the selected Nugget when its stored copy is less than a day old: the nightly task revalidates the Nuggets of every activity, in batches when NaaS supports `nugget_ids` and one by one otherwise
 - `NuggetSearchWidget.vue` is split into results, grid and selected-Nugget components and query and selection composables
+- The web services follow Moodle's layout: one class per function (`mod_naas\external\get_nugget`, …) with shared helpers in `naas_external_base`, instead of one 770-line `proxy_naas_api` class; their names and behaviour are unchanged
+- Development notes (`docs/` and planning files) removed from the repository
 - Tests: PHPUnit metadata also written as attributes (no deprecation on Moodle 5.0 / PHPUnit 11), widget coverage at 100 %, PHP coverage raised, Behat checks the widget, the preview and the About dialog with axe (WCAG 2.2 AA)
 - The catalogue cache is split into `catalogue_cache`, `catalogue_producers`, `catalogue_export` and `catalogue_warmer`; the widget filter panel into a facet column, a label composable and selection helpers
 - Tests: component tests for the whole widget (coverage minimum raised to 90 % of lines), Behat checks the signed LTI 1.1 launch form and the unknown-Nugget error
