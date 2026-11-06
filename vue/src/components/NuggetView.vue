@@ -81,6 +81,7 @@
       <iframe
         v-if="!loading && !error"
         id="lti-frame"
+        :title="nugget?.name"
         height="600px"
         width="100%"
         style="border: none"
@@ -109,7 +110,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, nextTick, onBeforeUnmount } from "vue";
+import {
+  ref,
+  computed,
+  watch,
+  nextTick,
+  onBeforeUnmount,
+  onMounted,
+} from "vue";
 // @ts-expect-error iframe-resizer ships no type declarations
 import iframeResizeLib from "iframe-resizer/js/iframeResizer";
 const iframeResize = iframeResizeLib as (
@@ -132,10 +140,20 @@ const language = ref<string | null>(null);
 const showAbout = ref(false);
 const showCompletion = ref(false);
 
-// The Moodle ≥ 4.0 secondary-nav has its own About link; hide our button in that case.
-const aboutButton = !document.querySelector(
-  ".secondary-navigation nav ul li[data-key=about]"
+// Moodle ≥ 4.0 shows an About entry in the activity's secondary navigation
+// (lib.php, naas_extend_settings_navigation): it opens the dialog instead of
+// our own button, which only shows on pages without that navigation.
+const navAbout = document.querySelector<HTMLElement>(
+  ".secondary-navigation nav ul li[data-key=about] a"
 );
+const aboutButton = !navAbout;
+
+function openAboutFromNav(event: Event) {
+  event.preventDefault();
+  showAbout.value = true;
+}
+onMounted(() => navAbout?.addEventListener("click", openAboutFromNav));
+onBeforeUnmount(() => navAbout?.removeEventListener("click", openAboutFromNav));
 
 // Available synchronously — lets the browser open the TCP connection before the nugget API resolves.
 const preloadUrl = `launch.php?id=${config.cm_id}&triggerview=0`;
@@ -169,6 +187,7 @@ onBeforeUnmount(stopVisibilityTracking);
 watch(nugget, (loaded) => {
   // One observer per loaded nugget: drop the previous one first.
   stopVisibilityTracking();
+  /* v8 ignore next -- @preserve */
   if (!loaded) return;
   language.value = loaded.language;
 
@@ -188,6 +207,8 @@ watch(nugget, (loaded) => {
       // Delay "experienced" by 10 s of confirmed iframe visibility so accidental
       // landings do not pollute xAPI records.
       const iframe = document.getElementById("lti-frame");
+      // Gone only if the view was unmounted during the delay.
+      /* v8 ignore next -- @preserve */
       if (!iframe) return;
 
       visibilityObserver = new IntersectionObserver(

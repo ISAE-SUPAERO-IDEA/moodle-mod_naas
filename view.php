@@ -69,8 +69,6 @@ $widgethtml = \mod_naas\naas_widget::naas_widget_html($naasinstance->nugget_id, 
 $renderer = $PAGE->get_renderer('mod_naas');
 $viewpage = new \mod_naas\output\view_page($courseurl, $backtocourse, $nextactivity, $widgethtml);
 
-$PAGE->requires->js_call_amd('mod_naas/view_page', 'init');
-
 echo $renderer->render($viewpage);
 
 // Finish the page.

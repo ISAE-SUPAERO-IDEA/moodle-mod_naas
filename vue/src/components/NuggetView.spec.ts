@@ -118,6 +118,9 @@ describe("NuggetView", () => {
     await mounted.flush();
     expect(mounted.el.querySelector(".nugget-view-skeleton")).toBeNull();
     expect(mounted.el.querySelector("#lti-frame")).not.toBeNull();
+    expect(mounted.el.querySelector("#lti-frame")?.getAttribute("title")).toBe(
+      makeNugget().name
+    );
   });
 
   it("launches the Nugget in its own language and offers the others", async () => {
@@ -151,17 +154,35 @@ describe("NuggetView", () => {
     );
   });
 
-  it("hides its About button when Moodle's secondary navigation has one", async () => {
+  it("opens About from Moodle's secondary navigation instead of its own button", async () => {
     document.body.insertAdjacentHTML(
       "beforeend",
-      '<div class="secondary-navigation"><nav><ul><li data-key="about"></li></ul></nav></div>'
+      '<div class="secondary-navigation"><nav><ul><li data-key="about"><a href="#">About</a></li></ul></nav></div>'
     );
-    const { el } = await mountView();
+    const { el, flush } = await mountView();
     expect(
       Array.from(el.querySelectorAll("button")).some(
         (b) => b.textContent?.trim() === "About"
       )
     ).toBe(false);
+
+    const link = document.querySelector<HTMLAnchorElement>(
+      "li[data-key=about] a"
+    )!;
+    const click = new MouseEvent("click", { bubbles: true, cancelable: true });
+    link.dispatchEvent(click);
+    await flush();
+    expect(click.defaultPrevented).toBe(true);
+    expect(document.querySelector('[role="dialog"]')?.textContent).toContain(
+      "About: Aircraft design basics"
+    );
+
+    // Once the view is gone, the link no longer drives it.
+    mounted?.unmount();
+    mounted = null;
+    const later = new MouseEvent("click", { bubbles: true, cancelable: true });
+    link.dispatchEvent(later);
+    expect(later.defaultPrevented).toBe(false);
   });
 
   it("shows an error banner whose Retry calls Moodle again", async () => {
@@ -229,6 +250,61 @@ describe("NuggetView", () => {
       version_id: "v-aircraft",
     });
     expect(observer.disconnect).toHaveBeenCalled();
+  });
+
+  it("ignores an observer report without entries", async () => {
+    vi.useFakeTimers();
+    const service = viewService();
+    mounted = mountComponent(NuggetView, {}, providers(makeConfig(), service));
+    await vi.advanceTimersByTimeAsync(600);
+    const [observer] = observers;
+
+    observer.callback([]);
+    vi.advanceTimersByTime(20000);
+    expect(service.postXapiStatement).not.toHaveBeenCalled();
+    expect(observer.disconnect).not.toHaveBeenCalled();
+  });
+
+  it("keeps the preload URL when the Nugget has no language", async () => {
+    const service = viewService({
+      viewNugget: vi.fn().mockResolvedValue(makeNugget({ language: "" })),
+    });
+    const { el } = await mountView(service);
+    expect(el.querySelector("#lti-frame")?.getAttribute("src")).toBe(
+      "launch.php?id=42&triggerview=0"
+    );
+  });
+
+  it("does nothing on Complete before the Nugget is loaded", async () => {
+    const service = viewService({
+      viewNugget: vi.fn(() => new Promise(() => {})),
+    });
+    const { el, flush } = await mountView(service);
+    buttonByText(el, "Complete").click();
+    await flush();
+    expect(service.postXapiStatement).not.toHaveBeenCalled();
+    expect(document.querySelector('[role="dialog"]')).toBeNull();
+  });
+
+  it("closes the About and rating dialogs", async () => {
+    const { el, flush } = await mountView();
+    buttonByText(el, "About").click();
+    await flush();
+    document
+      .querySelector<HTMLButtonElement>('[role="dialog"] .btn-close')!
+      .click();
+    await vi.waitFor(() =>
+      expect(document.querySelector('[role="dialog"]')).toBeNull()
+    );
+
+    buttonByText(el, "Complete").click();
+    await flush();
+    document
+      .querySelector<HTMLButtonElement>('[role="dialog"] .btn-close')!
+      .click();
+    await vi.waitFor(() =>
+      expect(document.querySelector('[role="dialog"]')).toBeNull()
+    );
   });
 
   it("stops visibility tracking when unmounted", async () => {
