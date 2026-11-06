@@ -112,8 +112,8 @@ jobs:
         shell: bash
         env:
           # Fail when tests silently stop running (bad discovery, skipped files).
-          # Raise it when tests are added; 528 tests ran on 2026-11-06.
-          MIN_PHPUNIT_TESTS: 520
+          # Raise it when tests are added; 744 tests ran on 2026-11-06.
+          MIN_PHPUNIT_TESTS: 740
         run: |
           moodle-plugin-ci phpunit --fail-on-warning | tee phpunit.log
           count=$(grep -oE '(OK \(|Tests: )[0-9]+' phpunit.log | grep -oE '[0-9]+' | tail -1)
@@ -185,9 +185,9 @@ jobs:
         run: moodle-plugin-ci phpunit --coverage-pcov --coverage-text --coverage-clover
 
       # The report covers all of Moodle: keep the plugin's own files and apply the minimum.
-      # Raise it as tests are added; 70.7 % of lines on 2026-11-06.
+      # 100 % of lines on 2026-11-06; a few lines unreachable under PHPUnit carry @codeCoverageIgnore.
       - name: Coverage of mod_naas
-        run: php plugin/.github/scripts/plugin-coverage.php coverage.xml 68
+        run: php plugin/.github/scripts/plugin-coverage.php coverage.xml 99
 
   widget:
     name: Vue widget (type-check, tests, committed bundle)
