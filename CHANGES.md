@@ -36,6 +36,8 @@ _All notable changes to the NaaS Moodle plugin will be documented in this file._
 ### Accessibility
 - The About, preview and rating dialogs close with Escape, take the focus when they open and give it back when they close, and are labelled by their title
 - Every widget text comes from the language file (no hard-coded English left)
+- The dialogs keep the keyboard focus inside them (Tab and Shift+Tab cycle through their controls)
+- Search results are a list of named cards with real buttons; the selected Nugget is announced as pressed, and the arrow keys move between cards
 
 ### Security
 - Stricter validation of NaaS identifiers and xAPI statements, enrolment check on the proxy web services, external entities disabled when reading grade submissions
@@ -54,9 +56,13 @@ _All notable changes to the NaaS Moodle plugin will be documented in this file._
 - The "Test connection" and "Refresh cache" buttons share one admin setting and one AMD module
 - Moodle 4.4 and 4.5: the web services no longer load `lib/externallib.php` (they use the `core_external` classes, with a compatibility layer on Moodle 4.1)
 - CI: Moodle 4.4 and 4.5 added to the test matrix, PHP 8.0 dropped, and the build fails if fewer PHPUnit tests than expected run
-- Supported Moodle versions declared: 4.1 to 4.5
+- Supported Moodle versions declared: 4.1 to 5.0
+- The plugin no longer depends on `mod_url` (leftover page-type, drag-and-drop and content-export callbacks removed)
 - CI: PHPStan at level 5 and blocking, PHP and widget coverage measured with minimums, Behat scenarios for the search widget against a fake NaaS
 - Widget build tools updated (Vite 6, Vitest 4, vue-tsc 3): no known vulnerability left in the JavaScript dependencies
+- CI: Moodle 5.0 added to the test matrix (PostgreSQL 14)
+- The catalogue cache is split into `catalogue_cache`, `catalogue_producers`, `catalogue_export` and `catalogue_warmer`; the widget filter panel into a facet column, a label composable and selection helpers
+- Tests: component tests for the whole widget (coverage minimum raised to 90 % of lines), Behat checks the signed LTI 1.1 launch form and the unknown-Nugget error
 
 ### Upgrade notes
 - Requires Node 22 to rebuild the widget; the bundle is now `assets/vue/naas_widget-<version>.js`
