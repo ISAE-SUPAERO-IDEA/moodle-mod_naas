@@ -27,5 +27,7 @@ Feature: NaaS plugin roles and capabilities
       | student1 | student     | Course       | C1        |
 
   Scenario: A user without mod/naas:view capability cannot see the NaaS activity
-    When I log in as "student1"
-    Then I should be denied access to the "Nugget A" naas activity page
+    # Without mod/naas:view the activity counts as hidden: Moodle sends the user back to the course.
+    When I am on the "Nugget A" "naas activity" page logged in as student1
+    Then I should see "Sorry, this activity is currently hidden"
+    And "#naas_widget" "css_element" should not exist

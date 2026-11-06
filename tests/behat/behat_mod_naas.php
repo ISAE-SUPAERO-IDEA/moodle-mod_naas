@@ -51,35 +51,6 @@ class behat_mod_naas extends behat_base {
     }
 
     /**
-     * Open the activity page and check that Moodle refuses access for lack of mod/naas:view.
-     *
-     * Behat fails any step that ends on a Moodle error page, so the step reads the
-     * message, then goes back to the site home before the after-step check runs.
-     *
-     * @Then /^I should be denied access to the "(?P<activityname>(?:[^"]|\\")*)" naas activity page$/
-     * @param string $activityname
-     */
-    public function i_should_be_denied_access_to_the_naas_activity_page(string $activityname): void {
-        $cm = $this->get_cm_by_activity_name('naas', $activityname);
-        $url = new moodle_url('/mod/naas/view.php', ['id' => $cm->id]);
-        $this->getSession()->visit($this->locate_path($url->out_as_local_url(false)));
-
-        $expected = get_string('nopermissions', 'error', get_string('naas:view', 'naas'));
-        $content = $this->getSession()->getPage()->getText();
-        $denied = strpos($content, $expected) !== false;
-        $widget = $this->getSession()->getPage()->find('css', '#naas_widget') !== null;
-
-        $this->getSession()->visit($this->locate_path('/'));
-
-        if (!$denied || $widget) {
-            throw new ExpectationException(
-                "Expected the access-denied message \"{$expected}\" and no widget on the naas activity page.",
-                $this->getSession()
-            );
-        }
-    }
-
-    /**
      * launch.php either renders the LTI auto-post form or a load error when the API is unavailable.
      *
      * @Then /^the naas launch page should show an LTI form or a load error$/
