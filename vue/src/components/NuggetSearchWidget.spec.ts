@@ -249,6 +249,25 @@ describe("NuggetSearchWidget", () => {
       ).toBe(true);
     });
 
+    it("keeps the row layout after a Nugget is picked and replaced", async () => {
+      const { el, flush } = await showResults();
+      buttonByText(el, "List").click();
+      await flush();
+      buttonByText(card(el, "Composite materials"), "Select").click();
+      await flush();
+      expect(el.querySelector("ul.nugget-grid")).toBeNull();
+      el.querySelector<HTMLButtonElement>(".nugget-clear-btn")!.click();
+      await flush();
+      expect(buttonByText(el, "List").getAttribute("aria-pressed")).toBe(
+        "true"
+      );
+      expect(
+        el
+          .querySelector("ul.nugget-grid")
+          ?.classList.contains("nugget-grid--rows")
+      ).toBe(true);
+    });
+
     it("says so when nothing matches", async () => {
       const m = await mountWidget();
       await openAllNuggets(m);
@@ -422,6 +441,18 @@ describe("NuggetSearchWidget", () => {
     });
   });
 
+  it("opens and closes the filter panel", async () => {
+    const { el, flush } = await mountWidget();
+    const toggle = el.querySelector<HTMLButtonElement>(".filters-toggle-btn")!;
+    expect(toggle.getAttribute("aria-expanded")).toBe("false");
+    toggle.click();
+    await flush();
+    expect(toggle.getAttribute("aria-expanded")).toBe("true");
+    toggle.click();
+    await flush();
+    expect(toggle.getAttribute("aria-expanded")).toBe("false");
+  });
+
   it("filters from the panel, shows chips and clears them", async () => {
     const service = makeService({
       searchNuggets: searchReturning(makeSearchResult([aircraft])),
@@ -512,6 +543,48 @@ describe("NuggetSearchWidget", () => {
       el.querySelector(".browse-card--producer .browse-card-title")?.textContent
     ).toBe("ISAE");
     release({ producers_digest: "", producers: [], aggregations: {} });
+  });
+
+  it("keeps the producer skeletons when the snapshot lists no producer", async () => {
+    const config = makeConfig({
+      catalogue_snapshot: {
+        search: makeSearchResult([aircraft], { results_count: 4 }),
+        producers: [],
+      },
+    });
+    const service = makeService({
+      checkCatalogue: vi.fn(() => new Promise(() => {})),
+    });
+    const { el } = await mountWidget(service, config);
+    expect(el.querySelector(".browse-card--all")?.textContent).toContain(
+      "4 Nuggets"
+    );
+    expect(el.querySelector(".browse-card--skel")).not.toBeNull();
+  });
+
+  it("stops paging when a Nugget is picked while a page loads", async () => {
+    let release: (value: unknown) => void = () => {};
+    const service = makeService({
+      searchNuggets: vi
+        .fn()
+        .mockResolvedValueOnce(
+          makeSearchResult([aircraft], { results_count: 3 })
+        )
+        .mockImplementationOnce(() => new Promise((r) => (release = r))),
+    });
+    const m = await mountWidget(service);
+    await openAllNuggets(m);
+    observers[observers.length - 1].callback([{ isIntersecting: true }]);
+    await m.flush();
+    buttonByText(card(m.el, "Aircraft design basics"), "Select").click();
+    await m.flush();
+
+    release(makeSearchResult([orbital], { results_count: 3 }));
+    await m.flush();
+    await m.flush();
+    // The list is gone: no sentinel to ask, so no third page.
+    expect(service.searchNuggets).toHaveBeenCalledTimes(2);
+    expect(m.el.querySelector(".nugget-clear-btn")).not.toBeNull();
   });
 
   it("loads the next page when the end of the list comes into view", async () => {
