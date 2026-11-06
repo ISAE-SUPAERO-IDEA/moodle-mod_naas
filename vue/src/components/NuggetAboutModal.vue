@@ -176,7 +176,7 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import moment from "moment";
+import { formatShortDate } from "@/composables/formatDate";
 import { useNaasConfig } from "@/composables/useNaasConfig";
 import type { Nugget } from "@/types/nugget.types";
 
@@ -200,8 +200,7 @@ function isShown(val: unknown): boolean {
 }
 
 function formatDate(value?: string): string {
-  if (!value) return "";
-  return moment(value).format("DD/MM/YYYY");
+  return formatShortDate(value);
 }
 
 const inBriefShown = computed(

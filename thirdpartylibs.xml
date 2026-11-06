@@ -9,14 +9,6 @@
         <location>vue/node_modules/iframe-resizer</location>
     </library>
     <library>
-        <name>moment</name>
-        <version>2.30.1</version>
-        <license>MIT</license>
-        <homepage>https://momentjs.com/</homepage>
-        <origin>https://github.com/moment/moment/</origin>
-        <location>vue/node_modules/moment</location>
-    </library>
-    <library>
         <location>vue/node_modules/vue</location>
         <name>vue</name>
         <version>3.5.44</version>
