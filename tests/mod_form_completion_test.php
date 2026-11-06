@@ -168,6 +168,10 @@ final class mod_form_completion_test extends advanced_testcase {
         $errors = $form->validation($this->payload(['nugget_id' => '']), []);
         $this->assertSame(get_string('error:nugget_required', 'naas'), $errors['name']);
 
+        // What a form opened before 3.0.0 posts when no Nugget was chosen.
+        $errors = $form->validation($this->payload(['nugget_id' => 'nugget_id']), []);
+        $this->assertSame(get_string('error:nugget_required', 'naas'), $errors['name']);
+
         $errors = $form->validation($this->payload(), []);
         $this->assertArrayNotHasKey('name', $errors);
     }

@@ -55,7 +55,8 @@ class mod_naas_mod_form extends moodleform_mod {
 
         $mform->addElement('text', 'name', get_string('name_display', 'naas'), ['size' => '48']);
         $mform->setType('name', PARAM_TEXT);
-        $mform->addElement('hidden', 'nugget_id', 'nugget_id', ['size' => '48']);
+        // Empty until the widget writes the chosen Nugget's id.
+        $mform->addElement('hidden', 'nugget_id', '');
         $mform->setType('nugget_id', PARAM_TEXT);
 
         // CGU.
@@ -206,7 +207,8 @@ class mod_naas_mod_form extends moodleform_mod {
     public function validation($data, $files) {
         $errors = parent::validation($data, $files);
 
-        if (empty($data['nugget_id'])) {
+        // Forms rendered before 3.0.0 posted the placeholder "nugget_id" when no Nugget was chosen.
+        if (empty($data['nugget_id']) || $data['nugget_id'] === 'nugget_id') {
             // The name row stays hidden until a Nugget is chosen: the widget shows this error above itself.
             $errors['name'] = get_string('error:nugget_required', 'naas');
         }
