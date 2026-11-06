@@ -44,77 +44,19 @@
     <!-- Search + filter + results grid -->
     <div v-if="selectedNugget === null && !selectedNuggetLoading">
       <!-- Search bar row -->
-      <div class="search-bar-row">
-        <label class="search-label" id="nugget_search">
-          {{ config.labels.search }}
-        </label>
-        <div class="search-input-wrap">
-          <div class="search-field">
-            <i class="search-field-icon icon fa fa-search" />
-            <input
-              v-model="typed"
-              @input="onInput"
-              @keydown.enter.prevent
-              class="search-field-input"
-              :placeholder="config.labels.nugget_search_here"
-            />
-            <button
-              v-if="typed"
-              type="button"
-              class="search-field-clear"
-              :aria-label="config.labels.clear_search"
-              @click="
-                typed = '';
-                debouncedTyped = '';
-                page = SEARCH_FIRST_PAGE;
-                refreshResults();
-              "
-            >
-              ×
-            </button>
-          </div>
-          <button
-            type="button"
-            class="filters-toggle-btn"
-            :class="{ 'filters-toggle-btn--open': filtersOpen }"
-            :aria-expanded="filtersOpen"
-            aria-controls="naas-filters-collapse"
-            @click="filtersOpen = !filtersOpen"
-          >
-            <i class="icon fa fa-sliders" aria-hidden="true" />
-            {{ config.labels.metadata.filters }}
-            <span v-if="activeFilterCount > 0" class="filters-toggle-badge">{{
-              activeFilterCount
-            }}</span>
-            <i
-              class="icon fa fa-chevron-down filters-toggle-chevron"
-              :class="{ 'filters-toggle-chevron--open': filtersOpen }"
-              aria-hidden="true"
-            />
-          </button>
-        </div>
-      </div>
-
-      <div
-        id="naas-filters-collapse"
-        class="filters-collapse"
-        :class="{ 'filters-collapse--open': filtersOpen }"
-        :aria-hidden="!filtersOpen"
-      >
-        <div class="filters-collapse-clip">
-          <div class="filters-collapse-panel">
-            <NuggetSearchFilter
-              :network-aggregations="facetAggregations"
-              :network-labels="facetLabels"
-              :active-filters="filters"
-              :loading="loading && Object.keys(facetAggregations).length === 0"
-              :prefetch="filtersOpen"
-              @filters="onFilters"
-              @captions="onFilterCaptions"
-            />
-          </div>
-        </div>
-      </div>
+      <NuggetSearchBar
+        v-model:query="typed"
+        v-model:open="filtersOpen"
+        :active-filter-count="activeFilterCount"
+        :aggregations="facetAggregations"
+        :labels="facetLabels"
+        :active-filters="filters"
+        :loading="loading && Object.keys(facetAggregations).length === 0"
+        @typing="onInput"
+        @clear="onClearSearch"
+        @filters="onFilters"
+        @captions="onFilterCaptions"
+      />
 
       <NuggetBrowseLanding
         v-if="showingBrowse"
@@ -288,7 +230,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount, watch, nextTick } from "vue";
 import { debounce } from "@/utils/debounce";
-import NuggetSearchFilter from "./NuggetSearchFilter.vue";
+import NuggetSearchBar from "./NuggetSearchBar.vue";
 import NuggetPost from "./NuggetPost.vue";
 import NuggetSkeleton from "./NuggetSkeleton.vue";
 import FilterChips from "./FilterChips.vue";
@@ -305,24 +247,11 @@ import {
   setActivityDetailsVisible,
   syncMoodleNuggetFields,
 } from "@/composables/moodleActivityForm";
-import {
-  facetLabelsFromSnapshot,
-  mergeFacetLabels,
-  mergeProducerDirectory,
-  snapshotSearch,
-} from "@/composables/catalogueSnapshot";
-import {
-  mergeProducerNames,
-  producerLabelUpdates,
-} from "@/composables/producerDirectory";
-import type { NamedProducer } from "@/composables/producerDirectory";
-import type { CatalogueProducer } from "@/types/naas-config.types";
-import type {
-  AggregationResult,
-  CatalogueFacetLabels,
-  Nugget,
-  SearchOptions,
-} from "@/types/nugget.types";
+import { useProducerDirectory } from "@/composables/useProducerDirectory";
+import { useCatalogueCheck } from "@/composables/useCatalogueCheck";
+import { useLoadMoreSentinel } from "@/composables/useLoadMoreSentinel";
+import type { Nugget, SearchOptions } from "@/types/nugget.types";
+import "@/styles/naas-activity-form.css";
 
 const config = useNaasConfig();
 const service = useMoodleService();
@@ -348,10 +277,6 @@ const typed = ref("");
 const debouncedTyped = ref("");
 const filters = ref<Record<string, string[]>>({});
 const bucketCaptions = ref<Record<string, string>>({});
-const landingSnapshot = snapshotSearch(config.catalogue_snapshot);
-const facetAggregations = ref<Record<string, AggregationResult>>(
-  landingSnapshot?.aggregations ?? {}
-);
 const filtersOpen = ref(false);
 const activeFilterCount = computed(() =>
   Object.values(filters.value).reduce((sum, arr) => sum + arr.length, 0)
@@ -378,69 +303,20 @@ const showingBrowse = computed(
     !typed.value.trim()
 );
 
-const catalogueResultsCount = ref(Number(landingSnapshot?.results_count ?? 0));
-
-const producersDigest = ref(config.catalogue_snapshot?.producers_digest ?? "");
-const producerDirectory = ref<CatalogueProducer[]>(
-  config.catalogue_snapshot?.producers ?? []
-);
-const facetLabels = ref<CatalogueFacetLabels>(
-  facetLabelsFromSnapshot(config.catalogue_snapshot)
-);
-const catalogueLoading = ref(
-  !landingSnapshot?.aggregations?.producers?.buckets?.length
-);
-
-/**
- * Confirm the producer strip and the catalogue stamp against NaaS.
- *
- * Aggregations span the whole match set, so one hit carries every producer,
- * every count, and the newest modification date. The landing is already on
- * screen from the injected snapshot; this only repaints when the stamp moved,
- * and it tells the search composable whether cached pages can be trusted.
- */
-async function runCatalogueCheck() {
-  try {
-    const check = await service.checkCatalogue(config.courseId);
-    applyCatalogueStamp(check.stamp, config.catalogue_snapshot?.stamp);
-    if (check.labels) {
-      facetLabels.value = mergeFacetLabels(facetLabels.value, check.labels);
-    }
-    // Digest ignores display names; always absorb producer rows when present.
-    const checkWithProducers = check as typeof check & {
-      producers?: CatalogueProducer[];
-    };
-    const rows = checkWithProducers.producers;
-    if (Array.isArray(rows) && rows.length > 0) {
-      producerDirectory.value = mergeProducerDirectory(
-        producerDirectory.value,
-        rows
-      );
-      facetLabels.value = mergeFacetLabels(
-        facetLabels.value,
-        facetLabelsFromSnapshot({ producers: rows })
-      );
-    }
-    if (
-      check.producers_digest &&
-      check.producers_digest === producersDigest.value
-    ) {
-      return;
-    }
-    producersDigest.value = check.producers_digest ?? "";
-    if (check.aggregations && Object.keys(check.aggregations).length) {
-      facetAggregations.value = check.aggregations;
-    }
-    if (typeof check.results_count === "number") {
-      catalogueResultsCount.value = check.results_count;
-    }
-  } catch {
-    applyCatalogueStamp(null, config.catalogue_snapshot?.stamp);
-    // Keep whatever the landing already has (snapshot or empty).
-  } finally {
-    catalogueLoading.value = false;
-  }
-}
+const { producerDirectory, facetLabels, onProducersNamed, ...directory } =
+  useProducerDirectory(config.catalogue_snapshot);
+const {
+  facetAggregations,
+  catalogueResultsCount,
+  catalogueLoading,
+  runCatalogueCheck,
+} = useCatalogueCheck({
+  service,
+  courseId: config.courseId,
+  snapshot: config.catalogue_snapshot,
+  directory,
+  applyCatalogueStamp,
+});
 
 function setItemRef(el: unknown, index: number) {
   if (el instanceof HTMLElement) itemRefs[index] = el;
@@ -516,17 +392,10 @@ async function doSearch(append = false) {
   }
 }
 
-const loadMoreSentinel = ref<HTMLElement | null>(null);
+const { sentinel: loadMoreSentinel, sentinelIsNear } = useLoadMoreSentinel(
+  () => void loadMore()
+);
 let loadMoreInFlight = false;
-
-function sentinelIsVisible(): boolean {
-  const el = loadMoreSentinel.value;
-  if (!el) {
-    return false;
-  }
-  const rect = el.getBoundingClientRect();
-  return rect.top < window.innerHeight + 320;
-}
 
 async function loadMore() {
   if (
@@ -547,30 +416,10 @@ async function loadMore() {
     loadMoreInFlight = false;
   }
   await nextTick();
-  if (nuggets.value.length > loadedBefore && sentinelIsVisible()) {
+  if (nuggets.value.length > loadedBefore && sentinelIsNear()) {
     void loadMore();
   }
 }
-
-watch(
-  loadMoreSentinel,
-  (el, _prev, onCleanup) => {
-    if (!el) {
-      return;
-    }
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries.some((entry) => entry.isIntersecting)) {
-          void loadMore();
-        }
-      },
-      { root: null, rootMargin: "320px 0px", threshold: 0 }
-    );
-    observer.observe(el);
-    onCleanup(() => observer.disconnect());
-  },
-  { flush: "post" }
-);
 
 /**
  * Fetch cards only when the grid is what the teacher is looking at. Clearing
@@ -581,6 +430,13 @@ function refreshResults() {
     return;
   }
   doSearch();
+}
+
+function onClearSearch() {
+  typed.value = "";
+  debouncedTyped.value = "";
+  page.value = SEARCH_FIRST_PAGE;
+  refreshResults();
 }
 
 const onInput = debounce(() => {
@@ -627,26 +483,6 @@ function clearAllFilters() {
   bucketCaptions.value = {};
   page.value = SEARCH_FIRST_PAGE;
   refreshResults();
-}
-
-/**
- * Fold names the landing resolved into the facet labels and the directory.
- *
- * Assigning `producerDirectory` hands NuggetBrowseLanding a new `directory`
- * reference and re-runs its watcher, which emits `named` again. Only assign
- * when something actually changed, or the round trip never settles.
- */
-function onProducersNamed(rows: NamedProducer[]) {
-  const labels = producerLabelUpdates(facetLabels.value.producers, rows);
-  if (Object.keys(labels).length) {
-    facetLabels.value = mergeFacetLabels(facetLabels.value, {
-      producers: labels,
-    });
-  }
-  const merged = mergeProducerNames(producerDirectory.value, rows);
-  if (merged !== producerDirectory.value) {
-    producerDirectory.value = merged;
-  }
 }
 
 function onBrowseSelect(payload: {
@@ -752,92 +588,6 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-/* ── Search bar ─────────────────────────────────────────────────────────── */
-.search-bar-row {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin-bottom: 1.25rem;
-}
-
-.search-label {
-  flex-shrink: 0;
-  font-weight: 600;
-  white-space: nowrap;
-  margin: 0;
-  color: var(--naas-text, #1f2937);
-}
-
-.search-input-wrap {
-  display: flex;
-  align-items: center;
-  flex: 1;
-  gap: 0.5rem;
-}
-
-/* Pill-shaped search field */
-.search-field {
-  position: relative;
-  flex: 1;
-  display: flex;
-  align-items: center;
-}
-
-.search-field-icon {
-  position: absolute;
-  left: 0.85rem;
-  color: var(--naas-text-muted, #6c757d);
-  font-size: 0.875rem;
-  pointer-events: none;
-  z-index: 1;
-}
-
-.search-field-input {
-  width: 100%;
-  padding: 0.5rem 2.25rem 0.5rem 2.25rem;
-  border: 1.5px solid var(--naas-border, #dee2e6);
-  border-radius: var(--naas-radius-pill, 999px);
-  background: var(--naas-surface, #fff);
-  font-size: 0.875rem;
-  color: var(--naas-text, #1f2937);
-  transition: border-color var(--naas-transition, 0.18s ease),
-    box-shadow var(--naas-transition, 0.18s ease);
-  outline: none;
-  line-height: 1.5;
-}
-
-.search-field-input::placeholder {
-  color: var(--naas-text-subtle, #adb5bd);
-}
-
-.search-field-input:focus {
-  border-color: var(--naas-primary, #0f6cbf);
-  box-shadow: 0 0 0 3px rgba(15, 108, 191, 0.15);
-}
-
-.search-field-clear {
-  position: absolute;
-  right: 0.75rem;
-  background: var(--naas-text-subtle, #adb5bd);
-  color: #fff;
-  border: none;
-  border-radius: 50%;
-  width: 1.1rem;
-  height: 1.1rem;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.8rem;
-  line-height: 1;
-  cursor: pointer;
-  padding: 0;
-  transition: background var(--naas-transition, 0.18s ease);
-}
-
-.search-field-clear:hover {
-  background: var(--naas-text-muted, #6c757d);
-}
-
 .search-results {
   width: 100%;
   max-width: 100%;
@@ -1026,214 +776,4 @@ onMounted(async () => {
   height: 1px;
 }
 
-/* ── Filters toggle button ─────────────────────────────────────────────── */
-.filters-toggle-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.45rem 0.9rem;
-  border: 1.5px solid var(--naas-border, #dee2e6);
-  border-radius: var(--naas-radius-pill, 999px);
-  background: var(--naas-surface, #fff);
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--naas-text, #1f2937);
-  cursor: pointer;
-  white-space: nowrap;
-  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease,
-    box-shadow 0.15s ease;
-  flex-shrink: 0;
-}
-
-.filters-toggle-btn .icon {
-  margin: 0;
-  font-size: 0.85rem;
-}
-
-.filters-toggle-btn:hover,
-.filters-toggle-btn:focus-visible {
-  border-color: var(--naas-primary, #0f6cbf);
-  color: var(--naas-primary, #0f6cbf);
-  outline: none;
-}
-
-.filters-toggle-btn--open {
-  border-color: var(--naas-primary, #0f6cbf);
-  background: var(--naas-primary-light, #dce9fa);
-  color: var(--naas-primary, #0f6cbf);
-  box-shadow: 0 0 0 3px rgba(15, 108, 191, 0.12);
-}
-
-.filters-toggle-chevron {
-  transition: transform 0.2s ease;
-}
-
-.filters-toggle-chevron--open {
-  transform: rotate(180deg);
-}
-
-.filters-toggle-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 1.1rem;
-  height: 1.1rem;
-  padding: 0 0.2rem;
-  border-radius: 50%;
-  background: var(--primary, #0f6cbf);
-  color: #fff;
-  font-size: 0.7rem;
-  font-weight: 700;
-  line-height: 1;
-}
-
-.filters-collapse {
-  display: grid;
-  grid-template-rows: 0fr;
-  transition: grid-template-rows 0.28s ease;
-  pointer-events: none;
-  position: relative;
-  z-index: 5;
-}
-
-.filters-collapse--open {
-  grid-template-rows: 1fr;
-  pointer-events: auto;
-  z-index: 30;
-}
-
-.filters-collapse-clip {
-  overflow: hidden;
-  min-height: 0;
-}
-
-.filters-collapse--open .filters-collapse-clip {
-  overflow: visible;
-}
-
-.filters-collapse-panel {
-  padding: 0 0 1rem;
-  overflow: visible;
-}
-
-.filters-collapse-panel :deep(.filter-bar) {
-  margin-bottom: 0;
-  padding: 0.85rem 1rem 1rem;
-  border: 1.5px solid var(--naas-border, #dee2e6);
-  border-radius: var(--naas-radius, 8px);
-  background: var(--naas-surface-muted, #f8f9fa);
-  overflow: visible;
-}
-
-.filters-collapse-panel :deep(.filter-title) {
-  display: none;
-}
-
-.filters-collapse-panel :deep(.filter-bar-header) {
-  justify-content: flex-end;
-  margin-bottom: 0;
-}
-
-.filters-collapse-panel :deep(.filter-clear-btn) {
-  margin-bottom: 0.65rem;
-}
-</style>
-
-<style>
-/* Moodle form fields live outside the Vue root. Hide them until a nugget
-   is selected — never wrap those fitems in a split HTML <div>. */
-.mform[data-naas-details="hidden"] #id_generalcontainer > .fitem,
-.mform[data-naas-details="hidden"] #fitem_id_name,
-.mform[data-naas-details="hidden"] #fitem_id_introeditor,
-.mform[data-naas-details="hidden"] #fitem_id_intro,
-.mform[data-naas-details="hidden"] #fitem_id_showdescription,
-.mform[data-naas-details="hidden"] #fitem_id_cgu_agreement,
-.fitem.naas-cgu-field {
-  display: none !important;
-}
-
-/* The same Moodle checkbox, parked under the selected nugget. */
-.naas-cgu-anchor .fitem.naas-cgu-field,
-.mform .naas-cgu-anchor #fitem_id_cgu_agreement.naas-cgu-field {
-  display: block !important;
-  margin: 0;
-  padding: 0.95rem 1.05rem;
-  border: 1.5px solid rgba(15, 108, 191, 0.28);
-  border-radius: var(--naas-radius, 8px);
-  background: #f3f8fd;
-  box-shadow: none;
-}
-
-.naas-cgu-anchor .fitem.naas-cgu-field > .col-md-3,
-.naas-cgu-anchor .fitemtitle {
-  display: none;
-}
-
-.naas-cgu-anchor .col-md-9,
-.naas-cgu-anchor .felement,
-.naas-cgu-anchor .checkbox {
-  width: 100%;
-  max-width: 100%;
-  flex: 1 1 100%;
-  margin: 0;
-  padding: 0;
-}
-
-.naas-cgu-anchor .form-check {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.75rem;
-  margin: 0;
-  padding: 0;
-  min-height: 0;
-}
-
-.naas-cgu-anchor .form-check-input {
-  position: static;
-  float: none;
-  width: 1.15rem;
-  height: 1.15rem;
-  margin: 0.2rem 0 0;
-  flex: 0 0 auto;
-  accent-color: var(--naas-primary, #0f6cbf);
-}
-
-.naas-cgu-anchor label,
-.naas-cgu-anchor #id_cgu_agreement_description {
-  margin: 0;
-  font-size: 0.95rem;
-  font-weight: 600;
-  line-height: 1.45;
-  color: var(--naas-text, #1f2937);
-}
-
-.naas-cgu-anchor a {
-  color: var(--naas-primary-dark, #0a4a8f);
-  font-weight: 700;
-  text-decoration: underline;
-  text-underline-offset: 0.12em;
-}
-
-.naas-cgu-anchor a:hover,
-.naas-cgu-anchor a:focus-visible {
-  color: var(--naas-primary, #0f6cbf);
-}
-
-.naas-cgu-anchor .invalid-feedback:not(:empty),
-.naas-cgu-anchor .error:not(:empty) {
-  display: block;
-  margin: 0.5rem 0 0 1.9rem;
-  font-size: 0.85rem;
-  font-weight: 600;
-  line-height: 1.4;
-  color: #9b1c1c;
-}
-#naas_widget,
-.naas-widget-host {
-  display: block;
-  width: 100%;
-  max-width: 100%;
-  min-width: 0;
-  box-sizing: border-box;
-}
 </style>
