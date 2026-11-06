@@ -391,5 +391,5 @@ class mod_naas_outcome {
 
 // Web entrypoint. Tests include this file and call mod_naas_outcome methods directly.
 if (!defined('PHPUNIT_TEST') || !PHPUNIT_TEST) {
-    mod_naas_outcome::process(file_get_contents('php://input') ?: '');
+    mod_naas_outcome::process(file_get_contents('php://input') ?: ''); // @codeCoverageIgnore
 }

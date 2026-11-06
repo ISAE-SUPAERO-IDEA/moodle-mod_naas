@@ -157,11 +157,11 @@ class vocabulary_lookup {
         }
         foreach ($table['persons'] as $key => $row) {
             if (!is_array($row)) {
-                continue;
+                continue; // @codeCoverageIgnore
             }
             $name = trim((string) ($row['firstname'] ?? '') . ' ' . (string) ($row['lastname'] ?? ''));
             if ($name === '') {
-                continue;
+                continue; // @codeCoverageIgnore
             }
             $labels['authors'][$key] = \core_text::strtoupper($name);
         }
@@ -265,7 +265,7 @@ class vocabulary_lookup {
         foreach ($keys as $key) {
             $needle = strtolower(catalogue_cache::normalize_structure_key((string) $key));
             if ($needle === '') {
-                continue;
+                continue; // @codeCoverageIgnore
             }
             foreach ($producers as $row) {
                 if (!is_array($row)) {

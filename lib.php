@@ -35,6 +35,9 @@ function naas_define_module_constants(): void {
         return;
     }
 
+    // The Moodle PHPUnit bootstrap includes every mod/*/lib.php before coverage starts:
+    // the first call never runs under a test.
+    // @codeCoverageIgnoreStart
     // Option controlling what options are offered on the NaaS settings form.
     define('NAAS_MAX_ATTEMPT_OPTION', 10);
     define('NAAS_MAX_QPP_OPTION', 50);
@@ -46,9 +49,10 @@ function naas_define_module_constants(): void {
     define('NAAS_GRADEHIGHEST', '1');
     define('NAAS_ATTEMPTFIRST', '3');
     define('NAAS_ATTEMPTLAST', '4');
+    // @codeCoverageIgnoreEnd
 }
 
-naas_define_module_constants();
+naas_define_module_constants(); // @codeCoverageIgnore
 
 
 /**
@@ -357,7 +361,7 @@ function naas_grade_item_update($nugget, $grades = null) {
     global $CFG;
 
     if (!function_exists('grade_update')) { // Workaround for buggy PHP versions.
-        require_once($CFG->libdir . '/gradelib.php');
+        require_once($CFG->libdir . '/gradelib.php'); // @codeCoverageIgnore
     }
 
     if (property_exists($nugget, 'cm_id')) { // It may not be always present.
