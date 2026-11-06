@@ -1512,6 +1512,11 @@ class proxy_naas_api_test extends advanced_testcase {
     /**
      * sanitise_json_response must re-encode valid JSON (normalised representation).
      */
+    public function test_sanitise_json_response_returns_a_compact_canonical_encoding(): void {
+        $raw = " {\n  \"b\" : 2,\n  \"a\" : \"x\\/y\",\n  \"c\" : \"\\u00e9t\\u00e9\"\n} ";
+        $this->assertSame('{"b":2,"a":"x/y","c":"été"}', $this->invoke_sanitise_json_response($raw));
+    }
+
     public function test_sanitise_json_response_reencodes_valid_json(): void {
         $out = $this->invoke_sanitise_json_response('{"b":2,"a":1}');
         $this->assertEquals(['b' => 2, 'a' => 1], json_decode($out, true));
