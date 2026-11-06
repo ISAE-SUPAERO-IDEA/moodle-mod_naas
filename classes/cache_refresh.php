@@ -25,7 +25,7 @@
 namespace mod_naas;
 
 /**
- * Clears the four MUC areas, then reloads them from NaaS.
+ * Reloads the NaaS caches, and only then drops the entries that are fetched again on demand.
  *
  * @package   mod_naas
  * @copyright 2026 ISAE-SUPAERO
@@ -33,22 +33,16 @@ namespace mod_naas;
  */
 class cache_refresh {
     /**
-     * Drop every cached catalogue, search, name, and Nugget document.
-     */
-    public static function purge_all(): void {
-        \cache::make('mod_naas', vocabulary_lookup::CACHE_AREA)->purge();
-        \cache::make('mod_naas', catalogue_cache::CACHE_AREA)->purge();
-        \cache::make('mod_naas', search_cache::CACHE_AREA)->purge();
-        \cache::make('mod_naas', nugget_cache::CACHE_AREA)->purge();
-    }
-
-    /**
-     * Purge, then rebuild the catalogue, the search lists, and author names.
+     * Rebuild the catalogue and the search lists, then refresh names and Nugget documents.
      *
-     * Does nothing to the caches when the API URL is not saved, so a click
-     * on an unfinished settings form cannot wipe a working catalogue.
+     * The rebuild overwrites the catalogue snapshot and the cached searches in place.
+     * Names and Nugget documents are purged only once the catalogue was rebuilt, so
+     * a slow or unreachable NaaS leaves every existing cache untouched. Nothing is
+     * touched when the API URL is not saved, so a click on an unfinished settings
+     * form cannot wipe a working catalogue.
      *
      * @return string User-facing success message.
+     * @throws \moodle_exception cache_refresh_failed when NaaS could not rebuild the catalogue.
      */
     public static function full(): string {
         global $CFG;
@@ -59,14 +53,20 @@ class cache_refresh {
         }
 
         \core_php_time_limit::raise(180);
-        self::purge_all();
+        $started = time();
 
-        $task = new \mod_naas\task\refresh_catalogue();
-        $task->refresh(false);
+        static::make_refresh_task()->refresh(false);
 
-        if (catalogue_cache::get() === null) {
+        // The catalogue warm-up swallows NaaS errors: a snapshot written by this
+        // run is the proof that NaaS answered.
+        $snapshot = catalogue_cache::get();
+        if ($snapshot === null || (int) ($snapshot['warmed_at'] ?? 0) < $started) {
             throw new \moodle_exception('cache_refresh_failed', 'naas');
         }
+
+        // Fetched again on demand: drop them only now that the catalogue is fresh.
+        \cache::make('mod_naas', vocabulary_lookup::CACHE_AREA)->purge();
+        \cache::make('mod_naas', nugget_cache::CACHE_AREA)->purge();
 
         try {
             $naas = new naas_client($config);
@@ -76,5 +76,14 @@ class cache_refresh {
         }
 
         return get_string('cache_refresh_success', 'naas');
+    }
+
+    /**
+     * The task that rebuilds the catalogue and the search lists. Overridden in tests.
+     *
+     * @return \mod_naas\task\refresh_catalogue
+     */
+    protected static function make_refresh_task(): \mod_naas\task\refresh_catalogue {
+        return new \mod_naas\task\refresh_catalogue();
     }
 }
