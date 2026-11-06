@@ -264,6 +264,48 @@ class proxy_naas_api_test extends advanced_testcase {
         ];
     }
 
+    /**
+     * NaaS down: check_catalogue answers with the cached catalogue instead of an error.
+     */
+    public function test_check_catalogue_falls_back_to_the_cached_catalogue_when_naas_fails(): void {
+        global $CFG;
+        $this->resetAfterTest(true);
+        $course = $this->getDataGenerator()->create_course();
+        $user = $this->getDataGenerator()->create_user();
+        $this->getDataGenerator()->enrol_user($user->id, $course->id, 'editingteacher');
+        $this->setUser($user);
+        $config = (object) array_merge((array) get_config('naas'), (array) $CFG);
+        \mod_naas\catalogue_cache::store([
+            'fingerprint' => \mod_naas\catalogue_cache::fingerprint($config),
+            'search' => ['items' => [], 'aggregations' => [], 'results_count' => 42],
+            'producers' => [],
+            // Too old for the short-lived probe cache: the live call is attempted.
+            'stamp_checked_at' => 0,
+        ]);
+        $proxy = $this->proxy_using($this->failing_client());
+
+        $result = json_decode($proxy::check_catalogue($course->id), true);
+
+        $this->assertTrue($result['from_cache']);
+        $this->assertSame(42, $result['results_count']);
+    }
+
+    /**
+     * NaaS down and nothing cached: the error still reaches the widget.
+     */
+    public function test_check_catalogue_without_cache_reports_the_naas_error(): void {
+        $this->resetAfterTest(true);
+        $course = $this->getDataGenerator()->create_course();
+        $user = $this->getDataGenerator()->create_user();
+        $this->getDataGenerator()->enrol_user($user->id, $course->id, 'editingteacher');
+        $this->setUser($user);
+        \mod_naas\catalogue_cache::purge();
+        $proxy = $this->proxy_using($this->failing_client());
+
+        $this->expectException(\moodle_exception::class);
+        $proxy::check_catalogue($course->id);
+    }
+
     public function test_get_nugget_spaces_rejected(): void {
         $this->resetAfterTest(true);
 

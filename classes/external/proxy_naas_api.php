@@ -1475,10 +1475,23 @@ class proxy_naas_api extends \external_api {
             'sort_order' => 'DESC',
         ], $config);
 
-        $raw = \mod_naas\catalogue_filters::constrain_search_json(
-            self::sanitise_json_response($naas->request_raw('GET', self::search_url($searchoptions))),
-            $config
-        );
+        try {
+            $raw = \mod_naas\catalogue_filters::constrain_search_json(
+                self::sanitise_json_response($naas->request_raw('GET', self::search_url($searchoptions))),
+                $config
+            );
+        } catch (\moodle_exception $e) {
+            // NaaS unreachable: answer with the last known catalogue instead of failing,
+            // so the landing keeps working from the cache.
+            $snapshot = \mod_naas\catalogue_cache::get();
+            if (!$snapshot || ($snapshot['fingerprint'] ?? '') !== \mod_naas\catalogue_cache::fingerprint($config)) {
+                throw $e;
+            }
+            return json_encode(
+                \mod_naas\catalogue_cache::probe_payload($snapshot, true),
+                JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
+            );
+        }
         \mod_naas\catalogue_cache::remember_aggregations($raw, $config);
         $snapshot = \mod_naas\catalogue_cache::get() ?? [];
 
