@@ -18,6 +18,7 @@
     @template mod_naas/lti_launch_form
 
     Template for generating the LTI POST automatic launch form.
+    The form submits itself; without JavaScript, a Continue button submits it.
 
     Context variables required for this template:
     * launchurl - The validated LTI launch URL
@@ -36,6 +37,9 @@
     {{#fields}}
     <input type="hidden" name="{{name}}" value="{{value}}">
     {{/fields}}
+    <noscript>
+        <input type="submit" class="btn btn-primary" value="{{#str}} continue {{/str}}">
+    </noscript>
 </form>
 
 <script>
