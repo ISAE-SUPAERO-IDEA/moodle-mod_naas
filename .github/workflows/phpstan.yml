@@ -24,17 +24,22 @@ jobs:
         with:
           php-version: 8.2
 
+      # Exact versions: a new PHPStan or stubs release must not change the result on its own.
       - name: Install PHPStan + Moodle stubs + SARIF formatter
         run: |
-          composer require --dev phpstan/phpstan
-          composer require --dev michaelmeneses/moodle-stubs:^4.3
-          composer require --dev jbelien/phpstan-sarif-formatter
+          composer require --dev --no-interaction phpstan/phpstan:2.3.5 \
+            michaelmeneses/moodle-stubs:4.5.15 jbelien/phpstan-sarif-formatter:1.2.0
 
+      # Level 5 (phpstan.neon); the job fails on any error.
       - name: Run PHPStan
-        continue-on-error: true
         run: vendor/bin/phpstan analyse --no-progress --error-format=sarif > phpstan-results.sarif
 
+      - name: Show PHPStan errors
+        if: ${{ failure() }}
+        run: vendor/bin/phpstan analyse --no-progress --error-format=table
+
       - name: Upload SARIF to Code Scanning
+        if: ${{ !cancelled() }}
         uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: phpstan-results.sarif
