@@ -146,5 +146,5 @@ Translations are managed on [AMOS](https://lang.moodle.org/): only the English s
 
 
 ## Copyright
-Copyright ISAE-SUPAERO for this plugin is licensed under the GPLv3 license. [GNU AFFERO GENERAL PUBLIC LICENSE v3](LICENSE.md).
+Copyright ISAE-SUPAERO. This plugin is licensed under the [GNU General Public License v3 or later](https://www.gnu.org/licenses/gpl-3.0.html), like Moodle.
 

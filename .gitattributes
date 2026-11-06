@@ -6,11 +6,6 @@
 .idea export-ignore
 .vscode export-ignore
 .claude export-ignore
-docs export-ignore
-ADMIN_PAGE_UX.md export-ignore
-SECURITY_HARDENING_BACKLOG.md export-ignore
-TEST_PLAN_*.md export-ignore
-VUE3_MIGRATION_PLAN.md export-ignore
 REVIEW_*.md export-ignore
 run*.sh export-ignore
 phpstan.neon export-ignore

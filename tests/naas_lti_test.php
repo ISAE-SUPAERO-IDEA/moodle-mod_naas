@@ -18,7 +18,7 @@
  * Tests for mod_naas\naas_lti.
  *
  * naas_lti::lti_launch() is tightly coupled to a live naas_client (no HTTP
- * adapter injection yet — see QUALITY_PHP.md H1).  Tests are therefore split
+ * adapter injection yet).  Tests are therefore split
  * into two groups:
  *
  *  - Tests that exercise code paths BEFORE the first HTTP call (module
