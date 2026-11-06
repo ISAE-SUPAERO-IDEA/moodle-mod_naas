@@ -29,6 +29,9 @@ _All notable changes to the NaaS Moodle plugin will be documented in this file._
 - After a change of NaaS URL, account or catalogue filter, the nightly task drops the searches cached for the old connection instead of refreshing them
 - When NaaS does not answer, the catalogue landing keeps working from the cached catalogue
 - Authors and producers whose name cannot be found show "Unknown author" / "Unknown producer" instead of an identifier, and are not requested again
+- Structures and persons NaaS cannot name are remembered for an hour instead of being looked up on every page
+- The widget sends one request for identical lookups made at the same time (for example the same author on several cards)
+- The privacy export no longer prints text when there is nothing to export
 
 ### Accessibility
 - The About, preview and rating dialogs close with Escape, take the focus when they open and give it back when they close, and are labelled by their title
@@ -51,6 +54,9 @@ _All notable changes to the NaaS Moodle plugin will be documented in this file._
 - The "Test connection" and "Refresh cache" buttons share one admin setting and one AMD module
 - Moodle 4.4 and 4.5: the web services no longer load `lib/externallib.php` (they use the `core_external` classes, with a compatibility layer on Moodle 4.1)
 - CI: Moodle 4.4 and 4.5 added to the test matrix, PHP 8.0 dropped, and the build fails if fewer PHPUnit tests than expected run
+- Supported Moodle versions declared: 4.1 to 4.5
+- CI: PHPStan at level 5 and blocking, PHP and widget coverage measured with minimums, Behat scenarios for the search widget against a fake NaaS
+- Widget build tools updated (Vite 6, Vitest 4, vue-tsc 3): no known vulnerability left in the JavaScript dependencies
 
 ### Upgrade notes
 - Requires Node 22 to rebuild the widget; the bundle is now `assets/vue/naas_widget-<version>.js`
