@@ -48,28 +48,19 @@ final class catalogue_filters_test extends advanced_testcase {
         $this->assertSame(catalogue_filters::LICENSE_ALL, catalogue_filters::commercial_mode());
         $this->assertSame(catalogue_filters::ACCESS_ALL, catalogue_filters::access_mode());
         $this->assertSame([], catalogue_filters::required_rights());
-        $this->assertSame('', catalogue_filters::license_nql());
     }
 
-    public function test_commercial_nql_uses_access_licence_rights(): void {
+    public function test_commercial_filter_requires_the_co_right(): void {
         $config = (object) ['naas_license_filter' => catalogue_filters::LICENSE_COMMERCIAL];
         $this->assertSame(['co'], catalogue_filters::required_rights($config));
-        $this->assertSame(
-            "nugget:access_licences/*/rights = 'co'",
-            catalogue_filters::license_nql($config)
-        );
     }
 
-    public function test_noncommercial_and_restricted_nql_are_anded(): void {
+    public function test_noncommercial_and_restricted_filters_require_both_rights(): void {
         $config = (object) [
             'naas_license_filter' => catalogue_filters::LICENSE_NONCOMMERCIAL,
             'naas_access_filter' => catalogue_filters::ACCESS_RESTRICTED,
         ];
         $this->assertSame(['nc', 'ru'], catalogue_filters::required_rights($config));
-        $this->assertSame(
-            "(nugget:access_licences/*/rights = 'nc') AND (nugget:access_licences/*/rights = 'ru')",
-            catalogue_filters::license_nql($config)
-        );
     }
 
     public function test_apply_leaves_nql_unencoded_for_http_build_query(): void {

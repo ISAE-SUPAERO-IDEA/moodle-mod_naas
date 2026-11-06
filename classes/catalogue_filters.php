@@ -190,35 +190,6 @@ class catalogue_filters {
     }
 
     /**
-     * Kept for callers that still use the old name.
-     *
-     * @param object|null $config
-     * @return string
-     */
-    public static function license_mode(?object $config = null): string {
-        return self::commercial_mode($config);
-    }
-
-    /**
-     * NQL fragment for the configured licence filters.
-     *
-     * @param object|null $config
-     * @return string
-     */
-    public static function license_nql(?object $config = null): string {
-        $clauses = [];
-        foreach (self::required_rights($config) as $right) {
-            $clauses[] = "nugget:access_licences/*/rights = '" . $right . "'";
-        }
-        if (!$clauses) {
-            return '';
-        }
-        return count($clauses) === 1
-            ? $clauses[0]
-            : '(' . implode(') AND (', $clauses) . ')';
-    }
-
-    /**
      * Config payload for the Vue picker.
      *
      * @param object|null $config
