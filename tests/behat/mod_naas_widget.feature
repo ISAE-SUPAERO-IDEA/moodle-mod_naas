@@ -62,3 +62,31 @@ Feature: Choose a Nugget with the search widget and play it
     When I am on the "Aircraft design basics" "naas activity" page logged in as student1
     Then "#lti-frame" "css_element" should exist
     And I should see "About"
+
+  @accessibility
+  Scenario: The search widget, its preview and the learner view meet accessibility standards
+    Given the following "activities" exist:
+      | activity | course | section | name                   | nugget_id  |
+      | naas     | C1     | 1       | Aircraft design basics | n-aircraft |
+    And I log in as "teacher1"
+    When I open the form to add a naas activity to course "C1"
+    And I wait until ".search-field-input" "css_element" exists
+    And I set the field with xpath "//input[contains(@class, 'search-field-input')]" to "aircraft"
+    Then I should see "Aircraft design basics"
+    And the page should meet accessibility standards
+    When I click on "Preview" "button" in the "//div[contains(@class, 'nugget-post')][.//h4[@title='Aircraft design basics']]" "xpath_element"
+    Then "#nugget-preview-modal" "css_element" should be visible
+    And I wait "1" seconds
+    # The preview frame loads from the fake NaaS host, which axe cannot enter.
+    And the "#nugget-preview-modal .nugget-modal-header" "css_element" should meet accessibility standards
+    And I log out
+    When I am on the "Aircraft design basics" "naas activity" page logged in as student1
+    Then "#lti-frame" "css_element" should exist
+    # The whole learner page cannot be checked: its LTI frame posts to the fake NaaS host,
+    # which does not resolve, so axe never gets into it.
+    # Moodle 4.x shows About in the activity's secondary navigation.
+    When I click on "About" "link" in the ".secondary-navigation" "css_element"
+    Then I should see "About: Aircraft design basics"
+    # Let the dialog finish fading in: axe would measure the colours half-way.
+    And I wait "1" seconds
+    And the "[role='dialog']" "css_element" should meet accessibility standards
