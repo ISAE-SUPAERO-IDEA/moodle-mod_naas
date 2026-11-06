@@ -17,11 +17,29 @@ _All notable changes to the NaaS Moodle plugin will be documented in this file._
 - Grades outside 0–1 and grade submissions for activities without a grade item are rejected
 - Domain codes with dots and e-mail author keys no longer break the vocabulary cache when debugging is on
 - The completion condition shows "Complete when all attempts are used" when only that option is ticked
+- Saving the activity form without a Nugget now shows "Select a Nugget before saving the activity" above the search, instead of an error on a hidden field
+- The nightly catalogue refresh applies the licence filters, like the live search
+- Activity names are no longer escaped twice on the course index and the "next activity" button
+- NaaS errors on the player page are shown as standard Moodle notifications
+- An xAPI statement with an invalid JSON body, or an empty NaaS answer, is rejected with a clear error
+- The widget gives up with an error after 5 s if Moodle's JavaScript loader is missing, instead of loading forever
+- The activity form warns about unsaved changes after a Nugget is selected
+
+### Accessibility
+- The About, preview and rating dialogs close with Escape, take the focus when they open and give it back when they close, and are labelled by their title
+- Every widget text comes from the language file (no hard-coded English left)
 
 ### Security
 - Stricter validation of NaaS identifiers and xAPI statements, enrolment check on the proxy web services, external entities disabled when reading grade submissions
 - The Nugget id stored in an activity is validated before it is used in a NaaS request
 - HTML descriptions imported from NaaS keep only basic formatting (no scripts, event handlers or unsafe links) before they are put in the description editor
+- The widget configuration is a JSON data block instead of an inline script, so pages work under a Content Security Policy without `'unsafe-inline'`
+- The cached catalogue (producers, author names, e-mail addresses and biographies) is only sent to the activity form, not to the learner view; the privacy declaration now covers author profiles received from NaaS
+
+### Chore
+- `moment` replaced by the browser `Intl` API (−58 KB of JavaScript); the bundle no longer ships an unused `style.css`
+- Release archive: development files are excluded with `export-ignore`; translations are managed on AMOS
+- Unused language strings removed
 
 ### Upgrade notes
 - Requires Node 22 to rebuild the widget; the bundle is now `assets/vue/naas_widget-<version>.js`
