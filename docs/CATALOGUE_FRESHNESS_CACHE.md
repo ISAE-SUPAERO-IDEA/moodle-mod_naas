@@ -40,7 +40,7 @@ About a third of it exists, for exactly one query, and only after an admin has p
 Teacher opens the activity form
    │
    ├─ PHP: naas_widget / output\widget
-   │     └─ catalogue_cache::export_for_widget()   → window.NAAS.catalogue_snapshot
+   │     └─ catalogue_export::export_for_widget()   → window.NAAS.catalogue_snapshot
    │            (landing search: 9 slim items + aggregations, + producer list)
    │
    └─ Vue onMounted
@@ -56,7 +56,7 @@ Snapshot writes happen in exactly two places:
 
 | Trigger | Writes `search` | Writes `producers` |
 |---|---|---|
-| `test_config` → `catalogue_cache::warm()` | yes | yes |
+| `test_config` → `catalogue_warmer::warm()` | yes | yes |
 | Landing search → `catalogue_cache::remember_search()` | yes | **no** |
 
 That asymmetry is the root of the producer staleness.
@@ -191,7 +191,7 @@ There is no subscription channel and the catalogue changes on the order of days.
 
 ### Epic F1 — Complete the cached card payload
 
-- [x] F1.1 — Add `resume` to `catalogue_cache::slim_search()`, capped (~600 chars) to keep the injected snapshot small
+- [x] F1.1 — Add `resume` to `catalogue_export::slim_search()`, capped (~600 chars) to keep the injected snapshot small
 - [x] F1.2 — `denormalize_vocabulary()` fills `authors_data` / `domains_data` from the `vocabulary_entries` MUC **only** — never a network call while building the cache; an unresolved key degrades exactly as today
 - [x] F1.3 — `useNuggetSearch` skips `enrichMany` for items that already carry `authors_data` and `domains_data`
 - [ ] F1.4 — Measure the injected `window.NAAS.catalogue_snapshot`; if it exceeds ~120 kB, drop `tags` and truncate `resume` harder. **Not measured** — needs a real catalogue; `resume` is capped at 600 chars and the vocabulary is deduplicated, so the growth term is bounded, but the number has not been taken
@@ -347,7 +347,7 @@ reproduces a truncated bucket list.
 
 Two consequences worth noting:
 
-- `catalogue_cache::warm()` pages through `/structures` for up to
+- `catalogue_warmer::warm()` pages through `/structures` for up to
   `PRODUCER_PAGE_SIZE × PRODUCER_MAX_PAGES` = 500 producers. Only ten can ever
   reach the strip; the rest serve the `get_structure` fast path and filter
   labels, which is still useful but far more than the landing needs.

@@ -159,7 +159,7 @@ class proxy_naas_api extends \core_external\external_api {
             ]);
 
         $result = self::sanitise_json_response($naas->request_raw('GET', $url));
-        \mod_naas\catalogue_cache::warm($naas, $config);
+        \mod_naas\catalogue_warmer::warm($naas, $config);
         return $result;
     }
 
@@ -643,7 +643,7 @@ class proxy_naas_api extends \core_external\external_api {
         if ($params['mode'] !== 'revalidate') {
             $cached = \mod_naas\search_cache::get($cachekey, $config);
             if ($cached === null) {
-                foreach (\mod_naas\catalogue_cache::producer_search_aliases($searchoptionsarray) as $alias) {
+                foreach (\mod_naas\catalogue_producers::producer_search_aliases($searchoptionsarray) as $alias) {
                     $aliaskey = \mod_naas\search_cache::canonical_key($alias, $config);
                     $cached = \mod_naas\search_cache::get($aliaskey, $config);
                     if ($cached !== null) {
@@ -728,7 +728,7 @@ class proxy_naas_api extends \core_external\external_api {
 
         $config = (object) array_merge((array) get_config('naas'), (array) $CFG);
 
-        $cached = \mod_naas\catalogue_cache::cached_probe($config);
+        $cached = \mod_naas\catalogue_export::cached_probe($config);
         if ($cached !== null) {
             return json_encode($cached, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
         }
@@ -755,7 +755,7 @@ class proxy_naas_api extends \core_external\external_api {
                 throw $e;
             }
             return json_encode(
-                \mod_naas\catalogue_cache::probe_payload($snapshot, true),
+                \mod_naas\catalogue_export::probe_payload($snapshot, true),
                 JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
             );
         }
@@ -763,7 +763,7 @@ class proxy_naas_api extends \core_external\external_api {
         $snapshot = \mod_naas\catalogue_cache::get() ?? [];
 
         return json_encode(
-            \mod_naas\catalogue_cache::probe_payload($snapshot, false),
+            \mod_naas\catalogue_export::probe_payload($snapshot, false),
             JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
         );
     }

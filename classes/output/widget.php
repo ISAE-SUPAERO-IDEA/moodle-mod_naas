@@ -81,7 +81,7 @@ class widget implements renderable, templatable {
         // Only the activity form browses the catalogue. The learner view must not
         // receive the cached catalogue (producers, author labels, card texts).
         $snapshot = $this->component === 'NuggetSearchWidget'
-            ? \mod_naas\catalogue_cache::export_for_widget()
+            ? \mod_naas\catalogue_export::export_for_widget()
             : null;
 
         $widgetconfig = [

@@ -371,7 +371,7 @@ class structure_lookup {
             $cache->delete($cachekey);
         }
 
-        $fromsnapshot = \mod_naas\catalogue_cache::structure_json($structurekey);
+        $fromsnapshot = \mod_naas\catalogue_producers::structure_json($structurekey);
         if ($fromsnapshot !== null) {
             $cache->set($cachekey, $fromsnapshot);
             return $fromsnapshot;

@@ -26,6 +26,7 @@ namespace mod_naas\output;
 
 use advanced_testcase;
 use mod_naas\catalogue_cache;
+use mod_naas\catalogue_export;
 
 /**
  * Tests for the widget configuration exported to window.NAAS.
@@ -44,7 +45,7 @@ final class widget_test extends advanced_testcase {
             'fingerprint' => catalogue_cache::fingerprint((object) get_config('naas')),
             'producers' => [['structure_id' => 'isae', 'acronym' => 'ISAE', 'name' => 'ISAE']],
         ]);
-        $this->assertNotNull(catalogue_cache::export_for_widget());
+        $this->assertNotNull(catalogue_export::export_for_widget());
     }
 
     /**

@@ -26,6 +26,7 @@ namespace mod_naas;
 
 use advanced_testcase;
 use mod_naas\catalogue_cache;
+use mod_naas\catalogue_producers;
 use mod_naas\search_cache;
 
 /**
@@ -180,7 +181,7 @@ final class search_cache_test extends advanced_testcase {
             'is_default_version' => true,
         ];
         $found = null;
-        foreach (catalogue_cache::producer_search_aliases($click) as $alias) {
+        foreach (catalogue_producers::producer_search_aliases($click) as $alias) {
             $found = search_cache::get(search_cache::canonical_key($alias, $config), $config);
             if ($found !== null) {
                 break;

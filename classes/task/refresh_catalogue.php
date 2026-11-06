@@ -30,7 +30,9 @@
 namespace mod_naas\task;
 
 use mod_naas\catalogue_cache;
+use mod_naas\catalogue_export;
 use mod_naas\catalogue_filters;
+use mod_naas\catalogue_warmer;
 use mod_naas\external\proxy_naas_api;
 use mod_naas\naas_client;
 use mod_naas\search_cache;
@@ -92,7 +94,7 @@ class refresh_catalogue extends \core\task\scheduled_task {
 
         // Producer names and logos change rarely, but nothing else evicts them.
         \cache::make('mod_naas', \mod_naas\vocabulary_lookup::CACHE_AREA)->delete('producer_catalog_v3');
-        catalogue_cache::warm($naas, $config);
+        catalogue_warmer::warm($naas, $config);
 
         $fingerprint = catalogue_cache::fingerprint($config);
         // Entries of an earlier connection can never be read again: do not refresh them.
@@ -173,7 +175,7 @@ class refresh_catalogue extends \core\task\scheduled_task {
      * @return array Index-shaped records keyed by cache key.
      */
     private function seed_entries(object $config, int $limit): array {
-        $snapshot = catalogue_cache::export_for_widget();
+        $snapshot = catalogue_export::export_for_widget();
         $producers = $snapshot['producers'] ?? [];
         $aggregations = $snapshot['search']['aggregations'] ?? [];
         if (!is_array($aggregations)) {
