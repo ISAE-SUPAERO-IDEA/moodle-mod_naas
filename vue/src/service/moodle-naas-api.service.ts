@@ -46,20 +46,38 @@ function cacheKey(method: string, args: Record<string, unknown>): string {
   return JSON.stringify({ method, args });
 }
 
-function waitForRequirejs(): Promise<MoodleRequire> {
-  return new Promise((resolve) => {
+/**
+ * Wait for Moodle's RequireJS loader, which the page may define after the bundle runs.
+ *
+ * Gives up after maxAttempts polls (5 s by default) so a page without RequireJS
+ * shows an error instead of loading forever.
+ */
+export function waitForRequirejs(
+  maxAttempts = 50,
+  intervalMs = 100
+): Promise<MoodleRequire> {
+  return new Promise((resolve, reject) => {
     const get = () =>
       (window as unknown as { require?: MoodleRequire }).require;
-    if (get()) {
-      resolve(get()!);
+    const found = get();
+    if (found) {
+      resolve(found);
       return;
     }
+    let attempts = 0;
     const interval = setInterval(() => {
-      if (get()) {
+      const loader = get();
+      if (loader) {
         clearInterval(interval);
-        resolve(get()!);
+        resolve(loader);
+        return;
       }
-    }, 100);
+      attempts++;
+      if (attempts >= maxAttempts) {
+        clearInterval(interval);
+        reject(new Error("mod_naas: Moodle RequireJS loader not available"));
+      }
+    }, intervalMs);
   });
 }
 
