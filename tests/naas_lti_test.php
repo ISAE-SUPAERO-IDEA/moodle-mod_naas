@@ -77,51 +77,6 @@ class naas_lti_test extends advanced_testcase {
         naas_lti::lti_launch(999999);
     }
 
-    // OAuth signature helper — pure logic, no DB or HTTP.
-
-    /**
-     * The OAuth base-string includes the launch URL and all sorted parameters.
-     *
-     * This test exercises the signature construction logic by inspecting the
-     * properties of a launch_data array as lti_launch would build it.  It
-     * verifies the invariants independently of the HTTP call.
-     */
-    public function test_oauth_nonce_is_unique_across_calls(): void {
-        // Two consecutive uniqid() calls must differ.  This mirrors the nonce.
-        // Generation in lti_launch().
-        $nonce1 = uniqid('', true);
-        $nonce2 = uniqid('', true);
-
-        $this->assertNotSame($nonce1, $nonce2);
-    }
-
-    /**
-     * The resource_link_id is derived from HMAC-SHA1 and base64-encoded.
-     *
-     * Verify the construction: same inputs → same output (deterministic).
-     */
-    public function test_resource_link_id_is_deterministic(): void {
-        $secret  = urlencode('test-secret') . '&';
-        $payload = 'localhost' . 'user@example.com' . 'version-abc';
-
-        $id1 = base64_encode(hash_hmac('sha1', $payload, $secret, false));
-        $id2 = base64_encode(hash_hmac('sha1', $payload, $secret, false));
-
-        $this->assertSame($id1, $id2);
-    }
-
-    /**
-     * Different user emails produce different resource_link_ids.
-     */
-    public function test_resource_link_id_differs_for_different_users(): void {
-        $secret = urlencode('test-secret') . '&';
-
-        $id1 = base64_encode(hash_hmac('sha1', 'localhost' . 'user1@example.com' . 'version-abc', $secret, false));
-        $id2 = base64_encode(hash_hmac('sha1', 'localhost' . 'user2@example.com' . 'version-abc', $secret, false));
-
-        $this->assertNotSame($id1, $id2);
-    }
-
     /**
      * custom_naas JSON must expose feature.nugbot as a boolean for the NaaS player.
      */

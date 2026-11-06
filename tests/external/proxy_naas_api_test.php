@@ -51,97 +51,36 @@ require_once(__DIR__ . '/../fixtures/testable_naas_client.php');
  * @covers \mod_naas\external\proxy_naas_api
  */
 class proxy_naas_api_test extends advanced_testcase {
-    // Parameter schemas.
+    // Web service declarations.
 
     /**
-     * get_nugget_parameters() must return an external_function_parameters.
+     * Every function declared in db/services.php must point to a method that exists
+     * and describes its parameters and its return value.
+     *
+     * @dataProvider declared_service_provider
+     * @param string $classname
+     * @param string $methodname
      */
-    public function test_get_nugget_parameters_type(): void {
-        $this->assertInstanceOf(
-            \external_function_parameters::class,
-            proxy_naas_api::get_nugget_parameters()
-        );
-    }
-
-    /**
-     * search_nuggets_parameters() must return an external_function_parameters.
-     */
-    public function test_search_nuggets_parameters_type(): void {
-        $this->assertInstanceOf(
-            \external_function_parameters::class,
-            proxy_naas_api::search_nuggets_parameters()
-        );
+    public function test_declared_service_is_fully_described(string $classname, string $methodname): void {
+        $this->assertTrue(method_exists($classname, $methodname), "{$classname}::{$methodname} is missing");
+        $this->assertInstanceOf(\external_function_parameters::class, call_user_func([$classname, $methodname . '_parameters']));
+        $this->assertInstanceOf(\external_description::class, call_user_func([$classname, $methodname . '_returns']));
     }
 
     /**
-     * get_domain_parameters() must return an external_function_parameters.
+     * The functions declared in db/services.php.
+     *
+     * @return array
      */
-    public function test_get_domain_parameters_type(): void {
-        $this->assertInstanceOf(
-            \external_function_parameters::class,
-            proxy_naas_api::get_domain_parameters()
-        );
-    }
-
-    /**
-     * get_structure_parameters() must return an external_function_parameters.
-     */
-    public function test_get_structure_parameters_type(): void {
-        $this->assertInstanceOf(
-            \external_function_parameters::class,
-            proxy_naas_api::get_structure_parameters()
-        );
-    }
-
-    public function test_test_config_parameters_type(): void {
-        $this->assertInstanceOf(\external_function_parameters::class, proxy_naas_api::test_config_parameters());
-    }
-
-    public function test_test_config_returns_type(): void {
-        $this->assertInstanceOf(\external_value::class, proxy_naas_api::test_config_returns());
-    }
-
-    public function test_get_nugget_returns_type(): void {
-        $this->assertInstanceOf(\external_value::class, proxy_naas_api::get_nugget_returns());
-    }
-
-    public function test_view_nugget_returns_type(): void {
-        $this->assertInstanceOf(\external_value::class, proxy_naas_api::view_nugget_returns());
-    }
-
-    public function test_view_nugget_parameters_type(): void {
-        $this->assertInstanceOf(\external_function_parameters::class, proxy_naas_api::view_nugget_parameters());
-    }
-
-    public function test_get_nugget_preview_parameters_type(): void {
-        $this->assertInstanceOf(
-            \external_function_parameters::class,
-            proxy_naas_api::get_nugget_preview_parameters()
-        );
-    }
-
-    public function test_get_person_parameters_type(): void {
-        $this->assertInstanceOf(\external_function_parameters::class, proxy_naas_api::get_person_parameters());
-    }
-
-    public function test_get_nugget_preview_returns_type(): void {
-        $this->assertInstanceOf(\external_value::class, proxy_naas_api::get_nugget_preview_returns());
-    }
-
-    public function test_get_domain_returns_type(): void {
-        $this->assertInstanceOf(\external_value::class, proxy_naas_api::get_domain_returns());
-    }
-
-    public function test_get_structure_returns_type(): void {
-        $this->assertInstanceOf(\external_value::class, proxy_naas_api::get_structure_returns());
-    }
-
-    public function test_get_person_returns_type(): void {
-        $this->assertInstanceOf(\external_value::class, proxy_naas_api::get_person_returns());
-    }
-
-    public function test_search_nuggets_returns_type(): void {
-        $this->assertInstanceOf(\external_value::class, proxy_naas_api::search_nuggets_returns());
+    public static function declared_service_provider(): array {
+        global $CFG;
+        $functions = [];
+        require($CFG->dirroot . '/mod/naas/db/services.php');
+        $cases = [];
+        foreach ($functions as $name => $definition) {
+            $cases[$name] = ['\\' . ltrim($definition['classname'], '\\'), $definition['methodname']];
+        }
+        return $cases;
     }
 
     // Test_config.
