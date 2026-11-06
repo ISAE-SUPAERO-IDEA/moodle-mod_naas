@@ -404,6 +404,36 @@ class naas_client_test extends advanced_testcase {
     }
 
     /**
+     * Without naas_ssl_noverify, the client must verify the NaaS certificate.
+     */
+    public function test_request_raw_verifies_ssl_by_default(): void {
+        $options = $this->curl_options_for($this->base_config());
+        $this->assertTrue($options['CURLOPT_SSL_VERIFYPEER']);
+    }
+
+    /**
+     * NAAS_API_PASSWORD in the environment replaces the password stored in the database.
+     */
+    public function test_request_raw_prefers_the_password_from_the_environment(): void {
+        putenv('NAAS_API_PASSWORD=from-env');
+        try {
+            $options = $this->curl_options_for($this->base_config());
+        } finally {
+            putenv('NAAS_API_PASSWORD');
+        }
+        $this->assertSame('testuser:from-env', $options['CURLOPT_USERPWD']);
+    }
+
+    /**
+     * Without NAAS_API_PASSWORD, the configured password is used.
+     */
+    public function test_request_raw_uses_the_configured_password_without_environment(): void {
+        putenv('NAAS_API_PASSWORD');
+        $options = $this->curl_options_for($this->base_config());
+        $this->assertSame('testuser:testpass', $options['CURLOPT_USERPWD']);
+    }
+
+    /**
      * Test timeout configuration.
      */
     public function test_request_raw_timeout(): void {
@@ -742,6 +772,29 @@ class naas_client_test extends advanced_testcase {
      */
     private function make_client(): testable_naas_client {
         return new testable_naas_client($this->base_config());
+    }
+
+    /**
+     * Run one request through a mocked curl and return the options it received.
+     *
+     * @param stdClass $config
+     * @return array
+     */
+    private function curl_options_for(stdClass $config): array {
+        $captured = [];
+        $mockcurl = $this->createMock(\curl::class);
+        $mockcurl->method('setopt')->willReturnCallback(function ($options) use (&$captured) {
+            $captured = $options;
+        });
+        $mockcurl->method('get')->willReturn('{}');
+        $mockcurl->method('get_info')->willReturn(['http_code' => 200]);
+        $mockcurl->method('get_errno')->willReturn(0);
+
+        $client = new naas_client($config, function () use ($mockcurl) {
+            return $mockcurl;
+        });
+        $client->request_raw('GET', '/test');
+        return $captured;
     }
 
     /**
