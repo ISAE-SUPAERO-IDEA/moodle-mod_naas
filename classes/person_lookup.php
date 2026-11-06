@@ -35,6 +35,8 @@ namespace mod_naas;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class person_lookup {
+    /** Seconds a person NaaS could not name is not asked for again. */
+    public const MISS_TTL = 3600;
     /** Cached GET /persons listing. Aggregation keys are encrypted emails, not names. */
     private const PERSON_CATALOG_CACHE_KEY = 'person_catalog_v1';
 
@@ -408,6 +410,16 @@ class person_lookup {
             $cache->delete($cachekey);
         }
 
+        // NaaS could not name this person recently: answer as it did then, without asking again.
+        $misskey = \mod_naas\vocabulary_lookup::cache_key('personmiss_', $personkey);
+        $miss = json_decode((string) $cache->get($misskey), true);
+        if (is_array($miss) && (int) ($miss['at'] ?? 0) > time() - self::MISS_TTL) {
+            if (!is_string($miss['payload'] ?? null)) {
+                throw new \moodle_exception('error:naas_api:not_found', 'naas');
+            }
+            return $miss['payload'];
+        }
+
         $result = null;
         try {
             $result = self::enrich_json(\mod_naas\external\proxy_naas_api::sanitise_json_response(
@@ -433,6 +445,9 @@ class person_lookup {
         $hasname = is_string($result) && self::json_has_name($result);
         if ($hasname) {
             $cache->set($cachekey, $result);
+            $cache->delete($misskey);
+        } else {
+            $cache->set($misskey, json_encode(['at' => time(), 'payload' => $result]));
         }
         if ($result === null) {
             throw new \moodle_exception('error:naas_api:not_found', 'naas');

@@ -35,6 +35,8 @@ namespace mod_naas;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class structure_lookup {
+    /** Seconds a structure NaaS could not name is not asked for again. */
+    public const MISS_TTL = 3600;
     /** Cached GET /structures?is_producer=true listing. */
     private const PRODUCER_CATALOG_CACHE_KEY = 'producer_catalog_v3';
 
@@ -53,6 +55,16 @@ class structure_lookup {
      */
     public static function cache_key(string $structurekey): string {
         return 'structurelabel_' . sha1(strtolower(trim($structurekey)));
+    }
+
+    /**
+     * Vocabulary cache key remembering that NaaS could not name a structure.
+     *
+     * @param string $structurekey
+     * @return string
+     */
+    public static function miss_key(string $structurekey): string {
+        return 'structuremiss_' . sha1(strtolower(trim($structurekey)));
     }
 
     /**
@@ -365,6 +377,12 @@ class structure_lookup {
             return $fromsnapshot;
         }
 
+        // NaaS could not name this structure recently: answer as it did then, without asking again.
+        $miss = json_decode((string) $cache->get(self::miss_key($structurekey)), true);
+        if (is_array($miss) && (int) ($miss['at'] ?? 0) > time() - self::MISS_TTL && is_string($miss['payload'] ?? null)) {
+            return $miss['payload'];
+        }
+
         $result = null;
         $lookups = array_values(array_unique([$structurekey, strtolower($structurekey)]));
         foreach ($lookups as $lookupkey) {
@@ -392,22 +410,22 @@ class structure_lookup {
             }
         }
 
-        $source = 'http';
         if ($result === null || !self::json_has_name($result)) {
             $fromcatalog = self::from_producer_catalog($naas, strtolower($structurekey));
             if ($fromcatalog !== null) {
                 $result = $fromcatalog;
-                $source = 'catalog';
             }
         }
 
         if ($result === null) {
-            return self::media_payload($structurekey, (string) ($config->naas_endpoint ?? ''));
+            $result = self::media_payload($structurekey, (string) ($config->naas_endpoint ?? ''));
         }
 
-        $hasname = self::json_has_name($result);
-        if ($hasname) {
+        if (self::json_has_name($result)) {
             $cache->set($cachekey, $result);
+            $cache->delete(self::miss_key($structurekey));
+        } else {
+            $cache->set(self::miss_key($structurekey), json_encode(['at' => time(), 'payload' => $result]));
         }
         return $result;
     }
