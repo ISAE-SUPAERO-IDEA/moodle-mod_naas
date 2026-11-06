@@ -323,6 +323,59 @@ final class search_cache_test extends advanced_testcase {
         $this->assertCount(3, search_cache::refreshable(3, 2592000));
     }
 
+    /**
+     * A search_cache whose index lock is always taken by someone else.
+     *
+     * @return string Class name to call statically.
+     */
+    private function busy_cache(): string {
+        $busy = new class extends search_cache {
+            /**
+             * Simulate a lock held by a parallel request.
+             *
+             * @return false
+             */
+            protected static function index_lock() {
+                return false;
+            }
+        };
+        return get_class($busy);
+    }
+
+    public function test_store_does_not_cache_when_the_index_is_busy(): void {
+        $busy = $this->busy_cache();
+        $options = ['page_size' => 9];
+        $key = search_cache::canonical_key($options, $this->config());
+
+        $this->assertNull($busy::store($key, $options, $this->body([$this->hit('n1')]), $this->config()));
+
+        // No entry outside the index: it could never be refreshed, evicted or purged.
+        $this->assertNull(search_cache::get($key, $this->config()));
+        $this->assertSame([], search_cache::index());
+    }
+
+    public function test_store_releases_the_index_lock(): void {
+        $options = ['page_size' => 9];
+        $key = search_cache::canonical_key($options, $this->config());
+        search_cache::store($key, $options, $this->body([$this->hit('n1')]), $this->config());
+
+        $lock = \core\lock\lock_config::get_lock_factory('mod_naas_search_cache')->get_lock('index', 0);
+        $this->assertNotFalse($lock);
+        $lock->release();
+    }
+
+    public function test_purge_still_forgets_every_query_when_the_index_is_busy(): void {
+        $busy = $this->busy_cache();
+        $options = ['page_size' => 9];
+        $key = search_cache::canonical_key($options, $this->config());
+        search_cache::store($key, $options, $this->body([$this->hit('n1')]), $this->config());
+
+        $busy::purge();
+
+        $this->assertNull(search_cache::get($key, $this->config()));
+        $this->assertSame([], search_cache::index());
+    }
+
     public function test_purge_forgets_every_query(): void {
         $options = ['page_size' => 9];
         $key = search_cache::canonical_key($options, $this->config());

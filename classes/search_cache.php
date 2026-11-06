@@ -48,6 +48,8 @@ class search_cache {
     public const MAX_ENTRIES = 64;
     /** Do not rewrite the index on every read; once an hour per key is enough. */
     public const TOUCH_INTERVAL = 3600;
+    /** Seconds a request waits for the index lock before giving up on caching. */
+    public const INDEX_LOCK_TIMEOUT = 2;
 
     /**
      * Stable identity of a search, independent of key or value ordering.
@@ -137,7 +139,7 @@ class search_cache {
      * @param array $options Canonical options, kept so the refresh task can replay the query.
      * @param string $json Sanitised NaaS response.
      * @param object $config
-     * @return array|null
+     * @return array|null The entry, or null when the body is unusable or the index is busy.
      */
     public static function store(string $key, array $options, string $json, object $config): ?array {
         $search = naas_payload::decode_search($json);
@@ -152,10 +154,14 @@ class search_cache {
             'id_digest' => self::id_digest($search['items']),
             'search' => $search,
         ];
-        $cache = \cache::make('mod_naas', self::CACHE_AREA);
-        $cache->set($key, json_encode($entry, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
-        self::index_put($key, $options, $entry['cached_at']);
-        return $entry;
+        // Entry and index change together under the lock: an entry missing from the
+        // index would never be refreshed, evicted or purged.
+        $stored = self::with_index_lock(function () use ($key, $options, $entry) {
+            $cache = \cache::make('mod_naas', self::CACHE_AREA);
+            $cache->set($key, json_encode($entry, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+            self::index_put($key, $options, $entry['cached_at']);
+        });
+        return $stored ? $entry : null;
     }
 
     /**
@@ -209,12 +215,17 @@ class search_cache {
         if (!isset($index[$key])) {
             return;
         }
-        $now = time();
-        if ($now - (int) ($index[$key]['last_read_at'] ?? 0) < self::TOUCH_INTERVAL) {
+        if (time() - (int) ($index[$key]['last_read_at'] ?? 0) < self::TOUCH_INTERVAL) {
             return;
         }
-        $index[$key]['last_read_at'] = $now;
-        self::index_store($index);
+        // A missed touch only makes the ranking a little older: skip it if the index is busy.
+        self::with_index_lock(function () use ($key) {
+            $index = self::index();
+            if (isset($index[$key])) {
+                $index[$key]['last_read_at'] = time();
+                self::index_store($index);
+            }
+        });
     }
 
     /**
@@ -254,11 +265,49 @@ class search_cache {
      * Forget every cached query (credential change, admin purge).
      */
     public static function purge(): void {
-        $cache = \cache::make('mod_naas', self::CACHE_AREA);
-        foreach (array_keys(self::index()) as $key) {
-            $cache->delete($key);
+        $purge = function () {
+            $cache = \cache::make('mod_naas', self::CACHE_AREA);
+            foreach (array_keys(self::index()) as $key) {
+                $cache->delete($key);
+            }
+            $cache->delete(self::INDEX_KEY);
+        };
+        // An admin purge must happen even if the lock cannot be obtained.
+        if (!self::with_index_lock($purge)) {
+            $purge();
         }
-        $cache->delete(self::INDEX_KEY);
+    }
+
+    /**
+     * Run a read-modify-write of the index under a site-wide lock.
+     *
+     * Parallel searches from the widget each rewrite the index; without the lock
+     * the last write wins and the other keys drop out of it.
+     *
+     * @param callable $update
+     * @return bool False when the lock could not be obtained (nothing was run).
+     */
+    private static function with_index_lock(callable $update): bool {
+        $lock = static::index_lock();
+        if (!$lock) {
+            return false;
+        }
+        try {
+            $update();
+        } finally {
+            $lock->release();
+        }
+        return true;
+    }
+
+    /**
+     * Lock guarding the index. Overridden in tests.
+     *
+     * @return \core\lock\lock|false
+     */
+    protected static function index_lock() {
+        return \core\lock\lock_config::get_lock_factory('mod_naas_search_cache')
+            ->get_lock('index', self::INDEX_LOCK_TIMEOUT);
     }
 
     /**
