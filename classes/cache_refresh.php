@@ -70,7 +70,7 @@ class cache_refresh {
 
         try {
             $naas = new naas_client($config);
-            \mod_naas\external\proxy_naas_api::warm_person_catalog($naas);
+            person_lookup::warm_catalog($naas);
         } catch (\Throwable $e) {
             debugging('NAAS person catalog refresh failed: ' . $e->getMessage(), DEBUG_DEVELOPER);
         }

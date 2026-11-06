@@ -863,7 +863,7 @@ class proxy_naas_api_test extends advanced_testcase {
 
         $cache = \cache::make('mod_naas', 'vocabulary_entries');
         $cache->set(
-            proxy_naas_api::structure_cache_key('structA'),
+            \mod_naas\structure_lookup::cache_key('structA'),
             '{"name":"ISAE-SUPAERO","acronym":"ISAE"}'
         );
 
@@ -886,7 +886,7 @@ class proxy_naas_api_test extends advanced_testcase {
 
         $structurekey = 'structcover1';
         $cache = \cache::make('mod_naas', 'vocabulary_entries');
-        $cache->delete(proxy_naas_api::structure_cache_key($structurekey));
+        $cache->delete(\mod_naas\structure_lookup::cache_key($structurekey));
 
         $stub = new class extends \mod_naas\naas_client {
             /**
@@ -957,7 +957,7 @@ class proxy_naas_api_test extends advanced_testcase {
         $structurekey = 'struct-nameless';
         $cache = \cache::make('mod_naas', 'vocabulary_entries');
         $cache->set(
-            proxy_naas_api::structure_cache_key($structurekey),
+            \mod_naas\structure_lookup::cache_key($structurekey),
             '{"payload":{"structure_id":"struct-nameless"}}'
         );
 
@@ -1025,7 +1025,7 @@ class proxy_naas_api_test extends advanced_testcase {
 
         $structurekey = '06d37c13-6ffe-4c4a-a9e3-ac227652f98c';
         $cache = \cache::make('mod_naas', 'vocabulary_entries');
-        $cache->delete(proxy_naas_api::structure_cache_key($structurekey));
+        $cache->delete(\mod_naas\structure_lookup::cache_key($structurekey));
         $cache->delete('producer_catalog_v3');
 
         $stub = new class extends \mod_naas\naas_client {
@@ -1111,7 +1111,7 @@ class proxy_naas_api_test extends advanced_testcase {
         $structurekey = '06d37c13-6ffe-4c4a-a9e3-ac227652f98c';
         $cache = \cache::make('mod_naas', 'vocabulary_entries');
         $cache->set(
-            proxy_naas_api::structure_cache_key($structurekey),
+            \mod_naas\structure_lookup::cache_key($structurekey),
             '{"payload":{"structure_id":"' . $structurekey . '"}}'
         );
 
@@ -1130,7 +1130,7 @@ class proxy_naas_api_test extends advanced_testcase {
     }
 
     public function test_structure_json_has_name_ignores_uuid_only_payloads(): void {
-        $m = new \ReflectionMethod(proxy_naas_api::class, 'structure_json_has_name');
+        $m = new \ReflectionMethod(\mod_naas\structure_lookup::class, 'json_has_name');
         $m->setAccessible(true);
         $this->assertTrue($m->invoke(null, '{"payload":{"acronym":"ISAE","name":"ISAE-SUPAERO"}}'));
         $this->assertFalse($m->invoke(
@@ -1140,7 +1140,7 @@ class proxy_naas_api_test extends advanced_testcase {
     }
 
     public function test_structure_record_matches_uuid_or_structure_id(): void {
-        $m = new \ReflectionMethod(proxy_naas_api::class, 'structure_record_matches');
+        $m = new \ReflectionMethod(\mod_naas\structure_lookup::class, 'record_matches');
         $m->setAccessible(true);
         $item = (object) [
             'uuid' => '06d37c13-6ffe-4c4a-a9e3-ac227652f98c',
@@ -1159,7 +1159,7 @@ class proxy_naas_api_test extends advanced_testcase {
                 'structure:structure_id' => 'isae-supaero',
             ],
         ];
-        $normalise = new \ReflectionMethod(proxy_naas_api::class, 'normalise_structure_record');
+        $normalise = new \ReflectionMethod(\mod_naas\structure_lookup::class, 'normalise_record');
         $normalise->setAccessible(true);
         $flat = $normalise->invoke(null, $nuxeo);
         $this->assertTrue($m->invoke(null, $flat, '06d37c13-6ffe-4c4a-a9e3-ac227652f98c'));
