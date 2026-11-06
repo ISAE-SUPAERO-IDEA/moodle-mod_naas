@@ -40,7 +40,7 @@ class widget implements renderable, templatable {
      * Version suffix of the Vue bundle shipped in assets/vue/naas_widget-<version>.js.
      * Kept in sync with BUNDLE_VERSION in vue/vite.config.ts by vue/scripts/bump-version.js.
      */
-    public const BUNDLE_VERSION = '2026110602';
+    public const BUNDLE_VERSION = '2026110603';
 
     /** @var int The nugget ID. */
     protected $nuggetid;
