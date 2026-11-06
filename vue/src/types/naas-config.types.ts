@@ -84,24 +84,28 @@ export interface NaasLabels {
   next_unit: string;
   learning_outcomes_desc: string;
   error_generic_user_message: string;
-  retry?: string;
+  retry: string;
   load_more?: string;
-  active_filters?: string;
+  active_filters: string;
+  clear_search: string;
+  remove_filter: string;
+  duration_minutes: string;
   open_access?: string;
-  all_nuggets?: string;
+  all_nuggets: string;
   by_producers?: string;
-  view_as_cards?: string;
-  view_as_list?: string;
+  view_as_cards: string;
+  view_as_list: string;
   browse_help?: string;
-  back_to_catalogue?: string;
-  checking_updates?: string;
-  browse_nugget_count?: string;
+  back_to_catalogue: string;
+  checking_updates: string;
+  browse_nugget_count: string;
   browse_no_producers?: string;
   rating: {
     title: string;
     send: string;
     sent: string;
     description: string;
+    value: string;
   };
   metadata: NaasLabelsMetadata;
 }

@@ -164,8 +164,8 @@ const config = useNaasConfig();
 const { getStructureVisuals } = useEntityResolvers();
 
 const labels = computed(() => ({
-  allNuggets: config.labels.all_nuggets || "All Nuggets",
-  nuggets: config.labels.browse_nugget_count || "Nuggets",
+  allNuggets: config.labels.all_nuggets,
+  nuggets: config.labels.browse_nugget_count,
   noProducers:
     config.labels.browse_no_producers ||
     "No producers in this catalogue yet.",

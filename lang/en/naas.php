@@ -38,6 +38,13 @@ $string["cachedef_vocabulary_entries"] = "NaaS vocabulary labels (authors, produ
 $string["cannot_get_nugget"] = "The Nugget could not be loaded. Please try again. If the problem persists, please contact your platform administrator.";
 $string["cgu_agreement"] = "I have read and agree to the <a target=\"_blank\" href=\"https://doc.clickup.com/2594656/p/h/2f5v0-13342/fff6a689cd78033\">Terms and Conditions of the NaaS platform</a>";
 $string["clear_filters"] = "Clear filters";
+$string["clear_search"] = "Clear search";
+$string["active_filters"] = "Active filters";
+$string["filters"] = "Filters";
+$string["remove_filter"] = 'Remove filter {$a}';
+$string["duration_minutes"] = '{$a} minutes';
+$string["rating_value"] = '{$a} out of 5';
+$string["retry"] = "Retry";
 $string["click_to_replace"] = "Replace the selected nugget";
 $string["complete_nugget"] = "I Finished My Learning With This Nugget";
 $string["completiondetail:exhaust"] = "Complete when all attempts are used";

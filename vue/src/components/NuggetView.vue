@@ -28,7 +28,7 @@
     <div v-if="error" class="naas-error-banner" role="alert">
       <span>{{ config.labels.error_generic_user_message }}</span>
       <button class="btn btn-sm btn-outline-danger" @click="load">
-        {{ config.labels.retry || "Retry" }}
+        {{ config.labels.retry }}
       </button>
     </div>
 

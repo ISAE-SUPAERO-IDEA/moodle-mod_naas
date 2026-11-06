@@ -37,7 +37,7 @@
         {{ error.message }}</span
       >
       <button class="btn btn-sm btn-outline-danger" @click="doSearch()">
-        {{ config.labels.retry || "Retry" }}
+        {{ config.labels.retry }}
       </button>
     </div>
 
@@ -62,7 +62,7 @@
               v-if="typed"
               type="button"
               class="search-field-clear"
-              aria-label="Clear search"
+              :aria-label="config.labels.clear_search"
               @click="
                 typed = '';
                 debouncedTyped = '';
@@ -82,7 +82,7 @@
             @click="filtersOpen = !filtersOpen"
           >
             <i class="icon fa fa-sliders" aria-hidden="true" />
-            {{ config.labels.metadata.filters ?? "Filters" }}
+            {{ config.labels.metadata.filters }}
             <span v-if="activeFilterCount > 0" class="filters-toggle-badge">{{
               activeFilterCount
             }}</span>
@@ -130,7 +130,7 @@
       <div v-else class="search-results">
         <div class="results-toolbar">
           <button type="button" class="browse-back-btn" @click="backToBrowse">
-            ← {{ config.labels.back_to_catalogue || "Back to catalogue" }}
+            ← {{ config.labels.back_to_catalogue }}
           </button>
           <div
             class="layout-toggle"
@@ -145,7 +145,7 @@
               @click="nuggetLayout = 'card'"
             >
               <i class="icon fa fa-th-large" aria-hidden="true" />
-              {{ config.labels.view_as_cards || "Cards" }}
+              {{ config.labels.view_as_cards }}
             </button>
             <button
               type="button"
@@ -155,7 +155,7 @@
               @click="nuggetLayout = 'row'"
             >
               <i class="icon fa fa-bars" aria-hidden="true" />
-              {{ config.labels.view_as_list || "List" }}
+              {{ config.labels.view_as_list }}
             </button>
           </div>
         </div>
@@ -187,7 +187,7 @@
           aria-live="polite"
         >
           <i class="icon fa fa-refresh fa-spin" aria-hidden="true" />
-          {{ config.labels.checking_updates || "Checking for updates…" }}
+          {{ config.labels.checking_updates }}
         </p>
 
         <div

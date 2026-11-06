@@ -66,7 +66,7 @@
                 :class="{ checked: savedRating === MAX_SCORE + 1 - i }"
                 role="radio"
                 :aria-checked="savedRating === MAX_SCORE + 1 - i"
-                :aria-label="`${MAX_SCORE + 1 - i} star`"
+                :aria-label="fillLabel(config.labels.rating.value, MAX_SCORE + 1 - i)"
                 tabindex="0"
                 @click="savedRating = MAX_SCORE + 1 - i"
                 @keydown.enter.space.prevent="savedRating = MAX_SCORE + 1 - i"
@@ -133,6 +133,7 @@
 import { ref, onMounted, useId } from "vue";
 import { useNaasConfig } from "@/composables/useNaasConfig";
 import { useModalA11y } from "@/composables/useModalA11y";
+import { fillLabel } from "@/utils/fillLabel";
 import { useXapi } from "@/composables/useXapi";
 import type { Nugget } from "@/types/nugget.types";
 

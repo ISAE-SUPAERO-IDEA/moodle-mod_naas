@@ -26,7 +26,7 @@
     v-if="chips.length"
     class="filter-chips"
     role="group"
-    :aria-label="config.labels.active_filters || 'Active filters'"
+    :aria-label="config.labels.active_filters"
   >
     <span
       v-for="chip in chips"
@@ -37,7 +37,7 @@
       <button
         type="button"
         class="naas-chip__close"
-        :aria-label="`Remove filter ${chip.label}`"
+        :aria-label="fillLabel(config.labels.remove_filter, chip.label)"
         @click="emit('remove', chip.key, chip.value)"
       >
         <i class="fa fa-times" aria-hidden="true"></i>
@@ -58,6 +58,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { useNaasConfig } from "@/composables/useNaasConfig";
+import { fillLabel } from "@/utils/fillLabel";
 
 const props = defineProps<{
   filters: Record<string, string[]>;

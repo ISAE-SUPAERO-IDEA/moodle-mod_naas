@@ -25,7 +25,7 @@
   <div class="filter-bar" v-click-outside="closeAll">
     <div class="filter-bar-header">
       <h3 class="filter-title">
-        {{ config.labels.metadata.filters ?? "Filters" }}
+        {{ config.labels.metadata.filters }}
       </h3>
       <button
         v-show="hasFilters"

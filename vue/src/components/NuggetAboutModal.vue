@@ -78,7 +78,9 @@
                   <li v-if="isShown(nugget.duration)">
                     <i class="icon fa fa-clock-o" aria-hidden="true" />
                     {{ config.labels.metadata.duration }}:
-                    <strong>{{ nugget.duration }} minutes</strong>
+                    <strong>{{
+                      fillLabel(config.labels.duration_minutes, nugget.duration ?? "")
+                    }}</strong>
                   </li>
                   <li v-if="isShown(nugget.language)">
                     <i class="icon fa fa-globe" aria-hidden="true" />
@@ -184,6 +186,7 @@
 import { computed, ref, useId } from "vue";
 import { formatShortDate } from "@/composables/formatDate";
 import { useModalA11y } from "@/composables/useModalA11y";
+import { fillLabel } from "@/utils/fillLabel";
 import { useNaasConfig } from "@/composables/useNaasConfig";
 import type { Nugget } from "@/types/nugget.types";
 
