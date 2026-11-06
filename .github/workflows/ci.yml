@@ -101,7 +101,19 @@ jobs:
 
       - name: PHPUnit tests
         if: ${{ !cancelled() }}
-        run: moodle-plugin-ci phpunit --fail-on-warning
+        shell: bash
+        env:
+          # Fail when tests silently stop running (bad discovery, skipped files).
+          # Raise it when tests are added; 510 tests ran on 2026-11-06.
+          MIN_PHPUNIT_TESTS: 500
+        run: |
+          moodle-plugin-ci phpunit --fail-on-warning | tee phpunit.log
+          count=$(grep -oE '(OK \(|Tests: )[0-9]+' phpunit.log | grep -oE '[0-9]+' | tail -1)
+          echo "PHPUnit ran ${count:-0} tests (minimum ${MIN_PHPUNIT_TESTS})."
+          if [ "${count:-0}" -lt "$MIN_PHPUNIT_TESTS" ]; then
+            echo "::error::Only ${count:-0} PHPUnit tests ran, expected at least ${MIN_PHPUNIT_TESTS}."
+            exit 1
+          fi
 
       - name: Behat features
         id: behat
