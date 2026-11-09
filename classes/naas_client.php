@@ -17,7 +17,7 @@
 namespace mod_naas;
 
 // @codeCoverageIgnoreStart
-// Runs once when the file is included, outside the class that PHPUnit @covers attributes lines to.
+// Runs once when the file is included, outside the class that the PHPUnit covers annotations attribute lines to.
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;

@@ -25,7 +25,7 @@
 namespace mod_naas\external;
 
 // @codeCoverageIgnoreStart
-// Runs once when the file is included, outside the class that PHPUnit @covers attributes lines to.
+// Runs once when the file is included, outside the class that the PHPUnit covers annotations attribute lines to.
 defined('MOODLE_INTERNAL') || die();
 // Moodle 4.2+ provides the core_external classes. On Moodle 4.1 they only exist under their
 // old global names: load them and give them the new names, so one code base runs on both.

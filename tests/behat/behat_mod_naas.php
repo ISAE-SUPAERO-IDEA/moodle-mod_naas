@@ -88,7 +88,7 @@ class behat_mod_naas extends behat_base {
     /**
      * Check where the LTI 1.1 launch form rendered by launch.php posts to.
      *
-     * Run it without @javascript: the form submits itself as soon as a browser runs its script.
+     * Run it without the javascript tag: the form submits itself as soon as a browser runs its script.
      *
      * @Then /^the naas launch form should post to "(?P<url>(?:[^"]|\\")*)"$/
      * @param string $url Expected form action.
