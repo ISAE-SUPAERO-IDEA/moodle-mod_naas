@@ -76,6 +76,7 @@ final class catalogue_filters_rights_test extends \advanced_testcase {
         $this->assertSame([], $none);
     }
 
+    #[\PHPUnit\Framework\Attributes\DataProvider('untouched_body_provider')]
     /**
      * Bodies the post-filter cannot or need not change are returned as they are.
      *
@@ -83,7 +84,6 @@ final class catalogue_filters_rights_test extends \advanced_testcase {
      * @param string $json
      * @param bool $filtered Whether a rights filter is configured.
      */
-    #[\PHPUnit\Framework\Attributes\DataProvider('untouched_body_provider')]
     public function test_constrain_search_json_leaves_some_bodies_untouched(string $json, bool $filtered): void {
         $config = $filtered ? self::commercial() : (object) [];
 
@@ -124,6 +124,7 @@ final class catalogue_filters_rights_test extends \advanced_testcase {
         $this->assertSame(8, $result['results_count']);
     }
 
+    #[\PHPUnit\Framework\Attributes\DataProvider('nugget_provider')]
     /**
      * Whether a Nugget's licence for the institute grants the required rights.
      *
@@ -132,7 +133,6 @@ final class catalogue_filters_rights_test extends \advanced_testcase {
      * @param object $config
      * @param bool $expected
      */
-    #[\PHPUnit\Framework\Attributes\DataProvider('nugget_provider')]
     public function test_nugget_matches($licences, object $config, bool $expected): void {
         $this->assertSame($expected, catalogue_filters::nugget_matches(self::nugget($licences), $config));
     }

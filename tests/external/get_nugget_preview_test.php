@@ -73,6 +73,7 @@ final class get_nugget_preview_test extends \advanced_testcase {
         $proxy::execute($course->id, 'valid-uuid-123');
     }
 
+    #[\PHPUnit\Framework\Attributes\DataProvider('preview_url_provider')]
     /**
      * The preview URL ends up in an iframe: only a web page URL may come back.
      *
@@ -80,7 +81,6 @@ final class get_nugget_preview_test extends \advanced_testcase {
      * @param string $previewurl URL NaaS returns.
      * @param bool $allowed
      */
-    #[\PHPUnit\Framework\Attributes\DataProvider('preview_url_provider')]
     public function test_get_nugget_preview_only_returns_a_web_page_url(string $previewurl, bool $allowed): void {
         $this->resetAfterTest(true);
         set_config('naas_endpoint', 'http://naas.local/api', 'naas');

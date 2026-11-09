@@ -82,6 +82,7 @@ final class person_lookup_test extends \advanced_testcase {
         });
     }
 
+    #[\PHPUnit\Framework\Attributes\DataProvider('json_has_name_provider')]
     /**
      * Whether a JSON body carries a human-readable person name.
      *
@@ -89,7 +90,6 @@ final class person_lookup_test extends \advanced_testcase {
      * @param string $json
      * @param bool $expected
      */
-    #[\PHPUnit\Framework\Attributes\DataProvider('json_has_name_provider')]
     public function test_json_has_name(string $json, bool $expected): void {
         $this->assertSame($expected, person_lookup::json_has_name($json));
     }
@@ -185,13 +185,13 @@ final class person_lookup_test extends \advanced_testcase {
         $this->assertEquals(new \stdClass(), person_lookup::normalise_record('ada'));
     }
 
+    #[\PHPUnit\Framework\Attributes\DataProvider('unchanged_json_provider')]
     /**
      * Bodies that already carry a name, or that cannot be read, are returned unchanged.
      *
      * @dataProvider unchanged_json_provider
      * @param string $json
      */
-    #[\PHPUnit\Framework\Attributes\DataProvider('unchanged_json_provider')]
     public function test_enrich_json_leaves_some_bodies_untouched(string $json): void {
         $this->assertSame($json, person_lookup::enrich_json($json));
     }
@@ -473,13 +473,13 @@ final class person_lookup_test extends \advanced_testcase {
         $this->assertSame(['/persons'], $naas->services());
     }
 
+    #[\PHPUnit\Framework\Attributes\DataProvider('empty_listing_provider')]
     /**
      * Listing bodies without a list of persons give an empty catalogue.
      *
      * @dataProvider empty_listing_provider
      * @param string $body
      */
-    #[\PHPUnit\Framework\Attributes\DataProvider('empty_listing_provider')]
     public function test_warm_catalog_of_an_unusable_listing_is_empty(string $body): void {
         $naas = $this->naas(['/persons' => $body, '/persons/search' => $body]);
 

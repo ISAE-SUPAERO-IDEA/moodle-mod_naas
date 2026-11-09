@@ -87,6 +87,7 @@ final class custom_completion_test extends advanced_testcase {
         );
     }
 
+    #[\PHPUnit\Framework\Attributes\DataProvider('pass_or_exhaust_label_provider')]
     /**
      * The pass/exhaust rule label matches the flags that are ticked.
      *
@@ -94,7 +95,6 @@ final class custom_completion_test extends advanced_testcase {
      * @param int $completionpass
      * @param string $expectedstring
      */
-    #[\PHPUnit\Framework\Attributes\DataProvider('pass_or_exhaust_label_provider')]
     public function test_get_custom_rule_descriptions_pass_or_exhaust_label(int $completionpass, string $expectedstring): void {
         $this->resetAfterTest(true);
 

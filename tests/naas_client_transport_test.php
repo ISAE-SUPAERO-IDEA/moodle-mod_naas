@@ -106,6 +106,7 @@ final class naas_client_transport_test extends \advanced_testcase {
         );
     }
 
+    #[\PHPUnit\Framework\Attributes\DataProvider('naas_error_provider')]
     /**
      * NaaS HTTP errors map to the plugin error codes.
      *
@@ -114,7 +115,6 @@ final class naas_client_transport_test extends \advanced_testcase {
      * @param string $body
      * @param string $expected
      */
-    #[\PHPUnit\Framework\Attributes\DataProvider('naas_error_provider')]
     public function test_request_raw_maps_naas_errors(int $code, string $body, string $expected): void {
         $curl = $this->naas_answering($code, $body);
         $client = new naas_client($this->config(), function () use ($curl) {

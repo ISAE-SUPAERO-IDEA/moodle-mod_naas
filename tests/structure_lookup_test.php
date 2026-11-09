@@ -111,6 +111,7 @@ final class structure_lookup_test extends \advanced_testcase {
         $this->assertSame('structuremiss_' . sha1('abc-1'), structure_lookup::miss_key(' Abc-1'));
     }
 
+    #[\PHPUnit\Framework\Attributes\DataProvider('normalize_key_provider')]
     /**
      * Producer aggregation keys lose their relationship prefix.
      *
@@ -118,7 +119,6 @@ final class structure_lookup_test extends \advanced_testcase {
      * @param string $raw
      * @param string $expected
      */
-    #[\PHPUnit\Framework\Attributes\DataProvider('normalize_key_provider')]
     public function test_normalize_key(string $raw, string $expected): void {
         $this->assertSame($expected, structure_lookup::normalize_key($raw));
     }
@@ -136,6 +136,7 @@ final class structure_lookup_test extends \advanced_testcase {
         ];
     }
 
+    #[\PHPUnit\Framework\Attributes\DataProvider('json_has_name_provider')]
     /**
      * Whether a JSON body carries a human-readable structure name.
      *
@@ -143,7 +144,6 @@ final class structure_lookup_test extends \advanced_testcase {
      * @param string $json
      * @param bool $expected
      */
-    #[\PHPUnit\Framework\Attributes\DataProvider('json_has_name_provider')]
     public function test_json_has_name(string $json, bool $expected): void {
         $this->assertSame($expected, structure_lookup::json_has_name($json));
     }
@@ -214,6 +214,7 @@ final class structure_lookup_test extends \advanced_testcase {
         $this->assertEquals(new \stdClass(), structure_lookup::normalise_record(42));
     }
 
+    #[\PHPUnit\Framework\Attributes\DataProvider('page_count_provider')]
     /**
      * Page count of a list body.
      *
@@ -221,7 +222,6 @@ final class structure_lookup_test extends \advanced_testcase {
      * @param mixed $decoded
      * @param int $expected
      */
-    #[\PHPUnit\Framework\Attributes\DataProvider('page_count_provider')]
     public function test_list_page_count($decoded, int $expected): void {
         $this->assertSame($expected, structure_lookup::list_page_count($decoded));
     }
@@ -443,13 +443,13 @@ final class structure_lookup_test extends \advanced_testcase {
         $this->assertNotFalse($this->cache()->get(structure_lookup::miss_key('lab')));
     }
 
+    #[\PHPUnit\Framework\Attributes\DataProvider('unusable_listing_provider')]
     /**
      * A corrupt cached catalogue is fetched again; unusable listing bodies give no row.
      *
      * @dataProvider unusable_listing_provider
      * @param string $body
      */
-    #[\PHPUnit\Framework\Attributes\DataProvider('unusable_listing_provider')]
     public function test_resolve_with_an_unusable_listing(string $body): void {
         $this->cache()->set(self::CATALOG_KEY, '"corrupt"');
         $naas = $this->naas(function (string $service) use ($body): ?string {

@@ -52,14 +52,14 @@ namespace mod_naas;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 final class file_scope_coverage_test extends \advanced_testcase {
+    #[\PHPUnit\Framework\Attributes\RunInSeparateProcess]
+    #[\PHPUnit\Framework\Attributes\PreserveGlobalState(false)]
     /**
      * outcome.php loads its libraries but, under PHPUnit, does not process a request.
      *
      * @runInSeparateProcess
      * @preserveGlobalState disabled
      */
-    #[\PHPUnit\Framework\Attributes\RunInSeparateProcess]
-    #[\PHPUnit\Framework\Attributes\PreserveGlobalState(false)]
     public function test_outcome_php_first_load_only_declares_the_handler(): void {
         global $CFG, $DB;
         $this->resetAfterTest(true);
@@ -77,14 +77,14 @@ final class file_scope_coverage_test extends \advanced_testcase {
         $this->assertSame($before, $DB->count_records('naas_activity_outcome'));
     }
 
+    #[\PHPUnit\Framework\Attributes\RunInSeparateProcess]
+    #[\PHPUnit\Framework\Attributes\PreserveGlobalState(false)]
     /**
      * mod_form.php loads the course module form base class and the plugin library.
      *
      * @runInSeparateProcess
      * @preserveGlobalState disabled
      */
-    #[\PHPUnit\Framework\Attributes\RunInSeparateProcess]
-    #[\PHPUnit\Framework\Attributes\PreserveGlobalState(false)]
     public function test_mod_form_php_first_load_requires_its_libraries(): void {
         global $CFG;
         if (class_exists('mod_naas_mod_form', false)) {
@@ -98,14 +98,14 @@ final class file_scope_coverage_test extends \advanced_testcase {
         $this->assertTrue(defined('NAAS_GRADEHIGHEST'));
     }
 
+    #[\PHPUnit\Framework\Attributes\RunInSeparateProcess]
+    #[\PHPUnit\Framework\Attributes\PreserveGlobalState(false)]
     /**
      * Autoloading the classes that require libraries at file scope pulls those libraries in.
      *
      * @runInSeparateProcess
      * @preserveGlobalState disabled
      */
-    #[\PHPUnit\Framework\Attributes\RunInSeparateProcess]
-    #[\PHPUnit\Framework\Attributes\PreserveGlobalState(false)]
     public function test_classes_with_file_scope_requires_load_their_libraries(): void {
         if (
             class_exists(\mod_naas\admin\action_button_setting::class, false)

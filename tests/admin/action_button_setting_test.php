@@ -61,6 +61,7 @@ final class action_button_setting_test extends advanced_testcase {
         ];
     }
 
+    #[\PHPUnit\Framework\Attributes\DataProvider('button_provider')]
     /**
      * Display-only setting: nothing is read from or written to config.
      *
@@ -68,7 +69,6 @@ final class action_button_setting_test extends advanced_testcase {
      * @param string $name
      * @param array $action
      */
-    #[\PHPUnit\Framework\Attributes\DataProvider('button_provider')]
     public function test_does_not_persist(string $name, array $action): void {
         $setting = new action_button_setting($name, $action['label'], 'Info', $action);
 
@@ -78,6 +78,7 @@ final class action_button_setting_test extends advanced_testcase {
         $this->assertSame('', $setting->write_setting('anything'));
     }
 
+    #[\PHPUnit\Framework\Attributes\DataProvider('button_provider')]
     /**
      * output_html() renders a real button that carries its web service and strings,
      * an aria-live result region, and loads the shared AMD module for that button.
@@ -86,7 +87,6 @@ final class action_button_setting_test extends advanced_testcase {
      * @param string $name
      * @param array $action
      */
-    #[\PHPUnit\Framework\Attributes\DataProvider('button_provider')]
     public function test_output_renders_the_button_and_its_result_region(string $name, array $action): void {
         global $PAGE;
 

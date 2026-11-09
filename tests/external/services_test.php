@@ -54,6 +54,7 @@ namespace mod_naas\external;
  * @covers \mod_naas\external\check_catalogue
  */
 final class services_test extends \advanced_testcase {
+    #[\PHPUnit\Framework\Attributes\DataProvider('declared_service_provider')]
     /**
      * Every function declared in db/services.php must point to a method that exists
      * and describes its parameters and its return value.
@@ -62,7 +63,6 @@ final class services_test extends \advanced_testcase {
      * @param string $classname
      * @param string $methodname
      */
-    #[\PHPUnit\Framework\Attributes\DataProvider('declared_service_provider')]
     public function test_declared_service_is_fully_described(string $classname, string $methodname): void {
         $this->assertTrue(method_exists($classname, $methodname), "{$classname}::{$methodname} is missing");
         $this->assertInstanceOf(

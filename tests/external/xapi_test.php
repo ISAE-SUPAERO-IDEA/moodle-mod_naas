@@ -98,13 +98,13 @@ final class xapi_test extends advanced_testcase {
         xapi::post_xapi_statement('delete_everything', 'v1', $naas->cmid, null);
     }
 
+    #[\PHPUnit\Framework\Attributes\DataProvider('allowed_verbs_provider')]
     /**
      * Each of the three allowed verbs must pass validation and reach the NaaS client.
      *
      * @dataProvider allowed_verbs_provider
      * @param string $verb Allowed xAPI verb under test.
      */
-    #[\PHPUnit\Framework\Attributes\DataProvider('allowed_verbs_provider')]
     public function test_allowed_verbs_pass_validation(string $verb): void {
         $this->resetAfterTest(true);
 
@@ -448,13 +448,13 @@ final class xapi_test extends advanced_testcase {
         $this->assertSame([], $client->captured);
     }
 
+    #[\PHPUnit\Framework\Attributes\DataProvider('unusable_naas_response_provider')]
     /**
      * An empty or error answer from NaaS must raise a clear exception, not a PHP warning.
      *
      * @dataProvider unusable_naas_response_provider
      * @param string $stubjson Raw NaaS answer.
      */
-    #[\PHPUnit\Framework\Attributes\DataProvider('unusable_naas_response_provider')]
     public function test_post_xapi_unusable_naas_response_throws(string $stubjson): void {
         $this->resetAfterTest(true);
 

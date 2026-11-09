@@ -136,6 +136,7 @@ final class media_proxy_test extends advanced_testcase {
         );
     }
 
+    #[\PHPUnit\Framework\Attributes\DataProvider('invalid_structure_provider')]
     /**
      * Structure ids and variants outside the allowed set never reach NaaS.
      *
@@ -143,7 +144,6 @@ final class media_proxy_test extends advanced_testcase {
      * @param string $id
      * @param string $variant
      */
-    #[\PHPUnit\Framework\Attributes\DataProvider('invalid_structure_provider')]
     public function test_structure_source_rejects_bad_ids_and_variants(string $id, string $variant): void {
         $this->expectException(\invalid_parameter_exception::class);
         media_proxy::structure_source(self::ENDPOINT, $id, $variant);
@@ -162,6 +162,7 @@ final class media_proxy_test extends advanced_testcase {
         ];
     }
 
+    #[\PHPUnit\Framework\Attributes\DataProvider('accepted_source_provider')]
     /**
      * Image URLs on the NaaS host are accepted and normalised.
      *
@@ -169,7 +170,6 @@ final class media_proxy_test extends advanced_testcase {
      * @param string $src
      * @param string $expected
      */
-    #[\PHPUnit\Framework\Attributes\DataProvider('accepted_source_provider')]
     public function test_check_source_accepts_images_on_the_naas_host(string $src, string $expected): void {
         $this->assertSame($expected, media_proxy::check_source($src, self::ENDPOINT));
     }
@@ -198,13 +198,13 @@ final class media_proxy_test extends advanced_testcase {
         ];
     }
 
+    #[\PHPUnit\Framework\Attributes\DataProvider('refused_source_provider')]
     /**
      * Any other URL is refused before a request is made.
      *
      * @dataProvider refused_source_provider
      * @param string $src
      */
-    #[\PHPUnit\Framework\Attributes\DataProvider('refused_source_provider')]
     public function test_check_source_refuses_anything_else(string $src): void {
         $this->expectException(\invalid_parameter_exception::class);
         media_proxy::check_source($src, self::ENDPOINT);
@@ -254,6 +254,7 @@ final class media_proxy_test extends advanced_testcase {
         $this->assertCount(1, $proxy::$curl->requested, 'The second request must come from the cache.');
     }
 
+    #[\PHPUnit\Framework\Attributes\DataProvider('unusable_answer_provider')]
     /**
      * Only an image answer from NaaS is accepted.
      *
@@ -261,7 +262,6 @@ final class media_proxy_test extends advanced_testcase {
      * @param string $body
      * @param int $code
      */
-    #[\PHPUnit\Framework\Attributes\DataProvider('unusable_answer_provider')]
     public function test_fetch_refuses_anything_but_an_image(string $body, int $code): void {
         $proxy = $this->proxy_answering($body, $code);
         $this->expectException(\moodle_exception::class);

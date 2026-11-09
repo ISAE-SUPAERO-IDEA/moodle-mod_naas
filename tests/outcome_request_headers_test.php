@@ -44,14 +44,14 @@ require_once($CFG->dirroot . '/mod/naas/outcome.php');
  * @covers     \mod_naas_outcome
  */
 final class outcome_request_headers_test extends \advanced_testcase {
+    #[\PHPUnit\Framework\Attributes\RunInSeparateProcess]
+    #[\PHPUnit\Framework\Attributes\PreserveGlobalState(false)]
     /**
      * A signed post seen only through getallheaders() is recognised, whatever the header case.
      *
      * @runInSeparateProcess
      * @preserveGlobalState disabled
      */
-    #[\PHPUnit\Framework\Attributes\RunInSeparateProcess]
-    #[\PHPUnit\Framework\Attributes\PreserveGlobalState(false)]
     public function test_signed_outcome_header_read_from_getallheaders(): void {
         global $CFG;
         $this->resetAfterTest(true);

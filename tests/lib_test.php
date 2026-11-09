@@ -96,6 +96,7 @@ final class lib_test extends advanced_testcase {
 
     // Naas_supports.
 
+    #[\PHPUnit\Framework\Attributes\DataProvider('naas_supports_cases_provider')]
     /**
      * Every declared feature matches naas_supports().
      *
@@ -104,7 +105,6 @@ final class lib_test extends advanced_testcase {
      * @param string|int $feature
      * @param mixed $expected
      */
-    #[\PHPUnit\Framework\Attributes\DataProvider('naas_supports_cases_provider')]
     public function test_supports_all_declared_features($feature, $expected): void {
         $this->assertSame($expected, naas_supports($feature));
     }

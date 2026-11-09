@@ -84,12 +84,12 @@ final class version_php_test extends advanced_testcase {
         $this->assertGreaterThanOrEqual(max($savepoints), (int) $plugin->version);
     }
 
+    #[\PHPUnit\Framework\Attributes\RunInSeparateProcess]
     /**
      * Fresh process require keeps coverage attribution clean for the version file (same as other root scripts).
      *
      * @runInSeparateProcess
      */
-    #[\PHPUnit\Framework\Attributes\RunInSeparateProcess]
     public function test_version_php_loads_in_separate_process(): void {
         global $CFG, $plugin;
 

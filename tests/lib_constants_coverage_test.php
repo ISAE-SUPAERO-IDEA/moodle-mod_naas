@@ -36,12 +36,12 @@ use advanced_testcase;
  * @covers ::naas_define_module_constants
  */
 final class lib_constants_coverage_test extends advanced_testcase {
+    #[\PHPUnit\Framework\Attributes\RunInSeparateProcess]
     /**
      * First require of lib.php in this PHP process must execute naas_define_module_constants().
      *
      * @runInSeparateProcess
      */
-    #[\PHPUnit\Framework\Attributes\RunInSeparateProcess]
     public function test_lib_php_constant_defines_run_under_coverage(): void {
         global $CFG;
 

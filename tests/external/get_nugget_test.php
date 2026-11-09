@@ -169,13 +169,13 @@ final class get_nugget_test extends \advanced_testcase {
         get_nugget::execute($course->id, str_repeat('a', 129));
     }
 
+    #[\PHPUnit\Framework\Attributes\DataProvider('invalid_ids_provider')]
     /**
      * Test that invalid IDs (containing path traversal or special chars) are rejected.
      *
      * @dataProvider invalid_ids_provider
      * @param string $badid Nugget id that must be rejected.
      */
-    #[\PHPUnit\Framework\Attributes\DataProvider('invalid_ids_provider')]
     public function test_invalid_ids_throw_exception(string $badid): void {
         $this->resetAfterTest(true);
         $course = $this->getDataGenerator()->create_course();

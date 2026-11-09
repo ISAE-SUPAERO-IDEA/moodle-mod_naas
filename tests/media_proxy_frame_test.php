@@ -52,6 +52,7 @@ final class media_proxy_frame_test extends \advanced_testcase {
         \cache::make('mod_naas', media_proxy::CACHE_AREA)->purge();
     }
 
+    #[\PHPUnit\Framework\Attributes\DataProvider('frame_url_provider')]
     /**
      * Which preview URLs may be loaded in an iframe.
      *
@@ -60,7 +61,6 @@ final class media_proxy_frame_test extends \advanced_testcase {
      * @param string $endpoint
      * @param bool $expected
      */
-    #[\PHPUnit\Framework\Attributes\DataProvider('frame_url_provider')]
     public function test_is_frame_url_allowed(string $url, string $endpoint, bool $expected): void {
         $this->assertSame($expected, media_proxy::is_frame_url_allowed($url, $endpoint));
     }
