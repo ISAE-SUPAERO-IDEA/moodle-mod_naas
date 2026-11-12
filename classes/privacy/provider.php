@@ -21,6 +21,7 @@ use core_privacy\local\request\approved_contextlist;
 use core_privacy\local\request\approved_userlist;
 use core_privacy\local\request\contextlist;
 use core_privacy\local\request\helper;
+use core_privacy\local\request\transform;
 use core_privacy\local\request\userlist;
 use core_privacy\local\request\writer;
 
@@ -156,9 +157,10 @@ class provider implements
                     'User ID' => $record->user_id,
                     'Activity ID' => $record->activity_id,
                     'Session ID' => $record->sourced_id,
-                    'Started at' => $record->date_added,
+                    // Readable dates, like other activities' exports; an attempt still open has none.
+                    'Started at' => empty($record->date_added) ? null : transform::datetime($record->date_added),
                     'Score' => $record->score,
-                    'Completed at' => $record->timecompleted,
+                    'Completed at' => empty($record->timecompleted) ? null : transform::datetime($record->timecompleted),
                 ];
             }
 

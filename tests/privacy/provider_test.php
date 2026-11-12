@@ -26,6 +26,7 @@ namespace mod_naas\privacy;
 
 use core_privacy\local\request\approved_contextlist;
 use core_privacy\local\request\approved_userlist;
+use core_privacy\local\request\transform;
 use core_privacy\local\request\writer;
 use core_privacy\tests\provider_testcase;
 use mod_naas\privacy\provider;
@@ -182,8 +183,33 @@ final class provider_test extends provider_testcase {
         $sessions = $data->{'User information'};
         $this->assertCount(1, $sessions);
         $this->assertEqualsWithDelta(0.75, (float) $sessions[0]['Score'], 0.00001);
-        $this->assertEquals(1700000000, $sessions[0]['Completed at']);
+        $this->assertSame(transform::datetime(1700000000), $sessions[0]['Completed at']);
         $this->assertArrayHasKey('Started at', $sessions[0]);
+        $this->assertDoesNotMatchRegularExpression('/^\d+$/', (string) $sessions[0]['Started at']);
+    }
+
+    /**
+     * An attempt still open is exported with a readable start date and no completion date.
+     */
+    public function test_export_user_data_open_attempt_has_no_completion_date(): void {
+        global $DB;
+        $this->resetAfterTest(true);
+
+        [, $naas, $user] = $this->setup_activity_with_user();
+
+        /** @var \mod_naas_generator $gen */
+        $gen = $this->getDataGenerator()->get_plugin_generator('mod_naas');
+        $record = $gen->create_activity_outcome($user->id, $naas->cmid);
+        $DB->set_field('naas_activity_outcome', 'date_added', 1700000000, ['id' => $record->id]);
+
+        $context  = \context_module::instance($naas->cmid);
+        provider::export_user_data(new approved_contextlist($user, 'mod_naas', [$context->id]));
+
+        $sessions = writer::with_context($context)->get_data(['Nugget info pertaining to user'])->{'User information'};
+        $this->assertCount(1, $sessions);
+        $this->assertSame(transform::datetime(1700000000), $sessions[0]['Started at']);
+        $this->assertNull($sessions[0]['Completed at']);
+        $this->assertNull($sessions[0]['Score']);
     }
 
     // Delete_data_for_user.
