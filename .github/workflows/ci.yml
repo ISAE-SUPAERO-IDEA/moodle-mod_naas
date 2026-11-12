@@ -190,7 +190,7 @@ jobs:
         run: php plugin/.github/scripts/plugin-coverage.php coverage.xml 99
 
   widget:
-    name: Vue widget (lint, type-check, tests, committed bundle)
+    name: Vue widget (lint, architecture, type-check, tests, committed bundle)
     runs-on: ubuntu-22.04
 
     steps:
@@ -218,6 +218,11 @@ jobs:
       - name: Lint
         working-directory: vue
         run: pnpm lint:check
+
+      # Feature-Sliced Design rules (Steiger); src/architecture.spec.ts covers the rest.
+      - name: Architecture
+        working-directory: vue
+        run: pnpm lint:fsd
 
       - name: Type-check
         working-directory: vue

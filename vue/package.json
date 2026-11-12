@@ -16,6 +16,7 @@
     "coverage": "vitest run --coverage",
     "lint": "eslint --fix",
     "lint:check": "eslint",
+    "lint:fsd": "steiger ./src",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "bump-version": "node scripts/bump-version.js"
@@ -26,6 +27,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@feature-sliced/steiger-plugin": "0.8.2",
     "@vitejs/plugin-vue": "^5.2.4",
     "@vitest/coverage-v8": "^4.1.12",
     "@vue/tsconfig": "^0.5.1",
@@ -38,6 +40,7 @@
     "globals": "^17.14.0",
     "jsdom": "^25.0.0",
     "prettier": "3.6.2",
+    "steiger": "0.10.0",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.72.2",
     "vite": "^6.4.5",
