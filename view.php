@@ -24,7 +24,7 @@
 
 require_once(__DIR__ . '/../../config.php');
 
-global $COURSE, $DB, $OUTPUT, $PAGE;
+global $DB, $OUTPUT, $PAGE;
 
 $id        = optional_param('id', 0, PARAM_INT);        // Course module ID.
 $u         = optional_param('u', 0, PARAM_INT);         // NaaS instance id.
@@ -61,7 +61,9 @@ $PAGE->set_heading($course->fullname);
 // Print the page header.
 echo $OUTPUT->header();
 
-$courseurl = new moodle_url('/course/view.php', ['id' => $COURSE->id]);
+// Back to the activity's own section (anchor on a one-page course, section page otherwise),
+// not to the top of the course. The completion modal of the widget reuses this link.
+$courseurl = course_get_url($course, $PAGE->cm->sectionnum);
 $backtocourse = get_string('back_to_course', 'naas');
 $nextactivity = \mod_naas\mod_util::get_next_activity_url();
 $widgethtml = \mod_naas\naas_widget::naas_widget_html($naasinstance->nugget_id, $cm->course, $cm->id, "NuggetView");

@@ -248,6 +248,23 @@ final class root_scripts_coverage_test extends \advanced_testcase {
     }
 
     /**
+     * view.php sends the learner back to the activity's section, not to the top of the course.
+     */
+    public function test_view_back_link_targets_the_activity_section(): void {
+        // Default topics format: every section on one page, so the link carries an anchor.
+        [$course, $naas, $user] = $this->setup_activity('student', ['shortname' => 'ROOTS']);
+        $section = get_fast_modinfo($course)->get_cm($naas->cmid)->sectionnum;
+        $this->setUser($user);
+        $this->request(['id' => $naas->cmid]);
+
+        $html = $this->run_script('view.php');
+
+        $expected = course_get_url($course, $section)->out();
+        $this->assertStringContainsString('#section-' . $section, $expected);
+        $this->assertStringContainsString('href="' . $expected . '"', $html);
+    }
+
+    /**
      * view.php also accepts the instance id (u=).
      */
     public function test_view_by_instance_id(): void {
