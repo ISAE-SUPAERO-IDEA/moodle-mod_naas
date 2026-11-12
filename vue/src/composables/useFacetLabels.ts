@@ -26,8 +26,8 @@
  */
 
 import { ref, type Ref } from "vue";
-import type { CatalogueFacetLabels } from "@/types/nugget.types";
-import { useNaasConfig } from "./useNaasConfig";
+import type { CatalogueFacetLabels } from "@/shared/api";
+import { useNaasConfig } from "@/shared/config";
 import { useEntityResolvers } from "./useEntityResolvers";
 import {
   applyResolvedLabels,
@@ -40,7 +40,7 @@ import {
   lookupLabel,
   normalizePersonKey,
   normalizeStructureKey,
-} from "./structureVisuals";
+} from "@/shared/lib";
 import { findFacet, hasSelectedBuckets } from "./facetColumns";
 
 export interface FacetLabelOptions {

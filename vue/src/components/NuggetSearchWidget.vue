@@ -120,13 +120,13 @@
 
 <script setup lang="ts">
 import { nextTick, ref, onMounted, onBeforeUnmount } from "vue";
-import type { Nugget } from "@/types/nugget.types";
+import type { Nugget } from "@/shared/api";
 import NuggetSearchBar from "./NuggetSearchBar.vue";
 import NuggetBrowseLanding from "./NuggetBrowseLanding.vue";
 import NuggetSearchResults from "./NuggetSearchResults.vue";
 import NuggetSelectedPanel from "./NuggetSelectedPanel.vue";
-import { useNaasConfig } from "@/composables/useNaasConfig";
-import { useMoodleService } from "@/composables/useMoodleService";
+import { useNaasConfig } from "@/shared/config";
+import { useMoodleService } from "@/shared/api";
 import { useNuggetSearch } from "@/composables/useNuggetSearch";
 import {
   concealCguAgreement,

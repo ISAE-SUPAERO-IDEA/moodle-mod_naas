@@ -218,13 +218,12 @@
 
 <script setup lang="ts">
 import { computed, ref, useId, watch } from "vue";
-import { formatShortDate } from "@/composables/formatDate";
+import { formatShortDate, fillLabel } from "@/shared/lib";
 import { licenceRights, rightsCaption } from "@/composables/nuggetLicence";
 import { useEntityResolvers } from "@/composables/useEntityResolvers";
-import { useModalA11y } from "@/composables/useModalA11y";
-import { fillLabel } from "@/utils/fillLabel";
-import { useNaasConfig } from "@/composables/useNaasConfig";
-import type { Nugget } from "@/types/nugget.types";
+import { useModalA11y } from "@/shared/ui";
+import { useNaasConfig } from "@/shared/config";
+import type { Nugget } from "@/shared/api";
 
 const props = defineProps<{ nugget: Nugget; visible: boolean }>();
 const emit = defineEmits<{ (e: "close"): void }>();

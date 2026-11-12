@@ -41,7 +41,7 @@ export default defineConfig({
       // Setting exclude replaces vitest's defaults: list the spec files explicitly.
       exclude: [
         "src/main.ts",
-        "src/types/*",
+        "src/shared/api/types/*",
         "src/test/**",
         "src/**/*.spec.ts",
       ],

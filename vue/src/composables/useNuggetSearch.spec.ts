@@ -23,8 +23,8 @@
 import { describe, it, expect, vi } from "vitest";
 import { createApp } from "vue";
 import { queryKey, sameFreshness, useNuggetSearch } from "./useNuggetSearch";
-import { NAAS_API_KEY } from "@/plugins/naas-api.plugin";
-import type { Nugget, SearchFreshness } from "@/types/nugget.types";
+import { NAAS_API_KEY } from "@/shared/api";
+import type { Nugget, SearchFreshness } from "@/shared/api";
 
 const digest = (over: Partial<SearchFreshness> = {}): SearchFreshness => ({
   results_count: 1,

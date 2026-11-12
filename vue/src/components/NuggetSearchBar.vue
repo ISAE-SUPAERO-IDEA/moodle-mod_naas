@@ -94,11 +94,8 @@
 
 <script setup lang="ts">
 import NuggetSearchFilter from "./NuggetSearchFilter.vue";
-import { useNaasConfig } from "@/composables/useNaasConfig";
-import type {
-  AggregationResult,
-  CatalogueFacetLabels,
-} from "@/types/nugget.types";
+import { useNaasConfig } from "@/shared/config";
+import type { AggregationResult, CatalogueFacetLabels } from "@/shared/api";
 
 defineProps<{
   activeFilterCount: number;

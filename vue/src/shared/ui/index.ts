@@ -14,24 +14,13 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Composable for posting xAPI statements via the Moodle webservice.
- * Fire-and-forget: failures are logged but never bubble to the UI.
+ * Public API of shared/ui: generic interface parts and behaviours.
  *
- * @copyright  2024 ISAE-SUPAERO (https://www.isae-supaero.fr/)
+ * @copyright  2026 ISAE-SUPAERO (https://www.isae-supaero.fr/)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-import { useMoodleService } from "./useMoodleService";
-import type { XapiParams } from "@/types/nugget.types";
-
-export function useXapi() {
-  const service = useMoodleService();
-
-  function postStatement(params: XapiParams): void {
-    service.postXapiStatement(params).catch((err) => {
-      console.warn("[NaaS xAPI] failed to post statement", err);
-    });
-  }
-
-  return { postStatement };
-}
+export { vClickOutside } from "./clickOutside";
+export { default as NuggetLoadingBanner } from "./NuggetLoadingBanner.vue";
+export { useLoadMoreSentinel } from "./useLoadMoreSentinel";
+export { useModalA11y } from "./useModalA11y";

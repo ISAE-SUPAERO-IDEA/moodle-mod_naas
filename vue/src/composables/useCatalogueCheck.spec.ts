@@ -22,8 +22,8 @@
 
 import { describe, expect, it, vi } from "vitest";
 import { useCatalogueCheck } from "./useCatalogueCheck";
-import type { CatalogueSnapshot } from "@/types/naas-config.types";
-import type { CatalogueCheck } from "@/types/nugget.types";
+import type { CatalogueSnapshot } from "@/shared/config";
+import type { CatalogueCheck } from "@/shared/api";
 
 const STAMP = { results_count: 40, newest_modification_date: "2026-11-01" };
 

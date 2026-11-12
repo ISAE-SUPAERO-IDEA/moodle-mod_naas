@@ -24,7 +24,7 @@ import { createApp } from "vue";
 import Main from "@/Main.vue";
 import { naasApiPlugin } from "@/plugins/naas-api.plugin";
 import "@/styles/naas-theme.css";
-import { readNaasConfig } from "@/composables/readNaasConfig";
+import { readNaasConfig } from "@/shared/config";
 
 const config = readNaasConfig();
 // Keep window.NAAS for code and tools that still read it.

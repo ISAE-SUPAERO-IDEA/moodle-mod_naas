@@ -21,7 +21,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-import type { Nugget } from "@/types/nugget.types";
+import type { Nugget } from "@/shared/api";
 
 export const ACTIVITY_DETAILS_FORM_ATTR = "data-naas-details";
 

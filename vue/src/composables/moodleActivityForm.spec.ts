@@ -33,7 +33,7 @@ import {
   setMoodleActivityName,
   syncMoodleNuggetFields,
 } from "./moodleActivityForm";
-import type { Nugget } from "@/types/nugget.types";
+import type { Nugget } from "@/shared/api";
 
 function nugget(overrides: Partial<Nugget> = {}): Nugget {
   return {

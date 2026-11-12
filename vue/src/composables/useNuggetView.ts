@@ -22,11 +22,10 @@
  */
 
 import { ref, onMounted } from "vue";
-import { useMoodleService } from "./useMoodleService";
-import { useNaasConfig } from "./useNaasConfig";
+import { useMoodleService, errorMessage } from "@/shared/api";
+import { useNaasConfig } from "@/shared/config";
 import { useNuggetEnricher } from "./useNuggetEnricher";
-import type { Nugget } from "@/types/nugget.types";
-import { errorMessage } from "@/utils/errorMessage";
+import type { Nugget } from "@/shared/api";
 
 export function useNuggetView() {
   const service = useMoodleService();

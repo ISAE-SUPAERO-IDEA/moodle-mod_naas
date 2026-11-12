@@ -24,11 +24,8 @@ import { describe, it, expect, vi, afterEach } from "vitest";
 import { reactive } from "vue";
 import NuggetSearchFilter from "./NuggetSearchFilter.vue";
 import { mountComponent, type Mounted } from "@/test/mountComponent";
-import { NAAS_API_KEY } from "@/plugins/naas-api.plugin";
-import type {
-  AggregationResult,
-  CatalogueFacetLabels,
-} from "@/types/nugget.types";
+import { NAAS_API_KEY } from "@/shared/api";
+import type { AggregationResult, CatalogueFacetLabels } from "@/shared/api";
 
 const naasConfig = {
   courseId: 7,

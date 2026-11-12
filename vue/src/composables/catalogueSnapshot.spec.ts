@@ -31,7 +31,7 @@ import {
   sameCatalogueStamp,
   snapshotSearch,
 } from "./catalogueSnapshot";
-import type { Nugget } from "@/types/nugget.types";
+import type { Nugget } from "@/shared/api";
 
 describe("catalogueSnapshot", () => {
   it("matches a producer by uuid, structure_id, or managed_by prefix", () => {

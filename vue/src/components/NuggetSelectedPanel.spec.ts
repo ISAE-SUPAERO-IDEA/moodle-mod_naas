@@ -25,7 +25,7 @@ import { reactive } from "vue";
 import NuggetSelectedPanel from "./NuggetSelectedPanel.vue";
 import { mountComponent, type Mounted } from "@/test/mountComponent";
 import { makeNugget, providers } from "@/test/widgetFixtures";
-import type { Nugget } from "@/types/nugget.types";
+import type { Nugget } from "@/shared/api";
 
 const aircraft = makeNugget();
 

@@ -28,8 +28,8 @@ import {
   producerLabelUpdates,
 } from "./producerDirectory";
 import type { NamedProducer } from "./producerDirectory";
-import { isOpaqueEntityKey } from "./structureVisuals";
-import type { CatalogueProducer } from "@/types/naas-config.types";
+import { isOpaqueEntityKey } from "@/shared/lib";
+import type { CatalogueProducer } from "@/shared/config";
 
 const ISAE_UUID = "06d37c13-6ffe-4c4a-a9e3-ac227652f98c";
 const ONERA_UUID = "9a1e0b7c-2d4f-4c6e-8b1a-3f5d7e9c0a21";

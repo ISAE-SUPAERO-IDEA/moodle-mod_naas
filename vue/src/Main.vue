@@ -33,7 +33,7 @@
 <script setup lang="ts">
 import NuggetView from "@/components/NuggetView.vue";
 import NuggetSearchWidget from "@/components/NuggetSearchWidget.vue";
-import { useNaasConfig } from "@/composables/useNaasConfig";
+import { useNaasConfig } from "@/shared/config";
 
 const config = useNaasConfig();
 </script>

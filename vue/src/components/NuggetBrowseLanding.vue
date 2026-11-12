@@ -126,9 +126,8 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
-import { useNaasConfig } from "@/composables/useNaasConfig";
-import { countsAreExact } from "@/composables/licenceCounts";
-import { createMediaRouter } from "@/composables/mediaUrls";
+import { useNaasConfig, countsAreExact } from "@/shared/config";
+import { createMediaRouter } from "@/shared/api";
 import { useEntityResolvers } from "@/composables/useEntityResolvers";
 import { matchCachedProducer } from "@/composables/catalogueSnapshot";
 import {
@@ -136,13 +135,10 @@ import {
   namedPayloadChanged,
 } from "@/composables/producerDirectory";
 import type { NamedProducer } from "@/composables/producerDirectory";
-import {
-  isOpaqueEntityKey,
-  isRawEntityLabel,
-  structureVisuals,
-} from "@/composables/structureVisuals";
-import type { CatalogueProducer } from "@/types/naas-config.types";
-import type { AggregationResult } from "@/types/nugget.types";
+import { isOpaqueEntityKey, isRawEntityLabel } from "@/shared/lib";
+import { structureVisuals } from "@/composables/structureVisuals";
+import type { CatalogueProducer } from "@/shared/config";
+import type { AggregationResult } from "@/shared/api";
 
 const props = defineProps<{
   aggregations: Record<string, AggregationResult>;

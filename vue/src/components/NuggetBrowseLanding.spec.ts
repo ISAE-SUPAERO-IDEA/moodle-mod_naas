@@ -30,7 +30,7 @@ import {
   providers,
   type FakeService,
 } from "@/test/widgetFixtures";
-import type { CatalogueProducer } from "@/types/naas-config.types";
+import type { CatalogueProducer } from "@/shared/config";
 
 let mounted: Mounted | null = null;
 

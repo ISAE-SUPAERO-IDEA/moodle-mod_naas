@@ -45,12 +45,12 @@
 import { nextTick, onBeforeUnmount, ref, watch } from "vue";
 import NuggetPost from "./NuggetPost.vue";
 import NuggetSkeleton from "./NuggetSkeleton.vue";
-import NuggetLoadingBanner from "./NuggetLoadingBanner.vue";
+import { NuggetLoadingBanner } from "@/shared/ui";
 import {
   placeCguAgreement,
   restoreCguAgreement,
 } from "@/composables/moodleActivityForm";
-import type { Nugget } from "@/types/nugget.types";
+import type { Nugget } from "@/shared/api";
 
 const props = defineProps<{
   /** The chosen Nugget; null while it is still being fetched. */

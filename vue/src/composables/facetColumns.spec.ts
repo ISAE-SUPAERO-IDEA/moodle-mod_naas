@@ -35,7 +35,7 @@ import {
   type FacetLabelLookup,
 } from "./facetColumns";
 import type { MappedAggregation } from "./searchAggregations";
-import type { AggregationBucket } from "@/types/nugget.types";
+import type { AggregationBucket } from "@/shared/api";
 
 const HASH = "a".repeat(32);
 

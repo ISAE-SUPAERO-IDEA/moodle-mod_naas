@@ -21,15 +21,10 @@
  */
 
 import type { App } from "vue";
-import type { INaasApiService } from "../service/naas-api.interface";
-import { moodleNaasApiService } from "../service/moodle-naas-api.service";
-
-export const NAAS_API_KEY = Symbol("naasApi");
+import { moodleNaasApiService, NAAS_API_KEY } from "@/shared/api";
 
 export const naasApiPlugin = {
   install(app: App) {
     app.provide(NAAS_API_KEY, moodleNaasApiService);
   },
 };
-
-export type { INaasApiService };

@@ -30,7 +30,7 @@
  */
 
 import { matchCachedProducer } from "./catalogueSnapshot";
-import type { CatalogueProducer } from "@/types/naas-config.types";
+import type { CatalogueProducer } from "@/shared/config";
 
 /** One producer card's resolved labels, as emitted by the landing. */
 export interface NamedProducer {

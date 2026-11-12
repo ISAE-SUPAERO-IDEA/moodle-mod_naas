@@ -21,8 +21,8 @@
  */
 
 import { inject } from "vue";
-import { NAAS_API_KEY } from "@/plugins/naas-api.plugin";
-import type { INaasApiService } from "@/service/naas-api.interface";
+import { NAAS_API_KEY } from "./naasApiKey";
+import type { INaasApiService } from "./naas-api.interface";
 
 export function useMoodleService(): INaasApiService {
   const service = inject<INaasApiService>(NAAS_API_KEY);

@@ -27,8 +27,8 @@ import {
   mapAggregationBuckets,
   type MappedAggregation,
 } from "./searchAggregations";
-import { NAAS_API_KEY } from "@/plugins/naas-api.plugin";
-import type { CatalogueFacetLabels } from "@/types/nugget.types";
+import { NAAS_API_KEY } from "@/shared/api";
+import type { CatalogueFacetLabels } from "@/shared/api";
 
 const naasConfig = {
   courseId: 7,

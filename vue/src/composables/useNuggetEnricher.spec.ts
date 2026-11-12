@@ -23,8 +23,8 @@
 import { describe, it, expect, vi } from "vitest";
 import { createApp } from "vue";
 import { useNuggetEnricher } from "./useNuggetEnricher";
-import { NAAS_API_KEY } from "@/plugins/naas-api.plugin";
-import type { Nugget } from "@/types/nugget.types";
+import { NAAS_API_KEY } from "@/shared/api";
+import type { Nugget } from "@/shared/api";
 
 function withProviders<T>(service: object, run: () => T): T {
   const app = createApp({});

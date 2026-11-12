@@ -25,7 +25,7 @@ import type {
   CatalogueStamp,
   CatalogueFacetLabels,
   SearchResult,
-} from "./nugget.types";
+} from "../api";
 
 export type { CatalogueVocabulary };
 

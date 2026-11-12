@@ -31,11 +31,8 @@ import {
 } from "./catalogueSnapshot";
 import { mergeProducerNames, producerLabelUpdates } from "./producerDirectory";
 import type { NamedProducer } from "./producerDirectory";
-import type {
-  CatalogueProducer,
-  CatalogueSnapshot,
-} from "@/types/naas-config.types";
-import type { CatalogueFacetLabels } from "@/types/nugget.types";
+import type { CatalogueProducer, CatalogueSnapshot } from "@/shared/config";
+import type { CatalogueFacetLabels } from "@/shared/api";
 
 export function useProducerDirectory(
   snapshot: CatalogueSnapshot | null | undefined

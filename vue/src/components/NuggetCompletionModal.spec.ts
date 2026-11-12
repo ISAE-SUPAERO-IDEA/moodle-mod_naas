@@ -31,7 +31,7 @@ import {
   makeService,
   providers,
 } from "@/test/widgetFixtures";
-import type { Nugget } from "@/types/nugget.types";
+import type { Nugget } from "@/shared/api";
 
 let mounted: Mounted | null = null;
 

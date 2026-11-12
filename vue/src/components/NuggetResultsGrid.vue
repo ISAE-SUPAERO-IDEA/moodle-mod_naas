@@ -90,9 +90,9 @@
 <script setup lang="ts">
 import NuggetPost from "./NuggetPost.vue";
 import NuggetSkeleton from "./NuggetSkeleton.vue";
-import { useNaasConfig } from "@/composables/useNaasConfig";
+import { useNaasConfig } from "@/shared/config";
 import { onCardGridKeydown } from "@/composables/cardGridKeys";
-import type { Nugget } from "@/types/nugget.types";
+import type { Nugget } from "@/shared/api";
 
 /** Skeleton cards painted while the first page loads: one full page. */
 const SKELETON_COUNT = 9;

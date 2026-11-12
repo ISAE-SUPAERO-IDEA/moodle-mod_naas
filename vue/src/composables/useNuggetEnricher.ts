@@ -22,11 +22,9 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-import { useMoodleService } from "./useMoodleService";
-import { useNaasConfig } from "./useNaasConfig";
-import type { Nugget } from "@/types/nugget.types";
-import type { Person } from "@/types/person.types";
-import type { Domain } from "@/types/domain.types";
+import { useMoodleService } from "@/shared/api";
+import { useNaasConfig } from "@/shared/config";
+import type { Nugget, Person, Domain } from "@/shared/api";
 
 export function useNuggetEnricher() {
   const service = useMoodleService();

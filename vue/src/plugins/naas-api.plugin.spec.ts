@@ -22,8 +22,8 @@
 
 import { describe, expect, it } from "vitest";
 import { createApp, inject } from "vue";
-import { NAAS_API_KEY, naasApiPlugin } from "./naas-api.plugin";
-import { moodleNaasApiService } from "../service/moodle-naas-api.service";
+import { NAAS_API_KEY, moodleNaasApiService } from "@/shared/api";
+import { naasApiPlugin } from "./naas-api.plugin";
 
 describe("naasApiPlugin", () => {
   it("provides the Moodle web service adapter to every component", () => {

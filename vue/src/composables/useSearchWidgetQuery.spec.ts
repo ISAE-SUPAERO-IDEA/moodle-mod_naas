@@ -33,7 +33,7 @@ import type {
   Nugget,
   SearchOptions,
   SearchResult,
-} from "@/types/nugget.types";
+} from "@/shared/api";
 
 const aircraft = makeNugget();
 const orbital = makeNugget({ nugget_id: "n-orbital" });

@@ -14,22 +14,15 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Tests for structureVisuals and the structure/person key helpers.
+ * Tests for structureVisuals.
  *
  * @copyright  2026 ISAE-SUPAERO (https://www.isae-supaero.fr/)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 import { describe, expect, it } from "vitest";
-import {
-  isOpaqueEntityKey,
-  isRawEntityLabel,
-  lookupLabel,
-  normalizePersonKey,
-  normalizeStructureKey,
-  structureVisuals,
-} from "./structureVisuals";
-import { createMediaRouter } from "./mediaUrls";
+import { structureVisuals } from "./structureVisuals";
+import { createMediaRouter } from "@/shared/api";
 
 const MEDIA = "https://moodle.test/mod/naas/media.php";
 const media = createMediaRouter("https://moodle.test/", 7);
@@ -152,15 +145,9 @@ describe("structureVisuals", () => {
     });
   });
 
-  it("strips a managed_by:structure prefix from aggregation keys", () => {
-    const id = "06d37c13-6ffe-4c4a-a9e3-ac227652f98c";
-    expect(normalizeStructureKey(`managed_by:structure:${id}`)).toBe(id);
-  });
-
   it("does not treat a hash or UUID as the producer title", () => {
     const key =
       "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2";
-    expect(isOpaqueEntityKey(key)).toBe(true);
     expect(structureVisuals({ id: key }, key)).toEqual({
       name: "",
       acronym: "",
@@ -200,65 +187,6 @@ describe("structureVisuals", () => {
       name: "ISAE-SUPAERO",
       acronym: "ISAE",
     });
-  });
-
-  it("strips relationship prefixes and looks up labels by either form", () => {
-    expect(normalizePersonKey("authored_by:person:abcdef0123456789")).toBe(
-      "abcdef0123456789"
-    );
-    expect(normalizeStructureKey("managed_by:structure:isae-uuid")).toBe(
-      "isae-uuid"
-    );
-    expect(
-      lookupLabel(
-        { "isae-uuid": "ISAE" },
-        "managed_by:structure:isae-uuid",
-        normalizeStructureKey
-      )
-    ).toBe("ISAE");
-    expect(isRawEntityLabel("authored_by:person:abcdef0123456789")).toBe(true);
-    expect(isRawEntityLabel("ISAE", "managed_by:structure:x")).toBe(false);
-  });
-});
-
-describe("lookupLabel", () => {
-  const labels = { "ISAE-UUID": "ISAE", plain: "Plain" };
-
-  it("returns nothing without a label map", () => {
-    expect(lookupLabel(undefined, "plain", normalizeStructureKey)).toBe("");
-  });
-
-  it("prefers the exact key", () => {
-    expect(lookupLabel(labels, "plain", normalizeStructureKey)).toBe("Plain");
-  });
-
-  it("matches a differently prefixed or cased key", () => {
-    expect(
-      lookupLabel(
-        labels,
-        "managed_by:structure:isae-uuid",
-        normalizeStructureKey
-      )
-    ).toBe("ISAE");
-  });
-
-  it("returns nothing for a blank key or an unknown one", () => {
-    expect(lookupLabel(labels, "   ", normalizeStructureKey)).toBe("");
-    expect(lookupLabel(labels, "unknown", normalizeStructureKey)).toBe("");
-  });
-});
-
-describe("normalizePersonKey", () => {
-  it("keeps a bare email hash as it is", () => {
-    expect(normalizePersonKey(" abcdef0123456789 ")).toBe("abcdef0123456789");
-  });
-});
-
-describe("isRawEntityLabel", () => {
-  it("treats a blank caption, the key itself or a hash as raw", () => {
-    expect(isRawEntityLabel("  ")).toBe(true);
-    expect(isRawEntityLabel("isae", "isae")).toBe(true);
-    expect(isRawEntityLabel("0123456789abcdef0123")).toBe(true);
   });
 });
 

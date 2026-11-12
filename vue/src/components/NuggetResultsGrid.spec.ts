@@ -25,7 +25,7 @@ import NuggetResultsGrid from "./NuggetResultsGrid.vue";
 import { mountComponent, type Mounted } from "@/test/mountComponent";
 import { pressKey } from "@/test/modalKeys";
 import { makeNugget, providers } from "@/test/widgetFixtures";
-import type { Nugget } from "@/types/nugget.types";
+import type { Nugget } from "@/shared/api";
 
 const aircraft = makeNugget();
 const orbital = makeNugget({

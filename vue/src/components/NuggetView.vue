@@ -136,9 +136,9 @@ const iframeResize = iframeResizeLib as (
 import NuggetAboutModal from "./NuggetAboutModal.vue";
 import NuggetCompletionModal from "./NuggetCompletionModal.vue";
 import NuggetViewSkeleton from "./NuggetViewSkeleton.vue";
-import { useNaasConfig } from "@/composables/useNaasConfig";
+import { useNaasConfig } from "@/shared/config";
 import { useNuggetView } from "@/composables/useNuggetView";
-import { useXapi } from "@/composables/useXapi";
+import { useXapi } from "@/shared/api";
 import {
   isFrameSeen,
   VISIBILITY_THRESHOLDS,

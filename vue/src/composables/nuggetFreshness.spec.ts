@@ -28,7 +28,7 @@ import {
   NUGGET_FRESH_SECONDS,
   useNuggetSearch,
 } from "./useNuggetSearch";
-import { NAAS_API_KEY } from "@/plugins/naas-api.plugin";
+import { NAAS_API_KEY } from "@/shared/api";
 
 const digest = { modification_date: "2026-11-06T10:00:00Z", version_id: "v1" };
 

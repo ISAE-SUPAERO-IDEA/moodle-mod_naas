@@ -27,10 +27,10 @@ import type {
   Nugget,
   SearchResult,
   XapiParams,
-} from "../types/nugget.types";
-import type { Person } from "../types/person.types";
-import type { Domain } from "../types/domain.types";
-import type { Structure } from "../types/structure.types";
+} from "./types/nugget.types";
+import type { Person } from "./types/person.types";
+import type { Domain } from "./types/domain.types";
+import type { Structure } from "./types/structure.types";
 import { unwrapNaasPayload } from "./unwrapNaasPayload";
 
 // Moodle's RequireJS loader — (deps, callback) — differs from Node's require(id).

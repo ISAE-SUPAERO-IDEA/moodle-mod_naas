@@ -144,11 +144,11 @@
 
 <script setup lang="ts">
 import { computed, ref, onMounted, useId } from "vue";
-import { useNaasConfig } from "@/composables/useNaasConfig";
-import { useModalA11y } from "@/composables/useModalA11y";
-import { fillLabel } from "@/utils/fillLabel";
-import { useXapi } from "@/composables/useXapi";
-import type { Nugget } from "@/types/nugget.types";
+import { useNaasConfig } from "@/shared/config";
+import { useModalA11y } from "@/shared/ui";
+import { fillLabel } from "@/shared/lib";
+import { useXapi } from "@/shared/api";
+import type { Nugget } from "@/shared/api";
 
 const MAX_SCORE = 5;
 const MIN_SCORE = 1;

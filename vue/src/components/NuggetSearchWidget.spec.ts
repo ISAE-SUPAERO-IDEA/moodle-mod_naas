@@ -36,7 +36,7 @@ import {
   providers,
   type FakeService,
 } from "@/test/widgetFixtures";
-import type { NaasConfig } from "@/types/naas-config.types";
+import type { NaasConfig } from "@/shared/config";
 
 /** The filter panel has its own specs: a stub that can emit a filter. */
 vi.mock("./NuggetSearchFilter.vue", () => ({

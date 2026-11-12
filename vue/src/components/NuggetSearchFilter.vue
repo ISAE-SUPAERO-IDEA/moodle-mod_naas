@@ -66,12 +66,9 @@
 import { ref, computed, watch } from "vue";
 import FilterSkeleton from "./FilterSkeleton.vue";
 import FilterFacetColumn from "./FilterFacetColumn.vue";
-import { useNaasConfig } from "@/composables/useNaasConfig";
+import { useNaasConfig } from "@/shared/config";
 import { useFacetLabels } from "@/composables/useFacetLabels";
-import type {
-  AggregationResult,
-  CatalogueFacetLabels,
-} from "@/types/nugget.types";
+import type { AggregationResult, CatalogueFacetLabels } from "@/shared/api";
 import type { MappedAggregation } from "@/composables/searchAggregations";
 import {
   buildFacetColumns,
@@ -81,7 +78,7 @@ import {
   hasAnySelection,
   syncSelection,
 } from "@/composables/facetColumns";
-import { vClickOutside } from "@/utils/clickOutside";
+import { vClickOutside } from "@/shared/ui";
 
 const props = defineProps<{
   networkAggregations: Record<string, AggregationResult>;

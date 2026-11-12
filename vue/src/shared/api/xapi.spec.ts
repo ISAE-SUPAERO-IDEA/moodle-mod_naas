@@ -22,9 +22,9 @@
 
 import { describe, it, expect, vi } from "vitest";
 import { createApp } from "vue";
-import { useXapi } from "./useXapi";
-import { NAAS_API_KEY } from "@/plugins/naas-api.plugin";
-import type { XapiParams } from "@/types/nugget.types";
+import { useXapi } from "./xapi";
+import { NAAS_API_KEY } from "./naasApiKey";
+import type { XapiParams } from "./types/nugget.types";
 
 describe("useXapi", () => {
   it("should post a statement and log warnings on error", async () => {

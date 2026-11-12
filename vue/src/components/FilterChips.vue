@@ -57,8 +57,8 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import { useNaasConfig } from "@/composables/useNaasConfig";
-import { fillLabel } from "@/utils/fillLabel";
+import { useNaasConfig } from "@/shared/config";
+import { fillLabel } from "@/shared/lib";
 
 const props = defineProps<{
   filters: Record<string, string[]>;

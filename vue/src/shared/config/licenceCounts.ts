@@ -26,7 +26,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-import type { LicenseFilterConfig } from "@/types/naas-config.types";
+import type { LicenseFilterConfig } from "./naas-config.types";
 
 /**
  * True when no licence filter is set, so NaaS counts match the Nuggets shown.

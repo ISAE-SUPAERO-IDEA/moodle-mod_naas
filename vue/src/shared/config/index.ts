@@ -14,20 +14,19 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Composable that injects the window.NAAS config provided in main.ts.
+ * Public API of shared/config: the configuration Moodle injects in the page.
  *
- * @copyright  2024 ISAE-SUPAERO (https://www.isae-supaero.fr/)
+ * @copyright  2026 ISAE-SUPAERO (https://www.isae-supaero.fr/)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-import { inject } from "vue";
-import type { NaasConfig } from "@/types/naas-config.types";
-
-export function useNaasConfig(): NaasConfig {
-  const config = inject<NaasConfig>("naasConfig");
-  if (!config)
-    throw new Error(
-      'naasConfig not provided — ensure app.provide("naasConfig", ...) in main.ts'
-    );
-  return config;
-}
+export { countsAreExact } from "./licenceCounts";
+export type {
+  CatalogueProducer,
+  CatalogueSnapshot,
+  CatalogueVocabulary,
+  NaasConfig,
+  NaasLabels,
+} from "./naas-config.types";
+export { readNaasConfig } from "./readNaasConfig";
+export { useNaasConfig } from "./useNaasConfig";

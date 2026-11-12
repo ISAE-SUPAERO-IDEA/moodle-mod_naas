@@ -66,11 +66,11 @@
 
 <script setup lang="ts">
 import { ref, useId, watch } from "vue";
-import { useNaasConfig } from "@/composables/useNaasConfig";
-import { useModalA11y } from "@/composables/useModalA11y";
-import { fillLabel } from "@/utils/fillLabel";
-import { useMoodleService } from "@/composables/useMoodleService";
-import type { Nugget } from "@/types/nugget.types";
+import { useNaasConfig } from "@/shared/config";
+import { useModalA11y } from "@/shared/ui";
+import { fillLabel } from "@/shared/lib";
+import { useMoodleService } from "@/shared/api";
+import type { Nugget } from "@/shared/api";
 
 const props = defineProps<{ nugget: Nugget; visible: boolean }>();
 const emit = defineEmits<{ (e: "close"): void }>();

@@ -21,11 +21,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-import type {
-  AggregationBucket,
-  AggregationResult,
-} from "@/types/nugget.types";
-import { isRawEntityLabel } from "./structureVisuals";
+import type { AggregationBucket, AggregationResult } from "@/shared/api";
+import { isRawEntityLabel } from "@/shared/lib";
 
 /** Facets whose bucket keys are entity ids and need a vocabulary lookup. */
 export const NETWORK_LABEL_FACETS = new Set([

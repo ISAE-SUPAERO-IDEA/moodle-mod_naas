@@ -97,11 +97,10 @@
 
 <script setup lang="ts">
 import FilterChips from "./FilterChips.vue";
-import NuggetLoadingBanner from "./NuggetLoadingBanner.vue";
+import { NuggetLoadingBanner, useLoadMoreSentinel } from "@/shared/ui";
 import NuggetResultsGrid from "./NuggetResultsGrid.vue";
-import { useNaasConfig } from "@/composables/useNaasConfig";
-import { useLoadMoreSentinel } from "@/composables/useLoadMoreSentinel";
-import type { Nugget } from "@/types/nugget.types";
+import { useNaasConfig } from "@/shared/config";
+import type { Nugget } from "@/shared/api";
 
 defineProps<{
   nuggets: Nugget[];

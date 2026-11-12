@@ -121,9 +121,9 @@
 import { ref, computed, useId } from "vue";
 import NuggetAboutModal from "./NuggetAboutModal.vue";
 import NuggetViewModal from "./NuggetViewModal.vue";
-import { useNaasConfig } from "@/composables/useNaasConfig";
-import { createMediaRouter } from "@/composables/mediaUrls";
-import type { Nugget } from "@/types/nugget.types";
+import { useNaasConfig } from "@/shared/config";
+import { createMediaRouter } from "@/shared/api";
+import type { Nugget } from "@/shared/api";
 
 const props = defineProps<{
   nugget: Nugget;

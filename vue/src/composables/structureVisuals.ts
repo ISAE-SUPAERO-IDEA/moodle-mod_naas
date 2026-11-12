@@ -23,7 +23,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-import type { MediaRouter } from "./mediaUrls";
+import type { MediaRouter } from "@/shared/api";
+import { isOpaqueEntityKey, normalizeStructureKey } from "@/shared/lib";
 
 const LOGO_KEYS = [
   "structure_thumbnail_url",
@@ -100,9 +101,6 @@ const MEDIA_URL_KEYS = [
   "image_url",
 ];
 
-const OPAQUE_KEY =
-  /^(?:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|[0-9a-f]{32,64})$/i;
-
 export interface StructureVisuals {
   name: string;
   acronym: string;
@@ -113,69 +111,6 @@ export interface StructureVisuals {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return !!value && typeof value === "object" && !Array.isArray(value);
-}
-
-export function isOpaqueEntityKey(value: string): boolean {
-  const text = value.trim();
-  return OPAQUE_KEY.test(text) || /^[0-9a-f]{16,}$/i.test(text);
-}
-
-/** True when a facet caption is still the raw aggregation key, not a name. */
-export function isRawEntityLabel(value: string, originalKey = ""): boolean {
-  const text = value.trim();
-  if (!text) {
-    return true;
-  }
-  if (originalKey && text === originalKey) {
-    return true;
-  }
-  if (/^(?:managed_by|authored_by|designed_by|reviewed_by):/i.test(text)) {
-    return true;
-  }
-  return isOpaqueEntityKey(text);
-}
-
-/** Aggregation keys may be `managed_by:structure:{id}` instead of the bare structure id. */
-export function normalizeStructureKey(key: string): string {
-  const text = key.trim();
-  const prefixed = /^(?:managed_by:)?structure:(.+)$/i.exec(text);
-  return (prefixed ? prefixed[1] : text).trim();
-}
-
-/** Author buckets may be `authored_by:person:{hash}` instead of the email hash. */
-export function normalizePersonKey(key: string): string {
-  const text = key.trim();
-  const prefixed =
-    /^(?:authored_by:|designed_by:|reviewed_by:)?person:(.+)$/i.exec(text);
-  return (prefixed ? prefixed[1] : text).trim();
-}
-
-export function lookupLabel(
-  labels: Record<string, string> | undefined,
-  key: string,
-  normalize: (value: string) => string
-): string {
-  if (!labels) {
-    return "";
-  }
-  const direct = labels[key];
-  if (direct) {
-    return direct;
-  }
-  const normalised = normalize(key);
-  if (normalised && labels[normalised]) {
-    return labels[normalised];
-  }
-  const needle = normalised.toLowerCase();
-  if (!needle) {
-    return "";
-  }
-  for (const [entry, label] of Object.entries(labels)) {
-    if (normalize(entry).toLowerCase() === needle) {
-      return label;
-    }
-  }
-  return "";
 }
 
 /**

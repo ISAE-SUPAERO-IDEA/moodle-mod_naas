@@ -21,7 +21,7 @@
  */
 
 import { afterEach, describe, expect, it } from "vitest";
-import type { NaasConfig } from "@/types/naas-config.types";
+import type { NaasConfig } from "./naas-config.types";
 import { NAAS_CONFIG_ELEMENT_ID, readNaasConfig } from "./readNaasConfig";
 
 function addBlock(text: string): void {

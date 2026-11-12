@@ -81,7 +81,7 @@
 
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import { useNaasConfig } from "@/composables/useNaasConfig";
+import { useNaasConfig, countsAreExact } from "@/shared/config";
 import {
   hasMoreAuthors,
   visibleBuckets,
@@ -92,7 +92,6 @@ import {
   optionCaption,
   selectedBucketCount,
 } from "@/composables/facetColumns";
-import { countsAreExact } from "@/composables/licenceCounts";
 
 const props = defineProps<{
   aggregation: MappedAggregation;

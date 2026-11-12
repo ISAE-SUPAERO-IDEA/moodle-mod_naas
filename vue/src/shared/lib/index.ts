@@ -14,30 +14,19 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Tests for useMoodleService().
+ * Public API of shared/lib: helpers with no knowledge of the widget's screens.
  *
  * @copyright  2026 ISAE-SUPAERO (https://www.isae-supaero.fr/)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-import { describe, it, expect } from "vitest";
-import { createApp } from "vue";
-import { useMoodleService } from "./useMoodleService";
-import { NAAS_API_KEY } from "@/plugins/naas-api.plugin";
-
-describe("useMoodleService", () => {
-  it("should throw an error if service is not provided", () => {
-    const app = createApp({});
-    expect(() => app.runWithContext(() => useMoodleService())).toThrowError(
-      /naasApi not provided/
-    );
-  });
-
-  it("should return the service if it is provided", () => {
-    const app = createApp({});
-    const mockService = { getVersion: () => Promise.resolve() };
-    app.provide(NAAS_API_KEY, mockService);
-    const result = app.runWithContext(() => useMoodleService());
-    expect(result).toBe(mockService);
-  });
-});
+export { debounce } from "./debounce";
+export {
+  isOpaqueEntityKey,
+  isRawEntityLabel,
+  lookupLabel,
+  normalizePersonKey,
+  normalizeStructureKey,
+} from "./entityKeys";
+export { fillLabel } from "./fillLabel";
+export { formatShortDate } from "./formatDate";

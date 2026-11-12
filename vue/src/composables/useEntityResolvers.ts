@@ -21,15 +21,14 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-import { unwrapNaasPayload } from "@/service/unwrapNaasPayload";
-import { useMoodleService } from "./useMoodleService";
-import { useNaasConfig } from "./useNaasConfig";
-import { createMediaRouter } from "./mediaUrls";
 import {
-  normalizePersonKey,
-  structureVisuals,
-  type StructureVisuals,
-} from "./structureVisuals";
+  unwrapNaasPayload,
+  useMoodleService,
+  createMediaRouter,
+} from "@/shared/api";
+import { useNaasConfig } from "@/shared/config";
+import { normalizePersonKey } from "@/shared/lib";
+import { structureVisuals, type StructureVisuals } from "./structureVisuals";
 import { matchCachedProducer } from "./catalogueSnapshot";
 
 function stringField(

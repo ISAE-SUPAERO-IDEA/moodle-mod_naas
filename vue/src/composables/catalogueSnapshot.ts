@@ -20,18 +20,18 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-import { isRawEntityLabel, normalizeStructureKey } from "./structureVisuals";
+import { isRawEntityLabel, normalizeStructureKey } from "@/shared/lib";
 import type {
   CatalogueProducer,
   CatalogueSnapshot,
   CatalogueVocabulary,
-} from "@/types/naas-config.types";
+} from "@/shared/config";
 import type {
   CatalogueFacetLabels,
   CatalogueStamp,
   Nugget,
   SearchResult,
-} from "@/types/nugget.types";
+} from "@/shared/api";
 
 const ID_FIELDS = ["structure_id", "uuid", "uid", "id"] as const;
 

@@ -63,8 +63,9 @@ Rules:
    entry point: `entities/catalogue/@x/nugget/index.ts` holds what `entities/nugget` may use
    from `entities/catalogue`.
 3. From outside, a slice or a `shared/` segment is imported only through its `index.ts`
-   (`@/features/filter-nuggets`). Inside it, imports are relative. An `index.ts` lists its
-   exports by name, without `export *`.
+   (`@/features/filter-nuggets`). Inside it, imports are relative. Between two segments of
+   `shared/`, the import is relative and still targets the `index.ts` (`../api`). An
+   `index.ts` lists its exports by name, without `export *`.
 4. A spec imports the file it tests directly. It may `vi.mock()` a file of another slice.
 5. `src/test/` (mount helper, fixtures) is for specs only.
 6. Every `.ts` and `.vue` file starts with the Moodle GPL header, `index.ts` included.

@@ -23,14 +23,14 @@
 
 import { computed, nextTick, ref } from "vue";
 import type { Ref } from "vue";
-import { debounce } from "@/utils/debounce";
+import { debounce } from "@/shared/lib";
 import { SEARCH_FIRST_PAGE, withSearchPage } from "./searchPaging";
 import type {
   AggregationResult,
   Nugget,
   SearchOptions,
   SearchResult,
-} from "@/types/nugget.types";
+} from "@/shared/api";
 
 /** Cards per page, and per skeleton grid. */
 export const SEARCH_PAGE_SIZE = 9;

@@ -21,7 +21,7 @@
  */
 
 import { describe, expect, it } from "vitest";
-import { createMediaRouter } from "./mediaUrls";
+import { createMediaRouter } from "./media";
 
 const media = createMediaRouter("https://moodle.test/", 12);
 

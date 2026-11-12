@@ -21,10 +21,9 @@
  */
 
 import { vi } from "vitest";
-import { NAAS_API_KEY } from "@/plugins/naas-api.plugin";
-import type { INaasApiService } from "@/service/naas-api.interface";
-import type { NaasConfig, NaasLabels } from "@/types/naas-config.types";
-import type { Nugget, SearchResult } from "@/types/nugget.types";
+import { NAAS_API_KEY } from "@/shared/api";
+import type { INaasApiService, Nugget, SearchResult } from "@/shared/api";
+import type { NaasConfig, NaasLabels } from "@/shared/config";
 
 /** English strings as lang/en/naas.php exports them to the widget. */
 export function makeLabels(): NaasLabels {

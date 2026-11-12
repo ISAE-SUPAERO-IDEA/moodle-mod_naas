@@ -42,12 +42,4 @@ export default defineConfig([
       "fsd/no-wildcard-exports": "error",
     },
   },
-  {
-    // Folder from before the migration, not a misspelt "pages".
-    // Remove this block with the folder.
-    files: ["./src/types/**"],
-    rules: {
-      "fsd/typo-in-layer-name": "off",
-    },
-  },
 ]);

@@ -33,7 +33,7 @@
 </template>
 
 <script setup lang="ts">
-import { useNaasConfig } from "@/composables/useNaasConfig";
+import { useNaasConfig } from "../config";
 
 const config = useNaasConfig();
 </script>

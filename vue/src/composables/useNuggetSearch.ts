@@ -28,8 +28,8 @@
  */
 
 import { ref } from "vue";
-import { useMoodleService } from "./useMoodleService";
-import { useNaasConfig } from "./useNaasConfig";
+import { useMoodleService } from "@/shared/api";
+import { useNaasConfig } from "@/shared/config";
 import { useNuggetEnricher } from "./useNuggetEnricher";
 import {
   applyVocabulary,
@@ -43,7 +43,7 @@ import type {
   SearchFreshness,
   SearchOptions,
   SearchResult,
-} from "@/types/nugget.types";
+} from "@/shared/api";
 
 /** Pages retained per page session; paging deep should not grow without end. */
 const MEMORY_LIMIT = 30;

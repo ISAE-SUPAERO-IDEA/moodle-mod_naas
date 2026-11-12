@@ -24,7 +24,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-import type { NaasConfig } from "@/types/naas-config.types";
+import type { NaasConfig } from "./naas-config.types";
 
 /** Id of the JSON block printed by templates/widget.mustache. */
 export const NAAS_CONFIG_ELEMENT_ID = "naas_config";

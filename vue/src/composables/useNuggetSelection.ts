@@ -27,7 +27,7 @@ import {
   setActivityDetailsVisible,
   syncMoodleNuggetFields,
 } from "./moodleActivityForm";
-import type { Nugget } from "@/types/nugget.types";
+import type { Nugget } from "@/shared/api";
 
 /** The parts of useNuggetSearch() that reload a saved Nugget. */
 export interface SavedNuggetLoader {

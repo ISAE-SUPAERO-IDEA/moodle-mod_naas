@@ -23,7 +23,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-import type { AccessLicence } from "@/types/nugget.types";
+import type { AccessLicence } from "@/shared/api";
 
 /**
  * Rights of the licence granted to the institute, else of the open-access licence,

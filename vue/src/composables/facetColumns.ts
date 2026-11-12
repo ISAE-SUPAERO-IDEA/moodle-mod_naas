@@ -21,7 +21,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-import type { AggregationBucket } from "@/types/nugget.types";
+import type { AggregationBucket } from "@/shared/api";
 import {
   aggregationFor,
   facetNeedsNetworkLabels,
@@ -30,7 +30,7 @@ import {
   type MappedAggregation,
   type NetworkAggregations,
 } from "./searchAggregations";
-import { isRawEntityLabel } from "./structureVisuals";
+import { isRawEntityLabel } from "@/shared/lib";
 
 /** Display order of the facet columns; facets NaaS does not return are skipped. */
 export const FACET_ORDER = [

@@ -24,7 +24,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { nextTick } from "vue";
 import { readStoredNuggetId, useNuggetSelection } from "./useNuggetSelection";
 import { makeNugget } from "@/test/widgetFixtures";
-import type { Nugget } from "@/types/nugget.types";
+import type { Nugget } from "@/shared/api";
 
 const aircraft = makeNugget();
 const orbital = makeNugget({ nugget_id: "n-orbital", name: "Orbital" });

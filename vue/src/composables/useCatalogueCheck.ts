@@ -26,14 +26,14 @@
 
 import { ref } from "vue";
 import { snapshotSearch } from "./catalogueSnapshot";
-import { errorMessage } from "@/utils/errorMessage";
+import { errorMessage } from "@/shared/api";
 import type { ProducerDirectory } from "./useProducerDirectory";
-import type { INaasApiService } from "@/service/naas-api.interface";
 import type {
-  CatalogueProducer,
-  CatalogueSnapshot,
-} from "@/types/naas-config.types";
-import type { AggregationResult, CatalogueStamp } from "@/types/nugget.types";
+  INaasApiService,
+  AggregationResult,
+  CatalogueStamp,
+} from "@/shared/api";
+import type { CatalogueProducer, CatalogueSnapshot } from "@/shared/config";
 
 export interface CatalogueCheckOptions {
   service: Pick<INaasApiService, "checkCatalogue">;
