@@ -149,7 +149,7 @@ describe("NuggetView", () => {
     await flush();
     const dialog = document.querySelector('[role="dialog"]')!;
     expect(dialog.textContent).toContain("About: Aircraft design basics");
-    expect(dialog.querySelector("h5")?.textContent?.trim()).toBe(
+    expect(dialog.querySelector(".about-author h4")?.textContent?.trim()).toBe(
       "Ada Lovelace"
     );
   });

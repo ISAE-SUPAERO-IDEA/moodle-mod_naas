@@ -53,6 +53,16 @@ function headings(dialog: HTMLElement): string[] {
   );
 }
 
+/** The facts panel as "Label: value" lines, in display order. */
+function facts(dialog: HTMLElement): string[] {
+  const text = (el: Element | null) =>
+    el?.textContent?.replace(/\s+/g, " ").trim() ?? "";
+  return Array.from(dialog.querySelectorAll(".about-fact")).map(
+    (fact) =>
+      `${text(fact.querySelector("dt"))}: ${text(fact.querySelector("dd"))}`
+  );
+}
+
 const fullNugget = makeNugget({
   level: "beginner",
   tags: ["wings", "lift"],
@@ -92,33 +102,66 @@ describe("NuggetAboutModal", () => {
     const { dialog } = await openAbout(fullNugget);
     expect(headings(dialog)).toEqual([
       "Description",
-      "About the author",
-      "In brief",
-      "Prerequisites",
       "Learning outcomes",
+      "Prerequisites",
+      "About the author",
       "References",
+      "In brief",
     ]);
     expect(dialog.textContent).toContain("Wings, lift and drag.");
     expect(dialog.textContent).not.toContain("<b>");
-    expect(dialog.querySelector("h5")?.textContent?.trim()).toBe(
+    const author = dialog.querySelector(".about-author")!;
+    expect(author.querySelector("h4")?.textContent?.trim()).toBe(
       "Ada Lovelace"
     );
-    expect(dialog.textContent).toContain("Mathematician");
+    expect(author.querySelector(".about-author-initials")?.textContent).toBe(
+      "AL"
+    );
+    expect(author.querySelector(".about-text")?.textContent?.trim()).toBe(
+      "Mathematician"
+    );
+    expect(
+      dialog.querySelector(".about-list--outcomes")?.textContent?.trim()
+    ).toBe("Size a wing");
 
-    const brief = Array.from(
-      dialog.querySelectorAll(".metadata-list > li")
-    ).map((li) => li.textContent?.replace(/\s+/g, " ").trim());
-    expect(brief[0]).toBe("Duration: 5 min");
-    expect(brief[1]).toBe("Language: English");
-    expect(brief[2]).toBe("Level: Beginner");
-    expect(brief[3]).toBe("License: CC BY");
-    expect(brief[4]).toBe("Field of study: Aeronautics");
-    expect(brief[5]).toMatch(/^Tags: /);
+    const brief = facts(dialog);
+    expect(brief.slice(0, 3)).toEqual([
+      "Duration: 5 min",
+      "Language: English",
+      "Level: Beginner",
+    ]);
+    expect(brief[3]).toMatch(/^Publication date: \S/);
+    expect(brief.slice(4, 6)).toEqual([
+      "License: CC BY",
+      "Field of study: Aeronautics",
+    ]);
+    expect(brief[6]).toMatch(/^Tags: wings/);
+    expect(brief).toHaveLength(7);
     const tags = Array.from(dialog.querySelectorAll(".meta-tag")).map((t) =>
       t.textContent?.trim()
     );
     expect(tags).toEqual(["Aeronautics", "wings", "lift"]);
-    expect(brief[6]).toMatch(/^Publication date: \S/);
+    expect(dialog.querySelector(".about-grid--single")).toBeNull();
+  });
+
+  it("shows the Nugget thumbnail through Moodle, and drops it if it fails", async () => {
+    const { dialog, flush } = await openAbout();
+    const thumb = dialog.querySelector<HTMLImageElement>("img.about-thumb")!;
+    expect(thumb.getAttribute("alt")).toBe("");
+    expect(thumb.getAttribute("src")).toContain(
+      "https://moodle.test/mod/naas/media.php?course=7"
+    );
+
+    thumb.dispatchEvent(new Event("error"));
+    await flush();
+    expect(dialog.querySelector("img.about-thumb")).toBeNull();
+  });
+
+  it("has no thumbnail for a Nugget without one", async () => {
+    const { dialog } = await openAbout(
+      makeNugget({ nugget_thumbnail_url: "" })
+    );
+    expect(dialog.querySelector("img.about-thumb")).toBeNull();
   });
 
   it("hides empty sections, including the whole in-brief panel", async () => {
@@ -134,6 +177,37 @@ describe("NuggetAboutModal", () => {
     );
     expect(headings(dialog)).toEqual([]);
     expect(dialog.querySelector(".about-brief")).toBeNull();
+    expect(dialog.querySelector(".about-main")).toBeNull();
+  });
+
+  it("leaves out the description of a Nugget that has none", async () => {
+    const { dialog } = await openAbout(makeNugget({ resume: "" }));
+    expect(headings(dialog)).toEqual(["About the author", "In brief"]);
+  });
+
+  it("uses a single column when one side is empty", async () => {
+    const factsOnly = await openAbout(
+      makeNugget({ resume: "", authors_data: [] })
+    );
+    expect(factsOnly.dialog.querySelector(".about-main")).toBeNull();
+    expect(factsOnly.dialog.querySelector(".about-brief")).not.toBeNull();
+    expect(
+      factsOnly.dialog.querySelector(".about-grid--single")
+    ).not.toBeNull();
+    mounted?.unmount();
+    document.body.innerHTML = "";
+
+    const textOnly = await openAbout(
+      makeNugget({
+        duration: undefined,
+        language: "",
+        license: undefined,
+        domains_data: [],
+      })
+    );
+    expect(textOnly.dialog.querySelector(".about-main")).not.toBeNull();
+    expect(textOnly.dialog.querySelector(".about-brief")).toBeNull();
+    expect(textOnly.dialog.querySelector(".about-grid--single")).not.toBeNull();
   });
 
   it("lists only the filled in-brief facts", async () => {
@@ -144,10 +218,7 @@ describe("NuggetAboutModal", () => {
         domains_data: [],
       })
     );
-    const brief = Array.from(
-      dialog.querySelectorAll(".metadata-list > li")
-    ).map((li) => li.textContent?.replace(/\s+/g, " ").trim());
-    expect(brief).toEqual(["Duration: 5 min"]);
+    expect(facts(dialog)).toEqual(["Duration: 5 min"]);
   });
 
   it("reads lists that PHP sent as objects, and hides empty ones", async () => {
@@ -174,17 +245,33 @@ describe("NuggetAboutModal", () => {
         ],
       })
     );
-    expect(dialog.querySelector("h5")?.textContent?.trim()).toBe(
+    const author = dialog.querySelector(".about-author")!;
+    expect(author.querySelector("h4")?.textContent?.trim()).toBe(
       "Grace Hopper"
     );
-    expect(
-      dialog.querySelector("h5 + .nugget-modal-description")?.textContent
-    ).toBe("");
+    expect(author.querySelector(".about-text")).toBeNull();
+  });
+
+  it("badges an author with the initials it has", async () => {
+    const { dialog } = await openAbout(
+      makeNugget({
+        authors_data: [
+          {
+            firstname: undefined as unknown as string,
+            lastname: " hopper",
+            email: "g@example.com",
+          },
+        ],
+      })
+    );
+    expect(dialog.querySelector(".about-author-initials")?.textContent).toBe(
+      "H"
+    );
   });
 
   it("shows an unknown license code as is", async () => {
     const { dialog } = await openAbout(makeNugget({ license: 9 }));
-    expect(dialog.textContent?.replace(/\s+/g, " ")).toContain("License: 9");
+    expect(facts(dialog)).toContain("License: 9");
   });
 
   it("shows the licence rights granted to the configured institute", async () => {
@@ -199,7 +286,7 @@ describe("NuggetAboutModal", () => {
       ],
     });
     const { dialog } = await openAbout(nugget, config);
-    expect(dialog.textContent?.replace(/\s+/g, " ")).toContain(
+    expect(facts(dialog)).toContain(
       "License: Attribution · Non-commercial use"
     );
   });
@@ -220,9 +307,7 @@ describe("NuggetAboutModal", () => {
       service
     );
     await flush();
-    expect(dialog.textContent?.replace(/\s+/g, " ")).toContain(
-      "Producer: ISAE, ENAC"
-    );
+    expect(facts(dialog)).toContain("Producer: ISAE, ENAC");
   });
 
   it("ignores producer names that arrive for a Nugget already replaced", async () => {
@@ -263,9 +348,7 @@ describe("NuggetAboutModal", () => {
       makeNugget({ partner: { name: "Evil", url: "javascript:alert(1)" } }),
       config
     );
-    expect(unsafe.dialog.textContent?.replace(/\s+/g, " ")).toContain(
-      "Partner: Evil"
-    );
+    expect(facts(unsafe.dialog)).toContain("Partner: Evil");
     expect(unsafe.dialog.querySelector('a[href^="javascript"]')).toBeNull();
     mounted?.unmount();
     document.body.innerHTML = "";
@@ -274,10 +357,8 @@ describe("NuggetAboutModal", () => {
       makeNugget({ partner: { name: "CNES", url: null } }),
       config
     );
-    expect(nolink.dialog.textContent?.replace(/\s+/g, " ")).toContain(
-      "Partner: CNES"
-    );
-    expect(nolink.dialog.querySelector(".metadata-list a")).toBeNull();
+    expect(facts(nolink.dialog)).toContain("Partner: CNES");
+    expect(nolink.dialog.querySelector(".about-facts a")).toBeNull();
   });
 
   it("closes on Escape, the close button and the backdrop only", async () => {

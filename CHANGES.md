@@ -4,6 +4,12 @@ _All notable changes to the NaaS Moodle plugin will be documented in this file._
 
 ## Version 3.1.0 (unreleased)
 
+### Improvements
+- The About sheet of a Nugget is easier to read: thumbnail next to the title, key facts (duration, language, level, licence, producer, tags) in a side panel, learning outcomes as a checklist and authors with their initials; on a phone the key facts come first
+
+### Fix
+- In the list view of the Nugget picker, each thumbnail fills the full height of its row
+
 ### Chore
 - The widget sources follow Feature-Sliced Design (`app`, `pages`, `widgets`, `features`, `entities`, `shared`), each part behind a public `index.ts`; no change for teachers or learners
 - CI checks the widget architecture with Steiger and an architecture test, and lints it with ESLint

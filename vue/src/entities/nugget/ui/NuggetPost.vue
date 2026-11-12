@@ -427,12 +427,14 @@ function truncate(text: string, length: number): string {
   height: auto;
 }
 
+/* The thumbnail takes the full height of the row, however tall the text makes
+   it, with the footprint of the row skeleton. */
 .nugget-post--row .nugget-thumb-wrap {
-  flex: 0 0 11.5rem;
-  width: 11.5rem;
-  min-width: 11.5rem;
-  max-width: 11.5rem;
-  height: calc(11.5rem * 9 / 16);
+  flex: 0 0 13rem;
+  width: 13rem;
+  max-width: 38%;
+  height: auto;
+  align-self: stretch;
   aspect-ratio: auto;
 }
 
