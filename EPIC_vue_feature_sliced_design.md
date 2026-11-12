@@ -6,7 +6,7 @@
 | **Base** | `fix/small_modifications_ux` at a734c88. PR #132 is not merged yet: rebase onto `develop` once it is. |
 | **Working branch** | `chore/fsd_migration`, one commit (or short commit series) per story |
 | **Baseline** | a734c88: 62 source files (~9.6 k lines), 53 spec files, 100 % coverage on lines, statements, functions and branches |
-| **Status** | 🟡 In progress. Planned 2026-11-10, reviewed against the code and the NaaS workspace on 2026-11-12 (§11). S0a to S3, S4a, S4b and S4c done on 2026-11-12; next: S4d. |
+| **Status** | 🟡 In progress. Planned 2026-11-10, reviewed against the code and the NaaS workspace on 2026-11-12 (§11). S0a to S4 done on 2026-11-12; next: S5 (widgets). |
 | **Estimate** | ≈ 8 to 9 working days |
 
 ---
@@ -324,6 +324,10 @@ No source file moves in this story, and the bundle must come out **byte-identica
 **Result of S4b (2026-11-12): done.** 7 files moved to `features/search-nuggets` (all recorded as renames, `nuggetFreshness.spec.ts` included), one new `index.ts` exporting `useNuggetSearch` and `useSearchWidgetQuery`. Only `NuggetSearchWidget.vue` imports the feature. 490 tests at 100 % with unchanged counts; the bundle code is the same size, with one scoped-style id changed.
 
 **Result of S4c (2026-11-12): done.** 4 files moved to `features/pick-nugget` (all recorded as renames), one new `index.ts` with six names: `useNuggetSelection`, `readStoredNuggetId` and the four Moodle form helpers the search widget and the selected panel call. 490 tests at 100 % with unchanged counts; the bundle code is the same size, with two scoped-style ids changed.
+
+**Result of S4d (2026-11-12): done.** `NuggetViewModal` and its spec moved to `features/preview-nugget`, `NuggetCompletionModal` and its spec to `features/rate-nugget` (4 renames), each behind a one-name `index.ts`. 490 tests at 100 % with unchanged counts; 9 bytes more bundle code, 5 scoped-style ids changed.
+
+**S4 as a whole:** five features, none importing another. What is left in `components/` and `composables/` is exactly the widgets and pages of S5 and S6.
 
 ### S5 — `widgets/` (≈ 1 d)
 
