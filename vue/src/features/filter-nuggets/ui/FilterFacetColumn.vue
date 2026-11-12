@@ -86,12 +86,12 @@ import {
   hasMoreAuthors,
   visibleBuckets,
   type MappedAggregation,
-} from "@/composables/searchAggregations";
+} from "../lib/searchAggregations";
 import {
   hasSelectedBuckets,
   optionCaption,
   selectedBucketCount,
-} from "@/composables/facetColumns";
+} from "../lib/facetColumns";
 
 const props = defineProps<{
   aggregation: MappedAggregation;

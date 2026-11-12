@@ -14,30 +14,26 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Tests for the loading skeletons: decorative, hidden from assistive tech.
+ * Tests for the Nugget player skeleton: decorative, hidden from assistive tech.
  *
  * @copyright  2026 ISAE-SUPAERO (https://www.isae-supaero.fr/)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 import { afterEach, describe, expect, it } from "vitest";
-import FilterSkeleton from "./FilterSkeleton.vue";
 import NuggetViewSkeleton from "./NuggetViewSkeleton.vue";
 import { mountComponent, type Mounted } from "@/test/mountComponent";
 
 let mounted: Mounted | null = null;
 
-describe("skeletons", () => {
+describe("NuggetViewSkeleton", () => {
   afterEach(() => {
     mounted?.unmount();
     mounted = null;
   });
 
-  it.each([
-    ["FilterSkeleton", FilterSkeleton],
-    ["NuggetViewSkeleton", NuggetViewSkeleton],
-  ])("%s is hidden from screen readers", (_name, component) => {
-    mounted = mountComponent(component);
+  it("is hidden from screen readers", () => {
+    mounted = mountComponent(NuggetViewSkeleton);
     const root = mounted.el.firstElementChild!;
     expect(root.getAttribute("aria-hidden")).toBe("true");
     expect(root.textContent?.trim()).toBe("");

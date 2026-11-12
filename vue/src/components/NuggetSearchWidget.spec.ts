@@ -39,7 +39,7 @@ import {
 import type { NaasConfig } from "@/shared/config";
 
 /** The filter panel has its own specs: a stub that can emit a filter. */
-vi.mock("./NuggetSearchFilter.vue", () => ({
+vi.mock("@/features/filter-nuggets/ui/NuggetSearchFilter.vue", () => ({
   default: defineComponent({
     name: "NuggetSearchFilterStub",
     emits: ["filters", "captions"],

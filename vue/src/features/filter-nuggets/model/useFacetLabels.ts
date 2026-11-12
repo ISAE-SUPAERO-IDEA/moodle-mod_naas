@@ -36,14 +36,14 @@ import {
   facetNeedsNetworkLabels,
   withFallbackLabels,
   type MappedAggregation,
-} from "./searchAggregations";
+} from "../lib/searchAggregations";
 import {
   isRawEntityLabel,
   lookupLabel,
   normalizePersonKey,
   normalizeStructureKey,
 } from "@/shared/lib";
-import { findFacet, hasSelectedBuckets } from "./facetColumns";
+import { findFacet, hasSelectedBuckets } from "../lib/facetColumns";
 
 export interface FacetLabelOptions {
   /** The facet columns; resolved labels are written back into them. */

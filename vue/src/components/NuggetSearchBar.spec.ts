@@ -30,7 +30,7 @@ import { providers } from "@/test/widgetFixtures";
 const filterStub = vi.hoisted(() => ({
   props: [] as Record<string, unknown>[],
 }));
-vi.mock("./NuggetSearchFilter.vue", () => ({
+vi.mock("@/features/filter-nuggets/ui/NuggetSearchFilter.vue", () => ({
   default: defineComponent({
     name: "NuggetSearchFilterStub",
     props: [

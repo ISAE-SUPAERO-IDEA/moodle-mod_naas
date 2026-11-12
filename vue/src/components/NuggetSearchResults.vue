@@ -96,7 +96,7 @@
 </template>
 
 <script setup lang="ts">
-import FilterChips from "./FilterChips.vue";
+import { FilterChips } from "@/features/filter-nuggets";
 import { NuggetLoadingBanner, useLoadMoreSentinel } from "@/shared/ui";
 import NuggetResultsGrid from "./NuggetResultsGrid.vue";
 import { useNaasConfig } from "@/shared/config";

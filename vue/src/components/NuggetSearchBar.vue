@@ -93,7 +93,7 @@
 </template>
 
 <script setup lang="ts">
-import NuggetSearchFilter from "./NuggetSearchFilter.vue";
+import { NuggetSearchFilter } from "@/features/filter-nuggets";
 import { useNaasConfig } from "@/shared/config";
 import type { AggregationResult, CatalogueFacetLabels } from "@/shared/api";
 

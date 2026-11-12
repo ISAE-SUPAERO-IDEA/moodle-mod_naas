@@ -26,7 +26,7 @@ import { useFacetLabels } from "./useFacetLabels";
 import {
   mapAggregationBuckets,
   type MappedAggregation,
-} from "./searchAggregations";
+} from "../lib/searchAggregations";
 import { NAAS_API_KEY } from "@/shared/api";
 import type { CatalogueFacetLabels } from "@/shared/api";
 

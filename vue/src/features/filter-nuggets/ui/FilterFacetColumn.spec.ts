@@ -23,7 +23,7 @@
 import { describe, it, expect, afterEach, vi } from "vitest";
 import FilterFacetColumn from "./FilterFacetColumn.vue";
 import { mountComponent, type Mounted } from "@/test/mountComponent";
-import type { MappedAggregation } from "@/composables/searchAggregations";
+import type { MappedAggregation } from "../lib/searchAggregations";
 import type { AggregationBucket } from "@/shared/api";
 
 const naasConfig = {
