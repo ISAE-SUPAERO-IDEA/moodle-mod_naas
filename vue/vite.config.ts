@@ -104,7 +104,7 @@ export default defineConfig(({ mode }) => ({
   },
   build: {
     lib: {
-      entry: resolve(__dirname, "src/main.ts"),
+      entry: resolve(__dirname, "src/app/main.ts"),
       formats: ["iife"],
       name: "NaasWidget",
       fileName: () => `naas_widget-${BUNDLE_VERSION}.js`,

@@ -22,20 +22,20 @@
 
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { defineComponent, h } from "vue";
-import Main from "./Main.vue";
+import App from "./App.vue";
 import { mountComponent, type Mounted } from "@/test/mountComponent";
 import { makeConfig, providers } from "@/test/widgetFixtures";
 
-vi.mock("@/components/NuggetView.vue", () => ({
+vi.mock("@/pages/nugget-player/ui/NuggetView.vue", () => ({
   default: defineComponent({ render: () => h("p", { id: "view-stub" }) }),
 }));
-vi.mock("@/components/NuggetSearchWidget.vue", () => ({
+vi.mock("@/pages/nugget-picker/ui/NuggetSearchWidget.vue", () => ({
   default: defineComponent({ render: () => h("p", { id: "widget-stub" }) }),
 }));
 
 let mounted: Mounted | null = null;
 
-describe("Main", () => {
+describe("App", () => {
   afterEach(() => {
     mounted?.unmount();
     mounted = null;
@@ -43,7 +43,7 @@ describe("Main", () => {
 
   it("shows the learner view on the activity page", () => {
     mounted = mountComponent(
-      Main,
+      App,
       {},
       providers(makeConfig({ component: "NuggetView" }))
     );
@@ -52,7 +52,7 @@ describe("Main", () => {
   });
 
   it("shows the search widget in the activity form", () => {
-    mounted = mountComponent(Main, {}, providers(makeConfig()));
+    mounted = mountComponent(App, {}, providers(makeConfig()));
     expect(mounted.el.querySelector("#widget-stub")).not.toBeNull();
     expect(mounted.el.querySelector("#view-stub")).toBeNull();
   });

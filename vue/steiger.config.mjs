@@ -42,4 +42,12 @@ export default defineConfig([
       "fsd/no-wildcard-exports": "error",
     },
   },
+  {
+    // Steiger wants segment names that say what the code is for. "providers"
+    // is the usual FSD name for app-level plugins, and the NaaS apps use it.
+    files: ["./src/app/providers/**"],
+    rules: {
+      "fsd/segments-by-purpose": "off",
+    },
+  },
 ]);

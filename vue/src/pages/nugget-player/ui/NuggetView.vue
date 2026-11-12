@@ -137,12 +137,9 @@ import { NuggetAboutModal } from "@/entities/nugget";
 import { NuggetCompletionModal } from "@/features/rate-nugget";
 import NuggetViewSkeleton from "./NuggetViewSkeleton.vue";
 import { useNaasConfig } from "@/shared/config";
-import { useNuggetView } from "@/composables/useNuggetView";
+import { useNuggetView } from "../model/useNuggetView";
 import { useXapi } from "@/shared/api";
-import {
-  isFrameSeen,
-  VISIBILITY_THRESHOLDS,
-} from "@/composables/frameVisibility";
+import { isFrameSeen, VISIBILITY_THRESHOLDS } from "../lib/frameVisibility";
 
 const config = useNaasConfig();
 const { nugget, loading, error, load } = useNuggetView();

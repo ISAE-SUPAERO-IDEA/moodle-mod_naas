@@ -188,7 +188,7 @@ export function makeService(overrides: Partial<FakeService> = {}): FakeService {
   };
 }
 
-/** App-level provides matching src/main.ts. */
+/** App-level provides matching src/app/main.ts. */
 export function providers(
   config: NaasConfig = makeConfig(),
   service: FakeService = makeService()

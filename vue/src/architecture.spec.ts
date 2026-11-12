@@ -39,15 +39,7 @@ import { describe, expect, it } from "vitest";
  * Folders and files from before the migration to Feature-Sliced Design.
  * Remove an entry when its last file has moved; the list ends up empty.
  */
-const LEGACY = [
-  "components",
-  "composables",
-  "plugins",
-  "styles",
-  "Main.vue",
-  "Main.spec.ts",
-  "main.ts",
-];
+const LEGACY: string[] = [];
 
 const SLICED_LAYERS = ["pages", "widgets", "features", "entities"];
 const LAYERS = ["app", ...SLICED_LAYERS, "shared"];

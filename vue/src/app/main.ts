@@ -21,16 +21,16 @@
  */
 
 import { createApp } from "vue";
-import Main from "@/Main.vue";
-import { naasApiPlugin } from "@/plugins/naas-api.plugin";
-import "@/styles/naas-theme.css";
+import App from "./App.vue";
+import { naasApiPlugin } from "./providers/naas-api.plugin";
+import "./styles/naas-theme.css";
 import { readNaasConfig } from "@/shared/config";
 
 const config = readNaasConfig();
 // Keep window.NAAS for code and tools that still read it.
 window.NAAS = config;
 
-const app = createApp(Main);
+const app = createApp(App);
 
 // In dev builds, allow Vue DevTools browser extension to connect to this IIFE app.
 if (import.meta.env.DEV) {

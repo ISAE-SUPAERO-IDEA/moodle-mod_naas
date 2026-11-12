@@ -142,7 +142,7 @@ import {
   useNuggetSelection,
 } from "@/features/pick-nugget";
 import { useProducerDirectory } from "@/entities/catalogue";
-import "@/styles/naas-activity-form.css";
+import "./naas-activity-form.css";
 
 const config = useNaasConfig();
 const service = useMoodleService();

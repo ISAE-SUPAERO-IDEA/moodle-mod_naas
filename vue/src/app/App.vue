@@ -31,8 +31,8 @@
 </template>
 
 <script setup lang="ts">
-import NuggetView from "@/components/NuggetView.vue";
-import NuggetSearchWidget from "@/components/NuggetSearchWidget.vue";
+import { NuggetView } from "@/pages/nugget-player";
+import { NuggetSearchWidget } from "@/pages/nugget-picker";
 import { useNaasConfig } from "@/shared/config";
 
 const config = useNaasConfig();
