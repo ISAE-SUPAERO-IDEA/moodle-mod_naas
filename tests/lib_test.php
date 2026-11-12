@@ -44,6 +44,9 @@ use stdClass;
 #[\PHPUnit\Framework\Attributes\CoversFunction('naas_get_view_actions')]
 #[\PHPUnit\Framework\Attributes\CoversFunction('naas_grade_item_delete')]
 #[\PHPUnit\Framework\Attributes\CoversFunction('naas_grade_item_update')]
+#[\PHPUnit\Framework\Attributes\CoversFunction('naas_reset_course_form_defaults')]
+#[\PHPUnit\Framework\Attributes\CoversFunction('naas_reset_course_form_definition')]
+#[\PHPUnit\Framework\Attributes\CoversFunction('naas_reset_gradebook')]
 #[\PHPUnit\Framework\Attributes\CoversFunction('naas_reset_userdata')]
 #[\PHPUnit\Framework\Attributes\CoversFunction('naas_supports')]
 #[\PHPUnit\Framework\Attributes\CoversFunction('naas_update_grades')]
@@ -70,6 +73,9 @@ use stdClass;
  * @covers ::naas_get_view_actions
  * @covers ::naas_grade_item_delete
  * @covers ::naas_grade_item_update
+ * @covers ::naas_reset_course_form_defaults
+ * @covers ::naas_reset_course_form_definition
+ * @covers ::naas_reset_gradebook
  * @covers ::naas_reset_userdata
  * @covers ::naas_supports
  * @covers ::naas_update_grades
@@ -512,11 +518,101 @@ final class lib_test extends advanced_testcase {
     }
 
     /**
-     * Test naas_reset_userdata.
+     * Create a course with a graded Nugget attempt for one learner.
+     *
+     * @return array [course, naas module, learner]
      */
-    public function test_naas_reset_userdata(): void {
-        $result = naas_reset_userdata([]);
-        $this->assertEquals([], $result);
+    private function create_graded_attempt(): array {
+        global $CFG;
+        require_once($CFG->libdir . '/gradelib.php');
+        $course = $this->getDataGenerator()->create_course();
+        $naas = $this->getDataGenerator()->create_module('naas', ['course' => $course->id]);
+        $learner = $this->getDataGenerator()->create_and_enrol($course, 'student');
+        /** @var \mod_naas_generator $generator */
+        $generator = $this->getDataGenerator()->get_plugin_generator('mod_naas');
+        $generator->create_completed_attempt($learner->id, $naas->cmid, 0.7);
+        grade_update('mod/naas', $course->id, 'mod', 'naas', $naas->id, 0, ['userid' => $learner->id, 'rawgrade' => 70]);
+        return [$course, $naas, $learner];
+    }
+
+    /**
+     * Grade of one learner on one Nugget activity, or null.
+     *
+     * @param stdClass $course
+     * @param stdClass $naas
+     * @param stdClass $learner
+     * @return float|null
+     */
+    private function grade_of(stdClass $course, stdClass $naas, stdClass $learner): ?float {
+        $grades = grade_get_grades($course->id, 'mod', 'naas', $naas->id, $learner->id);
+        $grade = $grades->items[0]->grades[$learner->id]->grade ?? null;
+        return $grade === null ? null : (float) $grade;
+    }
+
+    /**
+     * Without the Nugget option ticked, a course reset keeps attempts and grades.
+     */
+    public function test_naas_reset_userdata_without_the_option_keeps_attempts(): void {
+        global $DB;
+        $this->resetAfterTest(true);
+        [$course, $naas, $learner] = $this->create_graded_attempt();
+
+        $status = naas_reset_userdata((object) ['courseid' => $course->id, 'reset_naas_attempts' => 0]);
+
+        $this->assertSame([], $status);
+        $this->assertSame(1, $DB->count_records('naas_activity_outcome', ['activity_id' => $naas->cmid]));
+        $this->assertEquals(70.0, $this->grade_of($course, $naas, $learner));
+    }
+
+    /**
+     * The Nugget option deletes the course's attempts and grades, and nothing in other courses.
+     */
+    public function test_naas_reset_userdata_deletes_attempts_and_grades_of_the_course_only(): void {
+        global $DB;
+        $this->resetAfterTest(true);
+        [$course, $naas, $learner] = $this->create_graded_attempt();
+        [$othercourse, $othernaas, $otherlearner] = $this->create_graded_attempt();
+
+        $status = naas_reset_userdata((object) ['courseid' => $course->id, 'reset_naas_attempts' => 1]);
+
+        $this->assertCount(1, $status);
+        $this->assertSame(get_string('reset_attempts_done', 'naas'), $status[0]['item']);
+        $this->assertFalse($status[0]['error']);
+        $this->assertSame(0, $DB->count_records('naas_activity_outcome', ['activity_id' => $naas->cmid]));
+        $this->assertNull($this->grade_of($course, $naas, $learner));
+        $this->assertSame(1, $DB->count_records('naas_activity_outcome', ['activity_id' => $othernaas->cmid]));
+        $this->assertEquals(70.0, $this->grade_of($othercourse, $othernaas, $otherlearner));
+    }
+
+    /**
+     * When the gradebook reset already runs, the Nugget reset leaves the grades to it.
+     */
+    public function test_naas_reset_userdata_leaves_grades_to_the_gradebook_reset(): void {
+        global $DB;
+        $this->resetAfterTest(true);
+        [$course, $naas, $learner] = $this->create_graded_attempt();
+
+        naas_reset_userdata((object) ['courseid' => $course->id, 'reset_naas_attempts' => 1, 'reset_gradebook_grades' => 1]);
+
+        $this->assertSame(0, $DB->count_records('naas_activity_outcome', ['activity_id' => $naas->cmid]));
+        $this->assertEquals(70.0, $this->grade_of($course, $naas, $learner));
+    }
+
+    /**
+     * The reset form offers the Nugget option, ticked by default.
+     */
+    public function test_naas_reset_course_form_offers_the_attempts_option_ticked(): void {
+        global $CFG;
+        require_once($CFG->libdir . '/formslib.php');
+        $this->resetAfterTest(true);
+        $course = $this->getDataGenerator()->create_course();
+
+        $mform = new \MoodleQuickForm('reset', 'post', '');
+        naas_reset_course_form_definition($mform);
+
+        $this->assertTrue($mform->elementExists('naasheader'));
+        $this->assertTrue($mform->elementExists('reset_naas_attempts'));
+        $this->assertSame(['reset_naas_attempts' => 1], naas_reset_course_form_defaults($course));
     }
 
     /**

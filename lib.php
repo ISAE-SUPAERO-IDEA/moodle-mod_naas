@@ -128,16 +128,82 @@ function naas_supports($feature) {
 }
 
 /**
- * This function is used by the reset_course_userdata function in moodlelib.
- * @param array $data the data submitted from the reset course.
- * @return array status array
+ * Add the Nugget section to the course reset form.
+ *
+ * @param MoodleQuickForm $mform The course reset form
+ * @return void
+ */
+function naas_reset_course_form_definition(&$mform) {
+    $mform->addElement('header', 'naasheader', get_string('modulenameplural', 'naas'));
+    $mform->addElement('advcheckbox', 'reset_naas_attempts', get_string('reset_attempts', 'naas'));
+}
+
+/**
+ * Nugget attempts are deleted by default when a course is reset.
+ *
+ * @param stdClass $course The course being reset
+ * @return array Default values of the reset form elements
+ */
+function naas_reset_course_form_defaults($course) {
+    return ['reset_naas_attempts' => 1];
+}
+
+/**
+ * Remove all Nugget grades from the gradebook of a course.
+ *
+ * @param int $courseid
+ * @return void
+ */
+function naas_reset_gradebook($courseid) {
+    global $DB;
+
+    $nuggets = $DB->get_records('naas', ['course' => $courseid]);
+    foreach ($nuggets as $nugget) {
+        naas_grade_item_update($nugget, 'reset');
+    }
+}
+
+/**
+ * Course reset: delete learners' Nugget attempts and the grades they produced.
+ *
+ * Called by reset_course_userdata() in moodlelib. Nugget activities have no dates
+ * to shift (see MDL-9367).
+ *
+ * @param stdClass $data The data submitted from the reset course form
+ * @return array Status array
  */
 function naas_reset_userdata($data) {
+    global $DB;
 
-    // Any changes to the list of dates that needs to be rolled should be same during course restore and course reset.
-    // See MDL-9367.
+    $status = [];
+    if (empty($data->reset_naas_attempts)) {
+        return $status;
+    }
 
-    return [];
+    // Attempts are keyed on the course module id.
+    $cmids = $DB->get_fieldset_sql(
+        "SELECT cm.id
+           FROM {course_modules} cm
+           JOIN {modules} m ON m.id = cm.module
+          WHERE m.name = :modname AND cm.course = :courseid",
+        ['modname' => 'naas', 'courseid' => $data->courseid]
+    );
+    if ($cmids) {
+        [$insql, $params] = $DB->get_in_or_equal($cmids);
+        $DB->delete_records_select('naas_activity_outcome', "activity_id $insql", $params);
+    }
+
+    // The gradebook reset option already clears every grade of the course.
+    if (empty($data->reset_gradebook_grades)) {
+        naas_reset_gradebook($data->courseid);
+    }
+
+    $status[] = [
+        'component' => get_string('modulenameplural', 'naas'),
+        'item' => get_string('reset_attempts_done', 'naas'),
+        'error' => false,
+    ];
+    return $status;
 }
 
 /**
