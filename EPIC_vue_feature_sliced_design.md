@@ -6,7 +6,7 @@
 | **Base** | `fix/small_modifications_ux` at a734c88. PR #132 is not merged yet: rebase onto `develop` once it is. |
 | **Working branch** | `chore/fsd_migration`, one commit (or short commit series) per story |
 | **Baseline** | a734c88: 62 source files (~9.6 k lines), 53 spec files, 100 % coverage on lines, statements, functions and branches |
-| **Status** | 🟡 In progress. Planned 2026-11-10, reviewed against the code and the NaaS workspace on 2026-11-12 (§11). S0a to S4 done on 2026-11-12; next: S5 (widgets). |
+| **Status** | 🟡 In progress. Planned 2026-11-10, reviewed against the code and the NaaS workspace on 2026-11-12 (§11). S0a to S5 done on 2026-11-12; next: S6 (pages and app). |
 | **Estimate** | ≈ 8 to 9 working days |
 
 ---
@@ -337,6 +337,12 @@ No source file moves in this story, and the bundle must come out **byte-identica
 - `selected-nugget` (`NuggetSelectedPanel`).
 
 **Done when** no widget imports another widget and `components/` + `composables/` hold only page-level files.
+
+**Result (2026-11-12): done**, in one commit. 14 files moved to four widget slices (all recorded as renames), each behind an `index.ts`; only `NuggetSearchWidget.vue` had imports to rewrite. 490 tests at 100 % with unchanged counts; `lint:fsd` and `lint:check` with 0 error.
+
+- No widget imports another widget. `NuggetResultsGrid` and `cardGridKeys` stay internal to `search-results`.
+- `components/` and `composables/` now hold only the two pages, the player skeleton, `useNuggetView` and `frameVisibility`.
+- **Bundle:** same CSS rules and licence comments, 18 bytes more code; 6 scoped-style ids changed.
 
 ### S6 — `pages/` and `app/` (≈ 0.5 d)
 
