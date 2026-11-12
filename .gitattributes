@@ -7,6 +7,7 @@
 .vscode export-ignore
 .claude export-ignore
 REVIEW_*.md export-ignore
+EPIC_*.md export-ignore
 run*.sh export-ignore
 phpstan.neon export-ignore
 plugin_description export-ignore

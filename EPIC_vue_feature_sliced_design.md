@@ -6,7 +6,7 @@
 | **Base** | `fix/small_modifications_ux` at a734c88. PR #132 is not merged yet: rebase onto `develop` once it is. |
 | **Working branch** | `chore/fsd_migration`, one commit (or short commit series) per story |
 | **Baseline** | a734c88: 62 source files (~9.6 k lines), 53 spec files, 100 % coverage on lines, statements, functions and branches |
-| **Status** | 🟡 In progress. Planned 2026-11-10, reviewed against the code and the NaaS workspace on 2026-11-12 (§11). S0a done on 2026-11-12; next: S0b. |
+| **Status** | 🟡 In progress. Planned 2026-11-10, reviewed against the code and the NaaS workspace on 2026-11-12 (§11). S0a and S0b done on 2026-11-12; next: S1. |
 | **Estimate** | ≈ 8 to 9 working days |
 
 ---
@@ -152,7 +152,7 @@ vue/src/
 │       ├── useModalA11y.ts, useLoadMoreSentinel.ts       ← composables/
 │       └── index.ts
 ├── test/                    (unchanged: mountComponent, modalKeys, widgetFixtures)
-├── architecture.spec.ts     (vi.mock() paths, src/test only imported by specs)
+├── architecture.spec.ts     (what Steiger cannot check: .vue imports, @x users, vi.mock() paths, headers)
 └── vite-env.d.ts
 ```
 
@@ -164,7 +164,7 @@ vue/src/
 | D2 | **One `entities/catalogue` slice** for producers, snapshot and producer directory | `producerDirectory → catalogueSnapshot`, `catalogueSnapshot → structureVisuals`, and `useProducerDirectory` uses both. They are one concept: the catalogue Moodle injects and then checks. | `entities/producer` + `entities/catalogue` with `@x`: a 2-way coupling with no benefit |
 | D3 | `useXapi` → `shared/api/xapi.ts` | It is a thin, fire-and-forget wrapper over a Moodle web service, used by the player page and by `rate-nugget` | `entities/nugget/api`: also valid |
 | D4 | `useSearchWidgetQuery` goes in `features/search-nuggets` (not in the page) | It is the search query state (text, filters, paging) and is unit-tested on its own | `pages/nugget-picker/model`: closer to "orchestration", but it would make the page fat again |
-| D5 | Architecture checked by **`steiger`** (`pnpm lint:fsd`) plus a short Vitest spec. Validated 2026-11-12. | `steiger` is the official FSD linter and the one the NaaS epics plan (`EPIC-author-v2-fsd-client` A5, `quality-gates` D2). The spec covers what a linter cannot see: `vi.mock()` paths that resolve to no file, and `src/test` imported by non-spec code. | Home-made Vitest spec only (first version of this epic): no new dependency, but a different tool from NaaS. It stays the fallback if `steiger` cannot read imports inside `.vue` files (to prove in S0b). |
+| D5 | Architecture checked by **`steiger`** (`pnpm lint:fsd`) plus a Vitest spec (`src/architecture.spec.ts`). Validated 2026-11-12, tool behaviour measured in S0b. | `steiger` is the official FSD linter and the one the NaaS epics plan (`EPIC-author-v2-fsd-client` A5, `quality-gates` D2). It reads imports written inside `.vue` files and accepts `@x`. It has blind spots, which the spec covers: it does not follow an import whose **target** is a `.vue` file, does not check who uses an `@x` entry point, skips the old folders, and does not read `vi.mock()` paths. | Home-made Vitest spec only (first version of this epic): no new dependency, but a different tool from NaaS. |
 | D6 | **No file renames** except `Main.vue → App.vue` | Readable review diffs (`git mv` + import changes only) and `--follow` history | The NaaS suffix naming (`*.composable.ts`, `*.api.ts`, `*.test.ts`) and names like `NuggetCard`: possible later in their own PR |
 | D7 | **Toolchain aligned with the NaaS pnpm workspace**: pnpm 10.28, ESLint 9 with the same plugins, Prettier 3.6.2, TypeScript ^5.9.3. Vite 6.4, Vitest 4.1, vue-tsc 3 and the current formatting stay. Validated 2026-11-12. | One toolchain for the NaaS front ends. The workspace *declares* Vite ^6.4.3 and Vitest ^3.2.7; it only *resolves* 8.3.5 and 5.0.5 through overrides, which its own `quality-gates` D3 wants to undo. A major build change would also change the bundle. | Also adopt the workspace's Prettier options: one reformat commit on every file. Left for later. |
 | D8 | **`NuggetPost` keeps its buttons and only emits.** It emits a new `PreviewButton` event and no longer imports the preview modal; the two widgets that show cards render `NuggetViewModal`. Validated 2026-11-12. | The card holds no pick logic today, it already emits `SelectButton` and `ReplaceButton`. The modals are teleported to `body`, so moving the modal changes nothing in the DOM. No new component; same CSS and accessibility attributes. | Feature button components in slots (first version): Replace is the × at the top of the card and About sits between Select and Preview, so it needs three scoped slots exposing the title id, and the buttons' scoped CSS has to move. |
@@ -176,6 +176,7 @@ vue/src/
 - **GPL header** on every new `.ts`/`.vue`/`.js`/`.mjs` file, including each `index.ts` (Moodle code-checker rule).
 - **Committed bundle.** The CI step "Committed bundle matches the sources" rebuilds `assets/vue/`. Moving a `.vue` file changes its scoped-style id (`data-v-xxxx`, hashed from the file path), so **each story that moves a `.vue` file must run `pnpm build` and commit the new bundle**. `BUNDLE_VERSION` (`pnpm bump-version` + `version.php`) is bumped **once**, in S7.
 - **`vi.mock()` paths are strings.** `vue-tsc` does not check them. Today there are 4 (`./NuggetSearchFilter.vue` ×2, `@/components/NuggetView.vue`, `@/components/NuggetSearchWidget.vue`), plus one package mock (`iframe-resizer`). `architecture.spec.ts` checks that each path resolves to a file (S0b).
+- **A file moves only when everything it imports has moved.** `architecture.spec.ts` forbids code in a layer to import the old folders, and forces every import that leaves a slice to go through an `index.ts`. That is what bottom-up means in practice.
 - **Specs move with their source file** (colocation kept). `nuggetFreshness.spec.ts` tests `useNuggetSearch` exports and moves with it. `skeletons.spec.ts` covers three skeletons that go to three slices: it is split in three.
 - **100 % coverage** must hold after each story. New `index.ts` files contain only re-exports, so v8 should count no executable lines. Check this in S0b.
 - **One commit per story**, or two when a story mixes moves and a logic change: commit 1 = `git mv` + imports (no behaviour change), commit 2 = the logic change. That keeps the move diff reviewable.
@@ -219,14 +220,26 @@ No source file moves in this story, and the bundle must come out **byte-identica
 
 ### S0b — Guardrails (≈ 0.5 d)
 
-- Add `steiger` and its FSD plugin as dev dependencies, a `steiger.config.ts` and a `lint:fsd` script. **First prove that it reads imports inside `.vue` files** with a deliberate violation. If it does not, fall back to the Vitest spec of D5.
-- The old folders (`components/`, `composables/`, …) are ignored in the config until they are emptied; the ignore list shrinks story by story and must be empty in S7. "Insignificant slice" is off (D10).
-- Add `vue/src/architecture.spec.ts`: every `vi.mock("…")` path that is not a package resolves to a file; `src/test/` is imported only by specs.
+- Add `steiger` and its FSD plugin as dev dependencies, a `steiger.config.mjs` and a `lint:fsd` script. **First prove what it reads** with deliberate violations.
+- Add `vue/src/architecture.spec.ts` for what Steiger cannot check. Its `LEGACY` list names the old folders (`components/`, `composables/`, …); it shrinks story by story and must be empty in S7. "Insignificant slice" is off (D10).
 - Prove that a re-export-only `index.ts` does not change coverage (empty `shared/lib/index.ts` as the probe).
 - Add an "Architecture" section to `vue/README.md`: layers, rules, the "where does my file go?" table (§8).
 - CI: `pnpm lint:fsd` in the widget job.
 
 **Done when** the linter runs in CI, an injected violation fails it, and coverage is still 100 %.
+
+**Result (2026-11-12): done.** `steiger` 0.10.0 with `@feature-sliced/steiger-plugin` 0.8.2 (exact versions: the tool is in beta), `steiger.config.mjs`, `pnpm lint:fsd` in CI and in `run_test.sh`. 481 tests at 100 %, bundle byte-identical. What the probes showed:
+
+- **Reads `.vue` sources:** an upward import written in `<script setup lang="ts">` is reported, with the `@/` alias resolved through `tsconfig.app.json`.
+- **Does not follow `.vue` targets:** `import X from "@/features/a/ui/X.vue"` is invisible to it, whatever file contains it. `architecture.spec.ts` therefore requires every import that leaves a slice to target an `index.ts`, where Steiger then checks the direction.
+- **`@x` is accepted** as a folder with an `index.ts` (the NaaS form) and as a single file. Steiger does not check who imports it; the spec does.
+- **Old folders are skipped**, except `src/types`, which it takes for a misspelt `pages`: one block in the config silences that until S1 deletes the folder.
+- **Two optional rules are on:** `fsd/import-locality` (relative inside a slice) and `fsd/no-wildcard-exports`. `fsd/insignificant-slice` is off (D10).
+- **Node:** Steiger 0.7 and later ask for Node 22.18. A `.ts` config crashes on Node 22.14; the `.mjs` config works there.
+- **Coverage:** a re-export-only `index.ts` that no test imports counts 0 / 0 on the four metrics.
+- **Spec content:** one test on the real sources, nine on made-up trees (one per rule), so each rule is proven to fire. An injected import from a layer to an old folder failed it as expected.
+- The five files without a GPL header got one, because the spec now checks headers.
+- `EPIC_*.md` is now left out of the moodle.org archive (`.gitattributes`).
 
 ### S1 — `shared/` layer (≈ 1 d)
 
@@ -235,7 +248,8 @@ No source file moves in this story, and the bundle must come out **byte-identica
 - `shared/lib`: `debounce`, `fillLabel`, `formatDate`, **new `entityKeys.ts`** (V3) with tests moved from `structureVisuals.spec.ts`.
 - `shared/ui`: `clickOutside`, `useModalA11y`, `useLoadMoreSentinel`, `NuggetLoadingBanner` (V5).
 - One `index.ts` per segment, named exports only.
-- Delete `service/`, `utils/`, `types/`. Update `vitest.config.ts` (`exclude: src/types/*` → `src/shared/api/types/*`), the 10 specs and `test/widgetFixtures.ts` that import `NAAS_API_KEY`.
+- Optional first commit (`style:`): format the 22 files Prettier 3 reports. It changes `.vue` sources, hence the bundle, which this story rebuilds anyway.
+- Delete `service/`, `utils/`, `types/`, their three entries in `LEGACY` (`architecture.spec.ts`) and the `src/types` block in `steiger.config.mjs`. Update `vitest.config.ts` (`exclude: src/types/*` → `src/shared/api/types/*`), the 10 specs and `test/widgetFixtures.ts` that import `NAAS_API_KEY`.
 
 **Done when** `shared/` imports nothing outside itself and there is no `@/types/`, `@/service/` or `@/utils/` import left.
 
@@ -249,8 +263,8 @@ No source file moves in this story, and the bundle must come out **byte-identica
 
 ### S3 — `entities/nugget` (≈ 1 d)
 
-- **Commit 1 (moves):** `NuggetPost`, `NuggetSkeleton`, `NuggetAboutModal`, `useNuggetEnricher`, `nuggetLicence`. `NuggetAboutModal` takes the structure resolver from `@/entities/catalogue/@x/nugget`. The `NuggetSkeleton` part of `skeletons.spec.ts` moves with it.
-- **Commit 2 (logic, V1):** `NuggetPost` emits `PreviewButton` and no longer imports `NuggetViewModal`. `NuggetResultsGrid` and `NuggetSelectedPanel` hold the previewed Nugget and render the modal. The preview tests move from `NuggetPost.spec.ts` to the two widget specs.
+- **Commit 1 (logic, V1), files still in `components/`:** `NuggetPost` emits `PreviewButton` and no longer imports `NuggetViewModal`. `NuggetResultsGrid` and `NuggetSelectedPanel` hold the previewed Nugget and render the modal. The preview tests move from `NuggetPost.spec.ts` to the two widget specs. The logic change comes first because, once in `entities/`, the card may not import `components/NuggetViewModal.vue`.
+- **Commit 2 (moves):** `NuggetPost`, `NuggetSkeleton`, `NuggetAboutModal`, `useNuggetEnricher`, `nuggetLicence`. `NuggetAboutModal` takes the structure resolver from `@/entities/catalogue/@x/nugget`. The `NuggetSkeleton` part of `skeletons.spec.ts` moves with it.
 - Keep the a11y tests: focus goes back to the Preview button on close (`useModalA11y` remembers the opener), `aria-pressed` on Select, `aria-describedby` on the three buttons.
 
 **Done when** `entities/nugget` imports only `shared/` and `entities/catalogue/@x/nugget`.
@@ -284,7 +298,7 @@ No source file moves in this story, and the bundle must come out **byte-identica
 
 ### S7 — Lock in and release (≈ 0.5 d)
 
-- Empty the ignore list in `steiger.config.ts`. From now on, any violation fails CI. Fix or document what is left.
+- `LEGACY` in `architecture.spec.ts` is empty and `steiger.config.mjs` has no block for an old folder. From now on, any violation fails CI. Fix or document what is left.
 - `pnpm bump-version` (bundle + `widget::BUNDLE_VERSION`), `version.php` bump, `CHANGES.md` entry ("internal: widget sources reorganised by Feature-Sliced Design, built with pnpm, no functional change").
 - Full CI: PHPUnit, Behat (they must pass unchanged, which proves no UI regression), widget coverage 100 %, PHPStan.
 - Check that the moodle.org zip still includes `vue/` sources (moodle.org packaging rule).
@@ -317,7 +331,7 @@ Work bottom-up: each story moves the files that every later layer depends on, so
 |---|---|
 | Large diff at once, hard to review | One story = one commit (or a short series). Moves and logic changes in separate commits. `git diff -M` shows moves as renames. |
 | The pnpm lockfile resolves other versions than `yarn.lock` and the bundle changes | `pnpm import` keeps the resolved versions. S0a is done only when the rebuilt bundle is byte-identical. |
-| `steiger` cannot read imports inside `.vue` files | Proved or disproved first thing in S0b. Fallback: the Vitest architecture spec (D5). |
+| `steiger` does not follow imports of `.vue` files, and is in beta | `architecture.spec.ts` forces those imports through `index.ts` files, which Steiger does follow. Versions are pinned exactly; re-run the probes of S0b before an upgrade. |
 | Bundle diff on every story (scoped ids) | Expected. Rebuild and commit. One version bump at the end (S7). |
 | Unchecked `vi.mock` strings → a test silently mocks nothing | `architecture.spec.ts` checks that each path resolves. Coverage at 100 % would also drop if a mock stopped working. |
 | Splitting `useEntityResolvers` breaks the "resolve once per page" cache | Keep module-level caches with the same keys. Existing specs on repeated calls must pass. |
@@ -330,7 +344,7 @@ Work bottom-up: each story moves the files that every later layer depends on, so
 
 - [ ] `vue/src/` follows §3.2. The old folders `components/`, `composables/`, `types/`, `service/`, `plugins/`, `utils/`, `styles/` are gone.
 - [ ] Every slice and every `shared/` segment has an `index.ts` with a GPL header. No deep import from outside a slice.
-- [ ] V1 and V3–V8 fixed. `pnpm lint:fsd` reports 0 error with an **empty ignore list**.
+- [ ] V1 and V3–V8 fixed. `pnpm lint:fsd` reports 0 error and `LEGACY` in `architecture.spec.ts` is **empty**.
 - [ ] `pnpm type-check` ✅, `pnpm lint:check` ✅, `pnpm coverage` 100 / 100 / 100 / 100 ✅, committed bundle matches the sources ✅.
 - [ ] Behat and PHPUnit unchanged ✅ (no functional change).
 - [ ] `vue/README.md` documents the toolchain, the layers, the rules and the §8 table.
@@ -346,4 +360,4 @@ The first version of this epic was checked against the import graph of `vue/src`
 - **V1 simplified, V2 dropped** (D8): no feature button components, no slots.
 - **Toolchain story S0a added** (D7) and the guardrail changed to `steiger` (D5).
 - **Rules completed:** `index.ts` for the `shared/` segments, named exports, `@x`, and the `vi.mock()` exception for specs. `skeletons.spec.ts` is split in three.
-- **Not verified yet:** that `steiger` reads imports inside `.vue` files (S0b).
+- **Verified in S0b:** `steiger` reads imports inside `.vue` files but does not follow imports *of* `.vue` files; the Vitest spec closes that gap (D5).
