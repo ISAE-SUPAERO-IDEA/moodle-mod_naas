@@ -20,11 +20,17 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { reactive } from "vue";
 import NuggetResultsGrid from "./NuggetResultsGrid.vue";
 import { mountComponent, type Mounted } from "@/test/mountComponent";
 import { pressKey } from "@/test/modalKeys";
-import { makeNugget, providers } from "@/test/widgetFixtures";
+import {
+  makeConfig,
+  makeNugget,
+  makeService,
+  providers,
+} from "@/test/widgetFixtures";
 import type { Nugget } from "@/shared/api";
 
 const aircraft = makeNugget();
@@ -43,25 +49,35 @@ function mountGrid(
     layout: "card" | "row";
     selectedId: string | null;
     failed: boolean;
-  }> = {}
-): Mounted {
+  }> = {},
+  service = makeService()
+) {
+  const gridProps = reactive({
+    nuggets: [] as Nugget[],
+    loading: false,
+    loadingMore: false,
+    layout: "card",
+    selectedId: null,
+    ...props,
+  });
   mounted = mountComponent(
     NuggetResultsGrid,
-    {
-      nuggets: [],
-      loading: false,
-      loadingMore: false,
-      layout: "card",
-      selectedId: null,
-      ...props,
-    },
-    providers()
+    gridProps,
+    providers(makeConfig(), service)
   );
-  return mounted;
+  return { ...mounted, props: gridProps };
 }
 
 function selectButtons(el: HTMLElement): HTMLButtonElement[] {
   return Array.from(el.querySelectorAll(".nugget-btn-select"));
+}
+
+function previewButtons(el: HTMLElement): HTMLButtonElement[] {
+  return Array.from(el.querySelectorAll(".nugget-btn-ghost"));
+}
+
+function previewDialog(): HTMLElement | null {
+  return document.getElementById("nugget-preview-modal");
 }
 
 afterEach(() => {
@@ -119,6 +135,55 @@ describe("NuggetResultsGrid", () => {
     const { el, emitted } = mountGrid({ nuggets: [aircraft, orbital] });
     selectButtons(el)[1].click();
     expect(emitted.select).toEqual([[orbital]]);
+  });
+
+  it("previews the Nugget whose Preview button is pressed", async () => {
+    const service = makeService();
+    const { el, flush } = mountGrid({ nuggets: [aircraft, orbital] }, service);
+    expect(previewDialog()).toBeNull();
+
+    previewButtons(el)[1].click();
+    await flush();
+    expect(document.querySelectorAll('[role="dialog"]')).toHaveLength(1);
+    expect(previewDialog()?.textContent).toContain(
+      "Orbital mechanics in five minutes"
+    );
+    expect(service.getNuggetPreview).toHaveBeenCalledWith(
+      orbital.version_id,
+      7
+    );
+  });
+
+  it("closes the preview", async () => {
+    const { el, flush } = mountGrid({ nuggets: [aircraft] });
+    previewButtons(el)[0].click();
+    await flush();
+    previewDialog()!.querySelector<HTMLButtonElement>(".btn-close")!.click();
+    await vi.waitFor(() => expect(previewDialog()).toBeNull());
+  });
+
+  it("keeps the preview open while its card stays listed", async () => {
+    const { el, props, flush } = mountGrid({ nuggets: [aircraft, orbital] });
+    previewButtons(el)[0].click();
+    await flush();
+
+    props.nuggets = [aircraft];
+    await flush();
+    expect(previewDialog()?.textContent).toContain("Aircraft design basics");
+  });
+
+  it("does not reopen a preview whose card left the list and came back", async () => {
+    const { el, props, flush } = mountGrid({ nuggets: [aircraft, orbital] });
+    previewButtons(el)[1].click();
+    await flush();
+    expect(previewDialog()).not.toBeNull();
+
+    props.nuggets = [aircraft];
+    await vi.waitFor(() => expect(previewDialog()).toBeNull());
+
+    props.nuggets = [aircraft, orbital];
+    await flush();
+    expect(previewDialog()).toBeNull();
   });
 
   it("moves between cards with the arrow keys", () => {

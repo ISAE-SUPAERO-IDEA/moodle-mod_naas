@@ -20,11 +20,16 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { reactive } from "vue";
 import NuggetSelectedPanel from "./NuggetSelectedPanel.vue";
 import { mountComponent, type Mounted } from "@/test/mountComponent";
-import { makeNugget, providers } from "@/test/widgetFixtures";
+import {
+  makeConfig,
+  makeNugget,
+  makeService,
+  providers,
+} from "@/test/widgetFixtures";
 import type { Nugget } from "@/shared/api";
 
 const aircraft = makeNugget();
@@ -45,10 +50,26 @@ function addCguRow(): HTMLElement {
   return document.getElementById("fitem_id_cgu_agreement")!;
 }
 
-function mountPanel(nugget: Nugget | null, loading: boolean) {
+function mountPanel(
+  nugget: Nugget | null,
+  loading: boolean,
+  service = makeService()
+) {
   const props = reactive({ nugget, loading });
-  mounted = mountComponent(NuggetSelectedPanel, props, providers());
+  mounted = mountComponent(
+    NuggetSelectedPanel,
+    props,
+    providers(makeConfig(), service)
+  );
   return { ...mounted, props };
+}
+
+function previewDialog(): HTMLElement | null {
+  return document.getElementById("nugget-preview-modal");
+}
+
+function pressPreview(el: HTMLElement): void {
+  el.querySelector<HTMLButtonElement>(".nugget-btn-ghost")!.click();
 }
 
 function cguIsHome(row: HTMLElement): boolean {
@@ -79,6 +100,36 @@ describe("NuggetSelectedPanel", () => {
     await flush();
     el.querySelector<HTMLButtonElement>(".nugget-clear-btn")!.click();
     expect(emitted.replace).toHaveLength(1);
+  });
+
+  it("previews the chosen Nugget, then closes the preview", async () => {
+    const service = makeService();
+    const { el, flush } = mountPanel(aircraft, false, service);
+    await flush();
+    expect(previewDialog()).toBeNull();
+
+    pressPreview(el);
+    await flush();
+    expect(previewDialog()?.textContent).toContain("Aircraft design basics");
+    expect(service.getNuggetPreview).toHaveBeenCalledWith("v-aircraft", 7);
+
+    previewDialog()!.querySelector<HTMLButtonElement>(".btn-close")!.click();
+    await vi.waitFor(() => expect(previewDialog()).toBeNull());
+  });
+
+  it("does not reopen the preview when the card comes back", async () => {
+    const { el, props, flush } = mountPanel(aircraft, false);
+    await flush();
+    pressPreview(el);
+    await flush();
+    expect(previewDialog()).not.toBeNull();
+
+    props.loading = true;
+    await vi.waitFor(() => expect(previewDialog()).toBeNull());
+
+    props.loading = false;
+    await flush();
+    expect(previewDialog()).toBeNull();
   });
 
   it("shows a skeleton while the saved Nugget loads, then the card", async () => {

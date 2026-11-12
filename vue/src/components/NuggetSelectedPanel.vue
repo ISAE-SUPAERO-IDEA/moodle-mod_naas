@@ -33,7 +33,13 @@
         <NuggetPost
           :nugget="nugget"
           replaceable
-          @ReplaceButton="emit('replace')"
+          @replace-button="emit('replace')"
+          @preview-button="showPreview = true"
+        />
+        <NuggetViewModal
+          :visible="showPreview"
+          :nugget="nugget"
+          @close="showPreview = false"
         />
         <div ref="cguAnchor" class="naas-cgu-anchor"></div>
       </div>
@@ -45,6 +51,7 @@
 import { nextTick, onBeforeUnmount, ref, watch } from "vue";
 import NuggetPost from "./NuggetPost.vue";
 import NuggetSkeleton from "./NuggetSkeleton.vue";
+import NuggetViewModal from "./NuggetViewModal.vue";
 import { NuggetLoadingBanner } from "@/shared/ui";
 import {
   placeCguAgreement,
@@ -65,6 +72,7 @@ const emit = defineEmits<{
 
 const cguAnchor = ref<HTMLElement | null>(null);
 const wrap = ref<HTMLElement | null>(null);
+const showPreview = ref(false);
 
 /**
  * Move the keyboard focus onto the chosen card (its first control, Replace),
@@ -77,11 +85,13 @@ function focusCard(): void {
 defineExpose({ focusCard });
 
 // Put the CGU row back before the card (and its anchor) leaves the page.
+// The card takes its preview with it.
 watch(
   () => [props.nugget, props.loading] as const,
   ([nugget, loading]) => {
     if (!nugget || loading) {
       restoreCguAgreement();
+      showPreview.value = false;
     }
   },
   { flush: "pre" }

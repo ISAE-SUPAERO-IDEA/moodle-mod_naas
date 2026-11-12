@@ -24,20 +24,12 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { reactive } from "vue";
 import NuggetPost from "./NuggetPost.vue";
 import { mountComponent, type Mounted } from "@/test/mountComponent";
-import {
-  makeNugget,
-  makeService,
-  providers,
-  makeConfig,
-} from "@/test/widgetFixtures";
+import { makeNugget, providers } from "@/test/widgetFixtures";
 
 let mounted: Mounted | null = null;
 
-function mountPost(
-  props: Record<string, unknown>,
-  service = makeService()
-): Mounted {
-  mounted = mountComponent(NuggetPost, props, providers(makeConfig(), service));
+function mountPost(props: Record<string, unknown>): Mounted {
+  mounted = mountComponent(NuggetPost, props, providers());
   return mounted;
 }
 
@@ -201,24 +193,12 @@ describe("NuggetPost", () => {
     );
   });
 
-  it("closes the preview dialog", async () => {
-    const { el, flush } = mountPost({ nugget: makeNugget() });
+  it("emits PreviewButton with its Nugget and opens no dialog itself", async () => {
+    const nugget = makeNugget();
+    const { el, emitted, flush } = mountPost({ nugget });
     button(el, "Preview").click();
     await flush();
-    document
-      .querySelector<HTMLButtonElement>("#nugget-preview-modal .btn-close")!
-      .click();
-    await vi.waitFor(() =>
-      expect(document.getElementById("nugget-preview-modal")).toBeNull()
-    );
-  });
-
-  it("opens the preview dialog and asks Moodle for the preview URL", async () => {
-    const service = makeService();
-    const { el, flush } = mountPost({ nugget: makeNugget() }, service);
-    button(el, "Preview").click();
-    await flush();
-    expect(document.getElementById("nugget-preview-modal")).not.toBeNull();
-    expect(service.getNuggetPreview).toHaveBeenCalledWith("v-aircraft", 7);
+    expect(emitted.PreviewButton).toEqual([[nugget]]);
+    expect(document.querySelector('[role="dialog"]')).toBeNull();
   });
 });

@@ -65,7 +65,13 @@
         :class="{
           'nugget-post-selected': nugget.nugget_id === selectedId,
         }"
-        @SelectButton="emit('select', $event)"
+        @select-button="emit('select', $event)"
+        @preview-button="previewedId = nugget.nugget_id"
+      />
+      <NuggetViewModal
+        :visible="previewedId === nugget.nugget_id"
+        :nugget="nugget"
+        @close="previewedId = null"
       />
     </li>
 
@@ -88,8 +94,10 @@
 </template>
 
 <script setup lang="ts">
+import { ref, watch } from "vue";
 import NuggetPost from "./NuggetPost.vue";
 import NuggetSkeleton from "./NuggetSkeleton.vue";
+import NuggetViewModal from "./NuggetViewModal.vue";
 import { useNaasConfig } from "@/shared/config";
 import { onCardGridKeydown } from "@/composables/cardGridKeys";
 import type { Nugget } from "@/shared/api";
@@ -97,7 +105,7 @@ import type { Nugget } from "@/shared/api";
 /** Skeleton cards painted while the first page loads: one full page. */
 const SKELETON_COUNT = 9;
 
-defineProps<{
+const props = defineProps<{
   nuggets: Nugget[];
   loading: boolean;
   loadingMore: boolean;
@@ -113,6 +121,20 @@ const emit = defineEmits<{
 }>();
 
 const config = useNaasConfig();
+
+/** Id of the Nugget whose preview is open. */
+const previewedId = ref<string | null>(null);
+
+// A card that leaves the list takes its preview with it: the preview must not
+// come back open if the same Nugget is listed again later.
+watch(
+  () => props.nuggets.some((nugget) => nugget.nugget_id === previewedId.value),
+  (listed) => {
+    if (!listed) {
+      previewedId.value = null;
+    }
+  }
+);
 </script>
 
 <style scoped>

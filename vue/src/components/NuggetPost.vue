@@ -17,6 +17,8 @@
 /**
  * Nugget card displayed in search results and selected-nugget views.
  *
+ * The card only emits: its parent handles Select, Replace and Preview.
+ *
  * @copyright  2024 ISAE-SUPAERO (https://www.isae-supaero.fr/)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -98,7 +100,7 @@
         type="button"
         class="nugget-btn nugget-btn-ghost"
         :aria-describedby="titleId"
-        @click="showPreview = true"
+        @click="emit('PreviewButton', nugget)"
       >
         {{ config.labels.preview_button }}
       </button>
@@ -109,18 +111,12 @@
       :nugget="nugget"
       @close="showAbout = false"
     />
-    <NuggetViewModal
-      :visible="showPreview"
-      :nugget="nugget"
-      @close="showPreview = false"
-    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, useId } from "vue";
 import NuggetAboutModal from "./NuggetAboutModal.vue";
-import NuggetViewModal from "./NuggetViewModal.vue";
 import { useNaasConfig } from "@/shared/config";
 import { createMediaRouter } from "@/shared/api";
 import type { Nugget } from "@/shared/api";
@@ -136,6 +132,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: "SelectButton", nugget: Nugget): void;
   (e: "ReplaceButton", nugget: Nugget): void;
+  (e: "PreviewButton", nugget: Nugget): void;
 }>();
 
 const config = useNaasConfig();
@@ -143,7 +140,6 @@ const media = createMediaRouter(config.moodle_url, config.courseId);
 
 const titleId = useId();
 const showAbout = ref(false);
-const showPreview = ref(false);
 
 const authorsNames = computed(() =>
   (props.nugget.authors_data ?? [])
