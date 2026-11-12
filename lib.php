@@ -272,12 +272,18 @@ function naas_update_instance($data) {
     $data->timemodified = time();
 
     $data->id = $data->instance;
+    $oldmethod = $DB->get_field('naas', 'grade_method', ['id' => $data->id]);
     $DB->update_record('naas', $data);
 
     $completiontimeexpected = !empty($data->completionexpected) ? $data->completionexpected : null;
     \core_completion\api::update_completion_date_event($data->coursemodule, 'naas', $data->id, $completiontimeexpected);
 
     naas_grade_item_update($data);
+
+    // A new grading method applies to the attempts already completed, not only to the next ones.
+    if (isset($data->grade_method) && (string) $oldmethod !== (string) $data->grade_method) {
+        \mod_naas\attempts::regrade($DB->get_record('naas', ['id' => $data->id]), (int) $data->coursemodule);
+    }
 
     return true;
 }

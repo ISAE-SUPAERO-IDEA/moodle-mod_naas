@@ -86,4 +86,87 @@ class attempts {
             $DB->update_record('naas_activity_outcome', $record);
         }
     }
+
+    /**
+     * Score the grading method keeps among a learner's attempts.
+     *
+     * Attempts are ordered by completion time (then id), the order outcome.php sees them in.
+     *
+     * @param array $attempts naas_activity_outcome rows of one learner, in any order
+     * @param string $grademethod NAAS_GRADEHIGHEST, NAAS_ATTEMPTFIRST or NAAS_ATTEMPTLAST
+     * @return float|null Normalised score (0..1); null when no attempt has a score
+     */
+    public static function kept_score(array $attempts, string $grademethod): ?float {
+        $completed = array_values(array_filter($attempts, function ($attempt) {
+            return !empty($attempt->timecompleted) && $attempt->score !== null;
+        }));
+        if (!$completed) {
+            return null;
+        }
+        usort($completed, function ($a, $b) {
+            return [(int) $a->timecompleted, (int) $a->id] <=> [(int) $b->timecompleted, (int) $b->id];
+        });
+        if ($grademethod === NAAS_ATTEMPTFIRST) {
+            return (float) $completed[0]->score;
+        }
+        if ($grademethod === NAAS_ATTEMPTLAST) {
+            return (float) $completed[count($completed) - 1]->score;
+        }
+        return max(array_map(function ($attempt) {
+            return (float) $attempt->score;
+        }, $completed));
+    }
+
+    /**
+     * Grade every learner again from the attempts already completed.
+     *
+     * Used when the grading method changes: outcome.php only applies the method to a new
+     * result, so existing grades would otherwise keep the old method until the next attempt.
+     *
+     * @param \stdClass $naas naas record (id, course, grade_method)
+     * @param int $cmid Course module id (naas_activity_outcome.activity_id)
+     * @return int Number of learners regraded
+     */
+    public static function regrade(\stdClass $naas, int $cmid): int {
+        global $CFG, $DB;
+        require_once($CFG->libdir . '/gradelib.php');
+
+        $item = \grade_item::fetch([
+            'itemtype' => 'mod',
+            'itemmodule' => 'naas',
+            'iteminstance' => $naas->id,
+            'courseid' => $naas->course,
+            'itemnumber' => 0,
+        ]);
+        if (!$item) {
+            return 0;
+        }
+
+        $byuser = [];
+        $rows = $DB->get_records_select(
+            'naas_activity_outcome',
+            'activity_id = ? AND timecompleted IS NOT NULL',
+            [$cmid],
+            'id ASC'
+        );
+        foreach ($rows as $row) {
+            $byuser[(int) $row->user_id][] = $row;
+        }
+
+        $grades = [];
+        foreach ($byuser as $userid => $attempts) {
+            $score = self::kept_score($attempts, (string) $naas->grade_method);
+            if ($score !== null) {
+                $grades[$userid] = (object) [
+                    'userid' => $userid,
+                    // Same rounding as outcome.php, so binary fractions land on the scale.
+                    'rawgrade' => round($score * (float) $item->grademax, 5),
+                ];
+            }
+        }
+        if ($grades) {
+            grade_update('mod/naas', $naas->course, 'mod', 'naas', $naas->id, 0, $grades);
+        }
+        return count($grades);
+    }
 }

@@ -141,4 +141,113 @@ final class attempts_test extends \advanced_testcase {
         $this->assertGreaterThanOrEqual($before, (int) $row->timecompleted);
         $this->assertLessThanOrEqual(time(), (int) $row->timecompleted);
     }
+    /**
+     * Attempt row as kept_score() reads it.
+     *
+     * @param int $id
+     * @param float|null $score
+     * @param int|null $timecompleted
+     * @return \stdClass
+     */
+    private function attempt(int $id, ?float $score, ?int $timecompleted): \stdClass {
+        return (object) ['id' => $id, 'score' => $score, 'timecompleted' => $timecompleted];
+    }
+
+    /**
+     * Each grading method keeps its attempt, in completion order whatever the row order.
+     */
+    public function test_kept_score_follows_the_grading_method(): void {
+        $this->resetAfterTest(true);
+        $attempts = [
+            $this->attempt(3, 0.6, 3000),
+            $this->attempt(1, 0.4, 1000),
+            $this->attempt(2, 0.9, 2000),
+            $this->attempt(4, null, null),
+        ];
+
+        $this->assertEquals(0.9, attempts::kept_score($attempts, NAAS_GRADEHIGHEST));
+        $this->assertEquals(0.4, attempts::kept_score($attempts, NAAS_ATTEMPTFIRST));
+        $this->assertEquals(0.6, attempts::kept_score($attempts, NAAS_ATTEMPTLAST));
+        // Same completion time: the earlier row comes first.
+        $tied = [$this->attempt(8, 0.2, 5000), $this->attempt(7, 0.7, 5000)];
+        $this->assertEquals(0.7, attempts::kept_score($tied, NAAS_ATTEMPTFIRST));
+        $this->assertNull(attempts::kept_score([$this->attempt(5, null, null)], NAAS_GRADEHIGHEST));
+        $this->assertNull(attempts::kept_score([], NAAS_ATTEMPTLAST));
+    }
+
+    /**
+     * Changing the grading method regrades learners from their completed attempts.
+     */
+    public function test_changing_the_grading_method_regrades_existing_attempts(): void {
+        global $CFG, $DB;
+        require_once($CFG->libdir . '/gradelib.php');
+        require_once($CFG->dirroot . '/course/modlib.php');
+        $this->resetAfterTest(true);
+        $this->setAdminUser();
+        [$naas, $user, $generator] = $this->setup_activity();
+        $DB->set_field('naas', 'grade_method', NAAS_GRADEHIGHEST, ['id' => $naas->id]);
+        $generator->create_completed_attempt($user->id, $naas->cmid, 0.4, 1000);
+        $generator->create_completed_attempt($user->id, $naas->cmid, 0.9, 2000);
+        $generator->create_completed_attempt($user->id, $naas->cmid, 0.6, 3000);
+        $grade = function () use ($naas, $user): ?float {
+            $grades = grade_get_grades($naas->course, 'mod', 'naas', $naas->id, $user->id);
+            $value = $grades->items[0]->grades[$user->id]->grade;
+            return $value === null ? null : (float) $value;
+        };
+        $update = function (string $method) use ($naas) {
+            $data = (object) [
+                'instance' => $naas->id,
+                'coursemodule' => $naas->cmid,
+                'course' => $naas->course,
+                'name' => $naas->name,
+                'grade_method' => $method,
+            ];
+            naas_update_instance($data);
+        };
+        $grademax = (float) grade_get_grades($naas->course, 'mod', 'naas', $naas->id)->items[0]->grademax;
+
+        $update(NAAS_ATTEMPTFIRST);
+        $this->assertEquals(round(0.4 * $grademax, 5), $grade());
+        $update(NAAS_ATTEMPTLAST);
+        $this->assertEquals(round(0.6 * $grademax, 5), $grade());
+        $update(NAAS_GRADEHIGHEST);
+        $this->assertEquals(round(0.9 * $grademax, 5), $grade());
+    }
+
+    /**
+     * Saving the activity with the same method leaves the gradebook alone.
+     */
+    public function test_same_grading_method_does_not_regrade(): void {
+        global $CFG, $DB;
+        require_once($CFG->libdir . '/gradelib.php');
+        $this->resetAfterTest(true);
+        [$naas, $user, $generator] = $this->setup_activity();
+        $DB->set_field('naas', 'grade_method', NAAS_ATTEMPTLAST, ['id' => $naas->id]);
+        $generator->create_completed_attempt($user->id, $naas->cmid, 0.5, 1000);
+
+        naas_update_instance((object) [
+            'instance' => $naas->id,
+            'coursemodule' => $naas->cmid,
+            'course' => $naas->course,
+            'name' => $naas->name,
+            'grade_method' => NAAS_ATTEMPTLAST,
+        ]);
+
+        $grades = grade_get_grades($naas->course, 'mod', 'naas', $naas->id, $user->id);
+        $this->assertNull($grades->items[0]->grades[$user->id]->grade);
+    }
+
+    /**
+     * Without a grade item there is nothing to regrade.
+     */
+    public function test_regrade_without_grade_item_does_nothing(): void {
+        global $DB;
+        $this->resetAfterTest(true);
+        [$naas, $user, $generator] = $this->setup_activity();
+        $generator->create_completed_attempt($user->id, $naas->cmid, 0.5, 1000);
+        $DB->delete_records('grade_items', ['itemmodule' => 'naas', 'iteminstance' => $naas->id]);
+
+        $record = $DB->get_record('naas', ['id' => $naas->id]);
+        $this->assertSame(0, attempts::regrade($record, (int) $naas->cmid));
+    }
 }
