@@ -55,6 +55,12 @@ class media_proxy {
     ];
     /** Structure ids, same rule as the proxy web services. */
     private const ID_PATTERN = '/^[a-zA-Z0-9_\-]{1,128}$/';
+    /** Query parameters an image URL may carry: size, and the thumbnail version hash NaaS adds. */
+    private const QUERY_RULES = [
+        'width' => '/^\d{1,5}$/',
+        'height' => '/^\d{1,5}$/',
+        'hash' => '/^[a-zA-Z0-9_\-.]{0,128}$/',
+    ];
 
     /**
      * Check access, then return the image a media.php request asks for.
@@ -119,7 +125,7 @@ class media_proxy {
      *
      * Relative URLs are resolved against the NaaS API URL. User info, other hosts,
      * other ports and path traversal are refused. A query string may only carry
-     * width and height.
+     * width, height and the thumbnail hash; an empty hash is dropped.
      *
      * @param string $src
      * @param string $endpoint Configured NaaS API URL.
@@ -154,14 +160,16 @@ class media_proxy {
         $url = $base['origin'] . $path;
         if (isset($parts['query'])) {
             parse_str($parts['query'], $query);
-            $size = [];
             foreach ($query as $name => $value) {
-                if (!in_array($name, ['width', 'height'], true) || !is_string($value) || !ctype_digit($value)) {
+                $rule = self::QUERY_RULES[$name] ?? null;
+                if ($rule === null || !is_string($value) || !preg_match($rule, $value)) {
                     throw $invalid;
                 }
-                $size[$name] = (int) $value;
             }
-            $url = self::with_size($url, $size['width'] ?? 0, $size['height'] ?? 0);
+            if (($query['hash'] ?? '') !== '') {
+                $url .= '?hash=' . $query['hash'];
+            }
+            $url = self::with_size($url, (int) ($query['width'] ?? 0), (int) ($query['height'] ?? 0));
         }
         return $url;
     }
@@ -169,7 +177,9 @@ class media_proxy {
     /**
      * Add (or replace) the width and height NaaS should resize the image to.
      *
-     * @param string $url URL with no query string, or only width and height.
+     * Other parameters already on the URL (the thumbnail hash) are kept.
+     *
+     * @param string $url URL with no query string, or one already checked by check_source().
      * @param int $width 0 to leave unset.
      * @param int $height 0 to leave unset.
      * @return string
@@ -185,9 +195,11 @@ class media_proxy {
         if (!$size) {
             return $url;
         }
-        $url = strtok($url, '?');
+        [$path, $querystring] = array_pad(explode('?', $url, 2), 2, '');
+        parse_str($querystring, $query);
+        unset($query['width'], $query['height']);
         // Moodle sets arg_separator.output to '&amp;': give the separator explicitly.
-        return $url . '?' . http_build_query($size, '', '&');
+        return $path . '?' . http_build_query($size + $query, '', '&');
     }
 
     /**

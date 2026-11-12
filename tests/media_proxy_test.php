@@ -195,6 +195,18 @@ final class media_proxy_test extends advanced_testcase {
                 'https://api.naas.example/api/t/n1?width=700&height=394',
                 'https://api.naas.example/api/t/n1?width=700&height=394',
             ],
+            'thumbnail hash kept' => [
+                'https://api.naas.example/api/thumbnails/nugget/n1/thumbnail?hash=e8391083bd0e91df303f55bb2c294194',
+                'https://api.naas.example/api/thumbnails/nugget/n1/thumbnail?hash=e8391083bd0e91df303f55bb2c294194',
+            ],
+            'empty thumbnail hash dropped' => [
+                'https://api.naas.example/api/thumbnails/nugget/n1/thumbnail?hash=',
+                'https://api.naas.example/api/thumbnails/nugget/n1/thumbnail',
+            ],
+            'hash and size kept' => [
+                'https://api.naas.example/api/t/n1?hash=abc&width=700',
+                'https://api.naas.example/api/t/n1?width=700&hash=abc',
+            ],
         ];
     }
 
@@ -227,6 +239,9 @@ final class media_proxy_test extends advanced_testcase {
             'encoded traversal' => ['https://api.naas.example/api/%2e%2e/admin'],
             'other query' => ['https://api.naas.example/api/x.png?token=abc'],
             'non-numeric size' => ['https://api.naas.example/api/x.png?width=big'],
+            'hash with other characters' => ['https://api.naas.example/api/x.png?hash=a%26token%3Dabc'],
+            'hash as an array' => ['https://api.naas.example/api/x.png?hash[]=abc'],
+            'over-long hash' => ['https://api.naas.example/api/x.png?hash=' . str_repeat('a', 129)],
             'file scheme' => ['file:///etc/passwd'],
             'javascript' => ['javascript:alert(1)'],
             'empty' => [''],
@@ -239,6 +254,14 @@ final class media_proxy_test extends advanced_testcase {
             media_proxy::with_size('https://api.naas.example/a.png?width=1', 99999, 394)
         );
         $this->assertSame('https://api.naas.example/a.png', media_proxy::with_size('https://api.naas.example/a.png', 0, 0));
+    }
+
+    public function test_with_size_keeps_the_thumbnail_hash(): void {
+        $this->assertSame(
+            'https://api.naas.example/t?width=700&height=394&hash=abc',
+            media_proxy::with_size('https://api.naas.example/t?hash=abc&width=1', 700, 394)
+        );
+        $this->assertSame('https://api.naas.example/t?hash=abc', media_proxy::with_size('https://api.naas.example/t?hash=abc', 0, 0));
     }
 
     public function test_fetch_returns_and_caches_an_image(): void {
