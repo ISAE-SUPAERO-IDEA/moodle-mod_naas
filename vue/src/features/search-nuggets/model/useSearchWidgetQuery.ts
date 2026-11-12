@@ -24,7 +24,7 @@
 import { computed, nextTick, ref } from "vue";
 import type { Ref } from "vue";
 import { debounce } from "@/shared/lib";
-import { SEARCH_FIRST_PAGE, withSearchPage } from "./searchPaging";
+import { SEARCH_FIRST_PAGE, withSearchPage } from "../lib/searchPaging";
 import type {
   AggregationResult,
   Nugget,

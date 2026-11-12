@@ -127,7 +127,10 @@ import NuggetSearchResults from "./NuggetSearchResults.vue";
 import NuggetSelectedPanel from "./NuggetSelectedPanel.vue";
 import { useNaasConfig } from "@/shared/config";
 import { useMoodleService } from "@/shared/api";
-import { useNuggetSearch } from "@/composables/useNuggetSearch";
+import {
+  useNuggetSearch,
+  useSearchWidgetQuery,
+} from "@/features/search-nuggets";
 import {
   concealCguAgreement,
   restoreCguAgreement,
@@ -135,7 +138,6 @@ import {
 } from "@/composables/moodleActivityForm";
 import { useProducerDirectory } from "@/entities/catalogue";
 import { useCatalogueCheck } from "@/composables/useCatalogueCheck";
-import { useSearchWidgetQuery } from "@/composables/useSearchWidgetQuery";
 import {
   readStoredNuggetId,
   useNuggetSelection,
