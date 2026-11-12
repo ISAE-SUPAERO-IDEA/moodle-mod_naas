@@ -95,7 +95,9 @@ describe("NuggetBrowseLanding", () => {
         directory,
       },
       makeService(),
-      makeConfig({ license_filter: { commercial: "commercial", access: "all" } })
+      makeConfig({
+        license_filter: { commercial: "commercial", access: "all" },
+      })
     );
     await flush();
     expect(el.querySelector(".browse-card--all")).not.toBeNull();
@@ -231,7 +233,7 @@ describe("NuggetBrowseLanding", () => {
     await flush();
     const card = el.querySelector(".browse-card--producer")!;
     expect(card.querySelector(".browse-card-image")?.getAttribute("src")).toBe(
-      "https://moodle.test/mod/naas/media.php?course=7&src=https%3A%2F%2Fnaas.test%2Fbanner.png"
+      "https://moodle.test/mod/naas/media.php?course=7&src=https%3A%2F%2Fnaas.test%2Fbanner.png&w=640"
     );
     expect(card.querySelector(".browse-card-logo")?.getAttribute("alt")).toBe(
       "ISAE"
@@ -255,8 +257,36 @@ describe("NuggetBrowseLanding", () => {
     const card = el.querySelector(".browse-card--producer")!;
     expect(card.querySelector(".browse-card-image")).toBeNull();
     expect(card.querySelector(".browse-card-logo")?.getAttribute("src")).toBe(
-      "https://moodle.test/mod/naas/media.php?course=7&src=https%3A%2F%2Fnaas.test%2Flab.png"
+      "https://moodle.test/mod/naas/media.php?course=7&src=https%3A%2F%2Fnaas.test%2Flab.png&w=480"
     );
+  });
+
+  it("drops an image NaaS cannot serve: cover, then logo, then initials", async () => {
+    const { el, flush } = mountLanding({
+      aggregations: producerBuckets(["isae-supaero", 1]),
+      directory: [
+        {
+          ...directory[0],
+          structure_thumbnail_url: "https://naas.test/logo.png",
+          structure_banner_url: "https://naas.test/banner.png",
+        },
+      ],
+    });
+    await flush();
+    const card = el.querySelector(".browse-card--producer")!;
+    card.querySelector(".browse-card-image")!.dispatchEvent(new Event("error"));
+    await flush();
+    expect(card.querySelector("img.browse-card-image")).toBeNull();
+    expect(card.querySelector(".browse-card-logo")).not.toBeNull();
+    expect(card.querySelector(".browse-card-image--empty")).toBeNull();
+
+    card.querySelector(".browse-card-logo")!.dispatchEvent(new Event("error"));
+    await flush();
+    expect(card.querySelector("img")).toBeNull();
+    expect(card.querySelector(".browse-card-scrim")).toBeNull();
+    expect(
+      card.querySelector(".browse-card-image--empty")?.textContent?.trim()
+    ).toBeTruthy();
   });
 
   it("paints initials, or a question mark, when a producer has no image", async () => {

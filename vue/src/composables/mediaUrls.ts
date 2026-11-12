@@ -29,7 +29,12 @@ export interface MediaRouter {
   /** Moodle URL serving a NaaS image URL (absolute or relative to NaaS); "" if none. */
   image(naasUrl: string, width?: number, height?: number): string;
   /** Moodle URL serving a structure's default thumbnail or banner; "" if no id. */
-  structure(structureId: string, variant: StructureImageVariant): string;
+  structure(
+    structureId: string,
+    variant: StructureImageVariant,
+    width?: number,
+    height?: number
+  ): string;
 }
 
 /**
@@ -55,6 +60,16 @@ export function createMediaRouter(
     return `${endpoint}?${query.toString()}`;
   }
 
+  function sized(
+    params: Record<string, string | number>,
+    width: number,
+    height: number
+  ): Record<string, string | number> {
+    if (width > 0) params.w = width;
+    if (height > 0) params.h = height;
+    return params;
+  }
+
   return {
     image(naasUrl, width = 0, height = 0) {
       const src = (naasUrl ?? "").trim();
@@ -65,14 +80,11 @@ export function createMediaRouter(
       if (src.startsWith("data:image/")) {
         return src;
       }
-      const params: Record<string, string | number> = { src };
-      if (width > 0) params.w = width;
-      if (height > 0) params.h = height;
-      return build(params);
+      return build(sized({ src }, width, height));
     },
-    structure(structureId, variant) {
+    structure(structureId, variant, width = 0, height = 0) {
       const id = (structureId ?? "").trim();
-      return id ? build({ structure: id, variant }) : "";
+      return id ? build(sized({ structure: id, variant }, width, height)) : "";
     },
   };
 }

@@ -91,7 +91,7 @@ describe("structureVisuals", () => {
     expect(
       structureVisuals({ logo: { path: "/files/logo.svg" } }, "ISAE", media)
         .logoUrl
-    ).toBe(`${MEDIA}?course=7&src=%2Ffiles%2Flogo.svg`);
+    ).toBe(`${MEDIA}?course=7&src=%2Ffiles%2Flogo.svg&w=480`);
   });
 
   it("resolves a file object id to a files URL served by media.php", () => {
@@ -102,7 +102,7 @@ describe("structureVisuals", () => {
         media
       ).logoUrl
     ).toBe(
-      `${MEDIA}?course=7&src=%2Ffiles%2F11111111-2222-4333-8444-555555555555`
+      `${MEDIA}?course=7&src=%2Ffiles%2F11111111-2222-4333-8444-555555555555&w=480`
     );
   });
 
@@ -117,7 +117,7 @@ describe("structureVisuals", () => {
         media
       ).logoUrl
     ).toBe(
-      `${MEDIA}?course=7&src=https%3A%2F%2Fapi.example%2Fapi%2Fthumbnails%2Fstructure%2Fabc%2Fthumbnail`
+      `${MEDIA}?course=7&src=https%3A%2F%2Fapi.example%2Fapi%2Fthumbnails%2Fstructure%2Fabc%2Fthumbnail&w=480`
     );
   });
 
@@ -146,8 +146,8 @@ describe("structureVisuals", () => {
       structureVisuals({ acronym: "ISAE", name: "ISAE-SUPAERO" }, key, media)
     ).toMatchObject({
       acronym: "ISAE",
-      logoUrl: `${MEDIA}?course=7&structure=${key}&variant=thumbnail`,
-      imageUrl: `${MEDIA}?course=7&structure=${key}&variant=banner`,
+      logoUrl: `${MEDIA}?course=7&structure=${key}&variant=thumbnail&w=480`,
+      imageUrl: `${MEDIA}?course=7&structure=${key}&variant=banner&w=640`,
       hasCover: true,
     });
   });
@@ -386,7 +386,7 @@ describe("structureVisuals with loose NaaS payloads", () => {
       structureVisuals({ structure_id: "bad id/../x" }, "", media)
     ).toMatchObject({ logoUrl: "", imageUrl: "" });
     expect(structureVisuals({ structure_id: "isae" }, "", media).logoUrl).toBe(
-      `${MEDIA}?course=7&structure=isae&variant=thumbnail`
+      `${MEDIA}?course=7&structure=isae&variant=thumbnail&w=480`
     );
   });
 });

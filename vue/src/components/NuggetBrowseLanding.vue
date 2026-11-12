@@ -75,31 +75,33 @@
       >
         <span
           class="browse-card-media"
-          :class="{ 'browse-card-media--has-logo': !!producer.logoUrl }"
+          :class="{ 'browse-card-media--has-logo': !!cardLogo(producer) }"
         >
           <img
-            v-if="producer.hasCover && producer.imageUrl"
+            v-if="cardCover(producer)"
             class="browse-card-image"
-            :src="producer.imageUrl"
+            :src="cardCover(producer)"
             alt=""
+            @error="markBroken(cardCover(producer))"
           />
           <span
-            v-else-if="!producer.logoUrl"
+            v-else-if="!cardLogo(producer)"
             class="browse-card-image browse-card-image--empty"
             aria-hidden="true"
           >
             {{ initials(cardTitle(producer)) }}
           </span>
           <span
-            v-if="producer.logoUrl"
+            v-if="cardLogo(producer)"
             class="browse-card-scrim"
             aria-hidden="true"
           />
           <img
-            v-if="producer.logoUrl"
+            v-if="cardLogo(producer)"
             class="browse-card-logo"
-            :src="producer.logoUrl"
+            :src="cardLogo(producer)"
             :alt="cardTitle(producer)"
+            @error="markBroken(cardLogo(producer))"
           />
         </span>
         <span class="browse-card-body">
@@ -246,6 +248,24 @@ function cardFullName(producer: ProducerCard): string {
     return name;
   }
   return "";
+}
+
+// Images NaaS could not serve: the card falls back to the logo, then to initials,
+// instead of showing the browser's broken-image icon.
+const brokenImages = ref(new Set<string>());
+
+function markBroken(url: string): void {
+  brokenImages.value = new Set(brokenImages.value).add(url);
+}
+
+function cardCover(producer: ProducerCard): string {
+  return producer.hasCover && !brokenImages.value.has(producer.imageUrl)
+    ? producer.imageUrl
+    : "";
+}
+
+function cardLogo(producer: ProducerCard): string {
+  return brokenImages.value.has(producer.logoUrl) ? "" : producer.logoUrl;
 }
 
 function cardTitle(producer: ProducerCard): string {

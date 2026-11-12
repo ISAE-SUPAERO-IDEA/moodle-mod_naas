@@ -117,10 +117,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 export function isOpaqueEntityKey(value: string): boolean {
   const text = value.trim();
-  return (
-    OPAQUE_KEY.test(text) ||
-    /^[0-9a-f]{16,}$/i.test(text)
-  );
+  return OPAQUE_KEY.test(text) || /^[0-9a-f]{16,}$/i.test(text);
 }
 
 /** True when a facet caption is still the raw aggregation key, not a name. */
@@ -181,6 +178,13 @@ export function lookupLabel(
   return "";
 }
 
+/**
+ * Widths asked from NaaS for producer cards (about twice their largest display
+ * size, for high-density screens). Original banners can weigh more than 10 MB.
+ */
+export const STRUCTURE_BANNER_WIDTH = 640;
+export const STRUCTURE_LOGO_WIDTH = 480;
+
 function defaultStructureMedia(
   structureId: string,
   media?: MediaRouter
@@ -191,8 +195,8 @@ function defaultStructureMedia(
     return { logoUrl: "", imageUrl: "" };
   }
   return {
-    logoUrl: media.structure(id, "thumbnail"),
-    imageUrl: media.structure(id, "banner"),
+    logoUrl: media.structure(id, "thumbnail", STRUCTURE_LOGO_WIDTH),
+    imageUrl: media.structure(id, "banner", STRUCTURE_BANNER_WIDTH),
   };
 }
 
@@ -209,7 +213,11 @@ function looksLikeMediaUrl(value: string): boolean {
   );
 }
 
-function resolveMediaUrl(value: string, media?: MediaRouter): string {
+function resolveMediaUrl(
+  value: string,
+  media: MediaRouter | undefined,
+  width: number
+): string {
   if (!value) {
     return "";
   }
@@ -217,7 +225,7 @@ function resolveMediaUrl(value: string, media?: MediaRouter): string {
     return value;
   }
   // media.php resolves relative URLs against the NaaS API URL and checks the host.
-  return media ? media.image(value) : value;
+  return media ? media.image(value, width) : value;
 }
 
 function displayText(value: unknown, depth = 0): string {
@@ -428,11 +436,17 @@ export function structureVisuals(
       ? fallbackKey
       : "";
   const logoUrl =
-    resolveMediaUrl(firstMatching(record, LOGO_KEYS, mediaUrl), media) ||
-    defaults.logoUrl;
+    resolveMediaUrl(
+      firstMatching(record, LOGO_KEYS, mediaUrl),
+      media,
+      STRUCTURE_LOGO_WIDTH
+    ) || defaults.logoUrl;
   const coverUrl =
-    resolveMediaUrl(firstMatching(record, IMAGE_KEYS, mediaUrl), media) ||
-    defaults.imageUrl;
+    resolveMediaUrl(
+      firstMatching(record, IMAGE_KEYS, mediaUrl),
+      media,
+      STRUCTURE_BANNER_WIDTH
+    ) || defaults.imageUrl;
   const imageUrl = coverUrl || logoUrl;
   return {
     name: name || acronym || fallbackLabel,

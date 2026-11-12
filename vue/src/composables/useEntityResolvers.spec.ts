@@ -71,8 +71,9 @@ describe("useEntityResolvers", () => {
       acronym: "ISAE",
       name: "ISAE-SUPAERO",
       logoUrl:
-        "/mod/naas/media.php?course=7&src=https%3A%2F%2Fcdn.example.test%2Flogo.svg",
-      imageUrl: "/mod/naas/media.php?course=7&structure=hash-2&variant=banner",
+        "/mod/naas/media.php?course=7&src=https%3A%2F%2Fcdn.example.test%2Flogo.svg&w=480",
+      imageUrl:
+        "/mod/naas/media.php?course=7&structure=hash-2&variant=banner&w=640",
       hasCover: true,
     });
   });
@@ -113,7 +114,7 @@ describe("useEntityResolvers", () => {
       name: "ISAE-SUPAERO",
       // Images go through Moodle, never straight to NaaS.
       logoUrl:
-        "https://moodle.test/mod/naas/media.php?course=7&src=https%3A%2F%2Fapi.example.test%2Fapi%2Fthumbnails%2Fstructure%2Fisae-supaero%2Fthumbnail",
+        "https://moodle.test/mod/naas/media.php?course=7&src=https%3A%2F%2Fapi.example.test%2Fapi%2Fthumbnails%2Fstructure%2Fisae-supaero%2Fthumbnail&w=480",
     });
     expect(getStructure).not.toHaveBeenCalled();
   });
@@ -189,9 +190,9 @@ describe("useEntityResolvers", () => {
       name: "cnes",
       acronym: "",
       logoUrl:
-        "https://moodle.test/mod/naas/media.php?course=7&structure=cnes&variant=thumbnail",
+        "https://moodle.test/mod/naas/media.php?course=7&structure=cnes&variant=thumbnail&w=480",
       imageUrl:
-        "https://moodle.test/mod/naas/media.php?course=7&structure=cnes&variant=banner",
+        "https://moodle.test/mod/naas/media.php?course=7&structure=cnes&variant=banner&w=640",
       hasCover: true,
     });
   });
