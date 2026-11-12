@@ -135,13 +135,11 @@ import {
   concealCguAgreement,
   restoreCguAgreement,
   setActivityDetailsVisible,
-} from "@/composables/moodleActivityForm";
-import { useProducerDirectory } from "@/entities/catalogue";
-import { useCatalogueCheck } from "@/composables/useCatalogueCheck";
-import {
   readStoredNuggetId,
   useNuggetSelection,
-} from "@/composables/useNuggetSelection";
+} from "@/features/pick-nugget";
+import { useProducerDirectory } from "@/entities/catalogue";
+import { useCatalogueCheck } from "@/composables/useCatalogueCheck";
 import "@/styles/naas-activity-form.css";
 
 const config = useNaasConfig();

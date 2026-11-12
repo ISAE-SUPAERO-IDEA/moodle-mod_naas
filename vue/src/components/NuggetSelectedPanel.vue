@@ -52,10 +52,7 @@ import { nextTick, onBeforeUnmount, ref, watch } from "vue";
 import { NuggetPost, NuggetSkeleton } from "@/entities/nugget";
 import NuggetViewModal from "./NuggetViewModal.vue";
 import { NuggetLoadingBanner } from "@/shared/ui";
-import {
-  placeCguAgreement,
-  restoreCguAgreement,
-} from "@/composables/moodleActivityForm";
+import { placeCguAgreement, restoreCguAgreement } from "@/features/pick-nugget";
 import type { Nugget } from "@/shared/api";
 
 const props = defineProps<{

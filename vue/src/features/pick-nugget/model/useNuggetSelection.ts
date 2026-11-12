@@ -26,7 +26,7 @@ import {
   readNuggetFormError,
   setActivityDetailsVisible,
   syncMoodleNuggetFields,
-} from "./moodleActivityForm";
+} from "../lib/moodleActivityForm";
 import type { Nugget } from "@/shared/api";
 
 /** The parts of useNuggetSearch() that reload a saved Nugget. */
