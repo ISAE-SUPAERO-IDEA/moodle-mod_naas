@@ -6,7 +6,7 @@
 | **Base** | `fix/small_modifications_ux` at a734c88. PR #132 is not merged yet: rebase onto `develop` once it is. |
 | **Working branch** | `chore/fsd_migration`, one commit (or short commit series) per story |
 | **Baseline** | a734c88: 62 source files (~9.6 k lines), 53 spec files, 100 % coverage on lines, statements, functions and branches |
-| **Status** | 🟡 In progress. Planned 2026-11-10, reviewed against the code and the NaaS workspace on 2026-11-12 (§11). S0a to S6 done on 2026-11-12; next: S7 (lock in and release). |
+| **Status** | ✅ Done on 2026-11-12 (S0a to S7), released as 3.1.0. Left to do outside this epic: push, the full CI (PHPUnit, Behat, PHPStan), the manual tests of 3.1.0, and the rebase onto `develop` once PR #132 is merged. |
 | **Estimate** | ≈ 8 to 9 working days |
 
 ---
@@ -370,6 +370,13 @@ No source file moves in this story, and the bundle must come out **byte-identica
 - Full CI: PHPUnit, Behat (they must pass unchanged, which proves no UI regression), widget coverage 100 %, PHPStan.
 - Check that the moodle.org zip still includes `vue/` sources (moodle.org packaging rule).
 
+**Result (2026-11-12): done.** 489 tests at 100 %, `lint:fsd` and `lint:check` with 0 error, bundle rebuilt.
+
+- **Architecture spec:** the `LEGACY` list and the rule about the old folders are removed, with the one test that covered them. `src/` may hold only the six layers, `test/` and `vite-env.d.ts`; anything else fails the spec.
+- **Steiger:** 0 error. Two documented exceptions in `steiger.config.mjs`: `fsd/insignificant-slice` is off (D10) and `fsd/segments-by-purpose` is off for `app/providers`.
+- **Release 3.1.0:** `version.php` is at 2026111200 / `3.1.0`, `CHANGES.md` has a 3.1.0 section (chore and upgrade notes), and the bundle is `naas_widget-2026111205.js`. Its content is byte-identical to the previous bundle: only the name changed. `pnpm bump-version` was given the number explicitly, because its default (today with `00`) would have gone below `2026111204`.
+- **Release archive:** `git archive` contains `vue/` with its sources and lockfile, and neither this file nor the review file.
+- **Not run here:** PHPUnit, Behat, PHPStan and the Moodle code checks, which run in CI on push.
 ## 7. Order and dependencies
 
 ```
@@ -409,13 +416,13 @@ Work bottom-up: each story moves the files that every later layer depends on, so
 
 ## 10. Definition of done (EPIC)
 
-- [ ] `vue/src/` follows §3.2. The old folders `components/`, `composables/`, `types/`, `service/`, `plugins/`, `utils/`, `styles/` are gone.
-- [ ] Every slice and every `shared/` segment has an `index.ts` with a GPL header. No deep import from outside a slice.
-- [ ] V1 and V3–V8 fixed. `pnpm lint:fsd` reports 0 error and `LEGACY` in `architecture.spec.ts` is **empty**.
-- [ ] `pnpm type-check` ✅, `pnpm lint:check` ✅, `pnpm coverage` 100 / 100 / 100 / 100 ✅, committed bundle matches the sources ✅.
-- [ ] Behat and PHPUnit unchanged ✅ (no functional change).
-- [ ] `vue/README.md` documents the toolchain, the layers, the rules and the §8 table.
-- [ ] Bundle and plugin version bumped once. `CHANGES.md` updated.
+- [x] `vue/src/` follows §3.2. The old folders `components/`, `composables/`, `types/`, `service/`, `plugins/`, `utils/`, `styles/` are gone.
+- [x] Every slice and every `shared/` segment has an `index.ts` with a GPL header. No deep import from outside a slice.
+- [x] V1 and V3–V8 fixed. `pnpm lint:fsd` reports 0 error and the architecture spec has no list of old folders left.
+- [x] `pnpm type-check` ✅, `pnpm lint:check` ✅, `pnpm coverage` 100 / 100 / 100 / 100 ✅, committed bundle matches the sources ✅.
+- [ ] Behat and PHPUnit unchanged (no functional change): to confirm in CI after the push.
+- [x] `vue/README.md` documents the toolchain, the layers, the rules and the §8 table.
+- [x] Bundle and plugin version bumped once. `CHANGES.md` updated.
 
 ## 11. Review of 2026-11-12
 
