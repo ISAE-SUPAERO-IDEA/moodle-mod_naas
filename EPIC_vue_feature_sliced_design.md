@@ -6,7 +6,7 @@
 | **Base** | `fix/small_modifications_ux` at a734c88. PR #132 is not merged yet: rebase onto `develop` once it is. |
 | **Working branch** | `chore/fsd_migration`, one commit (or short commit series) per story |
 | **Baseline** | a734c88: 62 source files (~9.6 k lines), 53 spec files, 100 % coverage on lines, statements, functions and branches |
-| **Status** | 🟡 In progress. Planned 2026-11-10, reviewed against the code and the NaaS workspace on 2026-11-12 (§11). S0a, S0b and S1 done on 2026-11-12; next: S2. |
+| **Status** | 🟡 In progress. Planned 2026-11-10, reviewed against the code and the NaaS workspace on 2026-11-12 (§11). S0a, S0b, S1 and S2 done on 2026-11-12; next: S3. |
 | **Estimate** | ≈ 8 to 9 working days |
 
 ---
@@ -192,7 +192,7 @@ vue/src/
 | V4 | `useEntityResolvers` resolves domain + structure + person in one composable | spans 3 entities | Split into `entities/domain/api`, `entities/catalogue/api`, `entities/person/api`. It has three users: `useFacetLabels` (feature), `NuggetBrowseLanding` (widget) and `NuggetAboutModal` (entity, see V7). **Keep the per-page caches** (same keys, resolved once). | S2 |
 | V5 | `NuggetLoadingBanner` and `NuggetSkeleton` are used by two widgets (`search-results`, `selected-nugget`) | widget → widget would be forbidden | Banner → `shared/ui`, skeleton → `entities/nugget/ui` | S1, S3 |
 | V6 | Nugget/Person/Domain types import each other | entity ↔ entity | D1: DTOs in `shared/api/types` | S1 |
-| V7 | `NuggetAboutModal.vue` calls `getStructureAcronym` from `useEntityResolvers` | entity (`nugget`) → entity (`catalogue`) | D9: `entities/catalogue/@x/nugget/index.ts` exports the structure resolver. This is why the catalogue story comes before the nugget story. | S2, S3 |
+| V7 | `NuggetAboutModal.vue` calls `getStructureAcronym` from `useEntityResolvers` | entity (`nugget`) → entity (`catalogue`) | D9: `entities/catalogue/@x/nugget/index.ts` exports the structure resolver. This is why the catalogue story comes before the nugget story. | S3 |
 | V8 | `useMoodleService.ts` imports `NAAS_API_KEY` from `plugins/naas-api.plugin.ts`. So do 10 specs and `test/widgetFixtures.ts`. | shared → app | `NAAS_API_KEY` moves to `shared/api/naasApiKey.ts`. The plugin, the specs and the fixtures import it from `@/shared/api`. | S1 |
 
 ## 6. Stories
@@ -265,16 +265,26 @@ No source file moves in this story, and the bundle must come out **byte-identica
 
 ### S2 — `entities/catalogue`, `entities/domain`, `entities/person` (≈ 1 d)
 
-- `catalogue`: `catalogueSnapshot`, `producerDirectory`, `structureVisuals` (without the key helpers), `useProducerDirectory`, `structureResolvers` (structure part of `useEntityResolvers`, including `visualsFromSnapshot`), and `@x/nugget/index.ts` (V7).
+- `catalogue`: `catalogueSnapshot`, `producerDirectory`, `structureVisuals` (without the key helpers), `useProducerDirectory`, `structureResolvers` (structure part of `useEntityResolvers`, including `visualsFromSnapshot`). The `@x/nugget/index.ts` entry point (V7) is created in S3, with its first user.
 - `domain` / `person`: one resolver each, split out of `useEntityResolvers` (V4).
 - Delete `useEntityResolvers.ts`. Split its spec into the three slices **without lowering branch coverage** (the cache and error-fallback cases must each have a test).
 
 **Done when** no import goes from one entity to another except through `@x`, and the facet labels behave the same (existing `useFacetLabels` specs pass unchanged).
 
+**Result (2026-11-12): done**, in one commit. 10 files moved to `entities/catalogue`, 9 files with rewritten imports, and `useEntityResolvers` split in three: `useStructureResolvers` (catalogue), `useDomainResolvers`, `usePersonResolvers`. All checks pass: 485 tests at 100 %, `lint:fsd` and `lint:check` with 0 error. The `useFacetLabels` specs pass unchanged.
+
+- **No cache to keep.** `useEntityResolvers` held no cache of its own: the "resolved once per page" memory is `resolvedLabels` in `useFacetLabels` and the web service cache in `shared/api`. Both are untouched.
+- **`stringField`** (first non-blank text among several keys) was private to the old file and is needed by the domain and person resolvers: it is now `shared/lib/stringField.ts`, with a spec.
+- **The eleven tests are split** by entity: five for structures, two for domains, four for persons. Their common `withProviders` helper moved to `src/test/withProviders.ts`.
+- **`@x/nugget` is not created yet.** Until S3 the About sheet is still in `components/` and takes `useStructureResolvers` from `@/entities/catalogue`. The entry point comes in S3 with its first user, so that no file sits unused.
+- **Coverage counts** rose by 8 statements and 2 functions: three composables each inject the service and the configuration, where one did before.
+- **Bundle:** same CSS rules; three more licence comments (four new modules, one removed) and 92 bytes more code without comments. 3 scoped-style ids changed.
+- git records `useEntityResolvers.ts` as deleted and `structureResolvers.ts` as new: two thirds of the file left it.
+
 ### S3 — `entities/nugget` (≈ 1 d)
 
 - **Commit 1 (logic, V1), files still in `components/`:** `NuggetPost` emits `PreviewButton` and no longer imports `NuggetViewModal`. `NuggetResultsGrid` and `NuggetSelectedPanel` hold the previewed Nugget and render the modal. The preview tests move from `NuggetPost.spec.ts` to the two widget specs. The logic change comes first because, once in `entities/`, the card may not import `components/NuggetViewModal.vue`.
-- **Commit 2 (moves):** `NuggetPost`, `NuggetSkeleton`, `NuggetAboutModal`, `useNuggetEnricher`, `nuggetLicence`. `NuggetAboutModal` takes the structure resolver from `@/entities/catalogue/@x/nugget`. The `NuggetSkeleton` part of `skeletons.spec.ts` moves with it.
+- **Commit 2 (moves):** `NuggetPost`, `NuggetSkeleton`, `NuggetAboutModal`, `useNuggetEnricher`, `nuggetLicence`. Create `entities/catalogue/@x/nugget/index.ts`; `NuggetAboutModal` takes `useStructureResolvers` from it. The `NuggetSkeleton` part of `skeletons.spec.ts` moves with it.
 - Keep the a11y tests: focus goes back to the Preview button on close (`useModalA11y` remembers the opener), `aria-pressed` on Select, `aria-describedby` on the three buttons.
 
 **Done when** `entities/nugget` imports only `shared/` and `entities/catalogue/@x/nugget`.
