@@ -196,9 +196,9 @@ $string['naas_settings_password_help'] = 'Password for the NaaS API. There is no
 $string['naas_settings_privacy'] = 'Privacy';
 $string['naas_settings_privacy_information'] = 'When both options below are enabled, the learner\'s name and email are sent to NaaS so sessions can be personalised. If either option is off, learning traces stay anonymous on NaaS (anonymous mode). The data is stored on the NaaS server and is not shared with third parties.';
 $string['naas_settings_privacy_learner_mail'] = 'Send learner email to NaaS';
-$string['naas_settings_privacy_learner_mail_help'] = 'Send the learner\'s Moodle email when they open a Nugget. NaaS can use it to link the same person across Nuggets.';
+$string['naas_settings_privacy_learner_mail_help'] = 'Send the learner\'s Moodle email when they open a Nugget. NaaS can use it to link the same person across Nuggets. It is sent only when "Send learner name to NaaS" is enabled too; otherwise the learner stays anonymous.';
 $string['naas_settings_privacy_learner_name'] = 'Send learner name to NaaS';
-$string['naas_settings_privacy_learner_name_help'] = 'Send the learner\'s Moodle full name when they open a Nugget, so NaaS can personalise the experience.';
+$string['naas_settings_privacy_learner_name_help'] = 'Send the learner\'s Moodle full name when they open a Nugget, so NaaS can personalise the experience. It is sent only when "Send learner email to NaaS" is enabled too; otherwise the learner stays anonymous.';
 $string['naas_settings_require_outcome_oauth'] = 'Require OAuth signature on grade passback';
 $string['naas_settings_require_outcome_oauth_help'] = 'When enabled, Moodle rejects LTI Basic Outcomes (replaceResult) that are not signed with the nugget\'s LTI key/secret (OAuth body-hash).
 

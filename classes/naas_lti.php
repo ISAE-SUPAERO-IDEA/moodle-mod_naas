@@ -161,10 +161,10 @@ class naas_lti {
             "custom_naas" => json_encode($custom),
         ];
 
-        if (!empty($config->naas_privacy_learner_name)) {
+        // Personalised session only when both options are on; with either one off the
+        // learner stays anonymous on NaaS, as the Privacy section of the settings says.
+        if (!empty($config->naas_privacy_learner_name) && !empty($config->naas_privacy_learner_mail)) {
             $launchdata["lis_person_name_full"] = $USER->firstname . " " . $USER->lastname;
-        }
-        if (!empty($config->naas_privacy_learner_mail)) {
             $launchdata["lis_person_contact_email_primary"] = $USER->email;
         }
 

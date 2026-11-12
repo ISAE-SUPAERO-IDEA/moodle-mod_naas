@@ -101,4 +101,20 @@ final class widget_test extends advanced_testcase {
             $this->assertArrayNotHasKey('naas_endpoint', $config);
         }
     }
+
+    /**
+     * The completion modal shows the rating only when "Allow learners to rate Nuggets" is on.
+     */
+    public function test_rating_enabled_follows_the_feedback_setting(): void {
+        $this->resetAfterTest(true);
+
+        set_config('naas_feedback', '1', 'naas');
+        $this->assertTrue($this->exported_config('NuggetView')['rating_enabled']);
+
+        set_config('naas_feedback', '0', 'naas');
+        $this->assertFalse($this->exported_config('NuggetView')['rating_enabled']);
+
+        unset_config('naas_feedback', 'naas');
+        $this->assertFalse($this->exported_config('NuggetView')['rating_enabled']);
+    }
 }

@@ -35,7 +35,8 @@
           class="nugget-modal"
           role="dialog"
           aria-modal="true"
-          :aria-labelledby="titleId"
+          :aria-labelledby="ratingEnabled ? titleId : undefined"
+          :aria-label="ratingEnabled ? undefined : config.labels.learning_outcomes_desc"
           tabindex="-1"
           @click.stop
         >
@@ -50,7 +51,7 @@
             </button>
           </div>
 
-          <div class="nugget-modal-body">
+          <div v-if="ratingEnabled" class="nugget-modal-body">
             <h2 :id="titleId" class="rating-title">
               {{ config.labels.rating.title }}
             </h2>
@@ -138,7 +139,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, useId } from "vue";
+import { computed, ref, onMounted, useId } from "vue";
 import { useNaasConfig } from "@/composables/useNaasConfig";
 import { useModalA11y } from "@/composables/useModalA11y";
 import { fillLabel } from "@/utils/fillLabel";
@@ -158,6 +159,8 @@ const dialog = ref<HTMLElement | null>(null);
 const titleId = useId();
 useModalA11y(() => props.visible, dialog, () => emit("close"));
 
+// The admin setting "Allow learners to rate Nuggets"; older configs without it keep rating.
+const ratingEnabled = computed(() => config.rating_enabled !== false);
 const savedRating = ref<number | null>(null);
 const ratingSent = ref(false);
 const backLink = ref("#");

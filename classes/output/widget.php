@@ -40,7 +40,7 @@ class widget implements renderable, templatable {
      * Version suffix of the Vue bundle shipped in assets/vue/naas_widget-<version>.js.
      * Kept in sync with BUNDLE_VERSION in vue/vite.config.ts by vue/scripts/bump-version.js.
      */
-    public const BUNDLE_VERSION = '2026110605';
+    public const BUNDLE_VERSION = '2026111200';
 
     /** @var int The nugget ID. */
     protected $nuggetid;
@@ -93,6 +93,8 @@ class widget implements renderable, templatable {
             "cm_id" => $this->cmid,
             "catalogue_snapshot" => $snapshot,
             "license_filter" => \mod_naas\catalogue_filters::widget_license_config(),
+            // Same rule as the LTI "feedback" option sent to the player (naas_lti::lti_custom_options).
+            "rating_enabled" => (string) get_config('naas', 'naas_feedback') === '1',
             "labels" => [
                 "error_generic_user_message" => get_string("error:generic_user_message", "naas"),
                 "error_nugget_not_found" => get_string("error_nugget_not_found", "naas"),

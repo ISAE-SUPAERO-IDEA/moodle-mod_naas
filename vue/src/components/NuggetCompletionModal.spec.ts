@@ -44,13 +44,16 @@ function addCourseLinks(next = "https://moodle.test/mod/page/view.php?id=55") {
   );
 }
 
-async function openCompletion(nugget: Nugget = makeNugget()) {
+async function openCompletion(
+  nugget: Nugget = makeNugget(),
+  config = makeConfig()
+) {
   const service = makeService();
   const props = reactive({ nugget, visible: false });
   mounted = mountComponent(
     NuggetCompletionModal,
     props,
-    providers(makeConfig(), service)
+    providers(config, service)
   );
   props.visible = true;
   await mounted.flush();
@@ -67,6 +70,31 @@ describe("NuggetCompletionModal", () => {
     mounted = null;
     document.body.innerHTML = "";
     vi.useRealTimers();
+  });
+
+  it("hides the rating when the admin turned learner rating off", async () => {
+    const nugget = makeNugget({ learning_outcomes: ["Explain GNSS"] });
+    const { dialog } = await openCompletion(
+      nugget,
+      makeConfig({ rating_enabled: false })
+    );
+
+    expect(stars(dialog)).toHaveLength(0);
+    expect(dialog.querySelector("#send-rating")).toBeNull();
+    expect(dialog.textContent).not.toContain("Rate");
+    expect(dialog.hasAttribute("aria-labelledby")).toBe(false);
+    expect(dialog.getAttribute("aria-label")).toBe("You can now:");
+    expect(dialog.textContent).toContain("Explain GNSS");
+  });
+
+  it("keeps the rating when the setting is on", async () => {
+    const { dialog } = await openCompletion(
+      makeNugget(),
+      makeConfig({ rating_enabled: true })
+    );
+
+    expect(stars(dialog)).toHaveLength(5);
+    expect(dialog.querySelector("#send-rating")).not.toBeNull();
   });
 
   it("is a modal dialog labelled by the rating title", async () => {

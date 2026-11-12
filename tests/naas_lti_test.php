@@ -289,6 +289,22 @@ final class naas_lti_test extends advanced_testcase {
 
         $this->assertStringNotContainsString('John Doe', $output2);
         $this->assertStringNotContainsString('john@example.com', $output2);
+
+        // 3. Only one option on: the session stays anonymous, neither field is sent.
+        $onlyone = [
+            ['naas_privacy_learner_name', 'naas_privacy_learner_mail'],
+            ['naas_privacy_learner_mail', 'naas_privacy_learner_name'],
+        ];
+        foreach ($onlyone as [$on, $off]) {
+            set_config($on, 1, 'naas');
+            set_config($off, 0, 'naas');
+
+            $output = naas_lti::lti_launch($naas->cmid, '', $client);
+
+            $this->assertStringNotContainsString('John Doe', $output, "$on alone");
+            $this->assertStringNotContainsString('john@example.com', $output, "$on alone");
+            $this->assertStringNotContainsString('lis_person_', $output, "$on alone");
+        }
     }
 
     /**

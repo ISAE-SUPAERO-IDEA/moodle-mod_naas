@@ -158,6 +158,8 @@ export interface NaasConfig {
   nugget_id?: string;
   catalogue_snapshot?: CatalogueSnapshot | null;
   license_filter?: LicenseFilterConfig;
+  /** Admin setting "Allow learners to rate Nuggets"; absent means enabled. */
+  rating_enabled?: boolean;
   labels: NaasLabels;
 }
 
