@@ -195,7 +195,9 @@ function truncate(text: string, length: number): string {
   border-radius: var(--naas-radius, 8px);
   box-shadow: var(--naas-shadow-sm, 0 2px 8px rgba(0, 0, 0, 0.08));
   overflow: hidden;
-  transition: border-color 0.18s ease, box-shadow 0.18s ease,
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease,
     transform 0.18s ease;
 }
 
@@ -380,7 +382,8 @@ function truncate(text: string, length: number): string {
   align-items: center;
   justify-content: center;
   gap: 0.25rem;
-  transition: background var(--naas-transition, 0.18s ease),
+  transition:
+    background var(--naas-transition, 0.18s ease),
     color var(--naas-transition, 0.18s ease),
     box-shadow var(--naas-transition, 0.18s ease);
 }

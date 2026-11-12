@@ -44,9 +44,8 @@ describe("useProducerDirectory", () => {
   });
 
   it("keeps the same directory reference when the landing reports no new name (B4 loop guard)", () => {
-    const { producerDirectory, onProducersNamed } = useProducerDirectory(
-      snapshot()
-    );
+    const { producerDirectory, onProducersNamed } =
+      useProducerDirectory(snapshot());
     const before = producerDirectory.value;
 
     onProducersNamed([{ id: ONERA_UUID, acronym: "", name: "ONERA" }]);

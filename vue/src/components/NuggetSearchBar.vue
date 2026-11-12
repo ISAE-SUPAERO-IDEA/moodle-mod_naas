@@ -176,7 +176,8 @@ const config = useNaasConfig();
   background: var(--naas-surface, #fff);
   font-size: 0.875rem;
   color: var(--naas-text, #1f2937);
-  transition: border-color var(--naas-transition, 0.18s ease),
+  transition:
+    border-color var(--naas-transition, 0.18s ease),
     box-shadow var(--naas-transition, 0.18s ease);
   outline: none;
   line-height: 1.5;
@@ -229,7 +230,10 @@ const config = useNaasConfig();
   color: var(--naas-text, #1f2937);
   cursor: pointer;
   white-space: nowrap;
-  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease,
+  transition:
+    border-color 0.15s ease,
+    color 0.15s ease,
+    background 0.15s ease,
     box-shadow 0.15s ease;
   flex-shrink: 0;
 }

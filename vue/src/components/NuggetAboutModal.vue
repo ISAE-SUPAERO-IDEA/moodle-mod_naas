@@ -454,10 +454,14 @@ const inBriefShown = computed(
 }
 
 .modal-fade-enter-active {
-  transition: opacity 0.22s ease, transform 0.22s ease;
+  transition:
+    opacity 0.22s ease,
+    transform 0.22s ease;
 }
 .modal-fade-leave-active {
-  transition: opacity 0.18s ease, transform 0.18s ease;
+  transition:
+    opacity 0.18s ease,
+    transform 0.18s ease;
 }
 .modal-fade-enter-from {
   opacity: 0;

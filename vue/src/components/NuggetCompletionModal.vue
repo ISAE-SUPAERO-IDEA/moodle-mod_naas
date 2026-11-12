@@ -36,7 +36,9 @@
           role="dialog"
           aria-modal="true"
           :aria-labelledby="ratingEnabled ? titleId : undefined"
-          :aria-label="ratingEnabled ? undefined : config.labels.learning_outcomes_desc"
+          :aria-label="
+            ratingEnabled ? undefined : config.labels.learning_outcomes_desc
+          "
           tabindex="-1"
           @click.stop
         >
@@ -67,7 +69,9 @@
                 :class="{ checked: savedRating === MAX_SCORE + 1 - i }"
                 role="radio"
                 :aria-checked="savedRating === MAX_SCORE + 1 - i"
-                :aria-label="fillLabel(config.labels.rating.value, MAX_SCORE + 1 - i)"
+                :aria-label="
+                  fillLabel(config.labels.rating.value, MAX_SCORE + 1 - i)
+                "
                 tabindex="0"
                 @click="savedRating = MAX_SCORE + 1 - i"
                 @keydown.enter.space.prevent="savedRating = MAX_SCORE + 1 - i"
@@ -157,7 +161,11 @@ const { postStatement } = useXapi();
 
 const dialog = ref<HTMLElement | null>(null);
 const titleId = useId();
-useModalA11y(() => props.visible, dialog, () => emit("close"));
+useModalA11y(
+  () => props.visible,
+  dialog,
+  () => emit("close")
+);
 
 // The admin setting "Allow learners to rate Nuggets"; older configs without it keep rating.
 const ratingEnabled = computed(() => config.rating_enabled !== false);
@@ -264,7 +272,8 @@ function goToNextResource() {
   line-height: 1;
   border-radius: var(--naas-radius, 8px);
   cursor: pointer;
-  transition: color var(--naas-transition, 0.18s ease),
+  transition:
+    color var(--naas-transition, 0.18s ease),
     background var(--naas-transition, 0.18s ease);
 }
 
@@ -299,7 +308,9 @@ function goToNextResource() {
   color: #6b7280;
   padding: 0 2px;
   cursor: pointer;
-  transition: color 0.12s ease, transform 0.12s ease;
+  transition:
+    color 0.12s ease,
+    transform 0.12s ease;
   outline: none;
 }
 
@@ -335,7 +346,8 @@ function goToNextResource() {
   font-size: 0.9rem;
   font-weight: 700;
   cursor: pointer;
-  transition: background var(--naas-transition, 0.18s ease),
+  transition:
+    background var(--naas-transition, 0.18s ease),
     opacity var(--naas-transition, 0.18s ease);
 }
 
@@ -411,7 +423,8 @@ function goToNextResource() {
   font-size: 0.875rem;
   font-weight: 600;
   text-decoration: none;
-  transition: background var(--naas-transition, 0.18s ease),
+  transition:
+    background var(--naas-transition, 0.18s ease),
     box-shadow var(--naas-transition, 0.18s ease);
 }
 
@@ -439,10 +452,14 @@ function goToNextResource() {
 }
 
 .modal-fade-enter-active {
-  transition: opacity 0.22s ease, transform 0.22s ease;
+  transition:
+    opacity 0.22s ease,
+    transform 0.22s ease;
 }
 .modal-fade-leave-active {
-  transition: opacity 0.16s ease, transform 0.16s ease;
+  transition:
+    opacity 0.16s ease,
+    transform 0.16s ease;
 }
 .modal-fade-enter-from {
   opacity: 0;

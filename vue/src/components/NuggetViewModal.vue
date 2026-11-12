@@ -183,7 +183,8 @@ useModalA11y(() => props.visible, dialog, close);
   background: transparent;
   border-radius: var(--naas-radius, 8px);
   cursor: pointer;
-  transition: color var(--naas-transition, 0.18s ease),
+  transition:
+    color var(--naas-transition, 0.18s ease),
     background var(--naas-transition, 0.18s ease);
 }
 
@@ -212,10 +213,14 @@ useModalA11y(() => props.visible, dialog, close);
 
 /* ── Animation: fade + slide up ── */
 .modal-fade-enter-active {
-  transition: opacity 0.22s ease, transform 0.22s ease;
+  transition:
+    opacity 0.22s ease,
+    transform 0.22s ease;
 }
 .modal-fade-leave-active {
-  transition: opacity 0.18s ease, transform 0.18s ease;
+  transition:
+    opacity 0.18s ease,
+    transform 0.18s ease;
 }
 .modal-fade-enter-from {
   opacity: 0;

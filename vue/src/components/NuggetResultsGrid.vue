@@ -156,7 +156,8 @@ const config = useNaasConfig();
 /* ── Selected state ────────────────────────────────────────────────────── */
 .nugget-post-selected :deep(.nugget-post) {
   border-color: var(--naas-primary, #0f6cbf);
-  box-shadow: 0 0 0 2px rgba(15, 108, 191, 0.22),
+  box-shadow:
+    0 0 0 2px rgba(15, 108, 191, 0.22),
     0 8px 20px rgba(15, 108, 191, 0.16);
 }
 </style>

@@ -250,7 +250,8 @@ function closeAll() {
   color: #dc3545;
   cursor: pointer;
   white-space: nowrap;
-  transition: background var(--naas-transition, 0.18s ease),
+  transition:
+    background var(--naas-transition, 0.18s ease),
     color var(--naas-transition, 0.18s ease);
 }
 

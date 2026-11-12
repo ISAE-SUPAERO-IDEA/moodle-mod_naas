@@ -102,7 +102,8 @@ export function useCatalogueCheck(options: CatalogueCheckOptions) {
       // instead of "No producers in this catalogue yet".
       const hasLanding = Object.keys(facetAggregations.value).length > 0;
       if (!hasLanding) {
-        catalogueError.value = e instanceof Error ? e : new Error(errorMessage(e));
+        catalogueError.value =
+          e instanceof Error ? e : new Error(errorMessage(e));
       }
     } finally {
       catalogueLoading.value = false;

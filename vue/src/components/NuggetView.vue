@@ -298,7 +298,8 @@ function complete() {
   appearance: none;
   font-size: 0.875rem;
   color: var(--naas-text, #1f2937);
-  transition: border-color var(--naas-transition, 0.18s ease),
+  transition:
+    border-color var(--naas-transition, 0.18s ease),
     box-shadow var(--naas-transition, 0.18s ease);
   outline: none;
 }
@@ -339,7 +340,8 @@ function complete() {
   border-radius: var(--naas-radius-pill, 999px);
   letter-spacing: 0.02em;
   box-shadow: var(--naas-shadow-sm, 0 2px 8px rgba(0, 0, 0, 0.1));
-  transition: background var(--naas-transition, 0.18s ease),
+  transition:
+    background var(--naas-transition, 0.18s ease),
     box-shadow var(--naas-transition, 0.18s ease),
     transform var(--naas-transition, 0.18s ease);
 }

@@ -49,21 +49,54 @@ export function setActivityDetailsVisible(visible: boolean): void {
   if (!form) {
     return;
   }
-  form.setAttribute(
-    ACTIVITY_DETAILS_FORM_ATTR,
-    visible ? "visible" : "hidden"
-  );
+  form.setAttribute(ACTIVITY_DETAILS_FORM_ATTR, visible ? "visible" : "hidden");
 }
 
 /** Formatting tags kept from a NaaS description; everything else is unwrapped or dropped. */
 const DESCRIPTION_TAGS = new Set([
-  "P", "BR", "STRONG", "B", "EM", "I", "U", "UL", "OL", "LI", "A",
-  "H2", "H3", "H4", "H5", "H6", "BLOCKQUOTE", "CODE", "PRE", "SPAN", "SUB", "SUP",
+  "P",
+  "BR",
+  "STRONG",
+  "B",
+  "EM",
+  "I",
+  "U",
+  "UL",
+  "OL",
+  "LI",
+  "A",
+  "H2",
+  "H3",
+  "H4",
+  "H5",
+  "H6",
+  "BLOCKQUOTE",
+  "CODE",
+  "PRE",
+  "SPAN",
+  "SUB",
+  "SUP",
 ]);
 /** Elements removed together with their content. */
 const DESCRIPTION_DROPPED_TAGS = new Set([
-  "SCRIPT", "STYLE", "IFRAME", "FRAME", "OBJECT", "EMBED", "TEMPLATE", "SVG", "MATH",
-  "NOSCRIPT", "LINK", "META", "BASE", "FORM", "INPUT", "BUTTON", "TEXTAREA", "SELECT",
+  "SCRIPT",
+  "STYLE",
+  "IFRAME",
+  "FRAME",
+  "OBJECT",
+  "EMBED",
+  "TEMPLATE",
+  "SVG",
+  "MATH",
+  "NOSCRIPT",
+  "LINK",
+  "META",
+  "BASE",
+  "FORM",
+  "INPUT",
+  "BUTTON",
+  "TEXTAREA",
+  "SELECT",
 ]);
 const SAFE_HREF = /^(https?:|mailto:)/i;
 
@@ -209,7 +242,11 @@ export function placeCguAgreement(anchor: HTMLElement | null): void {
   }
   item.classList.add(CGU_FIELD_CLASS);
   const parent = item.parentNode;
-  if (parent && parent !== anchor && (!cguHome || !cguHome.parent.isConnected)) {
+  if (
+    parent &&
+    parent !== anchor &&
+    (!cguHome || !cguHome.parent.isConnected)
+  ) {
     cguHome = { parent, next: item.nextSibling };
   }
   if (item.parentElement !== anchor) {

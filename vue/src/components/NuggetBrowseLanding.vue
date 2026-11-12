@@ -381,7 +381,9 @@ watch(
   overflow: hidden;
   cursor: pointer;
   color: inherit;
-  transition: border-color 0.18s ease, box-shadow 0.18s ease,
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease,
     transform 0.18s ease;
 }
 

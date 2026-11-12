@@ -92,7 +92,7 @@ export function useFacetLabels(options: FacetLabelOptions) {
     const known = networkLabels();
     return {
       ...(known?.[aggName] ?? {}),
-      ...(aggName === "related_domains" ? known?.domains ?? {} : {}),
+      ...(aggName === "related_domains" ? (known?.domains ?? {}) : {}),
       ...(resolvedLabels.value[aggName] ?? {}),
     };
   }

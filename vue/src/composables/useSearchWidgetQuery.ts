@@ -105,7 +105,9 @@ export function useSearchWidgetQuery(options: SearchWidgetQueryOptions) {
       ) {
         facetAggregations.value = result.aggregations;
       }
-      const loaded = append ? nuggets.value.length : result.items?.length ?? 0;
+      const loaded = append
+        ? nuggets.value.length
+        : (result.items?.length ?? 0);
       hasMore.value = loaded < result.results_count;
     }
   }

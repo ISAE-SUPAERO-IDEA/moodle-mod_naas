@@ -49,11 +49,11 @@ function setup(results: Array<SearchResult | null> = [], near = false) {
   const facetAggregations = ref<Record<string, AggregationResult>>({});
   const sentinelIsNear = vi.fn(() => near);
   const search = vi.fn(async (_options: SearchOptions, append?: boolean) => {
-    const result = results.length > 1 ? results.shift()! : results[0] ?? null;
+    const result = results.length > 1 ? results.shift()! : (results[0] ?? null);
     if (result) {
       nuggets.value = append
         ? [...nuggets.value, ...(result.items ?? [])]
-        : result.items ?? [];
+        : (result.items ?? []);
     }
     return result;
   });

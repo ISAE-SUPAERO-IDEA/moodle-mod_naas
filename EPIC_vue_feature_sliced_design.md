@@ -248,7 +248,7 @@ No source file moves in this story, and the bundle must come out **byte-identica
 - `shared/lib`: `debounce`, `fillLabel`, `formatDate`, **new `entityKeys.ts`** (V3) with tests moved from `structureVisuals.spec.ts`.
 - `shared/ui`: `clickOutside`, `useModalA11y`, `useLoadMoreSentinel`, `NuggetLoadingBanner` (V5).
 - One `index.ts` per segment, named exports only.
-- Optional first commit (`style:`): format the 22 files Prettier 3 reports. It changes `.vue` sources, hence the bundle, which this story rebuilds anyway.
+- First commit (`style:`), done on 2026-11-12 before any move: the 22 files Prettier 3 reported are formatted. 37 lint warnings are left (complexity and Vue style rules). The rebuilt bundle is identical to the previous one once the scoped-style ids are masked (10 ids changed).
 - Delete `service/`, `utils/`, `types/`, their three entries in `LEGACY` (`architecture.spec.ts`) and the `src/types` block in `steiger.config.mjs`. Update `vitest.config.ts` (`exclude: src/types/*` → `src/shared/api/types/*`), the 10 specs and `test/widgetFixtures.ts` that import `NAAS_API_KEY`.
 
 **Done when** `shared/` imports nothing outside itself and there is no `@/types/`, `@/service/` or `@/utils/` import left.

@@ -52,7 +52,7 @@ describe("searchAggregations", () => {
         { key: "beginner", docCount: 20 },
       ],
       ["advanced"],
-      (key) => ({ advanced: "Advanced", beginner: "Beginner" }[key] ?? key)
+      (key) => ({ advanced: "Advanced", beginner: "Beginner" })[key] ?? key
     );
 
     expect(mapped.labelsResolved).toBe(true);

@@ -137,7 +137,8 @@ function onEscape(event: KeyboardEvent): void {
   font-weight: 500;
   color: var(--naas-text, #1f2937);
   cursor: pointer;
-  transition: border-color var(--naas-transition, 0.18s ease),
+  transition:
+    border-color var(--naas-transition, 0.18s ease),
     background var(--naas-transition, 0.18s ease),
     color var(--naas-transition, 0.18s ease);
   line-height: 1.4;
@@ -257,7 +258,9 @@ function onEscape(event: KeyboardEvent): void {
 /* ── Dropdown slide-down transition ── */
 .dropdown-fade-enter-active,
 .dropdown-fade-leave-active {
-  transition: opacity 0.16s ease, transform 0.16s ease;
+  transition:
+    opacity 0.16s ease,
+    transform 0.16s ease;
 }
 .dropdown-fade-enter-from,
 .dropdown-fade-leave-to {

@@ -33,9 +33,9 @@ Run them from this `vue/` folder.
 | `pnpm build` | Type-check, then write the bundle (CSS included) to `../assets/vue/` |
 | `pnpm bump-version [YYYYMMDDnn]` | Rename the bundle (defaults to today's date) |
 
-About twenty files still have the formatting of Prettier 2: ESLint reports them as
-`prettier/prettier` warnings. `pnpm lint` and `pnpm format` rewrite them, and a change in a
-`.vue` file changes the bundle, so rebuild and commit it in the same commit.
+`pnpm lint` and `pnpm format` rewrite files. Any change in a `.vue` file, even of formatting,
+changes its scoped-style id and so the bundle: rebuild and commit it in the same commit.
+Markdown files are left out of Prettier (`.prettierignore`).
 
 ## Architecture
 

@@ -72,13 +72,9 @@ export function useEntityResolvers() {
     }
     try {
       const structure = await service.getStructure(key, config.courseId);
-      return fromVisuals(
-        structureVisuals(structure, key, media)
-      );
+      return fromVisuals(structureVisuals(structure, key, media));
     } catch {
-      return fromVisuals(
-        structureVisuals(null, key, media)
-      );
+      return fromVisuals(structureVisuals(null, key, media));
     }
   }
 
@@ -89,11 +85,7 @@ export function useEntityResolvers() {
     }
     try {
       const structure = await service.getStructure(key, config.courseId);
-      const visuals = structureVisuals(
-        structure,
-        key,
-        media
-      );
+      const visuals = structureVisuals(structure, key, media);
       return visuals;
     } catch {
       return structureVisuals(null, key, media);
