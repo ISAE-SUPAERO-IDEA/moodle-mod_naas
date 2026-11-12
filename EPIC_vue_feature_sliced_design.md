@@ -6,7 +6,7 @@
 | **Base** | `fix/small_modifications_ux` at a734c88. PR #132 is not merged yet: rebase onto `develop` once it is. |
 | **Working branch** | `chore/fsd_migration`, one commit (or short commit series) per story |
 | **Baseline** | a734c88: 62 source files (~9.6 k lines), 53 spec files, 100 % coverage on lines, statements, functions and branches |
-| **Status** | 🟡 In progress. Planned 2026-11-10, reviewed against the code and the NaaS workspace on 2026-11-12 (§11). S0a, S0b, S1 and S2 done on 2026-11-12; next: S3. |
+| **Status** | 🟡 In progress. Planned 2026-11-10, reviewed against the code and the NaaS workspace on 2026-11-12 (§11). S0a, S0b, S1, S2 and the first commit of S3 done on 2026-11-12; next: S3 commit 2 (moves). |
 | **Estimate** | ≈ 8 to 9 working days |
 
 ---
@@ -288,6 +288,15 @@ No source file moves in this story, and the bundle must come out **byte-identica
 - Keep the a11y tests: focus goes back to the Preview button on close (`useModalA11y` remembers the opener), `aria-pressed` on Select, `aria-describedby` on the three buttons.
 
 **Done when** `entities/nugget` imports only `shared/` and `entities/catalogue/@x/nugget`.
+
+**Result of commit 1 (2026-11-12): done.** `NuggetPost` emits `PreviewButton` and no longer imports the preview modal (V1). 490 tests at 100 %, `lint:fsd` and `lint:check` with 0 error.
+
+- **Results grid:** one `NuggetViewModal` per card, next to it in its list item, open when `previewedId` is that card's id. This keeps one modal instance per card as before, so the modal still sees its `visible` prop change and loads the preview URL.
+- **Selected panel:** one `NuggetViewModal` next to the card, driven by a `showPreview` flag.
+- **A preview does not outlive its card.** Before, the open state lived in the card and was lost with it. Now a watcher in the grid clears `previewedId` when the previewed Nugget leaves the list, and the panel clears its flag when the card goes away. Without this, a Nugget that came back in the list would show an open, empty preview.
+- **Tests:** the two preview tests of `NuggetPost.spec.ts` became one ("emits PreviewButton and opens no dialog itself"); the grid spec got four preview tests and the panel spec two.
+- **DOM:** unchanged. The modals are teleported to `body`, the Preview button is still inside `.nugget-post`, and `#nugget-preview-modal` keeps its id, which the two Behat preview scenarios use.
+- The three listeners in the two widgets are now written hyphenated (`@select-button`, `@replace-button`, `@preview-button`), which Vue treats the same and removes two lint warnings.
 
 ### S4 — `features/` (≈ 1.5 d, 4 commits)
 
