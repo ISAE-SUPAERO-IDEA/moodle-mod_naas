@@ -50,7 +50,7 @@
 <script setup lang="ts">
 import { nextTick, onBeforeUnmount, ref, watch } from "vue";
 import { NuggetPost, NuggetSkeleton } from "@/entities/nugget";
-import NuggetViewModal from "./NuggetViewModal.vue";
+import { NuggetViewModal } from "@/features/preview-nugget";
 import { NuggetLoadingBanner } from "@/shared/ui";
 import { placeCguAgreement, restoreCguAgreement } from "@/features/pick-nugget";
 import type { Nugget } from "@/shared/api";

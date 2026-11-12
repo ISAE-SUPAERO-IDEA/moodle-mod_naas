@@ -134,7 +134,7 @@ const iframeResize = iframeResizeLib as (
 ) => void;
 
 import { NuggetAboutModal } from "@/entities/nugget";
-import NuggetCompletionModal from "./NuggetCompletionModal.vue";
+import { NuggetCompletionModal } from "@/features/rate-nugget";
 import NuggetViewSkeleton from "./NuggetViewSkeleton.vue";
 import { useNaasConfig } from "@/shared/config";
 import { useNuggetView } from "@/composables/useNuggetView";
