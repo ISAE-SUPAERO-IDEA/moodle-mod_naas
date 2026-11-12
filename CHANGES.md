@@ -30,6 +30,11 @@ _All notable changes to the NaaS Moodle plugin will be documented in this file._
 - No more "No define call" RequireJS error in the browser console on pages with the Nugget widget
 - Keyboard use of the Nugget picker: the Filters button shows a focus ring, Escape closes an open filter list, and the focus moves to the chosen Nugget after Select
 - The About sheet shows the licence granted to the institute, the producing institutes and the partner
+- "No more attempts are allowed" is shown in a readable box inside the player, without a dismiss button that did nothing
+- Changing the grading method of an activity regrades the attempts already completed, instead of applying only to the next result
+- The privacy export gives the start and completion dates of attempts as readable dates, not timestamps
+- "Back to course" returns to the activity's section instead of the top of the course
+- Producer cards in the Nugget picker load banners and logos resized by NaaS (banners could weigh more than 10 MB), and fall back to the logo or the initials when an image cannot be loaded
 - Domain codes with dots and e-mail author keys no longer break the vocabulary cache when debugging is on
 - The completion condition shows "Complete when all attempts are used" when only that option is ticked
 - Saving the activity form without a Nugget now shows "Select a Nugget before saving the activity" above the search, instead of an error on a hidden field
