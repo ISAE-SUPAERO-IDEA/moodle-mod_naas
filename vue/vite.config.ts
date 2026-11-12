@@ -26,7 +26,7 @@ import { resolve } from "path";
 import { readFileSync } from "fs";
 import type { OutputBundle, NormalizedOutputOptions } from "rollup";
 
-// Bump with `yarn bump-version`, which also updates widget::BUNDLE_VERSION in classes/output/widget.php.
+// Bump with `pnpm bump-version`, which also updates widget::BUNDLE_VERSION in classes/output/widget.php.
 const BUNDLE_VERSION = "2026111204";
 
 // Moves the emitted CSS into a self-injecting <style> block at the top of the

@@ -34,9 +34,9 @@ import type { Structure } from "../types/structure.types";
 import { unwrapNaasPayload } from "./unwrapNaasPayload";
 
 // Moodle's RequireJS loader — (deps, callback) — differs from Node's require(id).
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type MoodleRequire = (
   deps: string[],
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   callback: (...args: any[]) => void
 ) => void;
 

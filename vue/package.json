@@ -3,36 +3,62 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "packageManager": "pnpm@10.28.2",
+  "engines": {
+    "node": ">=22.14",
+    "pnpm": ">=10.28"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc --noEmit -p tsconfig.app.json && vite build",
     "type-check": "vue-tsc --noEmit -p tsconfig.app.json",
     "test": "vitest run",
-    "lint": "prettier --write .",
-    "bump-version": "node scripts/bump-version.js",
-    "coverage": "vitest run --coverage"
+    "coverage": "vitest run --coverage",
+    "lint": "eslint --fix",
+    "lint:check": "eslint",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "bump-version": "node scripts/bump-version.js"
   },
   "dependencies": {
     "iframe-resizer": "^4.3.6",
     "vue": "^3.5.44"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@vitejs/plugin-vue": "^5.2.4",
     "@vitest/coverage-v8": "^4.1.12",
     "@vue/tsconfig": "^0.5.1",
+    "eslint": "^9.39.5",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.7",
+    "eslint-plugin-sonarjs": "^3.0.7",
+    "eslint-plugin-unused-imports": "^4.4.1",
+    "eslint-plugin-vue": "^10.12.1",
+    "globals": "^17.14.0",
     "jsdom": "^25.0.0",
-    "prettier": "2.8.3",
-    "typescript": "^5.4.0",
+    "prettier": "3.6.2",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.72.2",
     "vite": "^6.4.5",
     "vitest": "^4.1.12",
+    "vue-eslint-parser": "^10.4.2",
     "vue-tsc": "^3.3.13"
   },
-  "resolutions": {
-    "nanoid": "^3.3.18",
-    "postcss": "^8.5.18",
-    "source-map-js": "^1.2.2",
-    "rollup": "^4.59.0",
-    "brace-expansion": "^2.1.6",
-    "vite": "^6.4.5"
+  "pnpm": {
+    "overrides": {
+      "nanoid": "^3.3.18",
+      "postcss": "^8.5.18",
+      "source-map-js": "^1.2.2",
+      "rollup": "^4.59.0",
+      "brace-expansion": "^2.1.6",
+      "vite": "^6.4.5"
+    },
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ],
+    "ignoredBuiltDependencies": [
+      "iframe-resizer"
+    ]
   }
 }

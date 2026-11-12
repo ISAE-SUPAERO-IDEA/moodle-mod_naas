@@ -22,7 +22,7 @@
  * If VERSION is omitted, defaults to today's date as YYYYMMDDnn (nn = 00).
  *
  * The plugin version ($plugin->version in version.php) is deliberately NOT
- * touched: it follows the upgrade savepoints, not the bundle. Run `yarn build`
+ * touched: it follows the upgrade savepoints, not the bundle. Run `pnpm build`
  * afterwards so assets/vue/ contains the renamed bundle.
  *
  * @copyright  2024 ISAE-SUPAERO (https://www.isae-supaero.fr/)
@@ -82,4 +82,4 @@ replace(
   `const BUNDLE_VERSION = '${newVersion}';`
 )
 
-console.log('Done. Now run `yarn build` and commit assets/vue/ with these two files.')
+console.log('Done. Now run `pnpm build` and commit assets/vue/ with these two files.')

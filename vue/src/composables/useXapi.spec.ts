@@ -2,6 +2,7 @@ import { describe, it, expect, vi } from "vitest";
 import { createApp } from "vue";
 import { useXapi } from "./useXapi";
 import { NAAS_API_KEY } from "@/plugins/naas-api.plugin";
+import type { XapiParams } from "@/types/nugget.types";
 
 describe("useXapi", () => {
   it("should post a statement and log warnings on error", async () => {
@@ -13,7 +14,7 @@ describe("useXapi", () => {
 
     app.runWithContext(() => {
       const { postStatement } = useXapi();
-      postStatement({ verb: "completed" } as any);
+      postStatement({ verb: "completed" } as unknown as XapiParams);
     });
 
     expect(mockPost).toHaveBeenCalledWith({ verb: "completed" });
@@ -37,7 +38,7 @@ describe("useXapi", () => {
 
     app.runWithContext(() => {
       const { postStatement } = useXapi();
-      postStatement({ verb: "viewed" } as any);
+      postStatement({ verb: "viewed" } as unknown as XapiParams);
     });
 
     await new Promise((resolve) => setTimeout(resolve, 0));

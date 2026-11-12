@@ -128,17 +128,18 @@ The source code is available at [https://github.com/ISAE-SUPAERO-IDEA/moodle-mod
 The search, selection and display of Nuggets is a Vue 3 widget. Its sources are in `vue/`, and the
 compiled bundle is committed in `assets/vue/naas_widget-<version>.js`.
 
-Requirements: Node.js 22 and Yarn 1.
+Requirements: Node.js 22 and pnpm 10.28. With Corepack (`corepack enable`), `pnpm` runs the version named in
+`vue/package.json`.
 
 ```bash
 cd vue
-yarn install --frozen-lockfile
-yarn type-check && yarn test   # or ../run_test.sh
-yarn build                     # or ../run_build.sh, writes the bundle to assets/vue/
+pnpm install --frozen-lockfile
+pnpm type-check && pnpm test   # or ../run_test.sh
+pnpm build                     # or ../run_build.sh, writes the bundle to assets/vue/
 ```
 
 Whenever the widget sources change, give the bundle a new name so browsers do not reuse the old file:
-run `yarn bump-version` before `yarn build`, then commit the new bundle and the removal of the old one.
+run `pnpm bump-version` before `pnpm build`, then commit the new bundle and the removal of the old one.
 The CI rebuilds the bundle and fails if it differs from the committed one.
 See [vue/README.md](vue/README.md) for details.
 
