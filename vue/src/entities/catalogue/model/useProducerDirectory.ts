@@ -28,9 +28,12 @@ import {
   facetLabelsFromSnapshot,
   mergeFacetLabels,
   mergeProducerDirectory,
-} from "./catalogueSnapshot";
-import { mergeProducerNames, producerLabelUpdates } from "./producerDirectory";
-import type { NamedProducer } from "./producerDirectory";
+} from "../lib/catalogueSnapshot";
+import {
+  mergeProducerNames,
+  producerLabelUpdates,
+} from "../lib/producerDirectory";
+import type { NamedProducer } from "../lib/producerDirectory";
 import type { CatalogueProducer, CatalogueSnapshot } from "@/shared/config";
 import type { CatalogueFacetLabels } from "@/shared/api";
 

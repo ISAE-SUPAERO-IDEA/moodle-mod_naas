@@ -133,7 +133,7 @@ import {
   restoreCguAgreement,
   setActivityDetailsVisible,
 } from "@/composables/moodleActivityForm";
-import { useProducerDirectory } from "@/composables/useProducerDirectory";
+import { useProducerDirectory } from "@/entities/catalogue";
 import { useCatalogueCheck } from "@/composables/useCatalogueCheck";
 import { useSearchWidgetQuery } from "@/composables/useSearchWidgetQuery";
 import {

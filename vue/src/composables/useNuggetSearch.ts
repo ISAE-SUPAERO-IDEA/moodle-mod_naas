@@ -36,7 +36,7 @@ import {
   isEnriched,
   sameCatalogueStamp,
   snapshotSearch,
-} from "./catalogueSnapshot";
+} from "@/entities/catalogue";
 import type {
   CatalogueStamp,
   Nugget,

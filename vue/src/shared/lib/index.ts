@@ -30,3 +30,4 @@ export {
 } from "./entityKeys";
 export { fillLabel } from "./fillLabel";
 export { formatShortDate } from "./formatDate";
+export { stringField } from "./stringField";

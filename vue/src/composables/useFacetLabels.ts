@@ -28,7 +28,9 @@
 import { ref, type Ref } from "vue";
 import type { CatalogueFacetLabels } from "@/shared/api";
 import { useNaasConfig } from "@/shared/config";
-import { useEntityResolvers } from "./useEntityResolvers";
+import { useStructureResolvers } from "@/entities/catalogue";
+import { useDomainResolvers } from "@/entities/domain";
+import { usePersonResolvers } from "@/entities/person";
 import {
   applyResolvedLabels,
   facetNeedsNetworkLabels,
@@ -61,8 +63,9 @@ function normalizerFor(aggName: string): (value: string) => string {
 export function useFacetLabels(options: FacetLabelOptions) {
   const { aggregations, networkLabels, onSelectedRelabel } = options;
   const config = useNaasConfig();
-  const { getDomainLabel, getStructureVisuals, getPersonName } =
-    useEntityResolvers();
+  const { getDomainLabel } = useDomainResolvers();
+  const { getStructureVisuals } = useStructureResolvers();
+  const { getPersonName } = usePersonResolvers();
 
   /** Labels fetched on this page: facet name → key → label. */
   const resolvedLabels = ref<Record<string, Record<string, string>>>({});

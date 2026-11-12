@@ -128,15 +128,15 @@
 import { computed, ref, watch } from "vue";
 import { useNaasConfig, countsAreExact } from "@/shared/config";
 import { createMediaRouter } from "@/shared/api";
-import { useEntityResolvers } from "@/composables/useEntityResolvers";
-import { matchCachedProducer } from "@/composables/catalogueSnapshot";
 import {
+  matchCachedProducer,
   namedPayload,
   namedPayloadChanged,
-} from "@/composables/producerDirectory";
-import type { NamedProducer } from "@/composables/producerDirectory";
+  structureVisuals,
+  useStructureResolvers,
+} from "@/entities/catalogue";
+import type { NamedProducer } from "@/entities/catalogue";
 import { isOpaqueEntityKey, isRawEntityLabel } from "@/shared/lib";
-import { structureVisuals } from "@/composables/structureVisuals";
 import type { CatalogueProducer } from "@/shared/config";
 import type { AggregationResult } from "@/shared/api";
 
@@ -157,7 +157,7 @@ const emit = defineEmits<{
 
 const config = useNaasConfig();
 const media = createMediaRouter(config.moodle_url, config.courseId);
-const { getStructureVisuals } = useEntityResolvers();
+const { getStructureVisuals } = useStructureResolvers();
 
 const labels = computed(() => ({
   allNuggets: config.labels.all_nuggets,

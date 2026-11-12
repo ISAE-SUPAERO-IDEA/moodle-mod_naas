@@ -220,7 +220,7 @@
 import { computed, ref, useId, watch } from "vue";
 import { formatShortDate, fillLabel } from "@/shared/lib";
 import { licenceRights, rightsCaption } from "@/composables/nuggetLicence";
-import { useEntityResolvers } from "@/composables/useEntityResolvers";
+import { useStructureResolvers } from "@/entities/catalogue";
 import { useModalA11y } from "@/shared/ui";
 import { useNaasConfig } from "@/shared/config";
 import type { Nugget } from "@/shared/api";
@@ -277,7 +277,7 @@ const partnerUrl = computed(() => {
 
 /** Producing institutes, named from the catalogue snapshot or Moodle. */
 const producerNames = ref<string[]>([]);
-const { getStructureAcronym } = useEntityResolvers();
+const { getStructureAcronym } = useStructureResolvers();
 watch(
   () => [props.visible, props.nugget] as const,
   async ([visible, nugget]) => {

@@ -14,43 +14,21 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Tests for useEntityResolvers (domain, structure and person names).
+ * Tests for useStructureResolvers (producer acronyms and images).
  *
  * @copyright  2026 ISAE-SUPAERO (https://www.isae-supaero.fr/)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 import { describe, it, expect, vi } from "vitest";
-import { createApp } from "vue";
-import { useEntityResolvers } from "./useEntityResolvers";
-import { NAAS_API_KEY } from "@/shared/api";
+import { useStructureResolvers } from "./structureResolvers";
+import { withProviders } from "@/test/withProviders";
 
-function withProviders<T>(
-  service: object,
-  run: () => T,
-  naasConfig: object = { courseId: 7 }
-): T {
-  const app = createApp({});
-  app.provide(NAAS_API_KEY, service);
-  app.provide("naasConfig", naasConfig);
-  return app.runWithContext(run);
-}
-
-describe("useEntityResolvers", () => {
-  it("builds a person name from snake_case fields", async () => {
-    const getPerson = vi
-      .fn()
-      .mockResolvedValue({ first_name: "Ada", last_name: "Lovelace" });
-    const { getPersonName } = withProviders({ getPerson }, () =>
-      useEntityResolvers()
-    );
-    await expect(getPersonName("hash-1")).resolves.toBe("ADA LOVELACE");
-  });
-
+describe("useStructureResolvers", () => {
   it("uses structure acronym then name", async () => {
     const getStructure = vi.fn().mockResolvedValue({ name: "ISAE-SUPAERO" });
     const { getStructureAcronym } = withProviders({ getStructure }, () =>
-      useEntityResolvers()
+      useStructureResolvers()
     );
     await expect(getStructureAcronym("hash-2")).resolves.toBe("ISAE-SUPAERO");
   });
@@ -64,7 +42,7 @@ describe("useEntityResolvers", () => {
       },
     });
     const { getStructureVisuals } = withProviders({ getStructure }, () =>
-      useEntityResolvers()
+      useStructureResolvers()
     );
     // The logo goes through media.php; the cover falls back to the NaaS banner.
     await expect(getStructureVisuals("hash-2")).resolves.toMatchObject({
@@ -82,7 +60,7 @@ describe("useEntityResolvers", () => {
     const getStructure = vi.fn();
     const { getStructureVisuals, getStructureAcronym } = withProviders(
       { getStructure },
-      () => useEntityResolvers(),
+      () => useStructureResolvers(),
       {
         courseId: 7,
         moodle_url: "https://moodle.test",
@@ -119,58 +97,6 @@ describe("useEntityResolvers", () => {
     expect(getStructure).not.toHaveBeenCalled();
   });
 
-  it("reads a domain label from a wrapped payload", async () => {
-    const getDomain = vi.fn().mockResolvedValue({
-      payload: { label: "Aerospace engineering" },
-    });
-    const { getDomainLabel } = withProviders({ getDomain }, () =>
-      useEntityResolvers()
-    );
-    await expect(getDomainLabel("01.02")).resolves.toBe(
-      "Aerospace engineering"
-    );
-  });
-
-  it("reads an author name from Nuxeo person properties", async () => {
-    const getPerson = vi.fn().mockResolvedValue({
-      properties: {
-        "person:firstname": "Ada",
-        "person:lastname": "Lovelace",
-      },
-    });
-    const { getPersonName } = withProviders({ getPerson }, () =>
-      useEntityResolvers()
-    );
-    await expect(
-      getPersonName("abcdef0123456789abcdef0123456789")
-    ).resolves.toBe("ADA LOVELACE");
-  });
-
-  it("unwraps a person payload and ignores relationship prefixes", async () => {
-    const getPerson = vi.fn().mockResolvedValue({
-      payload: { firstname: "Ada", lastname: "Lovelace" },
-    });
-    const { getPersonName } = withProviders({ getPerson }, () =>
-      useEntityResolvers()
-    );
-    await expect(
-      getPersonName("authored_by:person:abcdef0123456789")
-    ).resolves.toBe("ADA LOVELACE");
-    expect(getPerson).toHaveBeenCalledWith("abcdef0123456789", 7);
-  });
-
-  it("falls back to the raw key when a domain has no label or fails", async () => {
-    const getDomain = vi
-      .fn()
-      .mockResolvedValueOnce({ payload: { label: "  " } })
-      .mockRejectedValueOnce(new Error("offline"));
-    const { getDomainLabel } = withProviders({ getDomain }, () =>
-      useEntityResolvers()
-    );
-    await expect(getDomainLabel("01.02")).resolves.toBe("01.02");
-    await expect(getDomainLabel("01.03")).resolves.toBe("01.03");
-  });
-
   it("uses the producer key when the structure is unknown or unreachable", async () => {
     const getStructure = vi
       .fn()
@@ -179,7 +105,7 @@ describe("useEntityResolvers", () => {
       .mockRejectedValueOnce(new Error("offline"));
     const { getStructureAcronym, getStructureVisuals } = withProviders(
       { getStructure },
-      () => useEntityResolvers(),
+      () => useStructureResolvers(),
       { courseId: 7, moodle_url: "https://moodle.test" }
     );
     // An opaque id is no name, but it is still better than an empty chip.
@@ -202,7 +128,7 @@ describe("useEntityResolvers", () => {
     const getStructure = vi.fn().mockResolvedValue({ acronym: "ISAE" });
     const { getStructureAcronym, getStructureVisuals } = withProviders(
       { getStructure },
-      () => useEntityResolvers(),
+      () => useStructureResolvers(),
       {
         courseId: 7,
         moodle_url: "https://moodle.test",
@@ -214,23 +140,5 @@ describe("useEntityResolvers", () => {
       acronym: "ISAE",
     });
     expect(getStructure).toHaveBeenCalledTimes(2);
-  });
-
-  it("reads a full name field, and returns nothing for an unnamed or failed person", async () => {
-    const getPerson = vi
-      .fn()
-      .mockResolvedValueOnce({ fullname: "Grace Hopper" })
-      .mockResolvedValueOnce({ properties: { "dc:title": "Alan Turing" } })
-      .mockResolvedValueOnce({ properties: ["not", "a", "record"] })
-      .mockResolvedValueOnce(null)
-      .mockRejectedValueOnce(new Error("offline"));
-    const { getPersonName } = withProviders({ getPerson }, () =>
-      useEntityResolvers()
-    );
-    await expect(getPersonName("p1")).resolves.toBe("GRACE HOPPER");
-    await expect(getPersonName("p2")).resolves.toBe("ALAN TURING");
-    await expect(getPersonName("p3")).resolves.toBe("");
-    await expect(getPersonName("p4")).resolves.toBe("");
-    await expect(getPersonName("p5")).resolves.toBe("");
   });
 });

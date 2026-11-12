@@ -25,9 +25,9 @@
  */
 
 import { ref } from "vue";
-import { snapshotSearch } from "./catalogueSnapshot";
+import { snapshotSearch } from "@/entities/catalogue";
 import { errorMessage } from "@/shared/api";
-import type { ProducerDirectory } from "./useProducerDirectory";
+import type { ProducerDirectory } from "@/entities/catalogue";
 import type {
   INaasApiService,
   AggregationResult,
