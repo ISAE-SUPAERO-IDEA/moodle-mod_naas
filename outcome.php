@@ -240,12 +240,12 @@ class mod_naas_outcome {
             grade_update('mod/naas', $course->id, 'mod', 'naas', $cm->instance, $itemnumber, $grade);
         }
 
+        // Completion is optional: a course or activity without completion tracking still keeps
+        // the grade, and NaaS is told the outcome was accepted.
         $completion = new completion_info($course);
-        if (!$completion->is_enabled()) {
-            throw new moodle_exception('completionnotenabled', 'completion');
+        if ($completion->is_enabled($cm)) {
+            $completion->update_state($cm, COMPLETION_COMPLETE, $userid);
         }
-
-        $completion->update_state($cm, COMPLETION_COMPLETE, $userid);
     }
 
     /**
@@ -387,9 +387,91 @@ class mod_naas_outcome {
         }
         return '';
     }
+
+    /**
+     * Apply a replaceResult and build the LTI 1.1 answer for NaaS.
+     *
+     * Success is HTTP 200 with imsx_codeMajor "success". A refused outcome (malformed body,
+     * score out of range, unknown sourcedId, no attempt left, ...) is HTTP 400 with
+     * imsx_codeMajor "failure" and the reason, or HTTP 401 when the OAuth signature is
+     * missing or wrong. Anything unexpected is HTTP 500 with a generic reason, so internal
+     * details never reach NaaS. NaaS only reads the HTTP status today; the body keeps the
+     * answer readable by any LTI 1.1 tool.
+     *
+     * @param string $xml Raw POX body
+     * @param string|null $authorizationheader Authorization header value
+     * @param string|null $requesturl Absolute URL of this request (OAuth base string)
+     * @param stdClass|null $credentials Optional key/secret (tests); otherwise loaded from NaaS
+     * @return array{status: int, body: string}
+     */
+    public static function respond(
+        string $xml,
+        ?string $authorizationheader = null,
+        ?string $requesturl = null,
+        ?stdClass $credentials = null
+    ): array {
+        try {
+            self::process($xml, $authorizationheader, $requesturl, $credentials);
+            return ['status' => 200, 'body' => self::response_xml($xml, true, 'Score recorded.')];
+        } catch (coding_exception | dml_exception $e) {
+            // Internal errors also extend moodle_exception: never present them as a refusal.
+            debugging('NaaS outcome failed: ' . $e->getMessage(), DEBUG_DEVELOPER);
+            return ['status' => 500, 'body' => self::response_xml($xml, false, 'The score could not be recorded.')];
+        } catch (moodle_exception $e) {
+            $status = $e->errorcode === 'error:oauth_invalid' ? 401 : 400;
+            return ['status' => $status, 'body' => self::response_xml($xml, false, $e->getMessage())];
+        } catch (\Throwable $e) {
+            // @codeCoverageIgnoreStart
+            // A PHP error (TypeError, ...): same answer as an internal Moodle error.
+            debugging('NaaS outcome failed: ' . $e->getMessage(), DEBUG_DEVELOPER);
+            return ['status' => 500, 'body' => self::response_xml($xml, false, 'The score could not be recorded.')];
+            // @codeCoverageIgnoreEnd
+        }
+    }
+
+    /**
+     * LTI 1.1 replaceResult response envelope.
+     *
+     * The request's imsx_messageIdentifier is echoed as imsx_messageRefIdentifier. It is read
+     * with a pattern, not an XML parser, so a refused body is never parsed twice.
+     *
+     * @param string $request Raw request body
+     * @param bool $success
+     * @param string $description Human-readable outcome
+     * @return string
+     */
+    public static function response_xml(string $request, bool $success, string $description): string {
+        $refid = '';
+        if (preg_match('/<(?:[A-Za-z0-9_.-]+:)?imsx_messageIdentifier>\s*([A-Za-z0-9._:-]{1,64})\s*</', $request, $m)) {
+            $refid = $m[1];
+        }
+        $esc = function (string $value): string {
+            return htmlspecialchars($value, ENT_XML1 | ENT_QUOTES, 'UTF-8');
+        };
+        return '<?xml version="1.0" encoding="UTF-8"?>'
+            . '<imsx_POXEnvelopeResponse xmlns="http://www.imsglobal.org/services/ltiv1p1/xsd/imsoms_v1p0">'
+            . '<imsx_POXHeader><imsx_POXResponseHeaderInfo>'
+            . '<imsx_version>V1.0</imsx_version>'
+            . '<imsx_messageIdentifier>' . $esc(uniqid('naas-', true)) . '</imsx_messageIdentifier>'
+            . '<imsx_statusInfo>'
+            . '<imsx_codeMajor>' . ($success ? 'success' : 'failure') . '</imsx_codeMajor>'
+            . '<imsx_severity>' . ($success ? 'status' : 'error') . '</imsx_severity>'
+            . '<imsx_description>' . $esc($description) . '</imsx_description>'
+            . '<imsx_messageRefIdentifier>' . $esc($refid) . '</imsx_messageRefIdentifier>'
+            . '<imsx_operationRefIdentifier>replaceResult</imsx_operationRefIdentifier>'
+            . '</imsx_statusInfo>'
+            . '</imsx_POXResponseHeaderInfo></imsx_POXHeader>'
+            . '<imsx_POXBody>' . ($success ? '<replaceResultResponse/>' : '') . '</imsx_POXBody>'
+            . '</imsx_POXEnvelopeResponse>';
+    }
 }
 
 // Web entrypoint. Tests include this file and call mod_naas_outcome methods directly.
 if (!defined('PHPUNIT_TEST') || !PHPUNIT_TEST) {
-    mod_naas_outcome::process(file_get_contents('php://input') ?: ''); // @codeCoverageIgnore
+    // @codeCoverageIgnoreStart
+    $response = mod_naas_outcome::respond(file_get_contents('php://input') ?: '');
+    http_response_code($response['status']);
+    header('Content-Type: application/xml; charset=utf-8');
+    echo $response['body'];
+    // @codeCoverageIgnoreEnd
 }

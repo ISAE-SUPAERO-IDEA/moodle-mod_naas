@@ -17,6 +17,8 @@ _All notable changes to the NaaS Moodle plugin will be documented in this file._
 - Grades outside 0–1 and grade submissions for activities without a grade item are rejected
 - Backup, restore and duplication keep the attempts allowed, grading method, terms agreement and Nugget completion rules; with user data, learners' attempts are restored too
 - Course reset offers "Delete all Nugget attempts", ticked by default: it deletes the course's attempts and Nugget grades
+- A grade sent by NaaS to a course without completion tracking is recorded without an error
+- Grade submissions get an LTI 1.1 answer: success, or failure with the reason (HTTP 400, or 401 for a bad signature), instead of an HTML error page
 - Domain codes with dots and e-mail author keys no longer break the vocabulary cache when debugging is on
 - The completion condition shows "Complete when all attempts are used" when only that option is ticked
 - Saving the activity form without a Nugget now shows "Select a Nugget before saving the activity" above the search, instead of an error on a hidden field

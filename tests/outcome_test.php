@@ -598,9 +598,9 @@ XML;
     }
 
     /**
-     * Completion disabled on the course must surface completionnotenabled from handle().
+     * Completion disabled on the course: handle() keeps the grade and does not throw.
      */
-    public function test_handle_throws_when_course_completion_disabled(): void {
+    public function test_handle_keeps_grade_when_course_completion_disabled(): void {
         global $DB, $CFG;
         $this->resetAfterTest(true);
         require_once($CFG->dirroot . '/mod/naas/outcome.php');
@@ -621,13 +621,11 @@ XML;
             'date_added' => time(),
         ]);
 
-        $this->expectException(\moodle_exception::class);
-        try {
-            \mod_naas_outcome::handle($this->replace_result_xml($sourcedid, '0.5'));
-        } catch (\moodle_exception $e) {
-            $this->assertSame('completionnotenabled', $e->errorcode);
-            throw $e;
-        }
+        \mod_naas_outcome::handle($this->replace_result_xml($sourcedid, '0.5'));
+
+        $grades = grade_get_grades($course->id, 'mod', 'naas', $naas->id, $user->id);
+        $this->assertEquals(50.0, (float) $grades->items[0]->grades[$user->id]->grade);
+        $this->assertNotEmpty($DB->get_field('naas_activity_outcome', 'timecompleted', ['sourced_id' => $sourcedid]));
     }
 
     /**

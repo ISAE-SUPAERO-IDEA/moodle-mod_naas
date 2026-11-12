@@ -425,15 +425,120 @@ final class outcome_handler_test extends \advanced_testcase {
     }
 
     /**
-     * Courses without completion cannot take an outcome.
+     * A course without completion tracking still takes the outcome: grade and attempt are kept.
      */
-    public function test_handle_requires_course_completion(): void {
-        [, $naas, $user] = $this->setup_launch(NAAS_ATTEMPTLAST, 0, false);
+    public function test_handle_accepts_outcome_when_course_completion_is_disabled(): void {
+        [$course, $naas, $user] = $this->setup_launch(NAAS_ATTEMPTLAST, 0, false);
         $this->launch($user->id, $naas->cmid, 'src-nocompletion');
 
-        $this->assert_moodle_exception('completionnotenabled', function () {
-            \mod_naas_outcome::handle($this->xml('src-nocompletion', '0.5'));
-        });
+        \mod_naas_outcome::handle($this->xml('src-nocompletion', '0.5'));
+
+        $this->assertEquals(50.0, $this->grade($course, $naas, (int) $user->id));
+        $this->assertSame(1, attempts::count_completed((int) $naas->cmid, (int) $user->id));
+    }
+
+    /**
+     * An accepted outcome answers HTTP 200 with an LTI success envelope echoing the request id.
+     */
+    public function test_respond_accepts_outcome_with_lti_success(): void {
+        [$course, $naas, $user] = $this->setup_launch();
+        $this->launch($user->id, $naas->cmid, 'src-respond-ok');
+        $xml = str_replace('<imsx_POXBody>', '<imsx_POXHeader><imsx_POXRequestHeaderInfo><imsx_version>V1.0</imsx_version>'
+            . '<imsx_messageIdentifier>msg-42</imsx_messageIdentifier></imsx_POXRequestHeaderInfo></imsx_POXHeader>'
+            . '<imsx_POXBody>', $this->xml('src-respond-ok', '0.6'));
+
+        $response = \mod_naas_outcome::respond($xml);
+
+        $this->assertSame(200, $response['status']);
+        $body = simplexml_load_string(str_replace(' xmlns=', ' xmlns:ns=', $response['body']));
+        $info = $body->imsx_POXHeader->imsx_POXResponseHeaderInfo->imsx_statusInfo;
+        $this->assertSame('success', (string) $info->imsx_codeMajor);
+        $this->assertSame('msg-42', (string) $info->imsx_messageRefIdentifier);
+        $this->assertSame('replaceResult', (string) $info->imsx_operationRefIdentifier);
+        $this->assertTrue(isset($body->imsx_POXBody->replaceResultResponse));
+        $this->assertEquals(60.0, $this->grade($course, $naas, (int) $user->id));
+    }
+
+    /**
+     * Refused outcomes answer HTTP 400 with an LTI failure envelope and the reason, and change nothing.
+     */
+    public function test_respond_refuses_bad_outcomes_with_lti_failure(): void {
+        [$course, $naas, $user] = $this->setup_launch();
+        $this->launch($user->id, $naas->cmid, 'src-respond-bad');
+
+        $cases = [
+            'score out of range' => [$this->xml('src-respond-bad', '1.5'), 'error:invalid_score'],
+            'unknown sourcedId' => [$this->xml('src-never-launched', '0.5'), 'error:unknown_sourced_id'],
+            'malformed body' => ['<not-xml', 'error:malformed_xml'],
+        ];
+        foreach ($cases as $label => [$xml, $stringid]) {
+            $response = \mod_naas_outcome::respond($xml);
+            $this->assertSame(400, $response['status'], $label);
+            $this->assertStringContainsString('<imsx_codeMajor>failure</imsx_codeMajor>', $response['body'], $label);
+            $this->assertStringContainsString(
+                htmlspecialchars(get_string($stringid, 'naas'), ENT_XML1 | ENT_QUOTES, 'UTF-8'),
+                $response['body'],
+                $label
+            );
+            $this->assertStringNotContainsString('replaceResultResponse', $response['body'], $label);
+        }
+        $this->assertNull($this->grade($course, $naas, (int) $user->id));
+    }
+
+    /**
+     * With OAuth required, an unsigned outcome answers HTTP 401.
+     */
+    public function test_respond_refuses_unsigned_outcome_with_401_when_oauth_required(): void {
+        [$course, $naas, $user] = $this->setup_launch();
+        $this->launch($user->id, $naas->cmid, 'src-respond-unsigned');
+        set_config('naas_require_outcome_oauth', 1, 'naas');
+
+        $response = \mod_naas_outcome::respond(
+            $this->xml('src-respond-unsigned', '0.5'),
+            '',
+            self::URL,
+            (object) ['key' => self::KEY, 'secret' => self::SECRET]
+        );
+
+        $this->assertSame(401, $response['status']);
+        $this->assertStringContainsString('<imsx_codeMajor>failure</imsx_codeMajor>', $response['body']);
+        $this->assertNull($this->grade($course, $naas, (int) $user->id));
+    }
+
+    /**
+     * An internal error answers HTTP 500 with a generic reason, never the internal message.
+     */
+    public function test_respond_hides_internal_errors_behind_500(): void {
+        global $DB;
+        [, $naas, $user] = $this->setup_launch();
+        $this->launch($user->id, $naas->cmid, 'src-respond-internal');
+        $DB->delete_records('grade_items', ['itemmodule' => 'naas', 'iteminstance' => $naas->id]);
+
+        $response = \mod_naas_outcome::respond($this->xml('src-respond-internal', '0.5'));
+        $this->assertDebuggingCalled();
+
+        $this->assertSame(500, $response['status']);
+        $this->assertStringContainsString(
+            '<imsx_description>The score could not be recorded.</imsx_description>',
+            $response['body']
+        );
+        $this->assertStringNotContainsString('Missing grade item', $response['body']);
+    }
+
+    /**
+     * The request id is echoed only when it is a plain token; anything else is dropped.
+     */
+    public function test_response_xml_echoes_only_plain_message_identifiers(): void {
+        $plain = \mod_naas_outcome::response_xml('<imsx_messageIdentifier>abc.123</imsx_messageIdentifier>', true, 'ok');
+        $this->assertStringContainsString('<imsx_messageRefIdentifier>abc.123</imsx_messageRefIdentifier>', $plain);
+
+        $hostile = \mod_naas_outcome::response_xml(
+            '<imsx_messageIdentifier><![CDATA[x]]></imsx_messageIdentifier>',
+            false,
+            'a < b & "c"'
+        );
+        $this->assertStringContainsString('<imsx_messageRefIdentifier></imsx_messageRefIdentifier>', $hostile);
+        $this->assertStringContainsString('<imsx_description>a &lt; b &amp; &quot;c&quot;</imsx_description>', $hostile);
     }
 
     /**
