@@ -57,7 +57,7 @@
               :checked="bucket.selected"
               @change="emit('select', bucket.query_value ?? bucket.key)"
             />
-            <span>{{ optionCaption(bucket) }}</span>
+            <span>{{ optionCaption(bucket, showCounts) }}</span>
           </label>
 
           <button
@@ -91,6 +91,7 @@ import {
   optionCaption,
   selectedBucketCount,
 } from "@/composables/facetColumns";
+import { countsAreExact } from "@/composables/licenceCounts";
 
 const props = defineProps<{
   aggregation: MappedAggregation;
@@ -103,6 +104,8 @@ const emit = defineEmits<{
 
 const config = useNaasConfig();
 const active = computed(() => hasSelectedBuckets(props.aggregation));
+// NaaS counts are wrong under a licence filter: show the labels alone.
+const showCounts = countsAreExact(config.license_filter);
 </script>
 
 <style scoped>

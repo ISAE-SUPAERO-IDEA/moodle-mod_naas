@@ -48,7 +48,8 @@ function producerBuckets(...entries: Array<[string, number]>) {
 
 function mountLanding(
   props: Record<string, unknown>,
-  service: FakeService = makeService()
+  service: FakeService = makeService(),
+  config = makeConfig()
 ) {
   const reactiveProps = reactive<Record<string, unknown>>({
     aggregations: {},
@@ -57,7 +58,7 @@ function mountLanding(
   mounted = mountComponent(
     NuggetBrowseLanding,
     reactiveProps,
-    providers(makeConfig(), service)
+    providers(config, service)
   );
   return { props: reactiveProps, service, ...mounted };
 }
@@ -84,6 +85,21 @@ describe("NuggetBrowseLanding", () => {
     expect(emitted.select).toEqual([
       [{ facet: "all", value: "", caption: "All Nuggets" }],
     ]);
+  });
+
+  it("hides Nugget counts while a licence filter is set", async () => {
+    const { el, flush } = mountLanding(
+      {
+        resultsCount: 12,
+        aggregations: producerBuckets(["isae-supaero", 4]),
+        directory,
+      },
+      makeService(),
+      makeConfig({ license_filter: { commercial: "commercial", access: "all" } })
+    );
+    await flush();
+    expect(el.querySelector(".browse-card--all")).not.toBeNull();
+    expect(el.textContent).not.toMatch(/\d+ Nuggets/);
   });
 
   it("names producers from the directory without asking Moodle", async () => {

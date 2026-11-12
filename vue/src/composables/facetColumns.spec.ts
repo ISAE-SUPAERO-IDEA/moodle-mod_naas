@@ -133,6 +133,19 @@ describe("optionCaption", () => {
     expect(optionCaption({ key: HASH, help: HASH, docCount: 3 })).toBe("… (3)");
     expect(optionCaption({ key: "en", docCount: 0 })).toBe("…");
   });
+
+  it("drops the count when counts are hidden", () => {
+    const named = {
+      key: "en",
+      help: "English",
+      caption: "English (2)",
+      docCount: 2,
+    };
+    expect(optionCaption(named, false)).toBe("English");
+    expect(optionCaption({ key: HASH, help: HASH, docCount: 3 }, false)).toBe(
+      "…"
+    );
+  });
 });
 
 describe("selection helpers", () => {

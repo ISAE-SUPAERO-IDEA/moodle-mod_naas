@@ -64,8 +64,15 @@ function facet(
 
 let mounted: Mounted | null = null;
 
-function mountColumn(aggregation: MappedAggregation) {
-  mounted = mountComponent(FilterFacetColumn, { aggregation }, { naasConfig });
+function mountColumn(
+  aggregation: MappedAggregation,
+  config: Record<string, unknown> = naasConfig
+) {
+  mounted = mountComponent(
+    FilterFacetColumn,
+    { aggregation },
+    { naasConfig: config }
+  );
   return mounted;
 }
 
@@ -138,6 +145,15 @@ describe("FilterFacetColumn", () => {
       "ISAE-SUPAERO",
       null,
     ]);
+  });
+
+  it("lists option names without counts while a licence filter is set", () => {
+    const { el } = mountColumn(facet("producers", [bucket("isae")]), {
+      ...naasConfig,
+      license_filter: { commercial: "all", access: "unrestricted" },
+    });
+    const rows = [...el.querySelectorAll(".filter-option")];
+    expect(rows.map((r) => r.textContent?.trim())).toEqual(["ISAE"]);
   });
 
   it("emits toggle when the pill is clicked", () => {

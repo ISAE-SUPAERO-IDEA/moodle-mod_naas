@@ -98,13 +98,14 @@ export function findFacet(
 
 /** Checkbox caption; an entity whose name is not known yet shows "…". */
 export function optionCaption(
-  bucket: Pick<AggregationBucket, "key" | "help" | "caption" | "docCount">
+  bucket: Pick<AggregationBucket, "key" | "help" | "caption" | "docCount">,
+  showCount = true
 ): string {
   const label = bucket.help ?? "";
   if (!isRawEntityLabel(label, bucket.key)) {
-    return bucket.caption || label;
+    return showCount ? bucket.caption || label : label;
   }
-  return bucket.docCount ? `… (${bucket.docCount})` : "…";
+  return showCount && bucket.docCount ? `… (${bucket.docCount})` : "…";
 }
 
 export function hasSelectedBuckets(agg: MappedAggregation): boolean {

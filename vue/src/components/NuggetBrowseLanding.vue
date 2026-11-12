@@ -125,6 +125,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
 import { useNaasConfig } from "@/composables/useNaasConfig";
+import { countsAreExact } from "@/composables/licenceCounts";
 import { createMediaRouter } from "@/composables/mediaUrls";
 import { useEntityResolvers } from "@/composables/useEntityResolvers";
 import { matchCachedProducer } from "@/composables/catalogueSnapshot";
@@ -207,8 +208,11 @@ const skeletonCount = computed(() =>
   producerCount.value > 0 ? producerCount.value : 6
 );
 
+// NaaS counts are wrong under a licence filter (see licenceCounts.ts): hide them.
+const showCounts = countsAreExact(config.license_filter);
+
 function countLabel(count: number): string {
-  if (!count) {
+  if (!count || !showCounts) {
     return "";
   }
   return `${count} ${labels.value.nuggets}`;

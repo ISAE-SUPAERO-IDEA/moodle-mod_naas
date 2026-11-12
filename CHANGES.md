@@ -25,6 +25,7 @@ _All notable changes to the NaaS Moodle plugin will be documented in this file._
 - When NaaS cannot be reached or rejects the catalogue search filter, the Nugget picker shows the error with Retry instead of an empty catalogue, and a failed search no longer also says "no results"
 - A learner opening an activity whose Nugget was unpublished or deleted sees "The Nugget you are trying to access does not exist or is no longer available.", without Retry or "I Finished My Learning"
 - The catalogue search filter help gives a valid NQL example: nugget:type = 'video'
+- While a commercial-use or restricted-use filter is set, the Nugget picker no longer shows Nugget counts, which NaaS cannot compute for one institute's licence
 - Domain codes with dots and e-mail author keys no longer break the vocabulary cache when debugging is on
 - The completion condition shows "Complete when all attempts are used" when only that option is ticked
 - Saving the activity form without a Nugget now shows "Select a Nugget before saving the activity" above the search, instead of an error on a hidden field
