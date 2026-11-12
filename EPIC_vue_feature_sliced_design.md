@@ -6,7 +6,7 @@
 | **Base** | `fix/small_modifications_ux` at a734c88. PR #132 is not merged yet: rebase onto `develop` once it is. |
 | **Working branch** | `chore/fsd_migration`, one commit (or short commit series) per story |
 | **Baseline** | a734c88: 62 source files (~9.6 k lines), 53 spec files, 100 % coverage on lines, statements, functions and branches |
-| **Status** | 🟡 In progress. Planned 2026-11-10, reviewed against the code and the NaaS workspace on 2026-11-12 (§11). S0a, S0b, S1, S2 and S3 done on 2026-11-12; next: S4a. |
+| **Status** | 🟡 In progress. Planned 2026-11-10, reviewed against the code and the NaaS workspace on 2026-11-12 (§11). S0a to S3 and S4a done on 2026-11-12; next: S4b. |
 | **Estimate** | ≈ 8 to 9 working days |
 
 ---
@@ -313,6 +313,13 @@ No source file moves in this story, and the bundle must come out **byte-identica
 - **S4d `preview-nugget` + `rate-nugget`**: `NuggetViewModal`, `NuggetCompletionModal`.
 
 **Done when** no feature imports another feature and the `index.ts` files export only what widgets and pages use.
+
+**Result of S4a (2026-11-12): done.** 13 files moved to `features/filter-nuggets` (all recorded as renames), 7 files with rewritten imports, 2 new files (`index.ts`, `FilterSkeleton.spec.ts`). 490 tests at 100 % with unchanged counts; `lint:fsd` and `lint:check` with 0 error.
+
+- The public API has two names, `NuggetSearchFilter` and `FilterChips`: everything else is used only inside the slice.
+- The two mocks now target `@/features/filter-nuggets/ui/NuggetSearchFilter.vue`. Mocking the file, not the `index.ts`, still replaces what the `index.ts` re-exports; `architecture.spec.ts` checks that the path exists.
+- `skeletons.spec.ts` now holds only the `NuggetViewSkeleton` case; it is renamed with the player page in S6.
+- **Bundle:** same CSS rules and licence comments, 6 bytes more code; 6 scoped-style ids changed.
 
 ### S5 — `widgets/` (≈ 1 d)
 
