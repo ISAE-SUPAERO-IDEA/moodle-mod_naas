@@ -98,7 +98,7 @@ import { ref, watch } from "vue";
 import { NuggetPost, NuggetSkeleton } from "@/entities/nugget";
 import { NuggetViewModal } from "@/features/preview-nugget";
 import { useNaasConfig } from "@/shared/config";
-import { onCardGridKeydown } from "@/composables/cardGridKeys";
+import { onCardGridKeydown } from "../lib/cardGridKeys";
 import type { Nugget } from "@/shared/api";
 
 /** Skeleton cards painted while the first page loads: one full page. */

@@ -121,10 +121,13 @@
 <script setup lang="ts">
 import { nextTick, ref, onMounted, onBeforeUnmount } from "vue";
 import type { Nugget } from "@/shared/api";
-import NuggetSearchBar from "./NuggetSearchBar.vue";
-import NuggetBrowseLanding from "./NuggetBrowseLanding.vue";
-import NuggetSearchResults from "./NuggetSearchResults.vue";
-import NuggetSelectedPanel from "./NuggetSelectedPanel.vue";
+import { NuggetSearchBar } from "@/widgets/search-bar";
+import {
+  NuggetBrowseLanding,
+  useCatalogueCheck,
+} from "@/widgets/catalogue-landing";
+import { NuggetSearchResults } from "@/widgets/search-results";
+import { NuggetSelectedPanel } from "@/widgets/selected-nugget";
 import { useNaasConfig } from "@/shared/config";
 import { useMoodleService } from "@/shared/api";
 import {
@@ -139,7 +142,6 @@ import {
   useNuggetSelection,
 } from "@/features/pick-nugget";
 import { useProducerDirectory } from "@/entities/catalogue";
-import { useCatalogueCheck } from "@/composables/useCatalogueCheck";
 import "@/styles/naas-activity-form.css";
 
 const config = useNaasConfig();
