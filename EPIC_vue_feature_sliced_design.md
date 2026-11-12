@@ -6,7 +6,7 @@
 | **Base** | `fix/small_modifications_ux` at a734c88. PR #132 is not merged yet: rebase onto `develop` once it is. |
 | **Working branch** | `chore/fsd_migration`, one commit (or short commit series) per story |
 | **Baseline** | a734c88: 62 source files (~9.6 k lines), 53 spec files, 100 % coverage on lines, statements, functions and branches |
-| **Status** | 🟡 In progress. Planned 2026-11-10, reviewed against the code and the NaaS workspace on 2026-11-12 (§11). S0a to S5 done on 2026-11-12; next: S6 (pages and app). |
+| **Status** | 🟡 In progress. Planned 2026-11-10, reviewed against the code and the NaaS workspace on 2026-11-12 (§11). S0a to S6 done on 2026-11-12; next: S7 (lock in and release). |
 | **Estimate** | ≈ 8 to 9 working days |
 
 ---
@@ -352,6 +352,16 @@ No source file moves in this story, and the bundle must come out **byte-identica
 - Delete `components/`, `composables/`, `plugins/`, `styles/`.
 
 **Done when** `src/` contains only `app/ pages/ widgets/ features/ entities/ shared/ test/ vite-env.d.ts` (+ `architecture.spec.ts`).
+
+**Result (2026-11-12): done**, in one commit. 17 files moved (all recorded as renames, the two style sheets included), two page `index.ts` files added. `src/` holds exactly the list above; `components/`, `composables/`, `plugins/` and `styles/` are gone and `LEGACY` is empty. 490 tests at 100 % with unchanged counts; `lint:fsd` and `lint:check` with 0 error.
+
+- `Main.vue` is now `app/App.vue` and `Main.spec.ts` is `app/App.spec.ts`; its two mocks target the page files under `pages/`.
+- The entry point is `src/app/main.ts` in `vite.config.ts`, `index.html` and the coverage exclude of `vitest.config.ts`.
+- The two style sheets are imported relatively, from `app/main.ts` and from the picker page.
+- **`app/providers`:** Steiger's `fsd/segments-by-purpose` rejects the name. It is the usual FSD name and the one the NaaS apps use, so the rule is off for that folder in `steiger.config.mjs`.
+- Nothing imports `app/`, and the two pages do not import each other.
+- **Bundle:** same CSS rules and licence comments, 5 bytes more code; 3 scoped-style ids changed.
+- Not run: the dev server (`pnpm dev`), which needs a Moodle session. Only the path in `index.html` changed.
 
 ### S7 — Lock in and release (≈ 0.5 d)
 
