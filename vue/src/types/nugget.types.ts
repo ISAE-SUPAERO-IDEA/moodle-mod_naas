@@ -41,6 +41,12 @@ export interface Nugget {
   version_id: string;
   duration?: number;
   license?: string | number;
+  /** One licence per institute; rights such as by, nc, nd, co, uu, ru. */
+  access_licences?: AccessLicence[];
+  /** Ids of the producing institutes. */
+  managing_structures?: string[];
+  /** Partner shown with the Nugget, when NaaS names one. */
+  partner?: { name?: string | null; url?: string | null };
   is_public?: boolean | string | number;
   producers?: string[];
   level?: string;
@@ -54,6 +60,13 @@ export interface Nugget {
   displayinfo?: string;
   vocabulary?: CatalogueVocabulary;
   _cache?: NuggetCacheMeta;
+}
+
+/** An entry of a Nugget's access_licences. */
+export interface AccessLicence {
+  structure_id?: string;
+  is_open_access?: boolean;
+  rights?: string[];
 }
 
 /** Freshness of a cached Nugget document, per NUGGET_SELECTION_CACHE.md. */

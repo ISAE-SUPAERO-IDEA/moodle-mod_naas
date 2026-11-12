@@ -310,6 +310,10 @@ describe("NuggetSearchWidget", () => {
     await m.flush();
 
     expect(m.el.querySelector("ul.nugget-grid")).toBeNull();
+    // Keyboard users land on the chosen card, not back at the top of the page.
+    expect(document.activeElement).toBe(
+      m.el.querySelector(".selected-nugget-wrap .nugget-clear-btn")
+    );
     expect(document.querySelector<HTMLInputElement>("#id_name")?.value).toBe(
       "Aircraft design basics"
     );

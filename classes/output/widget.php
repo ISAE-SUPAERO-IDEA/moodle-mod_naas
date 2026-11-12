@@ -40,7 +40,7 @@ class widget implements renderable, templatable {
      * Version suffix of the Vue bundle shipped in assets/vue/naas_widget-<version>.js.
      * Kept in sync with BUNDLE_VERSION in vue/vite.config.ts by vue/scripts/bump-version.js.
      */
-    public const BUNDLE_VERSION = '2026111202';
+    public const BUNDLE_VERSION = '2026111203';
 
     /** @var int The nugget ID. */
     protected $nuggetid;
@@ -93,6 +93,8 @@ class widget implements renderable, templatable {
             "cm_id" => $this->cmid,
             "catalogue_snapshot" => $snapshot,
             "license_filter" => \mod_naas\catalogue_filters::widget_license_config(),
+            // The About sheet shows this institute's licence. Not secret: the LTI launch sends it too.
+            "structure_id" => (string) get_config('naas', 'naas_structure_id'),
             // Same rule as the LTI "feedback" option sent to the player (naas_lti::lti_custom_options).
             "rating_enabled" => (string) get_config('naas', 'naas_feedback') === '1',
             "labels" => [
@@ -173,6 +175,15 @@ class widget implements renderable, templatable {
                     "license_2" => get_string('license_2', 'naas'),
                     "license_3" => get_string('license_3', 'naas'),
                     "license_4" => get_string('license_4', 'naas'),
+                    "license_right_by" => get_string('license_right_by', 'naas'),
+                    "license_right_co" => get_string('license_right_co', 'naas'),
+                    "license_right_nc" => get_string('license_right_nc', 'naas'),
+                    "license_right_nd" => get_string('license_right_nd', 'naas'),
+                    "license_right_ru" => get_string('license_right_ru', 'naas'),
+                    "license_right_sa" => get_string('license_right_sa', 'naas'),
+                    "license_right_uu" => get_string('license_right_uu', 'naas'),
+                    "producer" => get_string('producer', 'naas'),
+                    "partner" => get_string('partner', 'naas'),
                     "is_public" => get_string('is_public', 'naas'),
                     "public" => get_string('public', 'naas'),
                     "private" => get_string('private', 'naas'),

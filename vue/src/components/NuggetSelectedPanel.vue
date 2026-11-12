@@ -23,7 +23,7 @@
  */
 -->
 <template>
-  <div class="selected-nugget-wrap">
+  <div ref="wrap" class="selected-nugget-wrap">
     <div class="selected-nugget-inner">
       <div v-if="loading" class="selected-nugget-loading">
         <NuggetLoadingBanner />
@@ -64,6 +64,17 @@ const emit = defineEmits<{
 }>();
 
 const cguAnchor = ref<HTMLElement | null>(null);
+const wrap = ref<HTMLElement | null>(null);
+
+/**
+ * Move the keyboard focus onto the chosen card (its first control, Replace),
+ * since the Select button the teacher pressed has left the page.
+ */
+function focusCard(): void {
+  wrap.value?.querySelector<HTMLElement>("button")?.focus();
+}
+
+defineExpose({ focusCard });
 
 // Put the CGU row back before the card (and its anchor) leaves the page.
 watch(

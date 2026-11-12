@@ -20,7 +20,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-import { describe, it, expect, afterEach } from "vitest";
+import { describe, it, expect, afterEach, vi } from "vitest";
 import FilterFacetColumn from "./FilterFacetColumn.vue";
 import { mountComponent, type Mounted } from "@/test/mountComponent";
 import type { MappedAggregation } from "@/composables/searchAggregations";
@@ -154,6 +154,35 @@ describe("FilterFacetColumn", () => {
     });
     const rows = [...el.querySelectorAll(".filter-option")];
     expect(rows.map((r) => r.textContent?.trim())).toEqual(["ISAE"]);
+  });
+
+  it("closes its open list with Escape and gives the focus back to the pill", () => {
+    const { el, emitted } = mountColumn(
+      facet("level", [bucket("a")], { visible: true })
+    );
+    const option = el.querySelector<HTMLInputElement>(".filter-option input")!;
+    option.focus();
+    const escape = new KeyboardEvent("keydown", {
+      key: "Escape",
+      bubbles: true,
+    });
+    const outer = vi.fn();
+    document.body.addEventListener("keydown", outer);
+    option.dispatchEvent(escape);
+    document.body.removeEventListener("keydown", outer);
+
+    expect(emitted.toggle).toHaveLength(1);
+    expect(document.activeElement).toBe(el.querySelector(".filter-pill"));
+    // The Escape stays inside the list: an enclosing panel does not close.
+    expect(outer).not.toHaveBeenCalled();
+  });
+
+  it("leaves Escape alone while its list is closed", () => {
+    const { el, emitted } = mountColumn(facet("level", [bucket("a")]));
+    el.querySelector<HTMLElement>(".filter-pill")!.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "Escape", bubbles: true })
+    );
+    expect(emitted.toggle).toBeUndefined();
   });
 
   it("emits toggle when the pill is clicked", () => {

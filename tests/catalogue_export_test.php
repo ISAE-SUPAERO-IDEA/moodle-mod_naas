@@ -75,6 +75,43 @@ final class catalogue_export_test extends advanced_testcase {
         );
     }
 
+    public function test_export_keeps_licence_rights_and_partner_for_the_about_sheet(): void {
+        $config = (object) get_config('naas');
+        catalogue_cache::store(['fingerprint' => catalogue_cache::fingerprint($config)]);
+        catalogue_cache::remember_search(json_encode([
+            'items' => [
+                [
+                    'nugget_id' => 'n1',
+                    'access_licences' => [
+                        [
+                            'structure_id' => 'isae',
+                            'is_open_access' => true,
+                            'rights' => ['by', 'nc', 7],
+                            'creator' => 'someone@example.com',
+                            'created' => '2026-07-17',
+                        ],
+                        'not a licence',
+                    ],
+                    'partner' => ['name' => 'ONERA', 'url' => 'https://onera.fr', 'logo_url' => 'x'],
+                ],
+                ['nugget_id' => 'n2', 'access_licences' => 'none'],
+            ],
+            'aggregations' => [],
+            'results_count' => 2,
+        ]), $config);
+
+        $items = catalogue_export::export_for_widget()['search']['items'];
+
+        // Only what the About sheet reads: no creator, no dates.
+        $this->assertSame(
+            [['structure_id' => 'isae', 'is_open_access' => true, 'rights' => ['by', 'nc']]],
+            $items[0]['access_licences']
+        );
+        $this->assertSame(['name' => 'ONERA', 'url' => 'https://onera.fr'], $items[0]['partner']);
+        $this->assertSame([], $items[1]['access_licences']);
+        $this->assertSame(['name' => '', 'url' => ''], $items[1]['partner']);
+    }
+
     public function test_cached_probe_is_served_inside_the_ttl(): void {
         $config = (object) get_config('naas');
         catalogue_cache::store([

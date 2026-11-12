@@ -20,19 +20,28 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { reactive } from "vue";
 import NuggetAboutModal from "./NuggetAboutModal.vue";
 import { mountComponent, type Mounted } from "@/test/mountComponent";
 import { expectTabCycles, openDialog, pressKey } from "@/test/modalKeys";
-import { makeNugget, providers } from "@/test/widgetFixtures";
+import {
+  makeConfig,
+  makeNugget,
+  makeService,
+  providers,
+} from "@/test/widgetFixtures";
 import type { Nugget } from "@/types/nugget.types";
 
 let mounted: Mounted | null = null;
 
-async function openAbout(nugget: Nugget = makeNugget()) {
+async function openAbout(
+  nugget: Nugget = makeNugget(),
+  config = makeConfig(),
+  service = makeService()
+) {
   const props = reactive({ nugget, visible: false });
-  mounted = mountComponent(NuggetAboutModal, props, providers());
+  mounted = mountComponent(NuggetAboutModal, props, providers(config, service));
   props.visible = true;
   await mounted.flush();
   return { props, dialog: openDialog(), ...mounted };
@@ -176,6 +185,99 @@ describe("NuggetAboutModal", () => {
   it("shows an unknown license code as is", async () => {
     const { dialog } = await openAbout(makeNugget({ license: 9 }));
     expect(dialog.textContent?.replace(/\s+/g, " ")).toContain("License: 9");
+  });
+
+  it("shows the licence rights granted to the configured institute", async () => {
+    const config = makeConfig({ structure_id: "isae" });
+    config.labels.metadata.license_right_by = "Attribution";
+    config.labels.metadata.license_right_nc = "Non-commercial use";
+    const nugget = makeNugget({
+      license: undefined,
+      access_licences: [
+        { structure_id: "other", rights: ["by", "co"] },
+        { structure_id: "isae", rights: ["by", "nc"] },
+      ],
+    });
+    const { dialog } = await openAbout(nugget, config);
+    expect(dialog.textContent?.replace(/\s+/g, " ")).toContain(
+      "License: Attribution · Non-commercial use"
+    );
+  });
+
+  it("names the producing institutes", async () => {
+    const service = makeService({
+      getStructure: vi
+        .fn()
+        .mockImplementation((key: string) =>
+          Promise.resolve({ structure_id: key, acronym: key.toUpperCase() })
+        ),
+    });
+    const config = makeConfig();
+    config.labels.metadata.producer = "Producer";
+    const { dialog, flush } = await openAbout(
+      makeNugget({ managing_structures: ["isae", "enac", "isae"] }),
+      config,
+      service
+    );
+    await flush();
+    expect(dialog.textContent?.replace(/\s+/g, " ")).toContain(
+      "Producer: ISAE, ENAC"
+    );
+  });
+
+  it("ignores producer names that arrive for a Nugget already replaced", async () => {
+    let answer: (value: unknown) => void = () => {};
+    const service = makeService({
+      getStructure: vi.fn(() => new Promise((resolve) => (answer = resolve))),
+    });
+    const config = makeConfig();
+    config.labels.metadata.producer = "Producer";
+    const { props, dialog, flush } = await openAbout(
+      makeNugget({ managing_structures: ["slow"] }),
+      config,
+      service
+    );
+    props.nugget = makeNugget({ name: "Other", managing_structures: [] });
+    await flush();
+    answer({ acronym: "SLOW" });
+    await flush();
+    expect(dialog.textContent).not.toContain("SLOW");
+  });
+
+  it("shows the partner, linked only to a web address", async () => {
+    const config = makeConfig();
+    config.labels.metadata.partner = "Partner";
+    const { dialog } = await openAbout(
+      makeNugget({ partner: { name: "ONERA", url: "https://onera.fr" } }),
+      config
+    );
+    const link = dialog.querySelector<HTMLAnchorElement>(
+      'a[href="https://onera.fr"]'
+    );
+    expect(link?.textContent).toBe("ONERA");
+    expect(link?.getAttribute("rel")).toBe("noopener noreferrer");
+    mounted?.unmount();
+    document.body.innerHTML = "";
+
+    const unsafe = await openAbout(
+      makeNugget({ partner: { name: "Evil", url: "javascript:alert(1)" } }),
+      config
+    );
+    expect(unsafe.dialog.textContent?.replace(/\s+/g, " ")).toContain(
+      "Partner: Evil"
+    );
+    expect(unsafe.dialog.querySelector('a[href^="javascript"]')).toBeNull();
+    mounted?.unmount();
+    document.body.innerHTML = "";
+
+    const nolink = await openAbout(
+      makeNugget({ partner: { name: "CNES", url: null } }),
+      config
+    );
+    expect(nolink.dialog.textContent?.replace(/\s+/g, " ")).toContain(
+      "Partner: CNES"
+    );
+    expect(nolink.dialog.querySelector(".metadata-list a")).toBeNull();
   });
 
   it("closes on Escape, the close button and the backdrop only", async () => {

@@ -105,14 +105,32 @@
                     }}{{ config.labels.labelsep }}
                     <strong>{{ config.labels.metadata[nugget.level!] }}</strong>
                   </li>
-                  <li v-if="isShown(nugget.license)">
+                  <li v-if="licenceText">
                     <i class="icon fa fa-id-card-o" aria-hidden="true" />
                     {{ config.labels.metadata.license
                     }}{{ config.labels.labelsep }}
-                    <strong>{{
-                      config.labels.metadata[`license_${nugget.license}`] ??
-                      nugget.license
-                    }}</strong>
+                    <strong>{{ licenceText }}</strong>
+                  </li>
+                  <li v-if="producerNames.length">
+                    <i class="icon fa fa-university" aria-hidden="true" />
+                    {{ config.labels.metadata.producer
+                    }}{{ config.labels.labelsep }}
+                    <strong>{{ producerNames.join(", ") }}</strong>
+                  </li>
+                  <li v-if="partnerName">
+                    <i class="icon fa fa-handshake-o" aria-hidden="true" />
+                    {{ config.labels.metadata.partner
+                    }}{{ config.labels.labelsep }}
+                    <strong>
+                      <a
+                        v-if="partnerUrl"
+                        :href="partnerUrl"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        >{{ partnerName }}</a
+                      >
+                      <template v-else>{{ partnerName }}</template>
+                    </strong>
                   </li>
                   <li
                     v-if="isShown(nugget.domains_data)"
@@ -199,8 +217,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, useId } from "vue";
+import { computed, ref, useId, watch } from "vue";
 import { formatShortDate } from "@/composables/formatDate";
+import { licenceRights, rightsCaption } from "@/composables/nuggetLicence";
+import { useEntityResolvers } from "@/composables/useEntityResolvers";
 import { useModalA11y } from "@/composables/useModalA11y";
 import { fillLabel } from "@/utils/fillLabel";
 import { useNaasConfig } from "@/composables/useNaasConfig";
@@ -237,12 +257,54 @@ function formatDate(value?: string): string {
   return formatShortDate(value);
 }
 
+/** Legacy numeric licence when NaaS still sends one, else the institute's licence rights. */
+const licenceText = computed(() => {
+  const legacy = props.nugget.license;
+  if (isShown(legacy)) {
+    return config.labels.metadata[`license_${legacy}`] ?? String(legacy);
+  }
+  return rightsCaption(
+    licenceRights(props.nugget.access_licences, config.structure_id),
+    config.labels.metadata
+  );
+});
+
+const partnerName = computed(() => props.nugget.partner?.name?.trim() || "");
+/** Only web links: never javascript: or other schemes coming from NaaS. */
+const partnerUrl = computed(() => {
+  const url = props.nugget.partner?.url?.trim() || "";
+  return /^https?:\/\//i.test(url) ? url : "";
+});
+
+/** Producing institutes, named from the catalogue snapshot or Moodle. */
+const producerNames = ref<string[]>([]);
+const { getStructureAcronym } = useEntityResolvers();
+watch(
+  () => [props.visible, props.nugget] as const,
+  async ([visible, nugget]) => {
+    if (!visible) {
+      return;
+    }
+    const keys = [
+      ...new Set(nugget.managing_structures ?? nugget.producers ?? []),
+    ].filter(Boolean);
+    const names = await Promise.all(keys.map(getStructureAcronym));
+    // Ignore an answer for a Nugget that was replaced in the meantime.
+    if (props.nugget === nugget) {
+      producerNames.value = names.filter(Boolean);
+    }
+  },
+  { immediate: true }
+);
+
 const inBriefShown = computed(
   () =>
     isShown(props.nugget.duration) ||
     isShown(props.nugget.language) ||
     isShown(props.nugget.level) ||
-    isShown(props.nugget.license) ||
+    !!licenceText.value ||
+    producerNames.value.length > 0 ||
+    !!partnerName.value ||
     isShown(props.nugget.domains_data) ||
     isShown(props.nugget.tags) ||
     isShown(props.nugget.publication_date)

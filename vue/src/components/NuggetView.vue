@@ -139,6 +139,10 @@ import NuggetViewSkeleton from "./NuggetViewSkeleton.vue";
 import { useNaasConfig } from "@/composables/useNaasConfig";
 import { useNuggetView } from "@/composables/useNuggetView";
 import { useXapi } from "@/composables/useXapi";
+import {
+  isFrameSeen,
+  VISIBILITY_THRESHOLDS,
+} from "@/composables/frameVisibility";
 
 const config = useNaasConfig();
 const { nugget, loading, error, load } = useNuggetView();
@@ -228,7 +232,9 @@ watch(nugget, (loaded) => {
 
       visibilityObserver = new IntersectionObserver(
         (entries) => {
-          const visible = entries[0]?.isIntersecting ?? false;
+          // The latest entry is the current state when several are batched.
+          const entry = entries[entries.length - 1];
+          const visible = entry ? isFrameSeen(entry) : false;
           if (visible && !experiencedTimer) {
             experiencedTimer = setTimeout(() => {
               postStatement({
@@ -245,7 +251,7 @@ watch(nugget, (loaded) => {
             experiencedTimer = null;
           }
         },
-        { threshold: 0.5 }
+        { threshold: VISIBILITY_THRESHOLDS }
       );
 
       visibilityObserver.observe(iframe);

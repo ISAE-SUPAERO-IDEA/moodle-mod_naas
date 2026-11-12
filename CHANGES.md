@@ -26,6 +26,10 @@ _All notable changes to the NaaS Moodle plugin will be documented in this file._
 - A learner opening an activity whose Nugget was unpublished or deleted sees "The Nugget you are trying to access does not exist or is no longer available.", without Retry or "I Finished My Learning"
 - The catalogue search filter help gives a valid NQL example: nugget:type = 'video'
 - While a commercial-use or restricted-use filter is set, the Nugget picker no longer shows Nugget counts, which NaaS cannot compute for one institute's licence
+- The "experienced" xAPI statement is also sent on phones and when the Nugget is taller than the screen: the frame counts as seen once half of it, or 300 px of the screen, is visible for 10 s
+- No more "No define call" RequireJS error in the browser console on pages with the Nugget widget
+- Keyboard use of the Nugget picker: the Filters button shows a focus ring, Escape closes an open filter list, and the focus moves to the chosen Nugget after Select
+- The About sheet shows the licence granted to the institute, the producing institutes and the partner
 - Domain codes with dots and e-mail author keys no longer break the vocabulary cache when debugging is on
 - The completion condition shows "Complete when all attempts are used" when only that option is ticked
 - Saving the activity form without a Nugget now shows "Select a Nugget before saving the activity" above the search, instead of an error on a hidden field

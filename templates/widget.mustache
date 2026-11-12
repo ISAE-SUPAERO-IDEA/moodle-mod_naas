@@ -32,7 +32,11 @@
 <div id="naas_widget" class="naas-widget-host"></div>
 <script type="application/json" id="naas_config">{{{config}}}</script>
 {{#js}}
-require(['core/first', '{{{widgetjsurl}}}'], function() {
-    // The widget bundle mounts itself on #naas_widget once loaded.
+require(['core/first'], function() {
+    // The widget bundle is a plain script (IIFE), not an AMD module: loading it with
+    // require() made RequireJS report "No define call". It mounts itself on #naas_widget.
+    var script = document.createElement('script');
+    script.src = '{{{widgetjsurl}}}';
+    document.head.appendChild(script);
 });
 {{/js}}

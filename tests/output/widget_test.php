@@ -103,6 +103,20 @@ final class widget_test extends advanced_testcase {
     }
 
     /**
+     * The About sheet gets the configured institute, to show its licence.
+     */
+    public function test_structure_id_is_exported_for_the_about_sheet(): void {
+        $this->resetAfterTest(true);
+        set_config('naas_structure_id', 'institute-42', 'naas');
+
+        $config = $this->exported_config('NuggetSearchWidget');
+
+        $this->assertSame('institute-42', $config['structure_id']);
+        $this->assertSame('Commercial use', $config['labels']['metadata']['license_right_co']);
+        $this->assertSame('Producer', $config['labels']['metadata']['producer']);
+    }
+
+    /**
      * The completion modal shows the rating only when "Allow learners to rate Nuggets" is on.
      */
     public function test_rating_enabled_follows_the_feedback_setting(): void {

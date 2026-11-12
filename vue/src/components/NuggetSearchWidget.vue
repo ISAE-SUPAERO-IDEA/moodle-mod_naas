@@ -102,7 +102,7 @@
         @back="backToBrowse"
         @remove-filter="removeFilter"
         @clear-filters="clearAllFilters"
-        @select="toggleNugget"
+        @select="onPick"
         @more="loadMore"
       />
     </div>
@@ -110,6 +110,7 @@
     <!-- Selected nugget display -->
     <NuggetSelectedPanel
       v-else
+      ref="selectedPanel"
       :nugget="selectedNugget"
       :loading="selectedNuggetLoading"
       @replace="onReplace"
@@ -118,7 +119,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount } from "vue";
+import { nextTick, ref, onMounted, onBeforeUnmount } from "vue";
+import type { Nugget } from "@/types/nugget.types";
 import NuggetSearchBar from "./NuggetSearchBar.vue";
 import NuggetBrowseLanding from "./NuggetBrowseLanding.vue";
 import NuggetSearchResults from "./NuggetSearchResults.vue";
@@ -221,6 +223,21 @@ const {
 function retryCatalogue() {
   catalogueLoading.value = true;
   return runCatalogueCheck();
+}
+
+const selectedPanel = ref<{ focusCard: () => void } | null>(null);
+
+/**
+ * Select (or unselect) a result. A teacher's pick moves the focus onto the
+ * chosen card, so keyboard users do not land back at the top of the page.
+ */
+async function onPick(nugget: Nugget) {
+  toggleNugget(nugget);
+  if (selectedNugget.value === null) {
+    return;
+  }
+  await nextTick();
+  selectedPanel.value?.focusCard();
 }
 
 /** Replace on the chosen card: back to the results it was picked from. */

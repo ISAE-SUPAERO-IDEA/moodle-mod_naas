@@ -23,8 +23,9 @@
  */
 -->
 <template>
-  <div class="filter-column">
+  <div class="filter-column" @keydown.esc="onEscape">
     <button
+      ref="pill"
       type="button"
       class="filter-pill"
       :class="{
@@ -79,7 +80,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import { useNaasConfig } from "@/composables/useNaasConfig";
 import {
   hasMoreAuthors,
@@ -106,6 +107,18 @@ const config = useNaasConfig();
 const active = computed(() => hasSelectedBuckets(props.aggregation));
 // NaaS counts are wrong under a licence filter: show the labels alone.
 const showCounts = countsAreExact(config.license_filter);
+const pill = ref<HTMLButtonElement | null>(null);
+
+/** Escape closes the open list and gives the focus back to its pill. */
+function onEscape(event: KeyboardEvent): void {
+  if (!props.aggregation.visible) {
+    return;
+  }
+  // Only this list closes, not an enclosing panel or dialog.
+  event.stopPropagation();
+  emit("toggle");
+  pill.value?.focus();
+}
 </script>
 
 <style scoped>

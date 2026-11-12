@@ -146,6 +146,12 @@ class catalogue_export {
                 'domains' => $row['domains'] ?? [],
                 'producers' => $row['producers'] ?? ($row['managing_structures'] ?? []),
                 'license' => $row['license'] ?? null,
+                // About sheet: the licence rights and the partner (live search results carry them too).
+                'access_licences' => self::slim_licences($row['access_licences'] ?? []),
+                'partner' => [
+                    'name' => (string) ($row['partner']['name'] ?? ''),
+                    'url' => (string) ($row['partner']['url'] ?? ''),
+                ],
                 'duration' => $row['duration'] ?? null,
                 'language' => $row['language'] ?? '',
                 'level' => $row['level'] ?? '',
@@ -158,5 +164,29 @@ class catalogue_export {
             'results_count' => (int) ($search['results_count'] ?? 0),
             'vocabulary' => vocabulary_lookup::collect($items),
         ];
+    }
+
+    /**
+     * Access licences reduced to what the About sheet reads (no creator, no dates).
+     *
+     * @param mixed $licences A Nugget's access_licences
+     * @return array
+     */
+    private static function slim_licences($licences): array {
+        if (!is_array($licences)) {
+            return [];
+        }
+        $slim = [];
+        foreach ($licences as $licence) {
+            if (!is_array($licence)) {
+                continue;
+            }
+            $slim[] = [
+                'structure_id' => (string) ($licence['structure_id'] ?? ''),
+                'is_open_access' => !empty($licence['is_open_access']),
+                'rights' => array_values(array_filter((array) ($licence['rights'] ?? []), 'is_string')),
+            ];
+        }
+        return $slim;
     }
 }

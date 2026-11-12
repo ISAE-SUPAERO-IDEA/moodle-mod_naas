@@ -243,7 +243,12 @@ const config = useNaasConfig();
 .filters-toggle-btn:focus-visible {
   border-color: var(--naas-primary, #0f6cbf);
   color: var(--naas-primary, #0f6cbf);
-  outline: none;
+}
+
+/* Keyboard focus needs a ring of its own: the colour change alone is too faint. */
+.filters-toggle-btn:focus-visible {
+  outline: 2px solid var(--naas-primary, #0f6cbf);
+  outline-offset: 2px;
 }
 
 /* Doubled class: stays dark blue on hover too (4.36:1 for primary on primary-light). */
