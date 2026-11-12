@@ -95,8 +95,7 @@
 
 <script setup lang="ts">
 import { ref, watch } from "vue";
-import NuggetPost from "./NuggetPost.vue";
-import NuggetSkeleton from "./NuggetSkeleton.vue";
+import { NuggetPost, NuggetSkeleton } from "@/entities/nugget";
 import NuggetViewModal from "./NuggetViewModal.vue";
 import { useNaasConfig } from "@/shared/config";
 import { onCardGridKeydown } from "@/composables/cardGridKeys";

@@ -219,8 +219,8 @@
 <script setup lang="ts">
 import { computed, ref, useId, watch } from "vue";
 import { formatShortDate, fillLabel } from "@/shared/lib";
-import { licenceRights, rightsCaption } from "@/composables/nuggetLicence";
-import { useStructureResolvers } from "@/entities/catalogue";
+import { licenceRights, rightsCaption } from "../lib/nuggetLicence";
+import { useStructureResolvers } from "@/entities/catalogue/@x/nugget";
 import { useModalA11y } from "@/shared/ui";
 import { useNaasConfig } from "@/shared/config";
 import type { Nugget } from "@/shared/api";

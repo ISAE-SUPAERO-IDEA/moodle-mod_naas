@@ -49,8 +49,7 @@
 
 <script setup lang="ts">
 import { nextTick, onBeforeUnmount, ref, watch } from "vue";
-import NuggetPost from "./NuggetPost.vue";
-import NuggetSkeleton from "./NuggetSkeleton.vue";
+import { NuggetPost, NuggetSkeleton } from "@/entities/nugget";
 import NuggetViewModal from "./NuggetViewModal.vue";
 import { NuggetLoadingBanner } from "@/shared/ui";
 import {

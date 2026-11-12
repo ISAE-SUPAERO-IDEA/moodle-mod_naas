@@ -30,7 +30,7 @@
 import { ref } from "vue";
 import { useMoodleService } from "@/shared/api";
 import { useNaasConfig } from "@/shared/config";
-import { useNuggetEnricher } from "./useNuggetEnricher";
+import { useNuggetEnricher } from "@/entities/nugget";
 import {
   applyVocabulary,
   isEnriched,

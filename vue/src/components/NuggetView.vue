@@ -133,7 +133,7 @@ const iframeResize = iframeResizeLib as (
   selector: string
 ) => void;
 
-import NuggetAboutModal from "./NuggetAboutModal.vue";
+import { NuggetAboutModal } from "@/entities/nugget";
 import NuggetCompletionModal from "./NuggetCompletionModal.vue";
 import NuggetViewSkeleton from "./NuggetViewSkeleton.vue";
 import { useNaasConfig } from "@/shared/config";

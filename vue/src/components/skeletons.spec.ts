@@ -22,7 +22,6 @@
 
 import { afterEach, describe, expect, it } from "vitest";
 import FilterSkeleton from "./FilterSkeleton.vue";
-import NuggetSkeleton from "./NuggetSkeleton.vue";
 import NuggetViewSkeleton from "./NuggetViewSkeleton.vue";
 import { mountComponent, type Mounted } from "@/test/mountComponent";
 
@@ -35,7 +34,6 @@ describe("skeletons", () => {
   });
 
   it.each([
-    ["NuggetSkeleton", NuggetSkeleton],
     ["FilterSkeleton", FilterSkeleton],
     ["NuggetViewSkeleton", NuggetViewSkeleton],
   ])("%s is hidden from screen readers", (_name, component) => {
@@ -43,18 +41,5 @@ describe("skeletons", () => {
     const root = mounted.el.firstElementChild!;
     expect(root.getAttribute("aria-hidden")).toBe("true");
     expect(root.textContent?.trim()).toBe("");
-  });
-
-  it("NuggetSkeleton follows the layout and staggers its sheen", () => {
-    mounted = mountComponent(NuggetSkeleton, { variant: "row", delay: 2 });
-    const root = mounted.el.querySelector<HTMLElement>(".nugget-skeleton")!;
-    expect(root.classList.contains("nugget-skeleton--row")).toBe(true);
-    expect(root.style.getPropertyValue("--skel-delay")).toBe("2");
-
-    mounted.unmount();
-    mounted = mountComponent(NuggetSkeleton);
-    const card = mounted.el.querySelector<HTMLElement>(".nugget-skeleton")!;
-    expect(card.classList.contains("nugget-skeleton--row")).toBe(false);
-    expect(card.style.getPropertyValue("--skel-delay")).toBe("0");
   });
 });

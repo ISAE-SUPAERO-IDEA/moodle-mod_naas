@@ -24,7 +24,7 @@
 import { ref, onMounted } from "vue";
 import { useMoodleService, errorMessage } from "@/shared/api";
 import { useNaasConfig } from "@/shared/config";
-import { useNuggetEnricher } from "./useNuggetEnricher";
+import { useNuggetEnricher } from "@/entities/nugget";
 import type { Nugget } from "@/shared/api";
 
 export function useNuggetView() {
