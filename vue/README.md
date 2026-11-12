@@ -39,9 +39,9 @@ Markdown files are left out of Prettier (`.prettierignore`).
 
 ## Architecture
 
-`src/` is being reorganised by [Feature-Sliced Design](https://fsd.how/) (FSD 2.1), like the
-other NaaS front ends. The plan and its progress are in
-`EPIC_vue_feature_sliced_design.md` at the plugin root.
+`src/` follows [Feature-Sliced Design](https://fsd.how/) (FSD 2.1), like the other NaaS
+front ends. `EPIC_vue_feature_sliced_design.md` at the plugin root tells how and why it was
+reorganised.
 
 | Layer | In this widget | May import |
 |---|---|---|
@@ -89,9 +89,8 @@ Two tools check the rules, and both run in CI:
   asks for Node 22.18 or later; with a `.mjs` configuration it also runs on Node 22.14.
 - `src/architecture.spec.ts` runs with the unit tests. It covers what Steiger cannot see:
   imports of `.vue` files (Steiger does not follow them), who uses an `@x` entry point,
-  `vi.mock()` paths, rules 5 and 6, and the folders from before the migration. Its `LEGACY`
-  list names those folders: code in a layer may not import them, and an entry is removed
-  when its last file has moved.
+  `vi.mock()` paths, rules 5 and 6, and that `src/` holds nothing but the layers, `test/`
+  and `vite-env.d.ts`.
 
 ## Releasing a new bundle
 

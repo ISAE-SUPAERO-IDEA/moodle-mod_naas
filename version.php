@@ -24,8 +24,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version        = 2026110606;                  // The current module version (Date: YYYYMMDDXX).
-$plugin->release        = "3.0.0";                     // Vue 3 widget, catalogue cache.
+$plugin->version        = 2026111200;                  // The current module version (Date: YYYYMMDDXX).
+$plugin->release        = "3.1.0";                     // Widget sources in Feature-Sliced Design, built with pnpm.
 $plugin->requires       = 2022112800;                  // Moodle 4.1, the oldest version the CI tests.
 $plugin->supported      = [401, 500];                  // Moodle 4.1 to 5.0, tested by the CI.
 $plugin->component      = 'mod_naas';                  // Full name of the plugin (used for diagnostics).

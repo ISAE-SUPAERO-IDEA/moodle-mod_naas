@@ -17,29 +17,22 @@
  * Architecture rules that Steiger (`pnpm lint:fsd`) cannot check.
  *
  * Steiger checks the direction of imports between layers and slices. It does
- * not follow an import whose target is a .vue file, skips the folders that are
- * not FSD layers, does not check who uses an @x entry point, and does not read
- * vi.mock() paths. This spec reads every source file as text and checks that:
+ * not follow an import whose target is a .vue file, does not check who uses an
+ * @x entry point, and does not read vi.mock() paths. This spec reads every
+ * source file as text and checks that:
  *
  * - an import that leaves a slice (or a shared segment) targets the index.ts
  *   of the other one, or the @x entry point made for the importing slice;
- * - code in a layer never imports the folders from before the migration;
  * - imports and vi.mock() paths point to a file;
  * - src/test is imported by specs only;
  * - every .ts and .vue file has the Moodle GPL header;
- * - src/ holds only the layers, src/test and the entries listed in LEGACY.
+ * - src/ holds only the layers, src/test and vite-env.d.ts.
  *
  * @copyright  2026 ISAE-SUPAERO (https://www.isae-supaero.fr/)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 import { describe, expect, it } from "vitest";
-
-/**
- * Folders and files from before the migration to Feature-Sliced Design.
- * Remove an entry when its last file has moved; the list ends up empty.
- */
-const LEGACY: string[] = [];
 
 const SLICED_LAYERS = ["pages", "widgets", "features", "entities"];
 const LAYERS = ["app", ...SLICED_LAYERS, "shared"];
@@ -60,7 +53,7 @@ function captures(text: string, pattern: RegExp): string[] {
   return [...text.matchAll(pattern)].map((match) => match[1]);
 }
 
-/** The slice, shared segment or special folder of a file; null for legacy code. */
+/** The slice, shared segment or special folder of a file; null outside them. */
 function unitOf(path: string): string | null {
   const [top, second] = path.split("/");
   if (SLICED_LAYERS.includes(top) || top === "shared") {
@@ -119,13 +112,9 @@ function isPublicApi(
 function checkImport(from: string, to: string): string | null {
   const fromUnit = unitOf(from);
   const toUnit = unitOf(to);
-  if (toUnit === fromUnit) {
+  // A file outside the layers is reported once, by checkTopLevel().
+  if (toUnit === fromUnit || toUnit === null) {
     return null;
-  }
-  if (toUnit === null) {
-    return fromUnit === "test"
-      ? null
-      : `${from} imports ${to}: code in a layer must not import code from before the migration`;
   }
   if (toUnit === "test") {
     return from.endsWith(".spec.ts")
@@ -179,25 +168,20 @@ function checkFile(from: string, sources: Sources): string[] {
   ];
 }
 
-function checkTopLevel(sources: Sources, legacy: string[]): string[] {
+function checkTopLevel(sources: Sources): string[] {
   const entries = new Set(
     Object.keys(sources).map((path) => path.split("/")[0])
   );
-  const allowed = [...LAYERS, "test", ...ROOT_FILES, ...legacy];
-  return [
-    ...[...entries]
-      .filter((entry) => !allowed.includes(entry))
-      .map((entry) => `src/${entry} is neither a layer nor listed in LEGACY`),
-    ...legacy
-      .filter((entry) => !entries.has(entry))
-      .map((entry) => `LEGACY lists ${entry}, which no longer exists`),
-  ];
+  const allowed = [...LAYERS, "test", ...ROOT_FILES];
+  return [...entries]
+    .filter((entry) => !allowed.includes(entry))
+    .map((entry) => `src/${entry} is not a layer`);
 }
 
 /** Every broken rule in `sources`, as one readable line each. */
-function checkArchitecture(sources: Sources, legacy: string[]): string[] {
+function checkArchitecture(sources: Sources): string[] {
   return [
-    ...checkTopLevel(sources, legacy),
+    ...checkTopLevel(sources),
     ...Object.keys(sources)
       .sort()
       .flatMap((path) => checkFile(path, sources)),
@@ -228,7 +212,7 @@ describe("architecture of the widget sources", () => {
     }
 
     expect(Object.keys(sources).length).toBeGreaterThan(100);
-    expect(checkArchitecture(sources, LEGACY)).toEqual([]);
+    expect(checkArchitecture(sources)).toEqual([]);
   });
 });
 
@@ -251,7 +235,7 @@ describe("architecture rules", () => {
         'import { Card } from "@/entities/nugget";',
     });
 
-    expect(checkArchitecture(sources, [])).toEqual([]);
+    expect(checkArchitecture(sources)).toEqual([]);
   });
 
   it("reject a .vue file imported from outside its slice", () => {
@@ -261,19 +245,19 @@ describe("architecture rules", () => {
         'import Card from "@/entities/nugget/ui/Card.vue";',
     });
 
-    expect(checkArchitecture(sources, [])).toEqual([
+    expect(checkArchitecture(sources)).toEqual([
       "widgets/results/ui/Grid.vue imports entities/nugget/ui/Card.vue: import entities/nugget through its index.ts",
     ]);
   });
 
-  it("reject a deep import into a shared segment, from legacy code too", () => {
+  it("reject a deep import into a shared segment", () => {
     const sources = tree({
       "shared/lib/fill.ts": "",
-      "components/Old.vue": 'import { fill } from "@/shared/lib/fill";',
+      "widgets/bar/ui/Bar.vue": 'import { fill } from "@/shared/lib/fill";',
     });
 
-    expect(checkArchitecture(sources, ["components"])).toEqual([
-      "components/Old.vue imports shared/lib/fill.ts: import shared/lib through its index.ts",
+    expect(checkArchitecture(sources)).toEqual([
+      "widgets/bar/ui/Bar.vue imports shared/lib/fill.ts: import shared/lib through its index.ts",
     ]);
   });
 
@@ -284,20 +268,8 @@ describe("architecture rules", () => {
         'import { names } from "@/entities/catalogue/@x/nugget";',
     });
 
-    expect(checkArchitecture(sources, [])).toEqual([
+    expect(checkArchitecture(sources)).toEqual([
       "features/pick/model/pick.ts imports entities/catalogue/@x/nugget/index.ts: import entities/catalogue through its index.ts",
-    ]);
-  });
-
-  it("reject layer code that imports code from before the migration", () => {
-    const sources = tree({
-      "utils/debounce.ts": "",
-      "shared/lib/wait.ts": 'import { debounce } from "@/utils/debounce";',
-      "test/fixtures.ts": 'import { debounce } from "@/utils/debounce";',
-    });
-
-    expect(checkArchitecture(sources, ["utils"])).toEqual([
-      "shared/lib/wait.ts imports utils/debounce.ts: code in a layer must not import code from before the migration",
     ]);
   });
 
@@ -309,7 +281,7 @@ describe("architecture rules", () => {
         'vi.mock("./Gone.vue");\nimport { bar } from "./missing";',
     });
 
-    expect(checkArchitecture(sources, [])).toEqual([
+    expect(checkArchitecture(sources)).toEqual([
       'widgets/bar/ui/Bar.spec.ts imports "./missing", which is not a file',
       'widgets/bar/ui/Bar.spec.ts mocks "./Gone.vue", which is not a file',
     ]);
@@ -322,7 +294,7 @@ describe("architecture rules", () => {
       "shared/lib/wait.spec.ts": 'import { mount } from "@/test/mount";',
     });
 
-    expect(checkArchitecture(sources, [])).toEqual([
+    expect(checkArchitecture(sources)).toEqual([
       "shared/lib/wait.ts imports test/mount.ts: src/test is for specs only",
     ]);
   });
@@ -334,18 +306,19 @@ describe("architecture rules", () => {
       "app/styles/theme.css": ".naas {}",
     };
 
-    expect(checkArchitecture(sources, [])).toEqual([
+    expect(checkArchitecture(sources)).toEqual([
       "shared/lib/wait.ts has no GPL header",
       "shared/ui/Banner.vue has no GPL header",
     ]);
   });
 
-  it("keep src/ to the layers and the listed legacy entries", () => {
-    const sources = tree({ "helpers/wait.ts": "", "vite-env.d.ts": "" });
+  it("keep src/ to the layers", () => {
+    const sources = tree({
+      "helpers/wait.ts": "",
+      "shared/lib/later.ts": 'import { wait } from "@/helpers/wait";',
+      "vite-env.d.ts": "",
+    });
 
-    expect(checkArchitecture(sources, ["utils"])).toEqual([
-      "src/helpers is neither a layer nor listed in LEGACY",
-      "LEGACY lists utils, which no longer exists",
-    ]);
+    expect(checkArchitecture(sources)).toEqual(["src/helpers is not a layer"]);
   });
 });

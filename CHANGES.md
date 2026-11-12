@@ -2,6 +2,18 @@
 
 _All notable changes to the NaaS Moodle plugin will be documented in this file._
 
+## Version 3.1.0 (unreleased)
+
+### Chore
+- The widget sources follow Feature-Sliced Design (`app`, `pages`, `widgets`, `features`, `entities`, `shared`), each part behind a public `index.ts`; no change for teachers or learners
+- CI checks the widget architecture with Steiger and an architecture test, and lints it with ESLint
+- The widget is built with pnpm, ESLint 9 and Prettier 3, like the other NaaS front ends
+
+### Upgrade notes
+- Rebuilding the widget now needs pnpm 10.28 instead of Yarn 1 (`pnpm install --frozen-lockfile`, then `pnpm build` in `vue/`); Node 22 as before
+- No database change and no new setting
+
+
 ## Version 3.0.0 (unreleased)
 
 ### Feature
