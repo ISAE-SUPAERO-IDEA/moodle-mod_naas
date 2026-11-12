@@ -38,7 +38,16 @@ require_login($course, true, $cm);
 require_capability('mod/naas:view', $context);
 
 // This page fills the player iframe: a minimal standalone document around the form or the error.
+// The Moodle theme is not loaded here, so its messages ("No more attempts are allowed", NaaS
+// errors) get a readable look of their own; the dismiss button means nothing inside the frame.
+$messagestyle = '<style>'
+    . 'body{margin:0;padding:12px;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;'
+    . 'font-size:15px;line-height:1.5;color:#1d2125;}'
+    . '.alert{padding:12px 16px;border:1px solid #f1c4c2;border-left:4px solid #ca3120;'
+    . 'border-radius:6px;background:#fbeaea;}'
+    . '.alert .close,.alert button{display:none;}'
+    . '</style>';
 echo "<!DOCTYPE html>\n<html lang=\"" . current_language() . "\">\n<head><meta charset=\"utf-8\"><title>"
-    . format_string($cm->name, true, ['context' => $context]) . "</title></head>\n<body>\n";
+    . format_string($cm->name, true, ['context' => $context]) . "</title>" . $messagestyle . "</head>\n<body>\n";
 echo \mod_naas\naas_lti::lti_launch($id, $language);
 echo "\n</body>\n</html>\n";

@@ -68,6 +68,35 @@ final class launch_php_test extends advanced_testcase {
     }
 
     /**
+     * "No more attempts are allowed" is shown in a styled frame, without a dismiss button.
+     */
+    public function test_launch_styles_the_no_more_attempts_message(): void {
+        global $CFG;
+        $this->resetAfterTest(true);
+
+        $course = $this->getDataGenerator()->create_course();
+        $naas = $this->getDataGenerator()->create_module('naas', ['course' => $course->id, 'attempts' => 1]);
+        $user = $this->getDataGenerator()->create_user();
+        $this->getDataGenerator()->enrol_user($user->id, $course->id, 'student');
+        /** @var \mod_naas_generator $generator */
+        $generator = $this->getDataGenerator()->get_plugin_generator('mod_naas');
+        $generator->create_completed_attempt($user->id, $naas->cmid, 0.5);
+
+        $this->setUser($user);
+        $_GET['id'] = $naas->cmid;
+        $_REQUEST = $_GET;
+
+        ob_start();
+        require($CFG->dirroot . '/mod/naas/launch.php');
+        $html = ob_get_clean();
+
+        $this->assertStringContainsString(get_string('nomoreattempts', 'naas'), $html);
+        $this->assertStringContainsString('<style>', $html);
+        $this->assertStringContainsString('.alert .close,.alert button{display:none;}', $html);
+        $this->assertStringNotContainsString('ltiLaunchForm', $html);
+    }
+
+    /**
      * Non-enrolled user cannot access (require_login with course + cm).
      */
     public function test_launch_denies_user_not_in_course(): void {
