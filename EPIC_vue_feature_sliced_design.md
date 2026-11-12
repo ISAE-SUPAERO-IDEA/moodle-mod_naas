@@ -6,7 +6,7 @@
 | **Base** | `fix/small_modifications_ux` at a734c88. PR #132 is not merged yet: rebase onto `develop` once it is. |
 | **Working branch** | `chore/fsd_migration`, one commit (or short commit series) per story |
 | **Baseline** | a734c88: 62 source files (~9.6 k lines), 53 spec files, 100 % coverage on lines, statements, functions and branches |
-| **Status** | 🟡 In progress. Planned 2026-11-10, reviewed against the code and the NaaS workspace on 2026-11-12 (§11). S0a and S0b done on 2026-11-12; next: S1. |
+| **Status** | 🟡 In progress. Planned 2026-11-10, reviewed against the code and the NaaS workspace on 2026-11-12 (§11). S0a, S0b and S1 done on 2026-11-12; next: S2. |
 | **Estimate** | ≈ 8 to 9 working days |
 
 ---
@@ -60,7 +60,7 @@ Feature-Sliced Design (FSD) gives a well-known layout with **one-way dependencie
 | `shared/` | No business knowledge: Moodle API adapter, config, generic lib, generic UI | nothing above |
 
 Rules (FSD 2.1, the same as in the NaaS workspace):
-- **R1:** a module imports only from lower layers. Within `shared/` and `app/`, which have no slices, segments can import each other.
+- **R1:** a module imports only from lower layers. Within `shared/` and `app/`, which have no slices, segments can import each other. Such an import is relative and targets the other segment's `index.ts` (`../api`): Steiger asks for it.
 - **R2:** no import between two slices of the same layer, for example `features/filter-nuggets` → `features/search-nuggets` is forbidden. The only way across is an `@x` public API: `entities/<a>/@x/<b>/index.ts` exposes to slice `b` what it needs from slice `a`.
 - **R3:** from outside, a slice (and each `shared/` segment) is imported **only through its `index.ts`**: `@/features/filter-nuggets`, never `@/features/filter-nuggets/lib/facetColumns`. Inside a slice, imports are relative and never go through the slice's own `index.ts`. An `index.ts` uses named exports, no `export *`.
 - **R4:** standard segments: `ui/`, `model/` (state, composables), `api/` (calls through Moodle), `lib/` (pure helpers), `config/` (constants).
@@ -252,6 +252,16 @@ No source file moves in this story, and the bundle must come out **byte-identica
 - Delete `service/`, `utils/`, `types/`, their three entries in `LEGACY` (`architecture.spec.ts`) and the `src/types` block in `steiger.config.mjs`. Update `vitest.config.ts` (`exclude: src/types/*` → `src/shared/api/types/*`), the 10 specs and `test/widgetFixtures.ts` that import `NAAS_API_KEY`.
 
 **Done when** `shared/` imports nothing outside itself and there is no `@/types/`, `@/service/` or `@/utils/` import left.
+
+**Result (2026-11-12): done**, in one commit after the `style:` commit. 38 files moved (git records them all as renames), 70 files with rewritten imports, 7 new files: four `index.ts`, `naasApiKey.ts` (V8), `entityKeys.ts` and its spec (V3). `service/`, `types/` and `utils/` are gone. All checks pass: 482 tests at 100 % with the same statement, branch and function counts as before, `lint:fsd` and `lint:check` with 0 error.
+
+- **V3 and V8 are in the same commit as the moves.** Both only relocate code, and layer code may not import the old folders, so `useMoodleService` could not move without the key.
+- **Key-helper tests** left `structureVisuals.spec.ts` for `shared/lib/entityKeys.spec.ts` (one test added for `isOpaqueEntityKey`, which was only asserted inside a `structureVisuals` test).
+- **Public APIs export only what is used outside the segment** (22 names in `shared/api`, 8 in `config`, 8 in `lib`, 4 in `ui`). A script checked that none is unused.
+- **Imports are merged per public API:** one value import and one `import type` per `@/shared/<segment>`.
+- **Bundle:** same CSS rules and same string literals as before. It is 797 bytes larger because the minifier keeps each module's licence comment (46 before, 48 now: the two new modules). Without comments the size differs by 12 bytes. 15 scoped-style ids changed: the id is a hash of the file path **and its source**, so editing an import line in a `.vue` file changes it too.
+- `plugins/naas-api.plugin.ts` no longer re-exports `INaasApiService` (nothing imported it from there).
+- The moves are scripted: a small Python script takes a table "old path → new path" and rewrites the imports. The same script will serve S2 to S6.
 
 ### S2 — `entities/catalogue`, `entities/domain`, `entities/person` (≈ 1 d)
 
