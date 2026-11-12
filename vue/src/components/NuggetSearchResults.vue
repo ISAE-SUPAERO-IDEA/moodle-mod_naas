@@ -82,6 +82,7 @@
       :loading-more="loadingMore"
       :layout="layout"
       :selected-id="selectedId"
+      :failed="failed"
       @select="emit('select', $event)"
     />
 
@@ -113,6 +114,8 @@ defineProps<{
   selectedId: string | null;
   filters: Record<string, string[]>;
   bucketCaptions: Record<string, string>;
+  /** The search failed: the error banner explains it, so no "no results" text. */
+  failed?: boolean;
 }>();
 
 /** Cards or rows; kept by the widget so it survives leaving the results. */

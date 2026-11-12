@@ -26,6 +26,7 @@
 
 import { ref } from "vue";
 import { snapshotSearch } from "./catalogueSnapshot";
+import { errorMessage } from "@/utils/errorMessage";
 import type { ProducerDirectory } from "./useProducerDirectory";
 import type { INaasApiService } from "@/service/naas-api.interface";
 import type {
@@ -61,6 +62,8 @@ export function useCatalogueCheck(options: CatalogueCheckOptions) {
     !landingSnapshot?.aggregations?.producers?.buckets?.length
   );
   const producersDigest = ref(snapshot?.producers_digest ?? "");
+  /** Set when NaaS could not be reached and the landing has nothing cached to show. */
+  const catalogueError = ref<Error | null>(null);
 
   /**
    * Confirm the producer strip and the catalogue stamp against NaaS.
@@ -70,6 +73,7 @@ export function useCatalogueCheck(options: CatalogueCheckOptions) {
    */
   async function runCatalogueCheck(): Promise<void> {
     try {
+      catalogueError.value = null;
       const check = await service.checkCatalogue(courseId);
       applyCatalogueStamp(check.stamp, snapshot?.stamp);
       if (check.labels) {
@@ -92,9 +96,14 @@ export function useCatalogueCheck(options: CatalogueCheckOptions) {
       if (typeof check.results_count === "number") {
         catalogueResultsCount.value = check.results_count;
       }
-    } catch {
+    } catch (e) {
       applyCatalogueStamp(null, snapshot?.stamp);
-      // Keep whatever the landing already has (snapshot or empty).
+      // A cached landing stays usable offline; an empty one must say why it is empty
+      // instead of "No producers in this catalogue yet".
+      const hasLanding = Object.keys(facetAggregations.value).length > 0;
+      if (!hasLanding) {
+        catalogueError.value = e instanceof Error ? e : new Error(errorMessage(e));
+      }
     } finally {
       catalogueLoading.value = false;
     }
@@ -105,6 +114,7 @@ export function useCatalogueCheck(options: CatalogueCheckOptions) {
     facetAggregations,
     catalogueResultsCount,
     catalogueLoading,
+    catalogueError,
     runCatalogueCheck,
   };
 }

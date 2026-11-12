@@ -42,6 +42,7 @@ function mountGrid(
     loadingMore: boolean;
     layout: "card" | "row";
     selectedId: string | null;
+    failed: boolean;
   }> = {}
 ): Mounted {
   mounted = mountComponent(
@@ -141,6 +142,12 @@ describe("NuggetResultsGrid", () => {
     const { el } = mountGrid({ loadingMore: true });
     expect(el.querySelectorAll("ul.nugget-grid > li")).toHaveLength(3);
     expect(el.querySelector(".no-results")).toBeNull();
+  });
+
+  it("does not claim no results when the search failed", () => {
+    const { el } = mountGrid({ failed: true });
+    expect(el.querySelector(".no-results")).toBeNull();
+    expect(el.querySelector(".nugget-grid")).toBeNull();
   });
 
   it("says so when nothing matches", () => {

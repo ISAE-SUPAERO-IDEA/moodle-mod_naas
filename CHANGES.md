@@ -21,6 +21,10 @@ _All notable changes to the NaaS Moodle plugin will be documented in this file._
 - Grade submissions get an LTI 1.1 answer: success, or failure with the reason (HTTP 400, or 401 for a bad signature), instead of an HTML error page
 - The learner's name and email are sent to NaaS only when both privacy options are on; with either one off the session stays anonymous, as the settings page says
 - The end-of-Nugget window no longer shows "Rate this nugget" when learner rating is turned off
+- "Test connection" fails with a clear message when NaaS answers with something other than a list of Nuggets (for example an API URL without /api)
+- When NaaS cannot be reached or rejects the catalogue search filter, the Nugget picker shows the error with Retry instead of an empty catalogue, and a failed search no longer also says "no results"
+- A learner opening an activity whose Nugget was unpublished or deleted sees "The Nugget you are trying to access does not exist or is no longer available.", without Retry or "I Finished My Learning"
+- The catalogue search filter help gives a valid NQL example: nugget:type = 'video'
 - Domain codes with dots and e-mail author keys no longer break the vocabulary cache when debugging is on
 - The completion condition shows "Complete when all attempts are used" when only that option is ticked
 - Saving the activity form without a Nugget now shows "Select a Nugget before saving the activity" above the search, instead of an error on a hidden field

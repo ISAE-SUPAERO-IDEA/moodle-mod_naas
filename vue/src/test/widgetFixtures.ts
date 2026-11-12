@@ -53,6 +53,7 @@ export function makeLabels(): NaasLabels {
     next_unit: "Next unit",
     learning_outcomes_desc: "You can now:",
     error_generic_user_message: "Something went wrong",
+    error_nugget_not_found: "This Nugget is no longer available.",
     retry: "Retry",
     active_filters: "Active filters",
     clear_search: "Clear search",

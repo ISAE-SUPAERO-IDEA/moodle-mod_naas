@@ -143,4 +143,45 @@ describe("useCatalogueCheck", () => {
     expect(applyCatalogueStamp).toHaveBeenCalledWith(null, undefined);
     expect(state.catalogueLoading.value).toBe(false);
   });
+
+  it("reports the failure when the landing has nothing cached to show", async () => {
+    const { state } = setup(Promise.reject(new Error("offline")), {});
+
+    await state.runCatalogueCheck();
+
+    expect(state.catalogueError.value?.message).toBe("offline");
+  });
+
+  it("keeps a cached landing silent when the check fails", async () => {
+    const { state } = setup(Promise.reject("offline"));
+
+    await state.runCatalogueCheck();
+
+    expect(state.catalogueError.value).toBeNull();
+    expect(state.facetAggregations.value.producers.buckets[0].key).toBe("isae");
+  });
+
+  it("wraps a Moodle exception object and clears it once a retry succeeds", async () => {
+    const service = {
+      checkCatalogue: vi
+        .fn()
+        .mockRejectedValueOnce({ message: "offline", errorcode: "x" })
+        .mockResolvedValueOnce(check({ producers_digest: "digest-2" })),
+    };
+    const state = useCatalogueCheck({
+      service,
+      courseId: 7,
+      snapshot: {} as CatalogueSnapshot,
+      directory: { mergeLabels: vi.fn(), absorbProducers: vi.fn() },
+      applyCatalogueStamp: vi.fn(),
+    });
+
+    await state.runCatalogueCheck();
+    expect(state.catalogueError.value).toBeInstanceOf(Error);
+    expect(state.catalogueError.value?.message).toBe("offline");
+
+    await state.runCatalogueCheck();
+    expect(state.catalogueError.value).toBeNull();
+    expect(state.catalogueResultsCount.value).toBe(43);
+  });
 });

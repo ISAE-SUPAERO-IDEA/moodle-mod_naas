@@ -83,6 +83,15 @@ class view_nugget extends naas_external_base {
         $naas = static::make_naas_client(self::naas_config());
 
         $url = "/nuggets/{$naasinstance->nugget_id}/default_version";
-        return self::sanitise_json_response($naas->request_raw('GET', $url));
+        try {
+            return self::sanitise_json_response($naas->request_raw('GET', $url));
+        } catch (\moodle_exception $e) {
+            // NaaS answers 404 (empty body) when the Nugget was unpublished or deleted:
+            // tell the learner that, not a generic "resource not found".
+            if ($e->errorcode === 'error:naas_api:not_found') {
+                throw new \moodle_exception('error_nugget_not_found', 'naas', '', null, $e->debuginfo);
+            }
+            throw $e;
+        }
     }
 }

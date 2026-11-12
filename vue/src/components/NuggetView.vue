@@ -26,10 +26,17 @@
   <div class="container">
     <!-- Error banner with retry -->
     <div v-if="error" class="naas-error-banner" role="alert">
-      <span>{{ config.labels.error_generic_user_message }}</span>
-      <button class="btn btn-sm btn-outline-danger" @click="load">
-        {{ config.labels.retry }}
-      </button>
+      <!-- A missing Nugget will not come back on retry: say so plainly. -->
+      <span v-if="nuggetNotFound">{{ error }}</span>
+      <template v-else>
+        <span
+          >{{ config.labels.error_generic_user_message
+          }}<template v-if="error.trim()"> — {{ error }}</template></span
+        >
+        <button class="btn btn-sm btn-outline-danger" @click="load">
+          {{ config.labels.retry }}
+        </button>
+      </template>
     </div>
 
     <div id="nugget-info-button">
@@ -92,7 +99,8 @@
       />
     </div>
 
-    <div class="row">
+    <!-- No Nugget to finish while it failed to load. -->
+    <div v-if="nugget && !error" class="row">
       <div id="completion-modal-button" class="col text-center">
         <button class="btn btn-primary" @click="complete">
           {{ config.labels.complete_nugget }}
@@ -134,6 +142,13 @@ import { useXapi } from "@/composables/useXapi";
 
 const config = useNaasConfig();
 const { nugget, loading, error, load } = useNuggetView();
+// Moodle may append debug info to the message when debugging is on.
+const nuggetNotFound = computed(
+  () =>
+    !!error.value &&
+    !!config.labels.error_nugget_not_found &&
+    error.value.startsWith(config.labels.error_nugget_not_found)
+);
 const { postStatement } = useXapi();
 
 const language = ref<string | null>(null);
@@ -239,6 +254,8 @@ watch(nugget, (loaded) => {
 });
 
 function complete() {
+  // The button only renders once the Nugget is loaded; kept for direct callers.
+  /* v8 ignore next -- @preserve */
   if (!nugget.value) return;
   showCompletion.value = true;
   postStatement({

@@ -67,7 +67,18 @@ class test_config extends naas_external_base {
                 'page_size' => 2,
             ], '', '&');
 
-        $result = self::sanitise_json_response($naas->request_raw('GET', $url));
+        $raw = $naas->request_raw('GET', $url);
+        // Any HTTP 200 is not enough: a wrong URL can reach a proxy or web page that
+        // answers 200 with an empty or HTML body. Only a Nugget search result counts.
+        $decoded = json_decode((string) $raw, true);
+        $body = (is_array($decoded) && isset($decoded['payload']) && is_array($decoded['payload']))
+            ? $decoded['payload']
+            : $decoded;
+        if (!is_array($body) || !isset($body['items']) || !is_array($body['items'])) {
+            throw new \moodle_exception('error:naas_api:not_a_nugget_list', 'naas');
+        }
+
+        $result = self::sanitise_json_response($raw);
         \mod_naas\catalogue_warmer::warm($naas, $config);
         return $result;
     }

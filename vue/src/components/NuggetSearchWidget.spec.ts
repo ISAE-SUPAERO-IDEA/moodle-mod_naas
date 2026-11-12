@@ -403,6 +403,47 @@ describe("NuggetSearchWidget", () => {
     expect(m.el.querySelectorAll("ul.nugget-grid > li")).toHaveLength(1);
   });
 
+  it("says why the landing is empty when NaaS cannot be reached, and retries", async () => {
+    const service = makeService({
+      checkCatalogue: vi
+        .fn()
+        .mockRejectedValueOnce(new Error("Could not resolve host"))
+        .mockResolvedValue({
+          producers_digest: "d1",
+          producers: [],
+          aggregations: {
+            producers: { buckets: [{ key: "isae", docCount: 4 }] },
+          },
+          results_count: 4,
+        }),
+    });
+    const m = await mountWidget(service);
+
+    const banner = m.el.querySelector(".naas-error-banner")!;
+    expect(banner.getAttribute("role")).toBe("alert");
+    expect(banner.textContent).toContain(
+      "Something went wrong — Could not resolve host"
+    );
+    expect(m.el.querySelector(".browse-landing")).toBeNull();
+
+    buttonByText(banner, "Retry").click();
+    await m.flush();
+    expect(service.checkCatalogue).toHaveBeenCalledTimes(2);
+    expect(m.el.querySelector(".naas-error-banner")).toBeNull();
+    expect(m.el.querySelector(".browse-landing")).not.toBeNull();
+  });
+
+  it("does not add 'no results' under a failed search", async () => {
+    const service = makeService({
+      searchNuggets: vi.fn().mockRejectedValue(new Error("NaaS timeout")),
+    });
+    const m = await mountWidget(service);
+    await openAllNuggets(m);
+
+    expect(m.el.querySelector(".naas-error-banner")).not.toBeNull();
+    expect(m.el.querySelector(".no-results")).toBeNull();
+  });
+
   it("searches what the teacher types, once typing pauses", async () => {
     vi.useFakeTimers();
     const service = makeService({

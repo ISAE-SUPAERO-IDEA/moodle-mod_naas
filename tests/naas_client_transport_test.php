@@ -138,6 +138,11 @@ final class naas_client_transport_test extends \advanced_testcase {
     public static function naas_error_provider(): array {
         return [
             'unknown institute' => [400, '{"error_code":"error_structure_not_found"}', 'error:naas_api:invalid_structure'],
+            'unpublished Nugget' => [
+                400,
+                '{"error":"NaasErrorInvalidParameters","error_code":"error_nugget_not_found"}',
+                'error_nugget_not_found',
+            ],
             'other bad request' => [400, '{"error_code":"error_other"}', 'error:naas_api:bad_request'],
             'not found' => [404, '{"error":"no such structure"}', 'error:naas_api:not_found'],
         ];

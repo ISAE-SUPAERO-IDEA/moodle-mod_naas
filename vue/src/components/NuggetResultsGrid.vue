@@ -82,7 +82,7 @@
     </template>
   </ul>
 
-  <p v-else class="no-results">
+  <p v-else-if="!failed" class="no-results">
     {{ config.labels.nugget_search_no_result }}
   </p>
 </template>
@@ -104,6 +104,8 @@ defineProps<{
   layout: "card" | "row";
   /** Id of the chosen Nugget: its Select button shows as pressed. */
   selectedId: string | null;
+  /** The search failed: an error banner is shown instead of "no results". */
+  failed?: boolean;
 }>();
 
 const emit = defineEmits<{

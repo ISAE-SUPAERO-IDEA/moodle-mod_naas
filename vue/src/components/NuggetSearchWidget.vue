@@ -44,6 +44,19 @@
         {{ config.labels.retry }}
       </button>
     </div>
+    <div
+      v-else-if="catalogueError && showingBrowse && selectedNugget === null"
+      class="naas-error-banner"
+      role="alert"
+    >
+      <span
+        >{{ config.labels.error_generic_user_message }} —
+        {{ catalogueError.message }}</span
+      >
+      <button class="btn btn-sm btn-outline-danger" @click="retryCatalogue()">
+        {{ config.labels.retry }}
+      </button>
+    </div>
 
     <!-- Search + filter + results grid -->
     <div v-if="selectedNugget === null && !selectedNuggetLoading">
@@ -63,7 +76,7 @@
       />
 
       <NuggetBrowseLanding
-        v-if="showingBrowse"
+        v-if="showingBrowse && !catalogueError"
         :aggregations="facetAggregations"
         :results-count="catalogueResultsCount"
         :loading="catalogueLoading"
@@ -74,7 +87,8 @@
 
       <!-- Filter chips + nugget grid -->
       <NuggetSearchResults
-        v-else
+        v-else-if="!showingBrowse"
+        :failed="!!error"
         ref="results"
         v-model:layout="nuggetLayout"
         :nuggets="nuggets"
@@ -152,6 +166,7 @@ const {
   facetAggregations,
   catalogueResultsCount,
   catalogueLoading,
+  catalogueError,
   runCatalogueCheck,
 } = useCatalogueCheck({
   service,
@@ -201,6 +216,12 @@ const {
   clearSelection,
   restoreSavedNugget,
 } = useNuggetSelection();
+
+/** Retry the catalogue after NaaS could not be reached: show the skeleton meanwhile. */
+function retryCatalogue() {
+  catalogueLoading.value = true;
+  return runCatalogueCheck();
+}
 
 /** Replace on the chosen card: back to the results it was picked from. */
 function onReplace() {

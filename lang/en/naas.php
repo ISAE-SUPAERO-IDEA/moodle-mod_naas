@@ -89,6 +89,7 @@ $string['error:naas_api:bad_request'] = 'We couldn\'t process your request. Plea
 $string['error:naas_api:invalid_credentials'] = 'The credentials are incorrect.';
 $string['error:naas_api:invalid_endpoint'] = 'The configured NaaS API endpoint is invalid.';
 $string['error:naas_api:invalid_structure'] = 'The NaaS institute (structure) configured for this activity is invalid. Please ask your platform administrator to check the plugin configuration.';
+$string['error:naas_api:not_a_nugget_list'] = 'NaaS answered, but not with a list of Nuggets. Check that the NaaS API URL is correct and ends with /api.';
 $string['error:naas_api:not_found'] = 'The requested resource was not found on the NaaS server.';
 $string['error:naas_api:unknown'] = 'The NaaS server returned an unexpected error. Please try again or contact support.';
 $string['error:naas_media_unavailable'] = 'The image could not be loaded from NaaS.';
@@ -174,7 +175,7 @@ $string['naas_settings_endpoint_help'] = 'Base URL of the NaaS API, including th
 $string['naas_settings_feedback'] = 'Allow learners to rate Nuggets';
 $string['naas_settings_feedback_help'] = 'When enabled, learners can rate a Nugget after they finish it.';
 $string['naas_settings_filter'] = 'Catalogue search filter';
-$string['naas_settings_filter_help'] = 'Optional NQL query applied to teacher search in the Nugget picker. Leave empty for no extra restriction. Example: type:video';
+$string['naas_settings_filter_help'] = 'Optional NQL query applied to teacher search in the Nugget picker. Leave empty for no extra restriction. Fields are written as nugget:&lt;field&gt; and values in single quotes. Example: nugget:type = \'video\'. If NaaS rejects the query, the Nugget picker shows the error.';
 $string['naas_settings_information'] = 'Saved credentials are used for every Nugget search and launch. After you change these values, click Save changes, then Test connection.';
 $string['naas_settings_learner'] = 'Learner experience';
 $string['naas_settings_learner_information'] = 'Options that change what learners see inside a Nugget activity.';

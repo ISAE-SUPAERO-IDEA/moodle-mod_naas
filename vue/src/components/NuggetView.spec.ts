@@ -275,15 +275,42 @@ describe("NuggetView", () => {
     );
   });
 
-  it("does nothing on Complete before the Nugget is loaded", async () => {
+  it("offers no Complete button before the Nugget is loaded", async () => {
     const service = viewService({
       viewNugget: vi.fn(() => new Promise(() => {})),
     });
-    const { el, flush } = await mountView(service);
-    buttonByText(el, "Complete").click();
-    await flush();
+    const { el } = await mountView(service);
+    expect(el.querySelector("#completion-modal-button")).toBeNull();
     expect(service.postXapiStatement).not.toHaveBeenCalled();
-    expect(document.querySelector('[role="dialog"]')).toBeNull();
+  });
+
+  it("says plainly that a missing Nugget is gone, with no Retry and no Complete", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    const service = viewService({
+      viewNugget: vi
+        .fn()
+        .mockRejectedValue(new Error("This Nugget is no longer available.")),
+    });
+    const { el } = await mountView(service);
+    const banner = el.querySelector('[role="alert"]')!;
+    expect(banner.textContent?.trim()).toBe(
+      "This Nugget is no longer available."
+    );
+    expect(banner.textContent).not.toContain("Something went wrong");
+    expect(banner.querySelector("button")).toBeNull();
+    expect(el.querySelector("#completion-modal-button")).toBeNull();
+    expect(el.querySelector("#lti-frame")).toBeNull();
+  });
+
+  it("adds the reason to the generic error and hides Complete", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    const service = viewService({
+      viewNugget: vi.fn().mockRejectedValue(new Error("NaaS down")),
+    });
+    const { el } = await mountView(service);
+    const banner = el.querySelector('[role="alert"]')!;
+    expect(banner.textContent).toContain("Something went wrong — NaaS down");
+    expect(el.querySelector("#completion-modal-button")).toBeNull();
   });
 
   it("closes the About and rating dialogs", async () => {

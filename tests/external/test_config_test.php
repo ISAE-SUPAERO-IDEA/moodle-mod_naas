@@ -100,6 +100,52 @@ final class test_config_test extends \advanced_testcase {
      * @param \mod_naas\naas_client $client
      * @return string
      */
+    /**
+     * A 200 answer that is not a Nugget list (wrong URL behind a proxy, HTML page, other JSON) fails the test.
+     */
+    public function test_test_config_refuses_an_answer_that_is_not_a_nugget_list(): void {
+        $this->resetAfterTest(true);
+        $this->setAdminUser();
+
+        $answers = [
+            '' => 'empty body',
+            '<html><body>Welcome</body></html>' => 'HTML page',
+            '{"payload":{"status":"ok"}}' => 'JSON without items',
+            '{"items":"none"}' => 'items not a list',
+        ];
+        foreach ($answers as $body => $label) {
+            $naas = $this->routing_client(function () use ($body): string {
+                return $body;
+            });
+            try {
+                $this->proxy_using($naas)::execute();
+                $this->fail("Expected a failure for: $label");
+            } catch (\moodle_exception $e) {
+                $this->assertSame('error:naas_api:not_a_nugget_list', $e->errorcode, $label);
+            }
+        }
+    }
+
+    /**
+     * A Nugget list at the top level (no payload wrapper) is accepted too.
+     */
+    public function test_test_config_accepts_a_top_level_item_list(): void {
+        $this->resetAfterTest(true);
+        set_config('naas_endpoint', 'https://api.naas.example/api', 'naas');
+        $this->setAdminUser();
+        $naas = $this->routing_client(function (): string {
+            return '{"items":[],"results_count":0}';
+        });
+
+        $this->assertSame('{"items":[],"results_count":0}', $this->proxy_using($naas)::execute());
+    }
+
+    /**
+     * test_config subclass that uses the given stub client instead of calling NaaS.
+     *
+     * @param \mod_naas\naas_client $client
+     * @return string Class name to call execute() on
+     */
     private function proxy_using(\mod_naas\naas_client $client): string {
         $proxy = new class extends test_config {
             use injected_naas_client;

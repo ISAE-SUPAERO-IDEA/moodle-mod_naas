@@ -141,8 +141,38 @@ final class view_nugget_test extends \advanced_testcase {
         $this->setUser($user);
 
         $proxy = $this->proxy_using($this->failing_client());
-        $this->expectException(\moodle_exception::class);
-        $proxy::execute($naas->cmid);
+        try {
+            $proxy::execute($naas->cmid);
+            $this->fail('The NaaS failure must reach the caller');
+        } catch (\moodle_exception $e) {
+            // Errors other than "not found" are passed on unchanged.
+            $this->assertSame('error:proxy_naas_api:curl', $e->errorcode);
+        }
+    }
+
+    /**
+     * NaaS 404 on the default version means the Nugget was unpublished or deleted.
+     */
+    public function test_view_nugget_reports_a_missing_nugget(): void {
+        $this->resetAfterTest(true);
+        $course = $this->getDataGenerator()->create_course();
+        $naas = $this->getDataGenerator()->create_module('naas', ['course' => $course->id]);
+        $user = $this->getDataGenerator()->create_user();
+        $this->getDataGenerator()->enrol_user($user->id, $course->id, 'student');
+        $this->setUser($user);
+
+        $client = $this->routing_client(function (): string {
+            throw new \moodle_exception('error:naas_api:not_found', 'naas', '', null, '{"code":404,"error":""}');
+        });
+        try {
+            $this->proxy_using($client)::execute($naas->cmid);
+            $this->fail('A missing Nugget must be reported');
+        } catch (\moodle_exception $e) {
+            $this->assertSame('error_nugget_not_found', $e->errorcode);
+            // With debugging on, Moodle appends the debug info to the message.
+            $this->assertStringStartsWith(get_string('error_nugget_not_found', 'naas'), $e->getMessage());
+            $this->assertSame('{"code":404,"error":""}', $e->debuginfo);
+        }
     }
 
     /**

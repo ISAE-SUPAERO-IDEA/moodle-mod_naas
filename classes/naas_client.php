@@ -226,12 +226,14 @@ class naas_client {
                         // Surface a specific message when the configured institute
                         // (structure_id) is unknown, so the user gets actionable feedback.
                         $body = json_decode($response);
-                        if (
-                            is_object($body)
-                            && property_exists($body, "error_code")
-                            && $body->error_code === "error_structure_not_found"
-                        ) {
+                        $naaserror = (is_object($body) && property_exists($body, "error_code"))
+                            ? $body->error_code
+                            : null;
+                        if ($naaserror === "error_structure_not_found") {
                             $errormessage = "error:naas_api:invalid_structure";
+                        } else if ($naaserror === "error_nugget_not_found") {
+                            // Unpublished or deleted Nugget: say so instead of a generic failure.
+                            $errormessage = "error_nugget_not_found";
                         }
                         break;
                     case 401:

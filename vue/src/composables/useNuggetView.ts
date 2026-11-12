@@ -26,6 +26,7 @@ import { useMoodleService } from "./useMoodleService";
 import { useNaasConfig } from "./useNaasConfig";
 import { useNuggetEnricher } from "./useNuggetEnricher";
 import type { Nugget } from "@/types/nugget.types";
+import { errorMessage } from "@/utils/errorMessage";
 
 export function useNuggetView() {
   const service = useMoodleService();
@@ -43,7 +44,7 @@ export function useNuggetView() {
       const raw = await service.viewNugget(config.cm_id);
       nugget.value = await enrich(raw);
     } catch (e) {
-      const msg = e instanceof Error ? e.message : String(e);
+      const msg = errorMessage(e);
       console.error("[NaaS] useNuggetView.load() error:", e);
       error.value = msg;
     } finally {

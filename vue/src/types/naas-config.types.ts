@@ -90,6 +90,8 @@ export interface NaasLabels {
   next_unit: string;
   learning_outcomes_desc: string;
   error_generic_user_message: string;
+  /** Message of moodle_exception error_nugget_not_found (unpublished or deleted Nugget). */
+  error_nugget_not_found?: string;
   retry: string;
   load_more?: string;
   active_filters: string;
