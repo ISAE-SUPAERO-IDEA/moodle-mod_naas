@@ -23,29 +23,42 @@
  * @package mod_naas
  */
 
-/**#@+
- * Option controlling what options are offered on the NaaS settings form.
- */
-define('NAAS_MAX_ATTEMPT_OPTION', 10);
-define('NAAS_MAX_QPP_OPTION', 50);
-define('NAAS_MAX_DECIMAL_OPTION', 5);
-define('NAAS_MAX_Q_DECIMAL_OPTION', 7);
-/**#@-*/
+defined('MOODLE_INTERNAL') || die();
 
-/**#@+
- * Options determining how the grades from individual attempts are combined to give
- * the overall grade for a user
+/**
+ * Define module constants. Safe to call more than once.
+ *
+ * @return void
  */
-define('NAAS_GRADEHIGHEST', '1');
-define('NAAS_ATTEMPTFIRST', '3');
-define('NAAS_ATTEMPTLAST', '4');
-/**#@-*/
+function naas_define_module_constants(): void {
+    if (defined('NAAS_MAX_ATTEMPT_OPTION')) {
+        return;
+    }
+
+    // The Moodle PHPUnit bootstrap includes every mod/*/lib.php before coverage starts:
+    // the first call never runs under a test.
+    // @codeCoverageIgnoreStart
+    // Option controlling what options are offered on the NaaS settings form.
+    define('NAAS_MAX_ATTEMPT_OPTION', 10);
+    define('NAAS_MAX_QPP_OPTION', 50);
+    define('NAAS_MAX_DECIMAL_OPTION', 5);
+    define('NAAS_MAX_Q_DECIMAL_OPTION', 7);
+
+    // Options determining how the grades from individual attempts are combined to give
+    // the overall grade for a user.
+    define('NAAS_GRADEHIGHEST', '1');
+    define('NAAS_ATTEMPTFIRST', '3');
+    define('NAAS_ATTEMPTLAST', '4');
+    // @codeCoverageIgnoreEnd
+}
+
+naas_define_module_constants(); // @codeCoverageIgnore
 
 
 /**
  * Return the major moodle version
  *
- * @return array
+ * @return int|null
  */
 function get_moodle_major_version() {
     global $CFG;
@@ -115,16 +128,82 @@ function naas_supports($feature) {
 }
 
 /**
- * This function is used by the reset_course_userdata function in moodlelib.
- * @param array $data the data submitted from the reset course.
- * @return array status array
+ * Add the Nugget section to the course reset form.
+ *
+ * @param MoodleQuickForm $mform The course reset form
+ * @return void
+ */
+function naas_reset_course_form_definition(&$mform) {
+    $mform->addElement('header', 'naasheader', get_string('modulenameplural', 'naas'));
+    $mform->addElement('advcheckbox', 'reset_naas_attempts', get_string('reset_attempts', 'naas'));
+}
+
+/**
+ * Nugget attempts are deleted by default when a course is reset.
+ *
+ * @param stdClass $course The course being reset
+ * @return array Default values of the reset form elements
+ */
+function naas_reset_course_form_defaults($course) {
+    return ['reset_naas_attempts' => 1];
+}
+
+/**
+ * Remove all Nugget grades from the gradebook of a course.
+ *
+ * @param int $courseid
+ * @return void
+ */
+function naas_reset_gradebook($courseid) {
+    global $DB;
+
+    $nuggets = $DB->get_records('naas', ['course' => $courseid]);
+    foreach ($nuggets as $nugget) {
+        naas_grade_item_update($nugget, 'reset');
+    }
+}
+
+/**
+ * Course reset: delete learners' Nugget attempts and the grades they produced.
+ *
+ * Called by reset_course_userdata() in moodlelib. Nugget activities have no dates
+ * to shift (see MDL-9367).
+ *
+ * @param stdClass $data The data submitted from the reset course form
+ * @return array Status array
  */
 function naas_reset_userdata($data) {
+    global $DB;
 
-    // Any changes to the list of dates that needs to be rolled should be same during course restore and course reset.
-    // See MDL-9367.
+    $status = [];
+    if (empty($data->reset_naas_attempts)) {
+        return $status;
+    }
 
-    return [];
+    // Attempts are keyed on the course module id.
+    $cmids = $DB->get_fieldset_sql(
+        "SELECT cm.id
+           FROM {course_modules} cm
+           JOIN {modules} m ON m.id = cm.module
+          WHERE m.name = :modname AND cm.course = :courseid",
+        ['modname' => 'naas', 'courseid' => $data->courseid]
+    );
+    if ($cmids) {
+        [$insql, $params] = $DB->get_in_or_equal($cmids);
+        $DB->delete_records_select('naas_activity_outcome', "activity_id $insql", $params);
+    }
+
+    // The gradebook reset option already clears every grade of the course.
+    if (empty($data->reset_gradebook_grades)) {
+        naas_reset_gradebook($data->courseid);
+    }
+
+    $status[] = [
+        'component' => get_string('modulenameplural', 'naas'),
+        'item' => get_string('reset_attempts_done', 'naas'),
+        'error' => false,
+    ];
+    return $status;
 }
 
 /**
@@ -193,12 +272,18 @@ function naas_update_instance($data) {
     $data->timemodified = time();
 
     $data->id = $data->instance;
+    $oldmethod = $DB->get_field('naas', 'grade_method', ['id' => $data->id]);
     $DB->update_record('naas', $data);
 
     $completiontimeexpected = !empty($data->completionexpected) ? $data->completionexpected : null;
     \core_completion\api::update_completion_date_event($data->coursemodule, 'naas', $data->id, $completiontimeexpected);
 
     naas_grade_item_update($data);
+
+    // A new grading method applies to the attempts already completed, not only to the next ones.
+    if (isset($data->grade_method) && (string) $oldmethod !== (string) $data->grade_method) {
+        \mod_naas\attempts::regrade($DB->get_record('naas', ['id' => $data->id]), (int) $data->coursemodule);
+    }
 
     return true;
 }
@@ -247,8 +332,8 @@ function naas_delete_instance($id) {
  * when printing this activity in a course listing.  See get_array_of_activities() in course/lib.php.
  *
  * @param stdClass $coursemodule The coursemodule object (record).
- * @return cached_cm_info An object on information that the courses
- *                        will know about (most noticeably, an icon).
+ * @return cached_cm_info|null An object on information that the courses
+ *                        will know about (most noticeably, an icon), or null for an unknown instance.
  */
 function naas_get_coursemodule_info($coursemodule) {
     global $CFG, $DB;
@@ -269,76 +354,19 @@ function naas_get_coursemodule_info($coursemodule) {
 
     // Populate the custom completion rules as key => value pairs, but only if the completion mode is 'automatic'.
     if ($coursemodule->completion == COMPLETION_TRACKING_AUTOMATIC) {
-        if ($naas->completionpass) {
+        // An empty array is ignored by core, so the rule is omitted unless pass or exhaustion is on.
+        // Both flags are kept so exhaustion alone still enables the rule.
+        if ($naas->completionpass || $naas->completionattemptsexhausted) {
             $result->customdata['customcompletionrules']['completionpassorattemptsexhausted'] = [
                 'completionpass' => $naas->completionpass,
+                'completionattemptsexhausted' => $naas->completionattemptsexhausted,
             ];
-        } else {
-            $result->customdata['customcompletionrules']['completionpassorattemptsexhausted'] = [];
         }
 
         $result->customdata['customcompletionrules']['completionminattempts'] = $naas->completionminattempts;
     }
 
     return $result;
-}
-
-/**
- * Return a list of page types
- * @param string $pagetype current page type
- * @param stdClass $parentcontext Block's parent context
- * @param stdClass $currentcontext Current context of block
- */
-function naas_page_type_list($pagetype, $parentcontext, $currentcontext) {
-    $modulepagetype = ['mod-url-*' => get_string('page-mod-url-x', 'url')];
-    return $modulepagetype;
-}
-
-/**
- * Export URL resource contents
- * @param object $cm
- * @return array of file content
- */
-function naas_export_contents($cm) {
-    global $CFG, $DB;
-    require_once("$CFG->dirroot/mod/url/locallib.php");
-    $contents = [];
-    $context = context_module::instance($cm->id);
-
-    $course = $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST);
-    $urlrecord = $DB->get_record('url', ['id' => $cm->instance], '*', MUST_EXIST);
-
-    $fullurl = str_replace('&amp;', '&', url_get_full_url($urlrecord, $cm, $course));
-    $isurl = clean_param($fullurl, PARAM_URL);
-    if (empty($isurl)) {
-        return null;
-    }
-
-    $url = [];
-    $url['type'] = 'url';
-    $url['filename']     = clean_param(format_string($urlrecord->name), PARAM_FILE);
-    $url['filepath']     = null;
-    $url['filesize']     = 0;
-    $url['fileurl']      = $fullurl;
-    $url['timecreated']  = null;
-    $url['timemodified'] = $urlrecord->timemodified;
-    $url['sortorder']    = null;
-    $url['userid']       = null;
-    $url['author']       = null;
-    $url['license']      = null;
-    $contents[] = $url;
-
-    return $contents;
-}
-
-/**
- * Register the ability to handle drag and drop file uploads
- * @return array containing details of the files / types the mod can handle
- */
-function naas_dndupload_register() {
-    return ['types' => [
-        ['identifier' => 'url', 'message' => get_string('createurl', 'url')],
-    ]];
 }
 
 /**
@@ -398,14 +426,14 @@ function naas_extend_settings_navigation(settings_navigation $settings, navigati
 /**
  * Update the grade items for a Nugget activity.
  * @param object $nugget
- * @param object $grades
+ * @param array|object|string|null $grades Grades to write, 'reset' to reset them, or null
  * @return mixed
  */
 function naas_grade_item_update($nugget, $grades = null) {
     global $CFG;
 
     if (!function_exists('grade_update')) { // Workaround for buggy PHP versions.
-        require_once($CFG->libdir . '/gradelib.php');
+        require_once($CFG->libdir . '/gradelib.php'); // @codeCoverageIgnore
     }
 
     if (property_exists($nugget, 'cm_id')) { // It may not be always present.

@@ -42,14 +42,14 @@ to fetch the content.
 The main features of the Nuggets plugin are as follows: 
 - Keyword search
 - Nugget filtering
-- Metadata display 
+- Metadata display, including producer and partner information
 - One-click integration of a Nugget into the course space.
 
 ## Installation
 
 ### Requirements
-- Moodle 4.0 or later (the plugin has been tested successfully up to Moodle 4.5.1)
-- PHP 7.3 (the plugin has been tested successfully up to PHP 8.3)
+- Moodle 4.1 to 5.0 (the CI tests 4.1, 4.4, 4.5 and 5.0)
+- PHP 7.4 (the plugin has been tested successfully up to PHP 8.3)
 
 ### Plugin settings
 
@@ -60,7 +60,7 @@ To access all the Nuggets available to your school, you need to retrieve the Naa
 contact `idea.lab@isae-supaero.fr` to get your private keys.
 
 
-🛠️ **Access** the Moodle administration page : `Administration > Plugins > Nugget`.
+🛠️ **Access** the Moodle administration page : `Administration > Plugins > Activity modules > Nugget`.
 
 ![setup-naas-plugin](https://t2594656.p.clickup-attachments.com/t2594656/457711f5-b548-4ce7-b483-863b2aaef71c/image.png)
 
@@ -70,7 +70,11 @@ contact `idea.lab@isae-supaero.fr` to get your private keys.
 - `NaaS API institute ID `
 - `NaaS API password `
 
+Save the form, then use **Test connection** to check that Moodle can reach NaaS with the saved values.
+
 Other optional parameters are :
+- Commercial use: hide Nuggets whose access licence for your institute is commercial (`co`) or non-commercial (`nc`). Already-added activities stay in courses.
+- Restricted / unrestricted use: hide Nuggets whose access licence is unrestricted (`uu`) or restricted (`ru`). Already-added activities stay in courses.
 - NaaS CSS : a CSS file to adapt the display of Nuggets from NaaS to your local style.
 - Search filter: a filter limiting the Nuggets that can be integrated.
 
@@ -95,7 +99,7 @@ See [PLUGIN NUGGET: Privacy Notice (en)](https://doc.clickup.com/2594656/p/h/2f5
 
     1. Switch course space to edit mode
     2. Add an activity or resource
-    3. Choose the Nugget resource
+    3. Choose the Nugget activity
     4. Start typing a keyword in the search field
     5. Filter nuggets by clicking on one or more criteria
     6. Access a nugget's metadata by clicking on the ‘ABOUT’ button
@@ -121,10 +125,27 @@ The change log is available [here](CHANGES.md).
 The source code is available at [https://github.com/ISAE-SUPAERO-IDEA/moodle-mod_naas](https://github.com/ISAE-SUPAERO-IDEA/moodle-mod_naas).
 
 ## Development
-This Moodle plugin uses a VueJS component to handle the search and selection of a nugget. 
-See [vue/README.md](vue/README.md)
+The search, selection and display of Nuggets is a Vue 3 widget. Its sources are in `vue/`, and the
+compiled bundle is committed in `assets/vue/naas_widget-<version>.js`.
+
+Requirements: Node.js 22 and pnpm 10.28. With Corepack (`corepack enable`), `pnpm` runs the version named in
+`vue/package.json`.
+
+```bash
+cd vue
+pnpm install --frozen-lockfile
+pnpm type-check && pnpm test   # or ../run_test.sh
+pnpm build                     # or ../run_build.sh, writes the bundle to assets/vue/
+```
+
+Whenever the widget sources change, give the bundle a new name so browsers do not reuse the old file:
+run `pnpm bump-version` before `pnpm build`, then commit the new bundle and the removal of the old one.
+The CI rebuilds the bundle and fails if it differs from the committed one.
+See [vue/README.md](vue/README.md) for details.
+
+Translations are managed on [AMOS](https://lang.moodle.org/): only the English strings (`lang/en`) live in this repository.
 
 
 ## Copyright
-Copyright ISAE-SUPAERO for this plugin is licensed under the GPLv3 license. [GNU AFFERO GENERAL PUBLIC LICENSE v3](LICENSE.md).
+Copyright ISAE-SUPAERO. This plugin is licensed under the [GNU General Public License v3 or later](https://www.gnu.org/licenses/gpl-3.0.html), like Moodle.
 

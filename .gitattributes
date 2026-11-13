@@ -1,0 +1,13 @@
+# Files left out of the release archive (git archive) published on moodle.org.
+# vue/ stays in: moodle.org requires the sources of the compiled JavaScript.
+.gitattributes export-ignore
+.gitignore export-ignore
+.github export-ignore
+.idea export-ignore
+.vscode export-ignore
+.claude export-ignore
+REVIEW_*.md export-ignore
+EPIC_*.md export-ignore
+run*.sh export-ignore
+phpstan.neon export-ignore
+plugin_description export-ignore

@@ -66,12 +66,7 @@ class mod_util {
 
         foreach ($modinfo->cms as $mod) {
             $format = \course_get_format($COURSE);
-            if (method_exists($format, 'get_last_section_number')) {
-                $numsections = $format->get_last_section_number();
-            } else {
-                $opts = \course_get_format($COURSE)->get_format_options();
-                $numsections = isset($opts['numsections']) ? $opts['numsections'] : 0;
-            }
+            $numsections = $format->get_last_section_number();
             if ($numsections && $mod->sectionnum > $numsections) {
                 break;
             }
@@ -122,5 +117,27 @@ class mod_util {
         }
 
         return $next;
+    }
+
+    /**
+     * Link to the section of an activity on the course page, not to the top of the course.
+     *
+     * The course format builds the link (an anchor on a one-page course, the section page
+     * otherwise). The topics and weeks formats of Moodle 4.4 and 4.5 return the bare course
+     * page, which shows every section: the anchor of the section is added back. Other formats
+     * keep their own link (on Moodle 5.0, social reports sections but has no section anchor).
+     *
+     * @param \stdClass $course
+     * @param int $sectionnum Section number of the activity
+     * @return \moodle_url
+     */
+    public static function get_section_url(\stdClass $course, int $sectionnum): \moodle_url {
+        $url = \course_get_url($course, $sectionnum);
+        $coursepage = new \moodle_url('/course/view.php', ['id' => $course->id]);
+        $format = \course_get_format($course)->get_format();
+        if ($url->out(false) === $coursepage->out(false) && in_array($format, ['topics', 'weeks'], true)) {
+            $url->set_anchor('section-' . $sectionnum);
+        }
+        return $url;
     }
 }

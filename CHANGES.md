@@ -2,6 +2,140 @@
 
 _All notable changes to the NaaS Moodle plugin will be documented in this file._
 
+## Version 3.1.0 (unreleased)
+
+### Feature
+- Integration code: a new setting ("Require an integration code") makes teachers type the 6-digit code of a Nugget before selecting it. The authors of the Nugget give the code, which the NaaS author app computes from the Nugget title. Public Nuggets need no code, activities that keep their Nugget are not affected, and the form checks the code again on save
+
+### Improvements
+- The About sheet of a Nugget is easier to read: thumbnail next to the title, key facts (duration, language, level, licence, producer, tags) in a side panel, learning outcomes as a checklist and authors with their initials; on a phone the key facts come first
+
+### Fix
+- In the list view of the Nugget picker, each thumbnail fills the full height of its row
+
+### Chore
+- The widget sources follow Feature-Sliced Design (`app`, `pages`, `widgets`, `features`, `entities`, `shared`), each part behind a public `index.ts`; no change for teachers or learners
+- CI checks the widget architecture with Steiger and an architecture test, and lints it with ESLint
+- The widget is built with pnpm, ESLint 9 and Prettier 3, like the other NaaS front ends
+
+### Upgrade notes
+- Rebuilding the widget now needs pnpm 10.28 instead of Yarn 1 (`pnpm install --frozen-lockfile`, then `pnpm build` in `vue/`); Node 22 as before
+- No database change and no new setting
+
+
+## Version 3.0.0 (unreleased)
+
+### Feature
+- New Nugget search widget built with Vue 3 / Vite / TypeScript, with a catalogue landing page, producer sections, filters and infinite scroll
+- Catalogue cache: the search opens from a cached snapshot and revalidates it in the background; a nightly task (`refresh_catalogue`) keeps it warm
+- Administration page reorganised in sections, with "Test connection" and "Refresh cache" buttons
+- Completion rules on Moodle 4.x: attempts allowed, minimum number of attempts, passing grade or all attempts used
+- Optional OAuth signature check on grades sent back by NaaS (setting "Require OAuth signature on grade passback")
+
+### Fix
+- An attempt only counts once NaaS has sent its result; opening a Nugget without finishing it no longer uses an attempt
+- The attempts limit is also enforced when the result arrives, so launches opened in parallel cannot exceed it
+- Grades outside 0–1 and grade submissions for activities without a grade item are rejected
+- Backup, restore and duplication keep the attempts allowed, grading method, terms agreement and Nugget completion rules; with user data, learners' attempts are restored too
+- Course reset offers "Delete all Nugget attempts", ticked by default: it deletes the course's attempts and Nugget grades
+- A grade sent by NaaS to a course without completion tracking is recorded without an error
+- Grade submissions get an LTI 1.1 answer: success, or failure with the reason (HTTP 400, or 401 for a bad signature), instead of an HTML error page
+- The learner's name and email are sent to NaaS only when both privacy options are on; with either one off the session stays anonymous, as the settings page says
+- The end-of-Nugget window no longer shows "Rate this nugget" when learner rating is turned off
+- "Test connection" fails with a clear message when NaaS answers with something other than a list of Nuggets (for example an API URL without /api)
+- When NaaS cannot be reached or rejects the catalogue search filter, the Nugget picker shows the error with Retry instead of an empty catalogue, and a failed search no longer also says "no results"
+- A learner opening an activity whose Nugget was unpublished or deleted sees "The Nugget you are trying to access does not exist or is no longer available.", without Retry or "I Finished My Learning"
+- The catalogue search filter help gives a valid NQL example: nugget:type = 'video'
+- While a commercial-use or restricted-use filter is set, the Nugget picker no longer shows Nugget counts, which NaaS cannot compute for one institute's licence
+- The "experienced" xAPI statement is also sent on phones and when the Nugget is taller than the screen: the frame counts as seen once half of it, or 300 px of the screen, is visible for 10 s
+- No more "No define call" RequireJS error in the browser console on pages with the Nugget widget
+- Keyboard use of the Nugget picker: the Filters button shows a focus ring, Escape closes an open filter list, and the focus moves to the chosen Nugget after Select
+- The About sheet shows the licence granted to the institute, the producing institutes and the partner
+- "No more attempts are allowed" is shown in a readable box inside the player, without a dismiss button that did nothing
+- Changing the grading method of an activity regrades the attempts already completed, instead of applying only to the next result
+- The privacy export gives the start and completion dates of attempts as readable dates, not timestamps
+- "Back to course" returns to the activity's section instead of the top of the course
+- Producer cards in the Nugget picker load banners and logos resized by NaaS (banners could weigh more than 10 MB), and fall back to the logo or the initials when an image cannot be loaded
+- Domain codes with dots and e-mail author keys no longer break the vocabulary cache when debugging is on
+- The completion condition shows "Complete when all attempts are used" when only that option is ticked
+- Saving the activity form without a Nugget now shows "Select a Nugget before saving the activity" above the search, instead of an error on a hidden field
+- The nightly catalogue refresh applies the licence filters, like the live search
+- Activity names are no longer escaped twice on the course index and the "next activity" button
+- NaaS errors on the player page are shown as standard Moodle notifications
+- An xAPI statement with an invalid JSON body, or an empty NaaS answer, is rejected with a clear error
+- The widget gives up with an error after 5 s if Moodle's JavaScript loader is missing, instead of loading forever
+- The activity form warns about unsaved changes after a Nugget is selected
+- "Refresh cache" rebuilds the catalogue first and only then drops the cached names and Nugget documents: if NaaS does not answer, every cache stays in place
+- Parallel searches no longer lose entries of the search cache index (the index is updated under a lock)
+- After a change of NaaS URL, account or catalogue filter, the nightly task drops the searches cached for the old connection instead of refreshing them
+- When NaaS does not answer, the catalogue landing keeps working from the cached catalogue
+- Authors and producers whose name cannot be found show "Unknown author" / "Unknown producer" instead of an identifier, and are not requested again
+- Structures and persons NaaS cannot name are remembered for an hour instead of being looked up on every page
+- The widget sends one request for identical lookups made at the same time (for example the same author on several cards)
+- The privacy export no longer prints text when there is nothing to export
+- Requests to NaaS with several parameters were sent with `&amp;` between them, so NaaS ignored the page size and page of the producer and person listings
+- On Moodle 4.x, the "About" entry of the activity navigation opens the Nugget's About dialog again (it did nothing)
+
+### Accessibility
+- The About, preview and rating dialogs close with Escape, take the focus when they open and give it back when they close, and are labelled by their title
+- Every widget text comes from the language file (no hard-coded English left)
+- The dialogs keep the keyboard focus inside them (Tab and Shift+Tab cycle through their controls)
+- Search results are a list of named cards with real buttons; the selected Nugget is announced as pressed, and the arrow keys move between cards
+- Text and controls meet the WCAG AA contrast ratios; rating stars are outlined when empty and filled when chosen
+- The closed filter panel can no longer be reached with the keyboard, the clear-search button is 24 px wide, and the Nugget frames have a title
+
+### Security
+- Stricter validation of NaaS identifiers and xAPI statements, enrolment check on the proxy web services, external entities disabled when reading grade submissions
+- The Nugget id stored in an activity is validated before it is used in a NaaS request
+- HTML descriptions imported from NaaS keep only basic formatting (no scripts, event handlers or unsafe links) before they are put in the description editor
+- The widget configuration is a JSON data block instead of an inline script, so pages work under a Content Security Policy without `'unsafe-inline'`
+- The cached catalogue (producers, author names, e-mail addresses and biographies) is only sent to the activity form, not to the learner view; the privacy declaration now covers author profiles received from NaaS
+- The browser no longer loads anything from NaaS: Nugget thumbnails, producer logos and banners are served by Moodle (`media.php`), which checks course access, only fetches images from the configured NaaS host and only returns images; the NaaS API URL is no longer sent to the browser
+- The Nugget preview only opens a web page (`https`, or the NaaS host itself)
+
+### Chore
+- `moment` replaced by the browser `Intl` API (−58 KB of JavaScript); the bundle no longer ships an unused `style.css`
+- Release archive: development files are excluded with `export-ignore`; translations are managed on AMOS
+- Unused language strings removed; English strings sorted and written for AMOS (no sentence built from pieces)
+- The search widget is split into smaller components and composables; the structure and person lookups have their own classes (`structure_lookup`, `person_lookup`)
+- The "Test connection" and "Refresh cache" buttons share one admin setting and one AMD module
+- Moodle 4.4 and 4.5: the web services no longer load `lib/externallib.php` (they use the `core_external` classes, with a compatibility layer on Moodle 4.1)
+- CI: Moodle 4.4 and 4.5 added to the test matrix, PHP 8.0 dropped, and the build fails if fewer PHPUnit tests than expected run
+- Supported Moodle versions declared: 4.1 to 5.0; the plugin now requires Moodle 4.1
+- The plugin no longer depends on `mod_url` (leftover page-type, drag-and-drop and content-export callbacks removed)
+- CI: PHPStan at level 5 and blocking, PHP and widget coverage measured with minimums, Behat scenarios for the search widget against a fake NaaS
+- Widget build tools updated (Vite 6, Vitest 4, vue-tsc 3): no known vulnerability left in the JavaScript dependencies
+- CI: Moodle 5.0 added to the test matrix (PostgreSQL 14)
+- Opening an activity form no longer calls NaaS for the selected Nugget when its stored copy is less than a day old: the nightly task revalidates the Nuggets of every activity, in batches when NaaS supports `nugget_ids` and one by one otherwise
+- `NuggetSearchWidget.vue` is split into results, grid and selected-Nugget components and query and selection composables
+- The web services follow Moodle's layout: one class per function (`mod_naas\external\get_nugget`, …) with shared helpers in `naas_external_base`, instead of one 770-line `proxy_naas_api` class; their names and behaviour are unchanged
+- Development notes (`docs/` and planning files) removed from the repository
+- Tests: PHPUnit metadata also written as attributes (no deprecation on Moodle 5.0 / PHPUnit 11), widget coverage at 100 %, PHP coverage raised, Behat checks the widget, the preview and the About dialog with axe (WCAG 2.2 AA)
+- The catalogue cache is split into `catalogue_cache`, `catalogue_producers`, `catalogue_export` and `catalogue_warmer`; the widget filter panel into a facet column, a label composable and selection helpers
+- Tests: component tests for the whole widget (coverage minimum raised to 90 % of lines), Behat checks the signed LTI 1.1 launch form and the unknown-Nugget error
+
+### Upgrade notes
+- Requires Node 22 to rebuild the widget; the bundle is now `assets/vue/naas_widget-<version>.js`
+- NaaS images are now requested by the Moodle server, which must be able to reach the NaaS host. An image hosted elsewhere than the NaaS API host is not shown
+- Existing launches are not counted as completed attempts after the upgrade. No existing activity is affected: the attempts and minimum-attempts settings could not be set before 3.0.0, so they are 0 (unlimited / not required) everywhere
+- Grades sent back by NaaS are not authenticated until the "Require OAuth signature on grade passback" setting is enabled. Leave it off until the NaaS platform signs grade submissions; the plugin settings page shows when a correctly signed submission has been received, after which the setting can be enabled
+
+## Version 2.5.2 (2026-09-18)
+
+### Feature
+- Show producer and partner information in the Nugget About view
+- Send the Moodle UI language to NaaS so the player can match it
+
+### Fix
+- Clearer error when the configured NaaS institute is invalid
+- Handle nugget loading errors and distinguish a missing nugget from a bad API endpoint
+- Remove inoperative navigation buttons from the nugget rating popup
+
+### Chore
+- Render the activity view and widget with Mustache / Output API
+- Add CodeQL, PHPStan, and npm audit GitHub Actions workflows
+
+
 ## Version 2.5.1 (2026-03-09)
 
 ### Fix

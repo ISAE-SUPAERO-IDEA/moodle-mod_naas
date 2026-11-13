@@ -1,0 +1,338 @@
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * Tests for the bridge between the widget and the Moodle activity form.
+ *
+ * @copyright  2026 ISAE-SUPAERO (https://www.isae-supaero.fr/)
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
+import { afterEach, describe, expect, it, vi } from "vitest";
+import {
+  ACTIVITY_DETAILS_FORM_ATTR,
+  concealCguAgreement,
+  descriptionToHtml,
+  placeCguAgreement,
+  readNuggetFormError,
+  restoreCguAgreement,
+  setActivityDetailsVisible,
+  setMoodleActivityDescription,
+  setMoodleActivityName,
+  syncMoodleNuggetFields,
+} from "./moodleActivityForm";
+import type { Nugget } from "@/shared/api";
+
+function nugget(overrides: Partial<Nugget> = {}): Nugget {
+  return {
+    nugget_id: "n1",
+    name: "A skilled approach",
+    resume: "Short summary of the nugget.",
+    authors: [],
+    domains: [],
+    language: "en",
+    multilanguages: [],
+    version_id: "v1",
+    nugget_thumbnail_url: "https://example.test/t.png",
+    ...overrides,
+  };
+}
+
+afterEach(() => {
+  document.body.innerHTML = "";
+  delete (window as Window & { tinyMCE?: unknown }).tinyMCE;
+});
+
+describe("descriptionToHtml", () => {
+  it("wraps plain text in a paragraph and escapes HTML", () => {
+    expect(descriptionToHtml("Hello <script>")).toBe(
+      "<p>Hello &lt;script&gt;</p>"
+    );
+  });
+
+  it("keeps existing markup", () => {
+    expect(descriptionToHtml("<p>Already html</p>")).toBe(
+      "<p>Already html</p>"
+    );
+  });
+
+  it("drops scripts and event handlers from NaaS markup", () => {
+    expect(
+      descriptionToHtml(
+        '<p onclick="steal()">Intro<script>steal()</script><img src=x onerror="steal()"></p>'
+      )
+    ).toBe("<p>Intro</p>");
+  });
+
+  it("keeps safe links and strips javascript: links", () => {
+    expect(
+      descriptionToHtml(
+        '<p><a href="https://naas.example/x" target="_blank">ok</a> <a href="javascript:steal()">bad</a></p>'
+      )
+    ).toBe('<p><a href="https://naas.example/x">ok</a> <a>bad</a></p>');
+  });
+
+  it("unwraps unknown tags but keeps their text", () => {
+    expect(
+      descriptionToHtml(
+        "<div><section><strong>Bold</strong> text</section></div>"
+      )
+    ).toBe("<strong>Bold</strong> text");
+  });
+
+  it("drops HTML comments and returns nothing for a blank description", () => {
+    expect(descriptionToHtml("<p>Kept<!-- hidden --></p>")).toBe("<p>Kept</p>");
+    expect(descriptionToHtml("   ")).toBe("");
+  });
+
+  it("turns blank lines into paragraphs and single newlines into breaks", () => {
+    expect(descriptionToHtml("One\ntwo\n\nThree & more")).toBe(
+      "<p>One<br>two</p><p>Three &amp; more</p>"
+    );
+  });
+});
+
+describe("Moodle activity form bridge", () => {
+  it("toggles activity-detail fields on the Moodle form", () => {
+    document.body.innerHTML = `<form class="mform" ${ACTIVITY_DETAILS_FORM_ATTR}="hidden"><input id="id_name" /></form>`;
+    setActivityDetailsVisible(true);
+    expect(
+      document
+        .querySelector("form.mform")
+        ?.getAttribute(ACTIVITY_DETAILS_FORM_ATTR)
+    ).toBe("visible");
+    setActivityDetailsVisible(false);
+    expect(
+      document
+        .querySelector("form.mform")
+        ?.getAttribute(ACTIVITY_DETAILS_FORM_ATTR)
+    ).toBe("hidden");
+  });
+
+  it("fills name, description, hidden ids, and shows the panel on select", () => {
+    const setContent = vi.fn();
+    (
+      window as unknown as Window & {
+        tinyMCE: { get: () => { setContent: typeof setContent } };
+      }
+    ).tinyMCE = {
+      get: () => ({ setContent }),
+    };
+    document.body.innerHTML = `
+      <form class="mform" ${ACTIVITY_DETAILS_FORM_ATTR}="hidden">
+        <input id="id_name" />
+        <textarea id="id_introeditor"></textarea>
+        <div id="id_introeditoreditable"></div>
+        <input name="nugget_id" />
+      </form>
+    `;
+    syncMoodleNuggetFields(nugget());
+    expect(
+      document
+        .querySelector("form.mform")
+        ?.getAttribute(ACTIVITY_DETAILS_FORM_ATTR)
+    ).toBe("visible");
+    expect((document.getElementById("id_name") as HTMLInputElement).value).toBe(
+      "A skilled approach"
+    );
+    expect(
+      (document.getElementById("id_introeditor") as HTMLTextAreaElement).value
+    ).toBe("<p>Short summary of the nugget.</p>");
+    expect(document.getElementById("id_introeditoreditable")?.innerHTML).toBe(
+      "<p>Short summary of the nugget.</p>"
+    );
+    expect(setContent).toHaveBeenCalledWith(
+      "<p>Short summary of the nugget.</p>"
+    );
+    expect(
+      (document.getElementsByName("nugget_id")[0] as HTMLInputElement).value
+    ).toBe("n1");
+  });
+
+  it("clears fields and hides the panel when the nugget is removed", () => {
+    document.body.innerHTML = `
+      <form class="mform" ${ACTIVITY_DETAILS_FORM_ATTR}="visible">
+        <input id="id_name" value="keep" />
+        <textarea id="id_introeditor">keep</textarea>
+        <input name="nugget_id" value="n1" />
+      </form>
+    `;
+    syncMoodleNuggetFields(null);
+    expect(
+      document
+        .querySelector("form.mform")
+        ?.getAttribute(ACTIVITY_DETAILS_FORM_ATTR)
+    ).toBe("hidden");
+    expect((document.getElementById("id_name") as HTMLInputElement).value).toBe(
+      ""
+    );
+    expect(
+      (document.getElementById("id_introeditor") as HTMLTextAreaElement).value
+    ).toBe("");
+    expect(
+      (document.getElementsByName("nugget_id")[0] as HTMLInputElement).value
+    ).toBe("");
+  });
+
+  it("writes an empty description for a nugget without resume, outside any form", () => {
+    document.body.innerHTML = `
+      <input id="id_name" />
+      <textarea name="introeditor[text]">old</textarea>
+    `;
+    syncMoodleNuggetFields(nugget({ resume: undefined }));
+    expect((document.getElementById("id_name") as HTMLInputElement).value).toBe(
+      "A skilled approach"
+    );
+    expect(
+      document.querySelector<HTMLTextAreaElement>('[name="introeditor[text]"]')
+        ?.value
+    ).toBe("");
+  });
+
+  it("leaves TinyMCE alone when it has no editor for the description", () => {
+    const get = vi.fn(() => null);
+    (window as unknown as Window & { tinyMCE: { get: typeof get } }).tinyMCE = {
+      get,
+    };
+    setMoodleActivityDescription("<p>x</p>");
+    expect(get).toHaveBeenCalledWith("id_introeditor");
+  });
+
+  it("writes the name field in isolation", () => {
+    document.body.innerHTML = '<input id="id_name" />';
+    setMoodleActivityName("Title");
+    expect((document.getElementById("id_name") as HTMLInputElement).value).toBe(
+      "Title"
+    );
+  });
+
+  it("fires a bubbling change event so the Moodle change checker sees it", () => {
+    document.body.innerHTML =
+      '<form><input id="id_name" /><input type="hidden" name="nugget_id" /></form>';
+    const changed: string[] = [];
+    document
+      .querySelector("form")!
+      .addEventListener("change", (e) =>
+        changed.push(
+          (e.target as HTMLInputElement).id ||
+            (e.target as HTMLInputElement).name
+        )
+      );
+
+    syncMoodleNuggetFields(nugget());
+    expect(changed).toEqual(["id_name", "nugget_id"]);
+
+    changed.length = 0;
+    syncMoodleNuggetFields(nugget());
+    expect(changed).toEqual([]);
+  });
+});
+
+describe("readNuggetFormError", () => {
+  it("returns the error Moodle printed on the name field", () => {
+    document.body.innerHTML =
+      '<div class="form-control-feedback invalid-feedback" id="id_error_name"> Select a Nugget </div>';
+    expect(readNuggetFormError()).toBe("Select a Nugget");
+  });
+
+  it("returns an empty string when there is no error", () => {
+    document.body.innerHTML = '<input id="id_name" />';
+    expect(readNuggetFormError()).toBe("");
+  });
+});
+
+describe("CGU agreement placement", () => {
+  it("parks the Moodle checkbox under the anchor and keeps it in the form", () => {
+    document.body.innerHTML = `
+      <form class="mform">
+        <div class="fitem">
+          <input type="checkbox" id="id_cgu_agreement" name="cgu_agreement" />
+          <label for="id_cgu_agreement">I have read and agree</label>
+        </div>
+        <div id="after-cgu"></div>
+        <div id="anchor"></div>
+      </form>
+    `;
+    const item = document.querySelector(".fitem") as HTMLElement;
+    const anchor = document.getElementById("anchor") as HTMLElement;
+    const form = document.querySelector("form") as HTMLFormElement;
+
+    concealCguAgreement();
+    expect(item.classList.contains("naas-cgu-field")).toBe(true);
+
+    placeCguAgreement(anchor);
+    expect(anchor.contains(item)).toBe(true);
+    expect(form.contains(document.getElementById("id_cgu_agreement"))).toBe(
+      true
+    );
+
+    restoreCguAgreement();
+    expect(item.parentElement).toBe(form);
+    expect(item.nextElementSibling?.id).toBe("after-cgu");
+  });
+
+  it("finds the row by fitem_id_cgu_agreement", () => {
+    document.body.innerHTML = `
+      <form class="mform">
+        <div id="fitem_id_cgu_agreement" class="fitem">
+          <input type="checkbox" id="id_cgu_agreement" name="cgu_agreement" />
+        </div>
+        <div id="anchor"></div>
+      </form>
+    `;
+    placeCguAgreement(document.getElementById("anchor"));
+    expect(document.getElementById("anchor")?.firstElementChild?.id).toBe(
+      "fitem_id_cgu_agreement"
+    );
+    restoreCguAgreement();
+  });
+
+  it("does nothing without a CGU row or an anchor", () => {
+    document.body.innerHTML = '<div id="anchor"></div>';
+    const anchor = document.getElementById("anchor");
+    concealCguAgreement();
+    placeCguAgreement(anchor);
+    restoreCguAgreement();
+    expect(anchor?.childElementCount).toBe(0);
+
+    document.body.innerHTML =
+      '<form><div id="fitem_id_cgu_agreement"></div></form>';
+    placeCguAgreement(null);
+    expect(
+      document.getElementById("fitem_id_cgu_agreement")?.classList.length
+    ).toBe(0);
+  });
+
+  it("appends the row back when the element after it is gone", () => {
+    // No whitespace: the row's next sibling must be #after-cgu, not a text node.
+    document.body.innerHTML =
+      '<form><div id="fitem_id_cgu_agreement"></div><div id="after-cgu"></div>' +
+      '<div id="anchor"></div></form>';
+    const item = document.getElementById("fitem_id_cgu_agreement")!;
+    const anchor = document.getElementById("anchor")!;
+    placeCguAgreement(anchor);
+    // A second placement keeps the original home.
+    placeCguAgreement(anchor);
+    document.getElementById("after-cgu")!.remove();
+
+    restoreCguAgreement();
+    expect(item.parentElement?.tagName).toBe("FORM");
+    expect(item.parentElement?.lastElementChild).toBe(item);
+
+    // Already home: restoring again changes nothing.
+    restoreCguAgreement();
+    expect(item.parentElement?.lastElementChild).toBe(item);
+  });
+});

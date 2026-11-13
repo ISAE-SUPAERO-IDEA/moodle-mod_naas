@@ -1,0 +1,71 @@
+/**
+ * Widget-scoped design tokens and shared primitives.
+ *
+ * The widget ships no UI framework: Moodle provides Bootstrap and FontAwesome.
+ * Everything here is namespaced (.naas-*) so Moodle's page styles are never
+ * overridden. Moodle form overrides (.mform[data-naas-details]) live in the
+ * global <style> block of NuggetSearchWidget.vue.
+ */
+
+.naas-widget {
+  --naas-primary: #0f6cbf;
+  --naas-primary-hover: #0a58ca;
+  --naas-primary-dark: #0a4a8f;
+  --naas-primary-light: #dce9fa;
+  --naas-surface: #fff;
+  --naas-surface-muted: #f8f9fa;
+  --naas-surface-hover: #f0f4ff;
+  --naas-border: #dee2e6;
+  --naas-border-light: #e9ecef;
+  --naas-text: #1f2937;
+  --naas-text-muted: #6c757d;
+  --naas-text-subtle: #adb5bd;
+  --naas-radius: 8px;
+  --naas-radius-pill: 999px;
+  --naas-radius-xl: 16px;
+  --naas-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --naas-shadow-md: 0 6px 20px rgba(0, 0, 0, 0.14);
+  --naas-shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.18);
+  --naas-transition: 0.18s ease;
+}
+
+/* Shimmering placeholder block — same sheen as the NuggetSkeleton card. */
+.naas-skeleton {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  border-radius: var(--naas-radius, 8px);
+  background: #e4e9ef;
+}
+
+.naas-skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 0%,
+    transparent 38%,
+    rgba(255, 255, 255, 0.72) 50%,
+    transparent 62%,
+    transparent 100%
+  );
+  transform: translateX(-120%);
+  animation: naas-skeleton-sheen 1.6s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes naas-skeleton-sheen {
+  0% {
+    transform: translateX(-120%);
+  }
+  100% {
+    transform: translateX(120%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .naas-skeleton::after {
+    animation: none;
+  }
+}

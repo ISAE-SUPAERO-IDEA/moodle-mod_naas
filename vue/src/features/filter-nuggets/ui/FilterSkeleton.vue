@@ -1,0 +1,51 @@
+<!--
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * Skeleton placeholder for the filter panel while aggregations are loading.
+ *
+ * @copyright  2024 ISAE-SUPAERO (https://www.isae-supaero.fr/)
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+-->
+<template>
+  <div class="filter-skeleton" aria-hidden="true">
+    <span class="naas-skeleton skel-text" />
+    <span class="naas-skeleton skel-button" />
+    <span class="naas-skeleton skel-button" />
+  </div>
+</template>
+
+<style scoped>
+.filter-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 10px;
+  width: 100%;
+}
+
+.skel-text {
+  width: 60%;
+  height: 0.85rem;
+  border-radius: var(--naas-radius-pill, 999px);
+}
+
+.skel-button {
+  width: 7.5rem;
+  height: 2.25rem;
+}
+</style>
