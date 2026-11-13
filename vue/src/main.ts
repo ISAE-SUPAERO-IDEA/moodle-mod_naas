@@ -20,25 +20,32 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-import { createApp } from 'vue'
-import Main from '@/Main.vue'
-import { naasApiPlugin } from '@/plugins/naas-api.plugin'
-import { createNaasI18n } from '@/plugins/i18n'
+import { createApp } from "vue";
+import Main from "@/Main.vue";
+import { naasApiPlugin } from "@/plugins/naas-api.plugin";
+import "@/styles/naas-theme.css";
+import { readNaasConfig } from "@/composables/readNaasConfig";
 
-const config = window.NAAS
+const config = readNaasConfig();
+// Keep window.NAAS for code and tools that still read it.
+window.NAAS = config;
 
-const app = createApp(Main)
+const app = createApp(Main);
 
 // In dev builds, allow Vue DevTools browser extension to connect to this IIFE app.
-if (process.env.NODE_ENV === 'development') {
+if (import.meta.env.DEV) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  ;(window as any).__VUE_DEVTOOLS_GLOBAL_HOOK__?.emit?.('app:init', app, app.version, {})
+  (window as any).__VUE_DEVTOOLS_GLOBAL_HOOK__?.emit?.(
+    "app:init",
+    app,
+    app.version,
+    {}
+  );
 }
 
-app.use(naasApiPlugin)
-app.use(createNaasI18n(config))
+app.use(naasApiPlugin);
 
 // Provide config globally so all components can inject it without prop-drilling.
-app.provide('naasConfig', config)
+app.provide("naasConfig", config);
 
-app.mount(config.mount_point)
+app.mount(config.mount_point);

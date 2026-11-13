@@ -20,16 +20,16 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-import type { App } from 'vue'
-import type { INaasApiService } from '../service/naas-api.interface'
-import { moodleNaasApiService } from '../service/moodle-naas-api.service'
+import type { App } from "vue";
+import type { INaasApiService } from "../service/naas-api.interface";
+import { moodleNaasApiService } from "../service/moodle-naas-api.service";
 
-export const NAAS_API_KEY = Symbol('naasApi')
+export const NAAS_API_KEY = Symbol("naasApi");
 
 export const naasApiPlugin = {
   install(app: App) {
-    app.provide(NAAS_API_KEY, moodleNaasApiService)
+    app.provide(NAAS_API_KEY, moodleNaasApiService);
   },
-}
+};
 
-export type { INaasApiService }
+export type { INaasApiService };

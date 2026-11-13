@@ -1,63 +1,49 @@
-# VueJS UI components
+# NaaS widget (Vue 3)
 
-This Moodle plugin uses a VueJS component to handle the search and selection of a nugget.
+The Nugget search widget (activity form) and the Nugget view (activity page) are a
+Vue 3 + TypeScript application built with Vite into a single IIFE bundle,
+`assets/vue/naas_widget-<version>.js`. Moodle loads it from `templates/widget.mustache`
+and passes its configuration in `window.NAAS`. Every call to NaaS goes through
+Moodle web services (`core/ajax`), never directly from the browser.
 
-## Requirements 
-- Node v14
+## Requirements
+
+- Node 22
 - Yarn 1.22
 
-## Project setup
+## Commands
 
-```
-yarn install
-```
+Run them from this `vue/` folder.
 
-### Compiles and hot-reloads for development
+| Command | What it does |
+|---|---|
+| `yarn install --frozen-lockfile` | Install the locked dependencies |
+| `yarn dev` | Start the Vite dev server with `dev_config.js` as `window.NAAS` |
+| `yarn type-check` | Type-check the application (`vue-tsc -p tsconfig.app.json`) |
+| `yarn test` | Run the unit tests (Vitest, jsdom) |
+| `yarn build` | Type-check, then write the bundle (CSS included) to `../assets/vue/` |
+| `yarn bump-version [YYYYMMDDnn]` | Rename the bundle (defaults to today's date) |
+| `yarn lint` | Format the sources with Prettier |
 
-```
-yarn serve
-```
+## Releasing a new bundle
 
-### Compiles and minifies for production
+1. `yarn bump-version`: updates `BUNDLE_VERSION` in `vite.config.ts` and
+   `widget::BUNDLE_VERSION` in `classes/output/widget.php`. The new name stops
+   browsers from reusing a cached bundle. `version.php` is not touched.
+2. `yarn build`
+3. Commit `vite.config.ts`, `classes/output/widget.php` and `assets/vue/` (the new
+   bundle and the removal of the previous one).
 
-```
-yarn build
-```
+The CI `widget` job rebuilds the bundle and fails if `assets/vue/` differs from the
+committed files, so always commit the output of `yarn build`.
 
-### Lints and fixes files
+## Development server
 
-```
-yarn lint
-```
+`yarn dev` serves `index.html` and injects `dev_config.js` as `window.NAAS`. Edit that
+file to choose the component (`NuggetSearchWidget` or `NuggetView`), the Moodle URL,
+a `sesskey` from a logged-in session, and a course or course-module id. The browser
+then calls the Moodle web services of that site, so it must accept requests from the
+dev server origin.
 
-### Customize configuration
-
-See [Configuration Reference](https://cli.vuejs.org/config/).
-
-
-## Configuration for development
-
-This configuration should be added to the Virtualhost configuration of your Moodle instance to solve CORS configuration errors. 
-By accessing the component on the same webserver as your Moodle instance, the following Apache configuration should be added:
-
-```bash
-ProxyPass /sockjs-node/  http://localhost:8083/sockjs-node/
-ProxyPass /vue/  http://localhost:8083/vue/
-ProxyPassReverse /vue/ http://localhost:8083/vue/
-ProxyPreserveHost On
-RewriteCond %{HTTP:Upgrade} websocket [NC]
-RewriteCond %{HTTP:Connection} upgrade [NC]
-RewriteRule ^/?(.*) "ws://moodle.local.isae.fr/$1" [P,L]
-```
-
-### Development Configuration File
-
-The following file contains the development configuration for the Vue component: `vue/dev_config.js`
-- `nugget_id`: initial nugget_id to simulate the fact that a nugget has already been selected
-- `labels`: translation to be displayed on the interface
-
-=> The assets will be deployed in `assets/vue`
-- To develop the component in a sandbox, run
-```bash
-yarn serve -- --port 8083`.
-```
+Most changes are easier to check in Moodle itself: run `yarn build`, purge the Moodle
+caches, and reload the activity form or the activity page.

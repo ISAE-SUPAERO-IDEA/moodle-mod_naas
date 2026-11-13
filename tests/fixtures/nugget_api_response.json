@@ -1,0 +1,23 @@
+{
+  "payload": {
+    "id": "test-nugget-uuid-1234",
+    "version_id": "version-abc-5678",
+    "name": "Introduction to Aerodynamics",
+    "description": "A nugget covering the basics of aerodynamic principles.",
+    "language": "en",
+    "level": "beginner",
+    "duration": 1800,
+    "thumbnail_url": "https://naas.example.com/thumbnails/test-nugget.jpg",
+    "multilanguages": [
+      {
+        "language": "fr",
+        "nugget_id": "test-nugget-uuid-fr-9999",
+        "version_id": "version-fr-1111"
+      }
+    ],
+    "related_domains": ["aerospace", "physics"],
+    "producers": ["ISAE-SUPAERO"],
+    "authors": ["test-person-key-1"],
+    "structure": "test-structure-key-1"
+  }
+}

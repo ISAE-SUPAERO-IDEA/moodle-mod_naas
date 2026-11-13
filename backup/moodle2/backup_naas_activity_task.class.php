@@ -51,6 +51,18 @@ class backup_naas_activity_task extends backup_activity_task {
      * @return string the content with the URLs encoded
      */
     public static function encode_content_links($content) {
+        global $CFG;
+
+        $base = preg_quote($CFG->wwwroot, '/');
+
+        // Links to the list of Nuggets in a course, decoded by NAASINDEX.
+        $search = '/(' . $base . '\/mod\/naas\/index.php\?id\=)([0-9]+)/';
+        $content = preg_replace($search, '$@NAASINDEX*$2@$', $content);
+
+        // Links to one Nugget activity, decoded by NAASVIEWBYID.
+        $search = '/(' . $base . '\/mod\/naas\/view.php\?id\=)([0-9]+)/';
+        $content = preg_replace($search, '$@NAASVIEWBYID*$2@$', $content);
+
         return $content;
     }
 }

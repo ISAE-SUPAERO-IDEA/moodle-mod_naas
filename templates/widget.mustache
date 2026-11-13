@@ -19,18 +19,24 @@
 
     Template for the NaaS widget.
 
+    The configuration is a JSON data block, not an executed script, so the page
+    works under a Content Security Policy without 'unsafe-inline'. config is
+    encoded with JSON_HEX_TAG, so it cannot close the <script> element.
+
     Example context (json):
     {
         "config": "{\"moodle_url\":\"https://moodle.example.com\",\"mount_point\":\"#naas_widget\",\"component\":\"mod_naas\",\"nugget_id\":123,\"courseId\":5,\"cm_id\":15,\"labels\":{\"search\":\"Search\"} }",
-        "widgetjsurl": "https://moodle.example.com/mod/naas/assets/vue/naas_widget-2026030300.js"
+        "widgetjsurl": "https://moodle.example.com/mod/naas/assets/vue/naas_widget.js"
     }
 }}
-<div id="naas_widget"></div>
-<script>
-    window.NAAS = {{{config}}};
-</script>
+<div id="naas_widget" class="naas-widget-host"></div>
+<script type="application/json" id="naas_config">{{{config}}}</script>
 {{#js}}
-require(['core/first', '{{{widgetjsurl}}}'], function() {
-    // Le script du widget est chargé.
+require(['core/first'], function() {
+    // The widget bundle is a plain script (IIFE), not an AMD module: loading it with
+    // require() made RequireJS report "No define call". It mounts itself on #naas_widget.
+    var script = document.createElement('script');
+    script.src = '{{{widgetjsurl}}}';
+    document.head.appendChild(script);
 });
 {{/js}}

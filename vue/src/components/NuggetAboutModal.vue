@@ -16,6 +16,7 @@
 
 /**
  * Modal displaying full nugget metadata (description, authors, in-brief panel).
+ * Teleported to body so it never lays out inside a nugget card.
  *
  * @copyright  2024 ISAE-SUPAERO (https://www.isae-supaero.fr/)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -24,109 +25,189 @@
 <template>
   <Teleport to="body">
     <transition name="modal-fade">
-      <div v-if="visible" class="nugget-modal-backdrop" @click="emit('close')">
-        <div class="nugget-modal" @click.stop.prevent>
-            <div class="nugget-modal-header">
-            <h2>{{ config.labels.about }} : {{ nugget.name }}</h2>
-            <button type="button" class="btn-close" @click="emit('close')">✕</button>
+      <div
+        v-if="visible"
+        class="nugget-modal-backdrop"
+        @click.self="emit('close')"
+      >
+        <div
+          ref="dialog"
+          class="nugget-modal"
+          role="dialog"
+          aria-modal="true"
+          :aria-labelledby="titleId"
+          tabindex="-1"
+          @click.stop
+        >
+          <div class="nugget-modal-header">
+            <h2 :id="titleId">
+              {{ fillLabel(config.labels.about_title, nugget.name) }}
+            </h2>
+            <button
+              type="button"
+              class="btn-close"
+              :aria-label="config.labels.close"
+              @click="emit('close')"
+            >
+              ✕
+            </button>
           </div>
 
           <div class="nugget-modal-body">
-            <div class="row metadata-field">
-              <div class="col">
+            <div class="about-grid">
+              <div>
                 <div v-if="isShown(nugget.resume)">
                   <h3>{{ config.labels.metadata.description }}</h3>
-                  <span class="nugget-modal-description">{{ stripHtml(nugget.resume) }}</span>
+                  <span class="nugget-modal-description">{{
+                    stripHtml(nugget.resume)
+                  }}</span>
                 </div>
 
                 <div v-if="isShown(nugget.authors_data)">
                   <h3>{{ config.labels.metadata.about_author }}</h3>
-                  <div v-for="author in nugget.authors_data" :key="author.email">
+                  <div
+                    v-for="author in nugget.authors_data"
+                    :key="author.email"
+                  >
                     <h5>{{ author.firstname }} {{ author.lastname }}</h5>
-                    <span class="nugget-modal-description">{{ stripHtml(author.bio) }}</span>
+                    <span class="nugget-modal-description">{{
+                      stripHtml(author.bio)
+                    }}</span>
                   </div>
                 </div>
               </div>
 
-              <div v-if="inBriefShown" class="col-4">
+              <div v-if="inBriefShown" class="about-brief">
                 <h3>{{ config.labels.metadata.in_brief }}</h3>
                 <ul class="metadata-list">
                   <li v-if="isShown(nugget.duration)">
-                    <i class="icon fa fa-clock-o" />
-                    {{ config.labels.metadata.duration }}:
-                    <strong>{{ nugget.duration }} minutes</strong>
+                    <i class="icon fa fa-clock-o" aria-hidden="true" />
+                    {{ config.labels.metadata.duration
+                    }}{{ config.labels.labelsep }}
+                    <strong>{{
+                      fillLabel(
+                        config.labels.duration_minutes,
+                        String(nugget.duration)
+                      )
+                    }}</strong>
                   </li>
                   <li v-if="isShown(nugget.language)">
-                    <i class="icon fa fa-globe" />
-                    {{ config.labels.metadata.language }}:
-                    <strong>{{ config.labels.metadata[nugget.language] }}</strong>
+                    <i class="icon fa fa-globe" aria-hidden="true" />
+                    {{ config.labels.metadata.language
+                    }}{{ config.labels.labelsep }}
+                    <strong>{{
+                      config.labels.metadata[nugget.language]
+                    }}</strong>
                   </li>
                   <li v-if="isShown(nugget.level)">
-                    <i class="icon fa fa-arrow-up" />
-                    {{ config.labels.metadata.level }}:
+                    <i class="icon fa fa-arrow-up" aria-hidden="true" />
+                    {{ config.labels.metadata.level
+                    }}{{ config.labels.labelsep }}
                     <strong>{{ config.labels.metadata[nugget.level!] }}</strong>
                   </li>
-                  <li v-if="isShown(nugget.license)">
-                    <i class="icon fa fa-id-card-o" />
-                    {{ config.labels.metadata.license }}:
-                    <strong>{{ config.labels.metadata[`license_${nugget.license}`] ?? nugget.license }}</strong>
+                  <li v-if="licenceText">
+                    <i class="icon fa fa-id-card-o" aria-hidden="true" />
+                    {{ config.labels.metadata.license
+                    }}{{ config.labels.labelsep }}
+                    <strong>{{ licenceText }}</strong>
                   </li>
-                  <li v-if="isShown(nugget.domains_data)" class="metadata-list-item-wrap">
-                    <i class="icon fa fa-home" />
+                  <li v-if="producerNames.length">
+                    <i class="icon fa fa-university" aria-hidden="true" />
+                    {{ config.labels.metadata.producer
+                    }}{{ config.labels.labelsep }}
+                    <strong>{{ producerNames.join(", ") }}</strong>
+                  </li>
+                  <li v-if="partnerName">
+                    <i class="icon fa fa-handshake-o" aria-hidden="true" />
+                    {{ config.labels.metadata.partner
+                    }}{{ config.labels.labelsep }}
+                    <strong>
+                      <a
+                        v-if="partnerUrl"
+                        :href="partnerUrl"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        >{{ partnerName }}</a
+                      >
+                      <template v-else>{{ partnerName }}</template>
+                    </strong>
+                  </li>
+                  <li
+                    v-if="isShown(nugget.domains_data)"
+                    class="metadata-list-item-wrap"
+                  >
+                    <i class="icon fa fa-home" aria-hidden="true" />
                     <span>
-                      {{ config.labels.metadata.field_of_study }}:
+                      {{ config.labels.metadata.field_of_study
+                      }}{{ config.labels.labelsep }}
                       <span class="meta-tags">
-                        <span v-for="item in nugget.domains_data" :key="item.id" class="meta-tag">
+                        <span
+                          v-for="item in nugget.domains_data"
+                          :key="item.id"
+                          class="meta-tag"
+                        >
                           {{ item.label }}
                         </span>
                       </span>
                     </span>
                   </li>
-                  <li v-if="isShown(nugget.tags)" class="metadata-list-item-wrap">
-                    <i class="icon fa fa-tag" />
+                  <li
+                    v-if="isShown(nugget.tags)"
+                    class="metadata-list-item-wrap"
+                  >
+                    <i class="icon fa fa-tag" aria-hidden="true" />
                     <span>
-                      {{ config.labels.metadata.tags }}:
+                      {{ config.labels.metadata.tags
+                      }}{{ config.labels.labelsep }}
                       <span class="meta-tags">
-                        <span v-for="tag in nugget.tags" :key="tag" class="meta-tag">
+                        <span
+                          v-for="tag in nugget.tags"
+                          :key="tag"
+                          class="meta-tag"
+                        >
                           {{ tag }}
                         </span>
                       </span>
                     </span>
                   </li>
                   <li v-if="isShown(nugget.publication_date)">
-                    <i class="icon fa fa-calendar" />
-                    {{ config.labels.metadata.publication_date }}:
+                    <i class="icon fa fa-calendar" aria-hidden="true" />
+                    {{ config.labels.metadata.publication_date
+                    }}{{ config.labels.labelsep }}
                     <strong>{{ formatDate(nugget.publication_date) }}</strong>
                   </li>
                 </ul>
               </div>
             </div>
 
-            <div v-if="isShown(nugget.prerequisites)" class="row metadata-field">
-              <div class="w-100">
-                <h3>{{ config.labels.metadata.prerequisites }}</h3>
-                <ul class="about-list ul-position">
-                  <li v-for="item in nugget.prerequisites" :key="item"><p>{{ item }}</p></li>
-                </ul>
-              </div>
+            <div v-if="isShown(nugget.prerequisites)" class="metadata-field">
+              <h3>{{ config.labels.metadata.prerequisites }}</h3>
+              <ul class="about-list">
+                <li v-for="item in nugget.prerequisites" :key="item">
+                  <p>{{ item }}</p>
+                </li>
+              </ul>
             </div>
 
-            <div v-if="isShown(nugget.learning_outcomes)" class="row metadata-field">
-              <div class="w-100">
-                <h3>{{ config.labels.metadata.learning_outcomes }}</h3>
-                <ul class="about-list ul-position">
-                  <li v-for="item in nugget.learning_outcomes" :key="item"><p>{{ item }}</p></li>
-                </ul>
-              </div>
+            <div
+              v-if="isShown(nugget.learning_outcomes)"
+              class="metadata-field"
+            >
+              <h3>{{ config.labels.metadata.learning_outcomes }}</h3>
+              <ul class="about-list">
+                <li v-for="item in nugget.learning_outcomes" :key="item">
+                  <p>{{ item }}</p>
+                </li>
+              </ul>
             </div>
 
-            <div v-if="isShown(nugget.references)" class="row metadata-field">
-              <div class="w-100">
-                <h3>{{ config.labels.metadata.references }}</h3>
-                <ul class="about-list ul-position">
-                  <li v-for="item in nugget.references" :key="item"><p>{{ item }}</p></li>
-                </ul>
-              </div>
+            <div v-if="isShown(nugget.references)" class="metadata-field">
+              <h3>{{ config.labels.metadata.references }}</h3>
+              <ul class="about-list">
+                <li v-for="item in nugget.references" :key="item">
+                  <p>{{ item }}</p>
+                </li>
+              </ul>
             </div>
           </div>
         </div>
@@ -136,44 +217,105 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import moment from 'moment'
-import { useNaasConfig } from '@/composables/useNaasConfig'
-import type { Nugget } from '@/types/nugget.types'
+import { computed, ref, useId, watch } from "vue";
+import { formatShortDate } from "@/composables/formatDate";
+import { licenceRights, rightsCaption } from "@/composables/nuggetLicence";
+import { useEntityResolvers } from "@/composables/useEntityResolvers";
+import { useModalA11y } from "@/composables/useModalA11y";
+import { fillLabel } from "@/utils/fillLabel";
+import { useNaasConfig } from "@/composables/useNaasConfig";
+import type { Nugget } from "@/types/nugget.types";
 
-defineProps<{ nugget: Nugget; visible: boolean }>()
-const emit = defineEmits<{ (e: 'close'): void }>()
+const props = defineProps<{ nugget: Nugget; visible: boolean }>();
+const emit = defineEmits<{ (e: "close"): void }>();
 
-const config = useNaasConfig()
+const config = useNaasConfig();
+
+const dialog = ref<HTMLElement | null>(null);
+const titleId = useId();
+useModalA11y(
+  () => props.visible,
+  dialog,
+  () => emit("close")
+);
 
 function stripHtml(value?: string): string {
-  return new DOMParser().parseFromString(value ?? '', 'text/html').body.textContent ?? ''
+  return (
+    // An element's textContent is never null (only a document's is).
+    new DOMParser().parseFromString(value ?? "", "text/html").body.textContent!
+  );
 }
 
 function isShown(val: unknown): boolean {
-  if (val === undefined || val === null || val === '') return false
-  if (Array.isArray(val)) return val.length > 0
-  if (typeof val === 'object') return Object.values(val).some(isShown)
-  return true
+  if (val === undefined || val === null || val === "") return false;
+  if (Array.isArray(val)) return val.length > 0;
+  if (typeof val === "object") return Object.values(val).some(isShown);
+  return true;
 }
 
 function formatDate(value?: string): string {
-  if (!value) return ''
-  return moment(value).format('DD/MM/YYYY')
+  return formatShortDate(value);
 }
 
-const inBriefShown = computed(() => {
-  // props are available via the closure in script setup
-  return true // resolved reactively inside template via v-if guards above
-})
+/** Legacy numeric licence when NaaS still sends one, else the institute's licence rights. */
+const licenceText = computed(() => {
+  const legacy = props.nugget.license;
+  if (isShown(legacy)) {
+    return config.labels.metadata[`license_${legacy}`] ?? String(legacy);
+  }
+  return rightsCaption(
+    licenceRights(props.nugget.access_licences, config.structure_id),
+    config.labels.metadata
+  );
+});
+
+const partnerName = computed(() => props.nugget.partner?.name?.trim() || "");
+/** Only web links: never javascript: or other schemes coming from NaaS. */
+const partnerUrl = computed(() => {
+  const url = props.nugget.partner?.url?.trim() || "";
+  return /^https?:\/\//i.test(url) ? url : "";
+});
+
+/** Producing institutes, named from the catalogue snapshot or Moodle. */
+const producerNames = ref<string[]>([]);
+const { getStructureAcronym } = useEntityResolvers();
+watch(
+  () => [props.visible, props.nugget] as const,
+  async ([visible, nugget]) => {
+    if (!visible) {
+      return;
+    }
+    const keys = [
+      ...new Set(nugget.managing_structures ?? nugget.producers ?? []),
+    ].filter(Boolean);
+    const names = await Promise.all(keys.map(getStructureAcronym));
+    // Ignore an answer for a Nugget that was replaced in the meantime.
+    if (props.nugget === nugget) {
+      producerNames.value = names.filter(Boolean);
+    }
+  },
+  { immediate: true }
+);
+
+const inBriefShown = computed(
+  () =>
+    isShown(props.nugget.duration) ||
+    isShown(props.nugget.language) ||
+    isShown(props.nugget.level) ||
+    !!licenceText.value ||
+    producerNames.value.length > 0 ||
+    !!partnerName.value ||
+    isShown(props.nugget.domains_data) ||
+    isShown(props.nugget.tags) ||
+    isShown(props.nugget.publication_date)
+);
 </script>
 
 <style scoped>
-/* ── Backdrop ── */
 .nugget-modal-backdrop {
   position: fixed;
   inset: 0;
-  background-color: rgba(15, 20, 30, 0.5);
+  background-color: rgba(15, 20, 30, 0.55);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
   display: flex;
@@ -184,20 +326,23 @@ const inBriefShown = computed(() => {
   overflow-y: auto;
 }
 
-/* ── Modal panel ── */
+/* The dialog takes focus when it opens; no outline around the whole box. */
+.nugget-modal:focus {
+  outline: none;
+}
+
 .nugget-modal {
   width: 100%;
   max-width: 1100px;
   margin: 0 auto;
   background: var(--naas-surface, #fff);
-  box-shadow: var(--naas-shadow-lg, 0 12px 40px rgba(0,0,0,.18));
+  box-shadow: var(--naas-shadow-lg, 0 12px 40px rgba(0, 0, 0, 0.18));
   border-radius: var(--naas-radius-xl, 16px);
   display: flex;
   flex-direction: column;
   overflow: hidden;
 }
 
-/* ── Header ── */
 .nugget-modal-header {
   display: flex;
   align-items: flex-start;
@@ -217,7 +362,6 @@ const inBriefShown = computed(() => {
   line-height: 1.3;
 }
 
-/* ── Close button ── */
 .btn-close {
   flex-shrink: 0;
   display: inline-flex;
@@ -231,11 +375,8 @@ const inBriefShown = computed(() => {
   font-weight: 700;
   border: none;
   background: transparent;
-  line-height: 1;
   border-radius: var(--naas-radius, 8px);
   cursor: pointer;
-  transition: color var(--naas-transition, 0.18s ease),
-              background var(--naas-transition, 0.18s ease);
 }
 
 .btn-close:hover {
@@ -243,12 +384,16 @@ const inBriefShown = computed(() => {
   background: var(--naas-surface-muted, #f8f9fa);
 }
 
-/* ── Body ── */
 .nugget-modal-body {
   padding: 1.5rem;
   max-height: calc(88vh - 100px);
   overflow-y: auto;
-  flex-grow: 1;
+}
+
+.about-grid {
+  display: grid;
+  grid-template-columns: 1fr minmax(14rem, 28%);
+  gap: 1.5rem;
 }
 
 .nugget-modal-description {
@@ -259,9 +404,8 @@ const inBriefShown = computed(() => {
   font-size: 0.9rem;
 }
 
-/* ── In-brief sidebar ── */
 .metadata-field {
-  margin: 0;
+  margin-top: 1rem;
 }
 
 .metadata-list {
@@ -283,16 +427,10 @@ const inBriefShown = computed(() => {
 
 .metadata-list li .icon {
   color: var(--naas-primary, #0f6cbf);
-  width: 1rem;
   flex-shrink: 0;
-  margin-top: 0.1rem;
+  margin: 0.1rem 0 0;
 }
 
-.metadata-list-item-wrap {
-  align-items: flex-start !important; /* stylelint-disable-line declaration-no-important */
-}
-
-/* Flex-wrap row of pill tags */
 .meta-tags {
   display: flex;
   flex-wrap: wrap;
@@ -301,19 +439,20 @@ const inBriefShown = computed(() => {
 }
 
 .meta-tag {
-  display: inline-block;
-  padding: 0.18rem 0.6rem;
-  background: var(--naas-primary-light, #dce9fa);
-  color: var(--naas-primary, #0f6cbf);
+  display: inline-flex;
+  align-items: center;
+  padding: 0.1rem 0.45rem;
   border: 1px solid var(--naas-primary, #0f6cbf);
   border-radius: var(--naas-radius-pill, 999px);
-  font-size: 0.75rem;
+  color: var(--naas-primary, #0f6cbf);
+  font-size: 0.72rem;
   font-weight: 600;
-  white-space: nowrap;
-  line-height: 1.4;
 }
 
-/* ── Animation: fade + slide up ── */
+.about-list {
+  padding-left: 1.25rem;
+}
+
 .modal-fade-enter-active {
   transition: opacity 0.22s ease, transform 0.22s ease;
 }
@@ -322,16 +461,20 @@ const inBriefShown = computed(() => {
 }
 .modal-fade-enter-from {
   opacity: 0;
-  transform: translateY(16px);
+  transform: translateY(18px);
 }
 .modal-fade-leave-to {
   opacity: 0;
   transform: translateY(8px);
 }
 
-/* ── Responsive ── */
 @media (max-width: 768px) {
-  .nugget-modal-backdrop { padding: 1rem 0.5rem; }
-  .nugget-modal-body { max-height: calc(92vh - 80px); padding: 1rem; }
+  .about-grid {
+    grid-template-columns: 1fr;
+  }
+  .nugget-modal-body {
+    max-height: calc(92vh - 80px);
+    padding: 1rem;
+  }
 }
 </style>

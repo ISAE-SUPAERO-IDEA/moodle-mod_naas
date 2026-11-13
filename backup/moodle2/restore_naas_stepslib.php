@@ -28,6 +28,9 @@ class restore_naas_activity_structure_step extends restore_activity_structure_st
     protected function define_structure() {
         $paths = [];
         $paths[] = new restore_path_element('naas', '/activity/naas');
+        if ($this->get_setting_value('userinfo')) {
+            $paths[] = new restore_path_element('naas_outcome', '/activity/naas/outcomes/outcome');
+        }
 
         // Return the paths wrapped into standard activity structure.
         return $this->prepare_activity_structure($paths);
@@ -35,6 +38,10 @@ class restore_naas_activity_structure_step extends restore_activity_structure_st
 
     /**
      * NaaS restore process.
+     *
+     * Backups made before 3.0.0 carry only name, nugget_id and intro (plus unused
+     * fields copied from mod_choice): the missing settings take the table defaults.
+     *
      * @param array $data The process data
      * @return void
      */
@@ -43,14 +50,44 @@ class restore_naas_activity_structure_step extends restore_activity_structure_st
 
         $data = (object)$data;
         $data->course = $this->get_courseid();
+        $data->timemodified = time();
+        if (empty($data->timecreated)) {
+            $data->timecreated = $data->timemodified;
+        }
 
-        $data->timeopen = $this->apply_date_offset($data->timeopen);
-        $data->timeclose = $this->apply_date_offset($data->timeclose);
-
-        // Insert the naas record.
+        // Insert the naas record. Columns the table does not have are ignored.
         $newitemid = $DB->insert_record('naas', $data);
         // Immediately after inserting "activity" record, call this.
         $this->apply_activity_instance($newitemid);
+    }
+
+    /**
+     * Restore one learner attempt.
+     *
+     * The attempt gets a fresh lis_result_sourcedid: the original one stays bound to
+     * the source activity, so a late grade from NaaS cannot land on both copies.
+     *
+     * @param array $data The process data
+     * @return void
+     */
+    protected function process_naas_outcome($data) {
+        global $DB;
+
+        $data = (object)$data;
+        $userid = $this->get_mappingid('user', $data->user_id);
+        if (!$userid) {
+            return;
+        }
+
+        $record = (object) [
+            'user_id' => $userid,
+            'activity_id' => $this->task->get_moduleid(),
+            'sourced_id' => bin2hex(random_bytes(16)),
+            'date_added' => $this->apply_date_offset($data->date_added),
+            'score' => $data->score ?? null,
+            'timecompleted' => empty($data->timecompleted) ? null : $this->apply_date_offset($data->timecompleted),
+        ];
+        $DB->insert_record('naas_activity_outcome', $record);
     }
 
     /**

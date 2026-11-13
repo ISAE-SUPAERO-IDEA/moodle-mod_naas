@@ -16,9 +16,13 @@
 
 namespace mod_naas;
 
+// @codeCoverageIgnoreStart
+// Runs once when the file is included, outside the class that the PHPUnit covers annotations attribute lines to.
 defined('MOODLE_INTERNAL') || die();
 
+global $CFG;
 require_once($CFG->libdir . '/filelib.php');
+// @codeCoverageIgnoreEnd
 
 /**
  * Enables interaction with a NaaS Server
@@ -41,12 +45,53 @@ class naas_client {
     protected $debug;
 
     /**
+     * Optional factory that returns a curl-like client. Tests inject this so requests stay offline.
+     * @var callable|null
+     */
+    private $curlfactory;
+
+    /**
      * Initialize the NaaS client
      * @param object $config
+     * @param callable|null $curlfactory Returns an object with the curl methods this client uses
      */
-    public function __construct($config) {
+    public function __construct($config, ?callable $curlfactory = null) {
         $this->config = $config;
         $this->debug = property_exists($config, "naas_debug") ? $this->config->naas_debug : false;
+        $this->curlfactory = $curlfactory;
+    }
+
+    /**
+     * The client every caller should use.
+     *
+     * On a Behat test site this is a fake NaaS that answers from fixtures
+     * (tests/behat/fixtures), so acceptance tests never reach a real server.
+     *
+     * @param object $config Merged plugin and site configuration.
+     * @return naas_client
+     */
+    public static function create(object $config): naas_client {
+        global $CFG;
+        if (defined('BEHAT_SITE_RUNNING') && BEHAT_SITE_RUNNING) {
+            // @codeCoverageIgnoreStart
+            // Behat sites only (covered by the Behat suite): PHPUnit cannot define BEHAT_SITE_RUNNING in-process.
+            require_once($CFG->dirroot . '/mod/naas/tests/behat/fixtures/behat_naas_client.php');
+            return new behat_naas_client($config);
+            // @codeCoverageIgnoreEnd
+        }
+        return new naas_client($config);
+    }
+
+    /**
+     * Build the HTTP client for one request.
+     *
+     * @return object
+     */
+    private function new_curl() {
+        if ($this->curlfactory !== null) {
+            return ($this->curlfactory)();
+        }
+        return new \curl(['proxy' => true]);
     }
 
     /**
@@ -60,8 +105,8 @@ class naas_client {
     public function request_raw($protocol, $service, $data = null, $params = null) {
         $url = $this->config->naas_endpoint . $service;
         if ($params != null) {
-            // Remove indices from query params.
-            $query = preg_replace('/\%5B\d+\%5D/', '', http_build_query($params));
+            // Remove indices from query params. Moodle sets arg_separator.output to '&amp;': give '&' explicitly.
+            $query = preg_replace('/\%5B\d+\%5D/', '', http_build_query($params, '', '&'));
             $url .= "?" . $query;
         }
 
@@ -79,7 +124,7 @@ class naas_client {
         // configured (e.g. local dev environments with self-signed certificates).
         $verifypeer = empty($this->config->naas_ssl_noverify);
 
-        $curl = new \curl(['proxy' => true]);
+        $curl = $this->new_curl();
         $headers = [];
         $options = [
             'CURLOPT_RETURNTRANSFER' => true,
@@ -140,13 +185,17 @@ class naas_client {
         $code = $info['http_code'] ?? 0;
         $errno = $curl->get_errno();
         $error = $curl->error;
-        $responseheaders = $curl->getResponse();
 
         $isnaasapi = false;
-        foreach ($responseheaders as $name => $value) {
-            if (strtolower((string)$name) === 'x-naas-api') {
-                $isnaasapi = true;
-                break;
+        if (method_exists($curl, 'getResponse')) {
+            $responseheaders = $curl->getResponse();
+            if (is_array($responseheaders)) {
+                foreach ($responseheaders as $name => $value) {
+                    if (strtolower((string) $name) === 'x-naas-api') {
+                        $isnaasapi = true;
+                        break;
+                    }
+                }
             }
         }
 
@@ -177,12 +226,14 @@ class naas_client {
                         // Surface a specific message when the configured institute
                         // (structure_id) is unknown, so the user gets actionable feedback.
                         $body = json_decode($response);
-                        if (
-                            is_object($body)
-                            && property_exists($body, "error_code")
-                            && $body->error_code === "error_structure_not_found"
-                        ) {
+                        $naaserror = (is_object($body) && property_exists($body, "error_code"))
+                            ? $body->error_code
+                            : null;
+                        if ($naaserror === "error_structure_not_found") {
                             $errormessage = "error:naas_api:invalid_structure";
+                        } else if ($naaserror === "error_nugget_not_found") {
+                            // Unpublished or deleted Nugget: say so instead of a generic failure.
+                            $errormessage = "error_nugget_not_found";
                         }
                         break;
                     case 401:
@@ -219,8 +270,8 @@ class naas_client {
      * Send a request
      * @param string $protocol
      * @param string $service
-     * @param array $data
-     * @param array $params
+     * @param array|object|null $data
+     * @param array|null $params
      * @return mixed
      */
     public function request($protocol, $service, $data = null, $params = null) {

@@ -89,7 +89,7 @@ class view_page implements renderable, templatable {
 
             // Re-parse the link to a proper moodle_url object to safely append parameters.
             $nexturl = new moodle_url($this->nextactivity->link);
-            $nexturl->param('forceview', 1);
+            $nexturl->param('forceview', '1');
             $context->nextactivityurl = $nexturl->out(false);
         }
 

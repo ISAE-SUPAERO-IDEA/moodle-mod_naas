@@ -1,5 +1,28 @@
 parameters:
-    level: 0
+    level: 5
+    bootstrapFiles:
+        - .github/phpstan/bootstrap.php
+    ignoreErrors:
+        # Moodle provides these variables to the files it includes (settings.php, version.php,
+        # entry scripts after config.php); PHPStan cannot see that.
+        - '#^Variable \$(settings|hassiteconfig|plugin|CFG) might not be defined\.$#'
+        # The stubs do not define the PARAM_* constants, so every PARAM_* argument looks like null.
+        - '#^Parameter \#\d+ \$\w+ of (function (optional_param|required_param|clean_param)|method MoodleQuickForm::(setType|getCleanedValue)\(\)) expects [a-z|]+, null given\.$#'
+        # The stubs type context::instance() as context|false and the context classes as aliases.
+        - '#expects context, core\\context\\\w+(\|false)? given\.$#'
+        - '#^Call to function is_a\(\) with context and .context_module. will always evaluate to false\.$#'
+        # HTML_QuickForm methods take a variable number of arguments.
+        - '#^Method HTML_QuickForm::(addElement|createElement)\(\) invoked with \d+ parameters, \d+ required\.$#'
+        # The stubs declare cache::make() as returning core_cache classes, not their legacy aliases.
+        - '#expects cache, core_cache\\#'
+        # plugin_renderer_base and renderer_base are aliases in the stubs.
+        - '#export_for_template\(\) expects renderer_base, \$this\(mod_naas\\output\\renderer\) given\.$#'
+        # moodleform_mod::get_course() returns the course record; the stubs say int.
+        - '#^Cannot access property \$id on int\.$#'
+        # get_suffix() only exists from Moodle 4.3: the check is needed on 4.1 and 4.2.
+        - '#^Call to function method_exists\(\) with \$this\(mod_naas_mod_form\) and .get_suffix. will always evaluate to true\.$#'
+        # outcome.php only processes the request outside PHPUnit; the stubs define PHPUNIT_TEST.
+        - '#^Negated boolean expression is always false\.$#'
     paths:
         - lib.php
         - index.php
@@ -8,11 +31,14 @@ parameters:
         - settings.php
         - mod_form.php
         - outcome.php
-        - renderer.php
+        - media.php
         - version.php
         - classes
     scanDirectories:
         - vendor/michaelmeneses/moodle-stubs/stubs
+    # Known to the analyser, not analysed: the Behat fake NaaS returned by naas_client::create().
+    scanFiles:
+        - tests/behat/fixtures/behat_naas_client.php
     excludePaths:
         - vue
         - assets

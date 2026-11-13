@@ -23,8 +23,10 @@
  * @author      Thomas Delalbre
  */
 
-require_once('../../config.php');
-require_once('lib.php');
+require_once(__DIR__ . '/../../config.php');
+require_once(__DIR__ . '/lib.php');
+
+global $DB, $OUTPUT, $PAGE;
 
 // Course ID is a required parameter.
 $id = optional_param('id', 0, PARAM_INT);  // Using optional_param to handle missing ID gracefully.
@@ -82,7 +84,7 @@ if (!$naasmodules = get_all_instances_in_course('naas', $course)) {
     echo $OUTPUT->notification(get_string('nonewmodules', 'naas'), \core\output\notification::NOTIFY_INFO);
     echo $OUTPUT->continue_button($courseurl);
     echo $OUTPUT->footer();
-    die();
+    return;
 }
 
 $usesections = course_format_uses_sections($course->format);

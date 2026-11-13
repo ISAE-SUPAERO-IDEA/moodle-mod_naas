@@ -21,6 +21,7 @@ use core_privacy\local\request\approved_contextlist;
 use core_privacy\local\request\approved_userlist;
 use core_privacy\local\request\contextlist;
 use core_privacy\local\request\helper;
+use core_privacy\local\request\transform;
 use core_privacy\local\request\userlist;
 use core_privacy\local\request\writer;
 
@@ -72,6 +73,8 @@ class provider implements
                 'activity_id' => 'privacy:metadata:naas_activity_outcome:activity_id',
                 'sourced_id' => 'privacy:metadata:naas_activity_outcome:sourced_id',
                 'date_added' => 'privacy:metadata:naas_activity_outcome:date_added',
+                'score' => 'privacy:metadata:naas_activity_outcome:score',
+                'timecompleted' => 'privacy:metadata:naas_activity_outcome:timecompleted',
             ],
             'privacy:metadata:naas_activity_outcome'
         );
@@ -129,8 +132,7 @@ class provider implements
 
         global $DB;
 
-        if (empty($contextlist)) {
-            echo"empty contexts";
+        if (!count($contextlist)) {
             return;
         }
 
@@ -155,7 +157,10 @@ class provider implements
                     'User ID' => $record->user_id,
                     'Activity ID' => $record->activity_id,
                     'Session ID' => $record->sourced_id,
-                    'Started ad' => $record->date_added,
+                    // Readable dates, like other activities' exports; an attempt still open has none.
+                    'Started at' => empty($record->date_added) ? null : transform::datetime($record->date_added),
+                    'Score' => $record->score,
+                    'Completed at' => empty($record->timecompleted) ? null : transform::datetime($record->timecompleted),
                 ];
             }
 
@@ -205,7 +210,7 @@ class provider implements
             return;
         }
 
-        $sql = "SELECT naas_session.user_id
+        $sql = "SELECT naas_session.user_id AS userid
             FROM {naas_activity_outcome} naas_session
             JOIN {modules} m ON m.name = 'naas'
             JOIN {course_modules} cm ON cm.id = naas_session.activity_id AND cm.module = m.id
@@ -220,7 +225,7 @@ class provider implements
     /**
      * Delete all user data which matches the specified context.
      *
-     * @param context $context A user context.
+     * @param \context $context A user context.
      */
     public static function delete_data_for_all_users_in_context(\context $context) {
         global $DB;

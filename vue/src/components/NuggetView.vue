@@ -26,39 +26,47 @@
   <div class="container">
     <!-- Error banner with retry -->
     <div v-if="error" class="naas-error-banner" role="alert">
-      <span>{{ config.labels.error_generic_user_message }}</span>
-      <button class="btn btn-sm btn-outline-danger" @click="load">
-        {{ config.labels.retry || 'Retry' }}
-      </button>
+      <!-- A missing Nugget will not come back on retry: say so plainly. -->
+      <span v-if="nuggetNotFound">{{ error }}</span>
+      <template v-else>
+        <span
+          >{{ config.labels.error_generic_user_message
+          }}<template v-if="error.trim()"> — {{ error }}</template></span
+        >
+        <button class="btn btn-sm btn-outline-danger" @click="load">
+          {{ config.labels.retry }}
+        </button>
+      </template>
     </div>
 
     <div id="nugget-info-button">
-      <a
-        v-if="aboutButton"
-        href="javascript:;"
-        class="btn btn-primary"
-        @click="showAbout = true"
-      >
-        {{ config.labels.about }}
-      </a>
-
-      <select
-        v-if="nugget"
-        class="language-select"
-        :value="language"
-        @change="onLanguageChange"
-      >
-        <option :value="nugget.language">
-          {{ config.labels.metadata[nugget.language] }}
-        </option>
-        <option
-          v-for="item in nugget.multilanguages"
-          :key="item.language"
-          :value="item.language"
+      <div>
+        <button
+          v-if="aboutButton"
+          type="button"
+          class="btn btn-primary"
+          @click="showAbout = true"
         >
-          {{ config.labels.metadata[item.language] }}
-        </option>
-      </select>
+          {{ config.labels.about }}
+        </button>
+        <select
+          v-if="nugget"
+          class="language-select"
+          :value="language"
+          @change="language = ($event.target as HTMLSelectElement).value"
+        >
+          <option :value="nugget.language">
+            {{ config.labels.metadata[nugget.language] }}
+          </option>
+          <option
+            v-for="item in nugget.multilanguages"
+            :key="item.language"
+            :value="item.language"
+          >
+            {{ config.labels.metadata[item.language] }}
+          </option>
+        </select>
+      </div>
 
       <NuggetAboutModal
         v-if="nugget"
@@ -80,6 +88,7 @@
       <iframe
         v-if="!loading && !error"
         id="lti-frame"
+        :title="nugget?.name"
         height="600px"
         width="100%"
         style="border: none"
@@ -90,7 +99,8 @@
       />
     </div>
 
-    <div class="row">
+    <!-- No Nugget to finish while it failed to load. -->
+    <div v-if="nugget && !error" class="row">
       <div id="completion-modal-button" class="col text-center">
         <button class="btn btn-primary" @click="complete">
           {{ config.labels.complete_nugget }}
@@ -108,92 +118,157 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, nextTick } from 'vue'
+import {
+  ref,
+  computed,
+  watch,
+  nextTick,
+  onBeforeUnmount,
+  onMounted,
+} from "vue";
 // @ts-expect-error iframe-resizer ships no type declarations
-import iframeResizeLib from 'iframe-resizer/js/iframeResizer'
-const iframeResize = iframeResizeLib as (opts: Record<string, unknown>, selector: string) => void
+import iframeResizeLib from "iframe-resizer/js/iframeResizer";
+const iframeResize = iframeResizeLib as (
+  opts: Record<string, unknown>,
+  selector: string
+) => void;
 
-import NuggetAboutModal from './NuggetAboutModal.vue'
-import NuggetCompletionModal from './NuggetCompletionModal.vue'
-import NuggetViewSkeleton from './NuggetViewSkeleton.vue'
-import { useNaasConfig } from '@/composables/useNaasConfig'
-import { useNuggetView } from '@/composables/useNuggetView'
-import { useXapi } from '@/composables/useXapi'
+import NuggetAboutModal from "./NuggetAboutModal.vue";
+import NuggetCompletionModal from "./NuggetCompletionModal.vue";
+import NuggetViewSkeleton from "./NuggetViewSkeleton.vue";
+import { useNaasConfig } from "@/composables/useNaasConfig";
+import { useNuggetView } from "@/composables/useNuggetView";
+import { useXapi } from "@/composables/useXapi";
+import {
+  isFrameSeen,
+  VISIBILITY_THRESHOLDS,
+} from "@/composables/frameVisibility";
 
-const config = useNaasConfig()
-const { nugget, loading, error, load } = useNuggetView()
-const { postStatement } = useXapi()
+const config = useNaasConfig();
+const { nugget, loading, error, load } = useNuggetView();
+// Moodle may append debug info to the message when debugging is on.
+const nuggetNotFound = computed(
+  () =>
+    !!error.value &&
+    !!config.labels.error_nugget_not_found &&
+    error.value.startsWith(config.labels.error_nugget_not_found)
+);
+const { postStatement } = useXapi();
 
-const language = ref<string | null>(null)
-const showAbout = ref(false)
-const showCompletion = ref(false)
+const language = ref<string | null>(null);
+const showAbout = ref(false);
+const showCompletion = ref(false);
 
-// The Moodle ≥ 4.0 secondary-nav has its own About link; hide our button in that case.
-const aboutButton = !document.querySelector('.secondary-navigation nav ul li[data-key=about]')
+// Moodle ≥ 4.0 shows an About entry in the activity's secondary navigation
+// (lib.php, naas_extend_settings_navigation): it opens the dialog instead of
+// our own button, which only shows on pages without that navigation.
+const navAbout = document.querySelector<HTMLElement>(
+  ".secondary-navigation nav ul li[data-key=about] a"
+);
+const aboutButton = !navAbout;
+
+function openAboutFromNav(event: Event) {
+  event.preventDefault();
+  showAbout.value = true;
+}
+onMounted(() => navAbout?.addEventListener("click", openAboutFromNav));
+onBeforeUnmount(() => navAbout?.removeEventListener("click", openAboutFromNav));
 
 // Available synchronously — lets the browser open the TCP connection before the nugget API resolves.
-const preloadUrl = `launch.php?id=${config.cm_id}&triggerview=0`
+const preloadUrl = `launch.php?id=${config.cm_id}&triggerview=0`;
 
 const iframeUrl = computed(() => {
-  if (!language.value) return null
-  return `launch.php?id=${config.cm_id}&triggerview=0&language=${language.value}`
-})
+  if (!language.value) return null;
+  return `launch.php?id=${config.cm_id}&triggerview=0&language=${language.value}`;
+});
 
-let experiencedTimer: ReturnType<typeof setTimeout> | null = null
-let visibilityObserver: IntersectionObserver | null = null
+let setupTimer: ReturnType<typeof setTimeout> | null = null;
+let experiencedTimer: ReturnType<typeof setTimeout> | null = null;
+let visibilityObserver: IntersectionObserver | null = null;
+
+/** Stop the pending setup, the visibility observer and the xAPI timer. */
+function stopVisibilityTracking(): void {
+  if (setupTimer) {
+    clearTimeout(setupTimer);
+    setupTimer = null;
+  }
+  if (experiencedTimer) {
+    clearTimeout(experiencedTimer);
+    experiencedTimer = null;
+  }
+  visibilityObserver?.disconnect();
+  visibilityObserver = null;
+}
+
+onBeforeUnmount(stopVisibilityTracking);
 
 // React to the nugget loading: set language, init iframe-resizer, schedule xAPI.
 watch(nugget, (loaded) => {
-  if (!loaded) return
-  language.value = loaded.language
+  // One observer per loaded nugget: drop the previous one first.
+  stopVisibilityTracking();
+  /* v8 ignore next -- @preserve */
+  if (!loaded) return;
+  language.value = loaded.language;
 
   // Wait for the iframe to be in the DOM before attaching iframe-resizer.
   nextTick(() => {
-    setTimeout(() => {
+    setupTimer = setTimeout(() => {
+      setupTimer = null;
       iframeResize(
-        { log: false, checkOrigin: false, heightCalculationMethod: 'lowestElement' },
-        '#lti-frame'
-      )
+        {
+          log: false,
+          checkOrigin: false,
+          heightCalculationMethod: "lowestElement",
+        },
+        "#lti-frame"
+      );
 
-      // Delay "experienced" by 30 s of confirmed iframe visibility so accidental
+      // Delay "experienced" by 10 s of confirmed iframe visibility so accidental
       // landings do not pollute xAPI records.
-      const iframe = document.getElementById('lti-frame')
-      if (!iframe) return
+      const iframe = document.getElementById("lti-frame");
+      // Gone only if the view was unmounted during the delay.
+      /* v8 ignore next -- @preserve */
+      if (!iframe) return;
 
-      visibilityObserver = new IntersectionObserver((entries) => {
-        const visible = entries[0]?.isIntersecting ?? false
-        if (visible && !experiencedTimer) {
-          experiencedTimer = setTimeout(() => {
-            postStatement({
-              id: config.cm_id,
-              verb: 'experienced',
-              version_id: loaded.version_id,
-            })
-            visibilityObserver?.disconnect()
-          }, 10000)
-        } else if (!visible && experiencedTimer) {
-          clearTimeout(experiencedTimer)
-          experiencedTimer = null
-        }
-      }, { threshold: 0.5 })
+      visibilityObserver = new IntersectionObserver(
+        (entries) => {
+          // The latest entry is the current state when several are batched.
+          const entry = entries[entries.length - 1];
+          const visible = entry ? isFrameSeen(entry) : false;
+          if (visible && !experiencedTimer) {
+            experiencedTimer = setTimeout(() => {
+              postStatement({
+                id: config.cm_id,
+                verb: "experienced",
+                version_id: loaded.version_id,
+              });
+              experiencedTimer = null;
+              visibilityObserver?.disconnect();
+              visibilityObserver = null;
+            }, 10000);
+          } else if (!visible && experiencedTimer) {
+            clearTimeout(experiencedTimer);
+            experiencedTimer = null;
+          }
+        },
+        { threshold: VISIBILITY_THRESHOLDS }
+      );
 
-      visibilityObserver.observe(iframe)
-    }, 500)
-  })
-})
-
-function onLanguageChange(event: Event) {
-  language.value = (event.target as HTMLSelectElement).value
-}
+      visibilityObserver.observe(iframe);
+    }, 500);
+  });
+});
 
 function complete() {
-  if (!nugget.value) return
-  showCompletion.value = true
+  // The button only renders once the Nugget is loaded; kept for direct callers.
+  /* v8 ignore next -- @preserve */
+  if (!nugget.value) return;
+  showCompletion.value = true;
   postStatement({
     id: config.cm_id,
-    verb: 'completed',
+    verb: "completed",
     version_id: nugget.value.version_id,
-  })
+  });
 }
 </script>
 
@@ -224,7 +299,7 @@ function complete() {
   font-size: 0.875rem;
   color: var(--naas-text, #1f2937);
   transition: border-color var(--naas-transition, 0.18s ease),
-              box-shadow   var(--naas-transition, 0.18s ease);
+    box-shadow var(--naas-transition, 0.18s ease);
   outline: none;
 }
 
@@ -263,14 +338,14 @@ function complete() {
   font-weight: 700;
   border-radius: var(--naas-radius-pill, 999px);
   letter-spacing: 0.02em;
-  box-shadow: var(--naas-shadow-sm, 0 2px 8px rgba(0,0,0,.10));
+  box-shadow: var(--naas-shadow-sm, 0 2px 8px rgba(0, 0, 0, 0.1));
   transition: background var(--naas-transition, 0.18s ease),
-              box-shadow var(--naas-transition, 0.18s ease),
-              transform  var(--naas-transition, 0.18s ease);
+    box-shadow var(--naas-transition, 0.18s ease),
+    transform var(--naas-transition, 0.18s ease);
 }
 
 #completion-modal-button button:hover {
   transform: translateY(-1px);
-  box-shadow: var(--naas-shadow-md, 0 6px 20px rgba(0,0,0,.14));
+  box-shadow: var(--naas-shadow-md, 0 6px 20px rgba(0, 0, 0, 0.14));
 }
 </style>

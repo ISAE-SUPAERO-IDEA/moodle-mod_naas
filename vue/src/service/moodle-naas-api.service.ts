@@ -21,86 +21,168 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-import type { INaasApiService } from './naas-api.interface'
-import type { Nugget, SearchResult, XapiParams } from '../types/nugget.types'
-import type { Person } from '../types/person.types'
-import type { Domain } from '../types/domain.types'
-import type { Structure } from '../types/structure.types'
+import type { INaasApiService } from "./naas-api.interface";
+import type {
+  CatalogueCheck,
+  Nugget,
+  SearchResult,
+  XapiParams,
+} from "../types/nugget.types";
+import type { Person } from "../types/person.types";
+import type { Domain } from "../types/domain.types";
+import type { Structure } from "../types/structure.types";
+import { unwrapNaasPayload } from "./unwrapNaasPayload";
 
 // Moodle's RequireJS loader — (deps, callback) — differs from Node's require(id).
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-type MoodleRequire = (deps: string[], callback: (...args: any[]) => void) => void
+type MoodleRequire = (
+  deps: string[],
+  callback: (...args: any[]) => void
+) => void;
 
-const cache = new Map<string, unknown>()
+const cache = new Map<string, unknown>();
+// Requests still waiting for Moodle: an identical call joins the pending one
+// instead of sending the same web service request again.
+const pending = new Map<string, Promise<unknown>>();
 
 function cacheKey(method: string, args: Record<string, unknown>): string {
-  return JSON.stringify({ method, args })
+  return JSON.stringify({ method, args });
 }
 
-function waitForRequirejs(): Promise<MoodleRequire> {
-  return new Promise((resolve) => {
-    const get = () => (window as unknown as { require?: MoodleRequire }).require
-    if (get()) { resolve(get()!); return }
+/**
+ * Wait for Moodle's RequireJS loader, which the page may define after the bundle runs.
+ *
+ * Gives up after maxAttempts polls (5 s by default) so a page without RequireJS
+ * shows an error instead of loading forever.
+ */
+export function waitForRequirejs(
+  maxAttempts = 50,
+  intervalMs = 100
+): Promise<MoodleRequire> {
+  return new Promise((resolve, reject) => {
+    const get = () =>
+      (window as unknown as { require?: MoodleRequire }).require;
+    const found = get();
+    if (found) {
+      resolve(found);
+      return;
+    }
+    let attempts = 0;
     const interval = setInterval(() => {
-      if (get()) { clearInterval(interval); resolve(get()!) }
-    }, 100)
-  })
+      const loader = get();
+      if (loader) {
+        clearInterval(interval);
+        resolve(loader);
+        return;
+      }
+      attempts++;
+      if (attempts >= maxAttempts) {
+        clearInterval(interval);
+        reject(new Error("mod_naas: Moodle RequireJS loader not available"));
+      }
+    }, intervalMs);
+  });
 }
 
-async function callWebservice<T>(
+function callWebservice<T>(
   methodname: string,
   args: Record<string, unknown> = {},
   useCache = false
 ): Promise<T> {
-  const key = cacheKey(methodname, args)
-  if (useCache && cache.has(key)) return cache.get(key) as T
+  const key = cacheKey(methodname, args);
+  if (useCache && cache.has(key)) return Promise.resolve(cache.get(key) as T);
+  if (!useCache) return sendWebservice<T>(methodname, args, key, false);
 
-  const require = await waitForRequirejs()
+  const inflight = pending.get(key);
+  if (inflight) return inflight as Promise<T>;
+  const request = sendWebservice<T>(methodname, args, key, true).finally(() =>
+    pending.delete(key)
+  );
+  pending.set(key, request);
+  return request;
+}
+
+/** Forget cached and pending results (tests). */
+export function resetWebserviceCache(): void {
+  cache.clear();
+  pending.clear();
+}
+
+async function sendWebservice<T>(
+  methodname: string,
+  args: Record<string, unknown>,
+  key: string,
+  useCache: boolean
+): Promise<T> {
+  const require = await waitForRequirejs();
 
   return new Promise<T>((resolve, reject) => {
-    require(['core/ajax'], (ajax: { call: (calls: unknown[]) => Promise<unknown>[] }) => {
-      ajax.call([{ methodname, args }])[0]
+    require(["core/ajax"], (ajax: {
+      call: (calls: unknown[]) => Promise<unknown>[];
+    }) => {
+      ajax
+        .call([{ methodname, args }])[0]
         .then((response) => {
-          const payload =
-            typeof response === 'string'
-              ? (JSON.parse(response).payload as T)
-              : (response as T)
-          if (useCache) cache.set(key, payload)
-          resolve(payload)
+          const payload = unwrapNaasPayload<T>(response);
+          if (useCache) cache.set(key, payload);
+          resolve(payload);
         })
-        .catch(reject)
-    })
-  })
+        .catch(reject);
+    });
+  });
 }
 
 export const moodleNaasApiService: INaasApiService = {
-  getNugget: (nuggetId, courseId) =>
-    callWebservice<Nugget>('mod_naas_get_nugget', { nuggetId, courseId }, true),
+  getNugget: (nuggetId, courseId, mode = "cache_first") =>
+    callWebservice<Nugget>("mod_naas_get_nugget", {
+      nuggetId,
+      courseId,
+      mode,
+    }),
 
   viewNugget: (cmId) =>
-    callWebservice<Nugget>('mod_naas_view_nugget', { cmId }, true),
+    callWebservice<Nugget>("mod_naas_view_nugget", { cmId }, true),
 
   getPerson: (personKey, courseId) =>
-    callWebservice<Person>('mod_naas_get_person', { personKey, courseId }, true),
+    callWebservice<Person>(
+      "mod_naas_get_person",
+      { personKey, courseId },
+      true
+    ),
 
   getDomain: (domainKey, courseId) =>
-    callWebservice<Domain>('mod_naas_get_domain', { domainKey, courseId }, true),
+    callWebservice<Domain>(
+      "mod_naas_get_domain",
+      { domainKey, courseId },
+      true
+    ),
 
   getStructure: (structureKey, courseId) =>
-    callWebservice<Structure>('mod_naas_get_structure', { structureKey, courseId }, true),
+    callWebservice<Structure>(
+      "mod_naas_get_structure",
+      { structureKey, courseId },
+      true
+    ),
 
-  searchNuggets: (searchOptions, courseId) =>
-    callWebservice<SearchResult>('mod_naas_search_nuggets', {
+  searchNuggets: (searchOptions, courseId, mode = "cache_first") =>
+    callWebservice<SearchResult>("mod_naas_search_nuggets", {
       searchOptions: searchOptions as unknown as Record<string, unknown>,
+      courseId,
+      mode,
+    }),
+
+  checkCatalogue: (courseId) =>
+    callWebservice<CatalogueCheck>("mod_naas_check_catalogue", { courseId }),
+
+  getNuggetPreview: (versionId, courseId) =>
+    callWebservice<string>("mod_naas_get_nugget_preview", {
+      versionId,
       courseId,
     }),
 
-  getNuggetPreview: (versionId, courseId) =>
-    callWebservice<string>('mod_naas_get_nugget_preview', { versionId, courseId }),
-
   postXapiStatement: (params: XapiParams) =>
     callWebservice<void>(
-      'mod_naas_post_xapi_statement',
+      "mod_naas_post_xapi_statement",
       params as unknown as Record<string, unknown>
     ),
-}
+};

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Fixture: malformed IMS LTI response.
+  Used by outcome_test.php to verify that invalid XML is rejected before any
+  DB write occurs.  The score element is intentionally broken.
+-->
+<imsx_POXEnvelopeRequest xmlns="http://www.imsglobal.org/services/ltiv1p1/xsd/imsoms_v1p0">
+  <imsx_POXBody>
+    <replaceResultRequest>
+      <resultRecord>
+        <sourcedGUID>
+          <!-- sourcedId element intentionally missing -->
+        </sourcedGUID>
+        <result>
+          <resultScore>
+            <!-- score element intentionally missing -->
+          </resultScore>
+        </result>
+      </resultRecord>
+    </replaceResultRequest>
+  </imsx_POXBody>
+  <!-- Unclosed tag to make this invalid XML:

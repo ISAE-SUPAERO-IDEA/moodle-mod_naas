@@ -24,9 +24,26 @@
  */
 namespace mod_naas\external;
 
+// @codeCoverageIgnoreStart
+// Runs once when the file is included, outside the class that the PHPUnit covers annotations attribute lines to.
 defined('MOODLE_INTERNAL') || die();
-global $CFG;
-require_once($CFG->libdir . '/externallib.php');
+// Moodle 4.2+ provides the core_external classes. On Moodle 4.1 they only exist under their
+// old global names: load them and give them the new names, so one code base runs on both.
+// (Including lib/externallib.php on 4.2+ would force every unit test into a separate process.)
+if (!class_exists('\\core_external\\external_api')) {
+    global $CFG;
+    require_once($CFG->libdir . '/externallib.php');
+    $legacyclasses = [
+        'external_api', 'external_description', 'external_value', 'external_single_structure',
+        'external_multiple_structure', 'external_function_parameters',
+    ];
+    foreach ($legacyclasses as $legacyclass) {
+        if (!class_exists('\\core_external\\' . $legacyclass, false)) {
+            class_alias($legacyclass, 'core_external\\' . $legacyclass);
+        }
+    }
+}
+// @codeCoverageIgnoreEnd
 
 /**
  * External Service to send xAPI statements to the NaaS platform.
@@ -36,7 +53,7 @@ require_once($CFG->libdir . '/externallib.php');
  * @author John Tranier
  * @author Bruno Ilponse
  */
-class xapi extends \external_api {
+class xapi extends \core_external\external_api {
     /** Allowed xAPI verbs forwarded to the NaaS API. */
     private const ALLOWED_VERBS = ['experienced', 'completed', 'rated'];
 
@@ -47,11 +64,11 @@ class xapi extends \external_api {
      * Parameters definition for post_xapi_statement
      */
     public static function post_xapi_statement_parameters() {
-        return new \external_function_parameters([
-            'verb' => new \external_value(PARAM_TEXT, 'XAPI verb'),
-            'version_id' => new \external_value(PARAM_TEXT, 'Version ID'),
-            'id' => new \external_value(PARAM_INT, 'Course Module ID'),
-            'body' => new \external_value(PARAM_RAW, 'XAPI statement body', VALUE_DEFAULT, null),
+        return new \core_external\external_function_parameters([
+            'verb' => new \core_external\external_value(PARAM_TEXT, 'XAPI verb'),
+            'version_id' => new \core_external\external_value(PARAM_TEXT, 'Version ID'),
+            'id' => new \core_external\external_value(PARAM_INT, 'Course Module ID'),
+            'body' => new \core_external\external_value(PARAM_RAW, 'XAPI statement body', VALUE_DEFAULT, null),
         ]);
     }
 
@@ -59,9 +76,9 @@ class xapi extends \external_api {
      * Returns description
      */
     public static function post_xapi_statement_returns() {
-        return new \external_single_structure([
-            'statusCode' => new \external_value(PARAM_INT, 'HTTP status code of the response'),
-            'statusMessage' => new \external_value(PARAM_TEXT, 'HTTP status message of the response'),
+        return new \core_external\external_single_structure([
+            'statusCode' => new \core_external\external_value(PARAM_INT, 'HTTP status code of the response'),
+            'statusMessage' => new \core_external\external_value(PARAM_TEXT, 'HTTP status message of the response'),
         ]);
     }
 
@@ -104,10 +121,7 @@ class xapi extends \external_api {
         require_capability('mod/naas:view', $context);
 
         // Verify the calling user is enrolled in the module's course.
-        $coursecontext = \context_course::instance($cm->course);
-        if (!is_enrolled($coursecontext, null, '', true)) {
-            throw new \moodle_exception('error:not_enrolled', 'naas');
-        }
+        self::require_active_course_enrolment((int) $cm->course);
 
         // Get user info.
         $config = (object) array_merge((array) \get_config('naas'), (array) $CFG);
@@ -122,6 +136,9 @@ class xapi extends \external_api {
             $data->body = new \stdClass();
         } else {
             $data->body = json_decode($params['body']);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                throw new \invalid_parameter_exception(get_string('error:xapi_body_invalid', 'naas'));
+            }
         }
 
         if (isset($_SESSION["resource_link_id"])) {
@@ -130,12 +147,38 @@ class xapi extends \external_api {
 
         // Send to NaaS.
         $config = (object) array_merge((array) get_config('naas'), (array) $CFG);
-        $naas = new \mod_naas\naas_client($config);
+        $naas = static::make_naas_client($config);
         $response = $naas->post_xapi_statement($params['verb'], $params['version_id'], $data);
+        if (!is_object($response) || !isset($response->statusCode)) {
+            throw new \moodle_exception('error:naas_server_unexpected', 'naas');
+        }
 
         return [
           "statusCode" => $response->statusCode,
           "statusMessage" => $response->statusMessage,
         ];
+    }
+
+    /**
+     * Factory so tests can stub the NaaS HTTP client.
+     *
+     * @param object $config Merged plugin and site configuration.
+     * @return \mod_naas\naas_client
+     */
+    protected static function make_naas_client(object $config): \mod_naas\naas_client {
+        return \mod_naas\naas_client::create($config);
+    }
+
+    /**
+     * Reject callers who hold no active enrolment in the course.
+     *
+     * @param int $courseid Course the activity belongs to.
+     * @throws \moodle_exception error:not_enrolled when the current user is not actively enrolled.
+     */
+    protected static function require_active_course_enrolment(int $courseid): void {
+        $coursecontext = \context_course::instance($courseid);
+        if (!is_enrolled($coursecontext, null, '', true)) {
+            throw new \moodle_exception('error:not_enrolled', 'naas');
+        }
     }
 }

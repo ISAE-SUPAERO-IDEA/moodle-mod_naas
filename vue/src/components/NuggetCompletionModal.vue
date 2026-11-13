@@ -16,6 +16,7 @@
 
 /**
  * Completion modal: star rating + back-to-course / next-unit navigation.
+ * Teleported to body so it overlays the Moodle page, matching the other nugget modals.
  *
  * @copyright  2024 ISAE-SUPAERO (https://www.isae-supaero.fr/)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -24,17 +25,41 @@
 <template>
   <Teleport to="body">
     <transition name="modal-fade">
-      <div v-if="visible" class="nugget-modal-backdrop" @click.self="emit('close')">
-        <div class="nugget-modal">
-          <!-- Close -->
+      <div
+        v-if="visible"
+        class="nugget-modal-backdrop"
+        @click.self="emit('close')"
+      >
+        <div
+          ref="dialog"
+          class="nugget-modal"
+          role="dialog"
+          aria-modal="true"
+          :aria-labelledby="ratingEnabled ? titleId : undefined"
+          :aria-label="ratingEnabled ? undefined : config.labels.learning_outcomes_desc"
+          tabindex="-1"
+          @click.stop
+        >
           <div class="nugget-modal-header">
-            <button type="button" class="btn-close" @click="emit('close')">✕</button>
+            <button
+              type="button"
+              class="btn-close"
+              :aria-label="config.labels.close"
+              @click="emit('close')"
+            >
+              ✕
+            </button>
           </div>
 
-          <!-- Rating body -->
-          <div class="nugget-modal-body">
-            <h2 class="rating-title">{{ config.labels.rating.title }}</h2>
-            <div class="rating" role="group" :aria-label="config.labels.rating.title">
+          <div v-if="ratingEnabled" class="nugget-modal-body">
+            <h2 :id="titleId" class="rating-title">
+              {{ config.labels.rating.title }}
+            </h2>
+            <div
+              class="rating"
+              role="group"
+              :aria-label="config.labels.rating.title"
+            >
               <span
                 v-for="i in MAX_SCORE"
                 :key="i"
@@ -42,12 +67,20 @@
                 :class="{ checked: savedRating === MAX_SCORE + 1 - i }"
                 role="radio"
                 :aria-checked="savedRating === MAX_SCORE + 1 - i"
-                :aria-label="`${MAX_SCORE + 1 - i} star`"
+                :aria-label="fillLabel(config.labels.rating.value, MAX_SCORE + 1 - i)"
                 tabindex="0"
                 @click="savedRating = MAX_SCORE + 1 - i"
                 @keydown.enter.space.prevent="savedRating = MAX_SCORE + 1 - i"
               >
-                <i class="icon fa fa-star" />
+                <i
+                  class="icon fa"
+                  :class="
+                    savedRating !== null && MAX_SCORE + 1 - i <= savedRating
+                      ? 'fa-star'
+                      : 'fa-star-o'
+                  "
+                  aria-hidden="true"
+                />
               </span>
             </div>
             <button
@@ -59,23 +92,31 @@
               @click="rate(savedRating)"
             >
               <i v-if="ratingSent" class="icon fa fa-check" />
-              {{ ratingSent ? config.labels.rating.sent : config.labels.rating.send }}
+              {{
+                ratingSent
+                  ? config.labels.rating.sent
+                  : config.labels.rating.send
+              }}
             </button>
-            <p class="rating-description">{{ config.labels.rating.description }}</p>
+            <p class="rating-description">
+              {{ config.labels.rating.description }}
+            </p>
           </div>
 
-          <!-- Learning outcomes -->
           <div
             v-if="nugget.learning_outcomes && nugget.learning_outcomes.length"
             class="learning-outcomes"
           >
-            <p class="learning-outcomes-label">{{ config.labels.learning_outcomes_desc }}</p>
+            <p class="learning-outcomes-label">
+              {{ config.labels.learning_outcomes_desc }}
+            </p>
             <ul class="learning-outcomes-list">
-              <li v-for="item in nugget.learning_outcomes" :key="item">{{ item }}</li>
+              <li v-for="item in nugget.learning_outcomes" :key="item">
+                {{ item }}
+              </li>
             </ul>
           </div>
 
-          <!-- Footer nav -->
           <div class="nugget-modal-footer">
             <a :href="backLink" class="nav-btn nav-btn-back">
               <i class="icon fa fa-arrow-left" />
@@ -98,65 +139,80 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { useNaasConfig } from '@/composables/useNaasConfig'
-import { useXapi } from '@/composables/useXapi'
-import type { Nugget } from '@/types/nugget.types'
+import { computed, ref, onMounted, useId } from "vue";
+import { useNaasConfig } from "@/composables/useNaasConfig";
+import { useModalA11y } from "@/composables/useModalA11y";
+import { fillLabel } from "@/utils/fillLabel";
+import { useXapi } from "@/composables/useXapi";
+import type { Nugget } from "@/types/nugget.types";
 
-const MAX_SCORE = 5
-const MIN_SCORE = 1
+const MAX_SCORE = 5;
+const MIN_SCORE = 1;
 
-const props = defineProps<{ nugget: Nugget; visible: boolean }>()
-const emit = defineEmits<{ (e: 'close'): void }>()
+const props = defineProps<{ nugget: Nugget; visible: boolean }>();
+const emit = defineEmits<{ (e: "close"): void }>();
 
-const config = useNaasConfig()
-const { postStatement } = useXapi()
+const config = useNaasConfig();
+const { postStatement } = useXapi();
 
-const savedRating = ref<number | null>(null)
-const ratingSent = ref(false)
-const backLink = ref('#')
-const nextUnitLink = ref<string | null>(null)
+const dialog = ref<HTMLElement | null>(null);
+const titleId = useId();
+useModalA11y(() => props.visible, dialog, () => emit("close"));
+
+// The admin setting "Allow learners to rate Nuggets"; older configs without it keep rating.
+const ratingEnabled = computed(() => config.rating_enabled !== false);
+const savedRating = ref<number | null>(null);
+const ratingSent = ref(false);
+const backLink = ref("#");
+const nextUnitLink = ref<string | null>(null);
 
 onMounted(() => {
-  const backEl = document.querySelector<HTMLAnchorElement>('.course-button a')
-  if (backEl) backLink.value = backEl.href
+  const backEl = document.querySelector<HTMLAnchorElement>(".course-button a");
+  if (backEl) backLink.value = backEl.href;
 
-  const nextEl = document.querySelector<HTMLAnchorElement>('.next-activity a, #next-activity-link')
-  if (nextEl) nextUnitLink.value = nextEl.href
-})
+  const nextEl = document.querySelector<HTMLAnchorElement>(
+    ".next-activity a, #next-activity-link"
+  );
+  if (nextEl) nextUnitLink.value = nextEl.href;
+});
 
 function rate(score: number | null) {
-  if (!score) return
+  // Send is disabled until a star is picked; kept for direct callers.
+  /* v8 ignore next -- @preserve */
+  if (!score) return;
   postStatement({
     id: config.cm_id,
-    verb: 'rated',
+    verb: "rated",
     version_id: props.nugget.version_id,
     body: JSON.stringify({ raw: score, min: MIN_SCORE, max: MAX_SCORE }),
-  })
-  ratingSent.value = true
+  });
+  ratingSent.value = true;
 }
 
 function goToNextResource() {
-  emit('close')
-  if (!nextUnitLink.value) return
+  emit("close");
+  // The link calling this only renders with a target.
+  /* v8 ignore next -- @preserve */
+  if (!nextUnitLink.value) return;
 
-  const idMatch = nextUnitLink.value.match(/id=(\d+)/)
-  const anchorId = idMatch ? `module-${idMatch[1]}` : nextUnitLink.value.match(/#([^&]*)/)?.[1]
+  const idMatch = nextUnitLink.value.match(/id=(\d+)/);
+  const anchorId = idMatch
+    ? `module-${idMatch[1]}`
+    : nextUnitLink.value.match(/#([^&]*)/)?.[1];
 
   if (anchorId) {
     setTimeout(() => {
-      const el = document.getElementById(anchorId)
-      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
-      else window.location.hash = `#${anchorId}`
-    }, 100)
+      const el = document.getElementById(anchorId);
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+      else window.location.hash = `#${anchorId}`;
+    }, 100);
   } else {
-    window.location.href = backLink.value
+    window.location.href = backLink.value;
   }
 }
 </script>
 
 <style scoped>
-/* ── Backdrop ── */
 .nugget-modal-backdrop {
   position: fixed;
   inset: 0;
@@ -170,19 +226,22 @@ function goToNextResource() {
   padding: 1.5rem;
 }
 
-/* ── Modal panel ── */
+/* The dialog takes focus when it opens; no outline around the whole box. */
+.nugget-modal:focus {
+  outline: none;
+}
+
 .nugget-modal {
   width: 100%;
   max-width: 520px;
   background: var(--naas-surface, #fff);
-  box-shadow: var(--naas-shadow-lg, 0 12px 40px rgba(0,0,0,.18));
+  box-shadow: var(--naas-shadow-lg, 0 12px 40px rgba(0, 0, 0, 0.18));
   border-radius: var(--naas-radius-xl, 16px);
   display: flex;
   flex-direction: column;
   overflow: hidden;
 }
 
-/* ── Header (close only) ── */
 .nugget-modal-header {
   display: flex;
   justify-content: flex-end;
@@ -206,7 +265,7 @@ function goToNextResource() {
   border-radius: var(--naas-radius, 8px);
   cursor: pointer;
   transition: color var(--naas-transition, 0.18s ease),
-              background var(--naas-transition, 0.18s ease);
+    background var(--naas-transition, 0.18s ease);
 }
 
 .btn-close:hover {
@@ -214,7 +273,6 @@ function goToNextResource() {
   background: var(--naas-surface-muted, #f8f9fa);
 }
 
-/* ── Rating body ── */
 .nugget-modal-body {
   padding: 1rem 2rem 1.5rem;
   text-align: center;
@@ -235,8 +293,10 @@ function goToNextResource() {
   margin-bottom: 1.25rem;
 }
 
+/* Empty stars are outlined, chosen ones filled: the state never relies on colour
+   alone, and both colours keep 3:1 against the white dialog (WCAG 1.4.11). */
 .star {
-  color: #d1d5db;
+  color: #6b7280;
   padding: 0 2px;
   cursor: pointer;
   transition: color 0.12s ease, transform 0.12s ease;
@@ -254,16 +314,15 @@ function goToNextResource() {
 
 .star:hover,
 .star:hover ~ .star {
-  color: #f59e0b;
+  color: #b45309;
   transform: scale(1.12);
 }
 
 .star.checked,
 .star.checked ~ span {
-  color: #f59e0b;
+  color: #b45309;
 }
 
-/* Submit button */
 .rating-submit-btn {
   display: inline-flex;
   align-items: center;
@@ -277,7 +336,7 @@ function goToNextResource() {
   font-weight: 700;
   cursor: pointer;
   transition: background var(--naas-transition, 0.18s ease),
-              opacity   var(--naas-transition, 0.18s ease);
+    opacity var(--naas-transition, 0.18s ease);
 }
 
 .rating-submit-btn:disabled {
@@ -290,11 +349,17 @@ function goToNextResource() {
 }
 
 .rating-submit-btn--sent {
-  background: #16a34a;
+  background: #15803d;
+}
+
+/* "Sent" is a confirmation to read, not a greyed-out control: keep it opaque. */
+.rating-submit-btn--sent:disabled {
+  opacity: 1;
+  cursor: default;
 }
 
 .rating-submit-btn--sent:not(:disabled):hover {
-  background: #15803d;
+  background: #166534;
 }
 
 .rating-description {
@@ -303,7 +368,6 @@ function goToNextResource() {
   margin: 0.75rem 0 0;
 }
 
-/* ── Learning outcomes ── */
 .learning-outcomes {
   background: var(--naas-surface-muted, #f8f9fa);
   border-top: 1px solid var(--naas-border-light, #e9ecef);
@@ -313,7 +377,7 @@ function goToNextResource() {
 .learning-outcomes-label {
   font-size: 0.85rem;
   font-weight: 600;
-  color: var(--naas-text-muted, #6c757d);
+  color: #5c636a; /* muted grey reaching 4.5:1 on the #f8f9fa band */
   margin: 0 0 0.5rem;
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -329,7 +393,6 @@ function goToNextResource() {
   gap: 0.3rem;
 }
 
-/* ── Footer nav ── */
 .nugget-modal-footer {
   display: flex;
   justify-content: center;
@@ -349,7 +412,7 @@ function goToNextResource() {
   font-weight: 600;
   text-decoration: none;
   transition: background var(--naas-transition, 0.18s ease),
-              box-shadow var(--naas-transition, 0.18s ease);
+    box-shadow var(--naas-transition, 0.18s ease);
 }
 
 .nav-btn-back {
@@ -375,7 +438,6 @@ function goToNextResource() {
   box-shadow: 0 2px 8px rgba(15, 108, 191, 0.3);
 }
 
-/* ── Animation: fade + scale in ── */
 .modal-fade-enter-active {
   transition: opacity 0.22s ease, transform 0.22s ease;
 }

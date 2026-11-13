@@ -1,0 +1,74 @@
+{
+  "nuggets": [
+    {
+      "nugget_id": "n-aircraft",
+      "version_id": "v-aircraft",
+      "name": "Aircraft design basics",
+      "resume": "<p>How an aircraft is sized, from the mission to the first drawing.</p>",
+      "authors": ["ann.author@example.test"],
+      "producers": ["isae-supaero"],
+      "related_domains": ["1.2"],
+      "domains": ["1.2"],
+      "language": "en",
+      "multilanguages": [],
+      "level": "beginner",
+      "type": "lesson",
+      "duration": 20,
+      "publication_date": "2026-01-15",
+      "modification_date": "2026-01-15T10:00:00Z",
+      "is_default_version": true,
+      "nugget_thumbnail_url": "https://naas.behat.test/api/thumbnails/nugget/n-aircraft/thumbnail",
+      "learning_outcomes": ["Size an aircraft for a given mission"]
+    },
+    {
+      "nugget_id": "n-orbits",
+      "version_id": "v-orbits",
+      "name": "Orbital mechanics in five minutes",
+      "resume": "<p>Kepler's laws and what they mean for a satellite.</p>",
+      "authors": ["ann.author@example.test"],
+      "producers": ["isae-supaero"],
+      "related_domains": ["1.2"],
+      "domains": ["1.2"],
+      "language": "en",
+      "multilanguages": [],
+      "level": "intermediate",
+      "type": "lesson",
+      "duration": 5,
+      "publication_date": "2026-02-10",
+      "modification_date": "2026-02-10T10:00:00Z",
+      "is_default_version": true,
+      "nugget_thumbnail_url": "https://naas.behat.test/api/thumbnails/nugget/n-orbits/thumbnail",
+      "learning_outcomes": []
+    },
+    {
+      "nugget_id": "n-composites",
+      "version_id": "v-composites",
+      "name": "Composite materials",
+      "resume": "<p>Why carbon fibre is everywhere in modern aircraft.</p>",
+      "authors": ["ann.author@example.test"],
+      "producers": ["onera"],
+      "related_domains": ["1.2"],
+      "domains": ["1.2"],
+      "language": "en",
+      "multilanguages": [],
+      "level": "advanced",
+      "type": "lesson",
+      "duration": 15,
+      "publication_date": "2026-03-01",
+      "modification_date": "2026-03-01T10:00:00Z",
+      "is_default_version": true,
+      "nugget_thumbnail_url": "https://naas.behat.test/api/thumbnails/nugget/n-composites/thumbnail",
+      "learning_outcomes": []
+    }
+  ],
+  "structures": {
+    "isae-supaero": {"structure_id": "isae-supaero", "acronym": "ISAE", "name": "ISAE-SUPAERO", "is_producer": true},
+    "onera": {"structure_id": "onera", "acronym": "ONERA", "name": "ONERA", "is_producer": true}
+  },
+  "persons": {
+    "ann.author@example.test": {"email": "ann.author@example.test", "firstname": "Ann", "lastname": "Author", "bio": "Aircraft designer."}
+  },
+  "domains": {
+    "1.2": {"key": "1.2", "label": "Aerospace engineering"}
+  }
+}

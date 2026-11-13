@@ -30,21 +30,35 @@ class backup_naas_activity_structure_step extends backup_activity_structure_step
         // To know if we are including userinfo.
         $userinfo = $this->get_setting_value('userinfo');
 
-        // Define each element separated.
-        // Save the name of the nugget and the nugget_id.
+        // Every column of the naas table except id and course, so a restored or
+        // duplicated activity keeps its Nugget, attempts, grading and completion rules.
         $naas = new backup_nested_element('naas', ['id'], [
-            'name', 'nugget_id', 'intro', 'introformat', 'publish',
-            'showresults', 'display', 'allowupdate', 'allowunanswered',
-            'limitanswers', 'timeopen', 'timeclose', 'timemodified']);
+            'name', 'intro', 'introformat', 'timecreated', 'timemodified',
+            'nugget_id', 'cgu_agreement', 'attempts', 'grade_method',
+            'completionattemptsexhausted', 'completionpass', 'completionminattempts',
+            'allowofflineattempts']);
+
+        // Learner attempts: they count towards the attempts limit and completion.
+        $outcomes = new backup_nested_element('outcomes');
+        $outcome = new backup_nested_element('outcome', ['id'], [
+            'user_id', 'date_added', 'score', 'timecompleted']);
 
         // Build the tree.
+        $naas->add_child($outcomes);
+        $outcomes->add_child($outcome);
 
         // Define sources.
         $naas->set_source_table('naas', ['id' => backup::VAR_ACTIVITYID]);
+        if ($userinfo) {
+            // Attempts are keyed on the course module id, not the instance id.
+            $outcome->set_source_table('naas_activity_outcome', ['activity_id' => backup::VAR_MODID], 'id ASC');
+        }
 
         // Define id annotations.
+        $outcome->annotate_ids('user', 'user_id');
 
         // Define file annotations.
+        $naas->annotate_files('mod_naas', 'intro', null);
 
         // Return the root element (naas), wrapped into standard activity structure.
         return $this->prepare_activity_structure($naas);

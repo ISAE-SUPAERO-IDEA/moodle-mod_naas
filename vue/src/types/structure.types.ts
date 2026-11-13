@@ -21,7 +21,15 @@
  */
 
 export interface Structure {
-  id: string
-  acronym: string
-  name?: string
+  id: string;
+  acronym: string;
+  name?: string;
+  logo?: string;
+  logo_url?: string;
+  structure_thumbnail_url?: string;
+  structure_banner_url?: string;
+  image_url?: string;
+  cover_url?: string;
+  thumbnail_url?: string;
+  picture?: string;
 }
