@@ -117,6 +117,24 @@ final class naas_widget_test extends advanced_testcase {
     }
 
     /**
+     * The activity form tells the widget which Nugget is saved and whether a code is required.
+     */
+    public function test_naas_widget_html_passes_the_saved_nugget_and_the_code_setting(): void {
+        $this->resetAfterTest(true);
+        set_config('naas_require_integration_code', 1, 'naas');
+        $course = $this->getDataGenerator()->create_course();
+
+        ob_start();
+        $html = naas_widget::naas_widget_html('posted-nugget', $course->id, null, 'NuggetSearchWidget', 'saved-nugget');
+        ob_end_clean();
+
+        $config = json_decode($this->extract_naas_widget_json_string($html), true);
+        $this->assertTrue($config['require_integration_code']);
+        $this->assertSame('saved-nugget', $config['saved_nugget_id']);
+        $this->assertSame('posted-nugget', $config['nugget_id']);
+    }
+
+    /**
      * Test naas_widget_html builds config and renders the widget template.
      */
     public function test_naas_widget_html(): void {
@@ -165,7 +183,9 @@ final class naas_widget_test extends advanced_testcase {
         $this->assertArrayHasKey('license_filter', $config);
         $this->assertSame('all', $config['license_filter']['commercial']);
         $this->assertSame('all', $config['license_filter']['access']);
-        $this->assertArrayNotHasKey('require_activation_code', $config);
+        $this->assertFalse($config['require_integration_code']);
+        $this->assertSame('', $config['saved_nugget_id']);
+        $this->assertArrayHasKey('title', $config['labels']['integration_code']);
 
         $labels = $config['labels'];
         $this->assertArrayHasKey('error_generic_user_message', $labels);

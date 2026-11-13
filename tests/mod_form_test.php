@@ -292,6 +292,42 @@ final class mod_form_test extends advanced_testcase {
     }
 
     /**
+     * With the integration code setting on, a new Nugget needs its code; the kept Nugget does not.
+     */
+    public function test_validation_checks_the_integration_code_of_a_new_nugget(): void {
+        $this->resetAfterTest(true);
+        set_config('naas_require_integration_code', 1, 'naas');
+        $config = (object) array_merge((array) get_config('naas'), (array) $GLOBALS['CFG']);
+        $nugget = ['nugget_id' => 'nid-code', 'name' => 'Hello World'];
+        \mod_naas\nugget_cache::store('nid-code', json_encode(['payload' => $nugget]), $config);
+
+        $generator = $this->getDataGenerator();
+        $course = $generator->create_course();
+        $teacher = $generator->create_user();
+        $generator->enrol_user($teacher->id, $course->id, 'editingteacher');
+        $this->setUser($teacher);
+
+        [, $context, $cw, $cm, $data] = \prepare_new_moduleinfo_data($course, 'naas', 0);
+        $this->init_test_page($context, $course);
+        $form = new mod_naas_mod_form($data, $cw->section, $cm, $course);
+
+        $base = ['nugget_id' => 'nid-code', 'maxgrade' => 100, 'completion' => COMPLETION_TRACKING_NONE];
+        $errors = $form->validation($this->validation_payload($base + ['integration_code' => '000000']), []);
+        $this->assertSame(get_string('error:invalid_integration_code', 'naas'), $errors['name'] ?? null);
+
+        $errors = $form->validation($this->validation_payload($base + ['integration_code' => '786068']), []);
+        $this->assertArrayNotHasKey('name', $errors);
+
+        $rp = new \ReflectionProperty(\moodleform_mod::class, 'current');
+        $rp->setAccessible(true);
+        $current = $rp->getValue($form);
+        $current->nugget_id = 'nid-code';
+        $rp->setValue($form, $current);
+        $errors = $form->validation($this->validation_payload($base), []);
+        $this->assertArrayNotHasKey('name', $errors);
+    }
+
+    /**
      * The CGU checkbox is enforced by a QuickForm "required" rule, not by validation().
      */
     public function test_cgu_agreement_is_a_required_form_rule(): void {

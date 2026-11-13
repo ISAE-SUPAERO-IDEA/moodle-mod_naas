@@ -115,6 +115,12 @@
       :loading="selectedNuggetLoading"
       @replace="onReplace"
     />
+    <IntegrationCodeModal
+      :nugget="codeNugget"
+      :visible="codeNugget !== null"
+      @confirm="onCodeConfirmed"
+      @cancel="cancelIntegrationCode"
+    />
   </div>
 </template>
 
@@ -140,6 +146,7 @@ import {
   setActivityDetailsVisible,
   readStoredNuggetId,
   useNuggetSelection,
+  IntegrationCodeModal,
 } from "@/features/pick-nugget";
 import { useProducerDirectory } from "@/entities/catalogue";
 import "./naas-activity-form.css";
@@ -216,10 +223,16 @@ const {
   selectedId,
   selectedNuggetLoading,
   formError,
+  codeNugget,
   toggleNugget,
+  confirmIntegrationCode,
+  cancelIntegrationCode,
   clearSelection,
   restoreSavedNugget,
-} = useNuggetSelection();
+} = useNuggetSelection({
+  requireIntegrationCode: config.require_integration_code,
+  savedNuggetId: config.saved_nugget_id,
+});
 
 /** Retry the catalogue after NaaS could not be reached: show the skeleton meanwhile. */
 function retryCatalogue() {
@@ -235,11 +248,22 @@ const selectedPanel = ref<{ focusCard: () => void } | null>(null);
  */
 async function onPick(nugget: Nugget) {
   toggleNugget(nugget);
+  // Unselected, or waiting for its integration code in the dialog.
   if (selectedNugget.value === null) {
     return;
   }
+  await focusChosenCard();
+}
+
+async function focusChosenCard() {
   await nextTick();
   selectedPanel.value?.focusCard();
+}
+
+/** The code dialog accepted the code: the Nugget is now the pick. */
+async function onCodeConfirmed(code: string) {
+  confirmIntegrationCode(code);
+  await focusChosenCard();
 }
 
 /** Replace on the chosen card: back to the results it was picked from. */

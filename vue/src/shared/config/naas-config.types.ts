@@ -92,6 +92,19 @@ export interface NaasLabels {
   error_generic_user_message: string;
   /** Message of moodle_exception error_nugget_not_found (unpublished or deleted Nugget). */
   error_nugget_not_found?: string;
+  /** Dialog asking for the integration code of a Nugget; "digit" holds {$a}. */
+  integration_code: {
+    title: string;
+    help: string;
+    digit: string;
+    confirm: string;
+    cancel: string;
+    error: string;
+    authors: string;
+    authors_help: string;
+    authors_empty: string;
+    locked: string;
+  };
   retry: string;
   load_more?: string;
   active_filters: string;
@@ -164,6 +177,10 @@ export interface NaasConfig {
   structure_id?: string;
   /** Admin setting "Allow learners to rate Nuggets"; absent means enabled. */
   rating_enabled?: boolean;
+  /** Admin setting "Require an integration code": selecting a non-public Nugget asks for its code. */
+  require_integration_code?: boolean;
+  /** Nugget saved with the activity ("" for a new one); Moodle asks no code for it. */
+  saved_nugget_id?: string;
   labels: NaasLabels;
 }
 

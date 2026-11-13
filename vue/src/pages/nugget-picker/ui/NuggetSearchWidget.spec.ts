@@ -27,7 +27,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { defineComponent, h } from "vue";
 import NuggetSearchWidget from "./NuggetSearchWidget.vue";
 import { mountComponent, type Mounted } from "@/test/mountComponent";
-import { pressKey } from "@/test/modalKeys";
+import { openDialog, pressKey } from "@/test/modalKeys";
 import {
   makeConfig,
   makeNugget,
@@ -80,6 +80,7 @@ function addMoodleForm(storedNuggetId = "", nameError = ""): void {
        <input id="id_name" name="name" value="">
        ${nameError ? `<div id="id_error_name">${nameError}</div>` : ""}
        <input type="hidden" name="nugget_id" value="${storedNuggetId}">
+       <input type="hidden" name="integration_code" value="">
        <div id="fitem_id_cgu_agreement" class="fitem">
          <input type="checkbox" id="id_cgu_agreement">
        </div>
@@ -332,6 +333,72 @@ describe("NuggetSearchWidget", () => {
     ).toBe("");
     expect(m.el.querySelectorAll("ul.nugget-grid > li")).toHaveLength(2);
     expect(m.el.querySelector(".naas-cgu-anchor")).toBeNull();
+  });
+
+  it("asks for the integration code before selecting, when the site requires it", async () => {
+    addMoodleForm();
+    const service = makeService({
+      searchNuggets: searchReturning(makeSearchResult([aircraft, orbital])),
+    });
+    const m = await mountWidget(
+      service,
+      makeConfig({ require_integration_code: true })
+    );
+    await openAllNuggets(m);
+    expect(
+      card(m.el, "Aircraft design basics").querySelector(".nugget-badge-locked")
+    ).not.toBeNull();
+
+    buttonByText(card(m.el, "Aircraft design basics"), "Select").click();
+    await m.flush();
+    await m.flush();
+    const dialog = openDialog();
+    expect(dialog.querySelector(".code-nugget-name")?.textContent).toBe(
+      "Aircraft design basics"
+    );
+    expect(
+      document.querySelector<HTMLInputElement>('[name="nugget_id"]')?.value
+    ).toBe("");
+
+    dialog.querySelector<HTMLButtonElement>(".btn-close")!.click();
+    // The leave transition removes the dialog a frame later.
+    await vi.waitFor(() =>
+      expect(document.querySelector('[role="dialog"]')).toBeNull()
+    );
+    expect(m.el.querySelector("ul.nugget-grid")).not.toBeNull();
+
+    buttonByText(card(m.el, "Aircraft design basics"), "Select").click();
+    await m.flush();
+    await m.flush();
+    // Code of "Aircraft design basics", as PHP's integration_code::from_title() computes it.
+    const code = "673575";
+    const first = document.querySelector<HTMLInputElement>(".code-digit")!;
+    const event = new Event("paste", { bubbles: true, cancelable: true });
+    Object.defineProperty(event, "clipboardData", {
+      value: { getData: () => code },
+    });
+    first.dispatchEvent(event);
+    await m.flush();
+    document
+      .querySelector<HTMLButtonElement>('.code-actions button[type="submit"]')!
+      .click();
+    await m.flush();
+    await m.flush();
+
+    await vi.waitFor(() =>
+      expect(m.el.querySelector("ul.nugget-grid")).toBeNull()
+    );
+    await m.flush();
+    expect(
+      document.querySelector<HTMLInputElement>('[name="nugget_id"]')?.value
+    ).toBe("n-aircraft");
+    expect(
+      document.querySelector<HTMLInputElement>('[name="integration_code"]')
+        ?.value
+    ).toBe(code);
+    expect(document.activeElement).toBe(
+      m.el.querySelector(".selected-nugget-wrap .nugget-clear-btn")
+    );
   });
 
   it("reloads the saved selection when the form is edited", async () => {

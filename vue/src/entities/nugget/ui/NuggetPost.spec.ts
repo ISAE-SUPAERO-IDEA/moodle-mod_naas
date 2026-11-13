@@ -80,6 +80,24 @@ describe("NuggetPost", () => {
     expect(button(el, "Select").getAttribute("aria-pressed")).toBe("true");
   });
 
+  it("shows a lock on a card that needs its integration code", () => {
+    const { el } = mountPost({
+      nugget: makeNugget(),
+      selection: true,
+      locked: true,
+    });
+    const badge = el.querySelector(".nugget-badge-locked")!;
+    expect(badge.getAttribute("title")).toBe("Integration code required");
+    expect(badge.textContent?.trim()).toBe("Integration code required");
+    expect(button(el, "Select").querySelector(".fa-lock")).not.toBeNull();
+  });
+
+  it("shows no lock by default", () => {
+    const { el } = mountPost({ nugget: makeNugget(), selection: true });
+    expect(el.querySelector(".nugget-badge-locked")).toBeNull();
+    expect(el.querySelector(".fa-lock")).toBeNull();
+  });
+
   it("emits SelectButton with its Nugget", () => {
     const nugget = makeNugget();
     const { el, emitted } = mountPost({ nugget, selection: true });

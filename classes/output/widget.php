@@ -40,7 +40,7 @@ class widget implements renderable, templatable {
      * Version suffix of the Vue bundle shipped in assets/vue/naas_widget-<version>.js.
      * Kept in sync with BUNDLE_VERSION in vue/vite.config.ts by vue/scripts/bump-version.js.
      */
-    public const BUNDLE_VERSION = '2026111206';
+    public const BUNDLE_VERSION = '2026111300';
 
     /** @var int The nugget ID. */
     protected $nuggetid;
@@ -54,6 +54,9 @@ class widget implements renderable, templatable {
     /** @var string The component name. */
     protected $component;
 
+    /** @var string Nugget saved with the activity, "" for a new activity. */
+    protected $savednuggetid;
+
     /**
      * Constructor.
      *
@@ -61,8 +64,10 @@ class widget implements renderable, templatable {
      * @param int $courseid
      * @param int $cmid
      * @param string $component
+     * @param string $savednuggetid Nugget saved with the activity ("" for a new activity)
      */
-    public function __construct($nuggetid, $courseid, $cmid, $component) {
+    public function __construct($nuggetid, $courseid, $cmid, $component, string $savednuggetid = '') {
+        $this->savednuggetid = $savednuggetid;
         $this->nuggetid = $nuggetid;
         $this->courseid = $courseid;
         $this->cmid = $cmid;
@@ -97,9 +102,24 @@ class widget implements renderable, templatable {
             "structure_id" => (string) get_config('naas', 'naas_structure_id'),
             // Same rule as the LTI "feedback" option sent to the player (naas_lti::lti_custom_options).
             "rating_enabled" => (string) get_config('naas', 'naas_feedback') === '1',
+            "require_integration_code" => \mod_naas\integration_code::is_required(),
+            // Moodle asks no integration code for the Nugget the activity already has.
+            "saved_nugget_id" => $this->savednuggetid,
             "labels" => [
                 "error_generic_user_message" => get_string("error:generic_user_message", "naas"),
                 "error_nugget_not_found" => get_string("error_nugget_not_found", "naas"),
+                "integration_code" => [
+                    "title" => get_string('integration_code_title', 'naas'),
+                    "help" => get_string('integration_code_help', 'naas'),
+                    "digit" => get_string('integration_code_digit', 'naas'),
+                    "confirm" => get_string('integration_code_confirm', 'naas'),
+                    "cancel" => get_string('integration_code_cancel', 'naas'),
+                    "error" => get_string('integration_code_error', 'naas'),
+                    "authors" => get_string('integration_code_authors', 'naas'),
+                    "authors_help" => get_string('integration_code_authors_help', 'naas'),
+                    "authors_empty" => get_string('integration_code_authors_empty', 'naas'),
+                    "locked" => get_string('integration_code_locked', 'naas'),
+                ],
                 "nugget_search_here" => get_string('nugget_search_here', 'naas'),
                 "nugget_search_no_result" => get_string('nugget_search_no_result', 'naas'),
                 "nugget_search_collecting" => get_string('nugget_search_collecting', 'naas'),

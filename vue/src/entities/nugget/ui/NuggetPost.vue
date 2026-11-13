@@ -57,6 +57,16 @@
         <span v-if="licenseLabel" class="nugget-badge nugget-badge-license">
           {{ licenseLabel }}
         </span>
+        <span
+          v-if="locked"
+          class="nugget-badge nugget-badge-locked"
+          :title="config.labels.integration_code.locked"
+        >
+          <i class="icon fa fa-lock" aria-hidden="true" />
+          <span class="nugget-sr-only">{{
+            config.labels.integration_code.locked
+          }}</span>
+        </span>
       </div>
     </div>
 
@@ -86,6 +96,7 @@
         :aria-describedby="titleId"
         @click="emit('SelectButton', nugget)"
       >
+        <i v-if="locked" class="icon fa fa-lock" aria-hidden="true" />
         {{ config.labels.select_button }}
       </button>
       <button
@@ -128,6 +139,8 @@ const props = defineProps<{
   selected?: boolean;
   replaceable?: boolean;
   variant?: "card" | "row";
+  /** Selecting this Nugget asks for its integration code: a lock is shown. */
+  locked?: boolean;
 }>();
 const emit = defineEmits<{
   (e: "SelectButton", nugget: Nugget): void;
@@ -253,9 +266,23 @@ function truncate(text: string, length: number): string {
 }
 
 .nugget-badge-duration,
-.nugget-badge-license {
+.nugget-badge-license,
+.nugget-badge-locked {
   background: rgba(0, 0, 0, 0.55);
   color: #fff;
+}
+
+/* Read by screen readers, not shown. */
+.nugget-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .nugget-clear-btn {

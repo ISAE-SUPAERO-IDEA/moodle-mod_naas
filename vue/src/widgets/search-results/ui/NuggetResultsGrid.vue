@@ -61,6 +61,7 @@
         :nugget="nugget"
         :selection="true"
         :selected="nugget.nugget_id === selectedId"
+        :locked="needsIntegrationCode(nugget, config.require_integration_code)"
         :variant="layout"
         :class="{
           'nugget-post-selected': nugget.nugget_id === selectedId,
@@ -95,7 +96,11 @@
 
 <script setup lang="ts">
 import { ref, watch } from "vue";
-import { NuggetPost, NuggetSkeleton } from "@/entities/nugget";
+import {
+  NuggetPost,
+  NuggetSkeleton,
+  needsIntegrationCode,
+} from "@/entities/nugget";
 import { NuggetViewModal } from "@/features/preview-nugget";
 import { useNaasConfig } from "@/shared/config";
 import { onCardGridKeydown } from "../lib/cardGridKeys";

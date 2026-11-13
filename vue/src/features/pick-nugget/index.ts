@@ -31,3 +31,4 @@ export {
   readStoredNuggetId,
   useNuggetSelection,
 } from "./model/useNuggetSelection";
+export { default as IntegrationCodeModal } from "./ui/IntegrationCodeModal.vue";

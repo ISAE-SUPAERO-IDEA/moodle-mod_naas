@@ -271,8 +271,15 @@ export function restoreCguAgreement(): void {
   }
 }
 
-/** Fill (or clear) Moodle fields when a nugget is selected or replaced. */
-export function syncMoodleNuggetFields(nugget: Nugget | null): void {
+/**
+ * Fill (or clear) Moodle fields when a nugget is selected or replaced.
+ *
+ * @param integrationCode Code typed for this Nugget, posted for Moodle to check ("" if none)
+ */
+export function syncMoodleNuggetFields(
+  nugget: Nugget | null,
+  integrationCode = ""
+): void {
   setActivityDetailsVisible(!!nugget);
   setMoodleActivityName(nugget?.name ?? "");
   setMoodleActivityDescription(
@@ -282,5 +289,10 @@ export function syncMoodleNuggetFields(nugget: Nugget | null): void {
   setFormFieldValue(
     (document.getElementsByName("nugget_id")[0] as HTMLInputElement) ?? null,
     nugget?.nugget_id ?? ""
+  );
+  setFormFieldValue(
+    (document.getElementsByName("integration_code")[0] as HTMLInputElement) ??
+      null,
+    nugget ? integrationCode : ""
   );
 }

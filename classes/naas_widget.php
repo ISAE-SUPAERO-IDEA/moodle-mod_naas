@@ -37,12 +37,13 @@ class naas_widget {
      * @param int $courseid
      * @param int|null $cmid Course module id, or null on the activity form of a new activity
      * @param string $component
+     * @param string $savednuggetid Nugget saved with the activity ("" for a new activity)
      * @return string
      */
-    public static function naas_widget_html($nuggetid, $courseid, $cmid, $component): string {
+    public static function naas_widget_html($nuggetid, $courseid, $cmid, $component, string $savednuggetid = ''): string {
         global $PAGE;
 
-        $widget = new \mod_naas\output\widget($nuggetid, $courseid, $cmid, $component);
+        $widget = new \mod_naas\output\widget($nuggetid, $courseid, $cmid, $component, $savednuggetid);
         return $PAGE->get_renderer('mod_naas')->render($widget);
     }
 

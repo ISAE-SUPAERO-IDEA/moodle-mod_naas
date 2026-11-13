@@ -50,7 +50,14 @@ class mod_naas_mod_form extends moodleform_mod {
         $nuggetid = $mform->getCleanedValue("nugget_id", PARAM_TEXT);
         $mform->addElement(
             'html',
-            \mod_naas\naas_widget::naas_widget_html($nuggetid, $this->get_course()->id, null, "NuggetSearchWidget")
+            \mod_naas\naas_widget::naas_widget_html(
+                $nuggetid,
+                $this->get_course()->id,
+                null,
+                "NuggetSearchWidget",
+                // After a refused save, nugget_id holds the posted Nugget: the widget must still know the saved one.
+                (string) ($this->current->nugget_id ?? '')
+            )
         );
 
         $mform->addElement('text', 'name', get_string('name_display', 'naas'), ['size' => '48']);
@@ -58,6 +65,9 @@ class mod_naas_mod_form extends moodleform_mod {
         // Empty until the widget writes the chosen Nugget's id.
         $mform->addElement('hidden', 'nugget_id', '');
         $mform->setType('nugget_id', PARAM_TEXT);
+        // Written by the widget when the site requires an integration code to select a Nugget.
+        $mform->addElement('hidden', 'integration_code', '');
+        $mform->setType('integration_code', PARAM_ALPHANUM);
 
         // CGU.
         $mform->addElement('checkbox', 'cgu_agreement', get_string('cgu_agreement', 'naas'));
@@ -211,6 +221,15 @@ class mod_naas_mod_form extends moodleform_mod {
         if (empty($data['nugget_id']) || $data['nugget_id'] === 'nugget_id') {
             // The name row stays hidden until a Nugget is chosen: the widget shows this error above itself.
             $errors['name'] = get_string('error:nugget_required', 'naas');
+        } else if (
+            !\mod_naas\integration_code::is_valid_selection(
+                (string) ($this->current->nugget_id ?? ''),
+                (string) $data['nugget_id'],
+                (string) ($data['integration_code'] ?? '')
+            )
+        ) {
+            // Shown above the widget, like the error above.
+            $errors['name'] = get_string('error:invalid_integration_code', 'naas');
         }
 
         if ($data['maxgrade'] <= 0) {

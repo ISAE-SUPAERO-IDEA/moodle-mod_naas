@@ -36,6 +36,7 @@ function addForm(nuggetId = "", nameError = ""): HTMLFormElement {
        <input id="id_name" name="name" value="">
        ${nameError ? `<div id="id_error_name">${nameError}</div>` : ""}
        <input type="hidden" name="nugget_id" value="${nuggetId}">
+       <input type="hidden" name="integration_code" value="">
      </form>`
   );
   return document.querySelector("form")!;
@@ -159,5 +160,96 @@ describe("useNuggetSelection", () => {
       // The Select button of that Nugget still shows as pressed.
       expect(s.selectedId.value).toBe("n-gone");
     });
+  });
+});
+
+describe("useNuggetSelection with an integration code", () => {
+  const open = makeNugget({
+    nugget_id: "n-open",
+    name: "Open",
+    is_public: true,
+  });
+
+  it("asks for the code before picking a Nugget, then posts it with the form", () => {
+    addForm();
+    const s = useNuggetSelection({ requireIntegrationCode: true });
+    s.toggleNugget(aircraft);
+    expect(s.codeNugget.value).toEqual(aircraft);
+    expect(s.selectedNugget.value).toBeNull();
+    expect(field("nugget_id")).toBe("");
+
+    s.confirmIntegrationCode("123456");
+    expect(s.codeNugget.value).toBeNull();
+    expect(s.selectedId.value).toBe("n-aircraft");
+    expect(field("nugget_id")).toBe("n-aircraft");
+    expect(field("integration_code")).toBe("123456");
+
+    s.clearSelection();
+    expect(field("integration_code")).toBe("");
+  });
+
+  it("picks nothing when the code dialog is cancelled", () => {
+    addForm();
+    const s = useNuggetSelection({ requireIntegrationCode: true });
+    s.toggleNugget(aircraft);
+    s.cancelIntegrationCode();
+    expect(s.codeNugget.value).toBeNull();
+    expect(s.selectedNugget.value).toBeNull();
+    s.confirmIntegrationCode("123456");
+    expect(s.selectedNugget.value).toBeNull();
+  });
+
+  it("asks no code for a public Nugget nor for the one saved with the activity", () => {
+    addForm("n-orbital");
+    const s = useNuggetSelection({
+      requireIntegrationCode: true,
+      savedNuggetId: "n-orbital",
+    });
+    s.toggleNugget(open);
+    expect(s.codeNugget.value).toBeNull();
+    expect(s.selectedId.value).toBe("n-open");
+    expect(field("integration_code")).toBe("");
+
+    s.toggleNugget(orbital);
+    expect(s.codeNugget.value).toBeNull();
+    expect(s.selectedId.value).toBe("n-orbital");
+  });
+
+  it("restores the saved Nugget without asking its code", async () => {
+    addForm("n-aircraft");
+    const s = useNuggetSelection({
+      requireIntegrationCode: true,
+      savedNuggetId: "n-aircraft",
+    });
+    await s.restoreSavedNugget("n-aircraft", {
+      seedFromCache: () => null,
+      getNuggetById: async () => aircraft,
+    });
+    expect(s.selectedNugget.value).toEqual(aircraft);
+    expect(s.codeNugget.value).toBeNull();
+  });
+
+  it("asks again for the code of a Nugget that Moodle posted back after a refused save", async () => {
+    addForm("n-aircraft", "The integration code is missing or does not match.");
+    const s = useNuggetSelection({ requireIntegrationCode: true });
+    let revalidated: (n: Nugget) => void = () => {};
+    await s.restoreSavedNugget("n-aircraft", {
+      seedFromCache: () => aircraft,
+      getNuggetById: async (_id, onRevalidated) => {
+        revalidated = onRevalidated!;
+        return aircraft;
+      },
+    });
+    expect(s.selectedNugget.value).toBeNull();
+    expect(s.selectedId.value).toBeNull();
+    expect(s.codeNugget.value).toEqual(aircraft);
+    expect(field("nugget_id")).toBe("");
+    expect(s.formError.value).toBe(
+      "The integration code is missing or does not match."
+    );
+
+    // A newer document arriving later must not bring the refused pick back.
+    revalidated(makeNugget({ name: "Newer" }));
+    expect(s.selectedNugget.value).toBeNull();
   });
 });

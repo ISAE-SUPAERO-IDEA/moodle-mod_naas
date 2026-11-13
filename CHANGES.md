@@ -4,6 +4,9 @@ _All notable changes to the NaaS Moodle plugin will be documented in this file._
 
 ## Version 3.1.0 (unreleased)
 
+### Feature
+- Integration code: a new setting ("Require an integration code") makes teachers type the 6-digit code of a Nugget before selecting it. The authors of the Nugget give the code, which the NaaS author app computes from the Nugget title. Public Nuggets need no code, activities that keep their Nugget are not affected, and the form checks the code again on save
+
 ### Improvements
 - The About sheet of a Nugget is easier to read: thumbnail next to the title, key facts (duration, language, level, licence, producer, tags) in a side panel, learning outcomes as a checklist and authors with their initials; on a phone the key facts come first
 

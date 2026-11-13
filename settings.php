@@ -201,6 +201,13 @@ if ($hassiteconfig) {
         PARAM_TEXT
     ));
 
+    $settings->add(new admin_setting_configcheckbox(
+        'naas/naas_require_integration_code',
+        get_string('naas_settings_require_integration_code', 'naas'),
+        get_string('naas_settings_require_integration_code_help', 'naas'),
+        0
+    ));
+
     // Appearance.
     $settings->add(new admin_setting_heading(
         'naas/heading_appearance',

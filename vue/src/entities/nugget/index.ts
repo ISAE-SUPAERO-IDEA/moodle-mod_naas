@@ -22,6 +22,11 @@
  */
 
 export { useNuggetEnricher } from "./api/useNuggetEnricher";
+export {
+  INTEGRATION_CODE_LENGTH,
+  integrationCodeMatches,
+  needsIntegrationCode,
+} from "./lib/integrationCode";
 export { default as NuggetAboutModal } from "./ui/NuggetAboutModal.vue";
 export { default as NuggetPost } from "./ui/NuggetPost.vue";
 export { default as NuggetSkeleton } from "./ui/NuggetSkeleton.vue";
