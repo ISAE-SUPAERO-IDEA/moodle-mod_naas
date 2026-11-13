@@ -124,7 +124,8 @@ class mod_util {
      *
      * The course format builds the link (an anchor on a one-page course, the section page
      * otherwise). The topics and weeks formats of Moodle 4.4 and 4.5 return the bare course
-     * page, which shows every section: the anchor of the section is added back.
+     * page, which shows every section: the anchor of the section is added back. Other formats
+     * keep their own link (on Moodle 5.0, social reports sections but has no section anchor).
      *
      * @param \stdClass $course
      * @param int $sectionnum Section number of the activity
@@ -133,7 +134,8 @@ class mod_util {
     public static function get_section_url(\stdClass $course, int $sectionnum): \moodle_url {
         $url = \course_get_url($course, $sectionnum);
         $coursepage = new \moodle_url('/course/view.php', ['id' => $course->id]);
-        if ($url->out(false) === $coursepage->out(false) && \course_get_format($course)->uses_sections()) {
+        $format = \course_get_format($course)->get_format();
+        if ($url->out(false) === $coursepage->out(false) && in_array($format, ['topics', 'weeks'], true)) {
             $url->set_anchor('section-' . $sectionnum);
         }
         return $url;

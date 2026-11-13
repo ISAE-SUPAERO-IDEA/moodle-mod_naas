@@ -240,14 +240,18 @@ final class mod_util_test extends advanced_testcase {
         $this->assertSame('N1b', $next->name);
     }
 
+    #[\PHPUnit\Framework\Attributes\DataProvider('section_format_provider')]
     /**
      * get_section_url anchors the section on a one-page course, whatever the Moodle version.
      *
-     * Moodle 4.1-4.3 and 5.0 build the anchor; the topics format of 4.4 and 4.5 does not.
+     * Moodle 4.1-4.3 and 5.0 build the anchor; the topics and weeks formats of 4.4 and 4.5 do not.
+     *
+     * @dataProvider section_format_provider
+     * @param string $format Course format
      */
-    public function test_get_section_url_anchors_the_section(): void {
+    public function test_get_section_url_anchors_the_section(string $format): void {
         $this->resetAfterTest(true);
-        $course = $this->getDataGenerator()->create_course(['format' => 'topics', 'numsections' => 2]);
+        $course = $this->getDataGenerator()->create_course(['format' => $format, 'numsections' => 2]);
 
         $url = mod_util::get_section_url($course, 1);
 
@@ -256,9 +260,23 @@ final class mod_util_test extends advanced_testcase {
     }
 
     /**
-     * get_section_url adds no anchor for a format without sections.
+     * Core formats that show every section on the course page.
+     *
+     * @return array
      */
-    public function test_get_section_url_without_sections(): void {
+    public static function section_format_provider(): array {
+        return [
+            'topics' => ['topics'],
+            'weeks' => ['weeks'],
+        ];
+    }
+
+    /**
+     * get_section_url keeps the link of another format as it is.
+     *
+     * The social format has no section anchor, though it reports sections on Moodle 5.0.
+     */
+    public function test_get_section_url_keeps_the_link_of_other_formats(): void {
         $this->resetAfterTest(true);
         $course = $this->getDataGenerator()->create_course(['format' => 'social']);
 
