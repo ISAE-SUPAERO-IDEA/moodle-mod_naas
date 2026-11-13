@@ -259,9 +259,9 @@ final class root_scripts_coverage_test extends \advanced_testcase {
 
         $html = $this->run_script('view.php');
 
-        $expected = course_get_url($course, $section)->out();
-        $this->assertStringContainsString('#section-' . $section, $expected);
-        $this->assertStringContainsString('href="' . $expected . '"', $html);
+        // Same link on every Moodle version (4.4 and 4.5 formats drop the anchor, mod_util adds it back).
+        $expected = new \moodle_url('/course/view.php', ['id' => $course->id], 'section-' . $section);
+        $this->assertStringContainsString('href="' . $expected->out() . '"', $html);
     }
 
     /**

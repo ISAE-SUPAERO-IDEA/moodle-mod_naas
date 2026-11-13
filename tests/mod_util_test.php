@@ -28,6 +28,7 @@ use advanced_testcase;
 use mod_naas\mod_util;
 
 #[\PHPUnit\Framework\Attributes\CoversMethod(\mod_naas\mod_util::class, 'get_next_activity_url')]
+#[\PHPUnit\Framework\Attributes\CoversMethod(\mod_naas\mod_util::class, 'get_section_url')]
 /**
  * Tests for mod_naas\mod_util.
  *
@@ -36,6 +37,7 @@ use mod_naas\mod_util;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later.
  * @coversDefaultClass \mod_naas\mod_util
  * @covers ::get_next_activity_url
+ * @covers ::get_section_url
  */
 final class mod_util_test extends advanced_testcase {
     /**
@@ -236,5 +238,33 @@ final class mod_util_test extends advanced_testcase {
         $next = mod_util::get_next_activity_url();
         $this->assertNotNull($next);
         $this->assertSame('N1b', $next->name);
+    }
+
+    /**
+     * get_section_url anchors the section on a one-page course, whatever the Moodle version.
+     *
+     * Moodle 4.1-4.3 and 5.0 build the anchor; the topics format of 4.4 and 4.5 does not.
+     */
+    public function test_get_section_url_anchors_the_section(): void {
+        $this->resetAfterTest(true);
+        $course = $this->getDataGenerator()->create_course(['format' => 'topics', 'numsections' => 2]);
+
+        $url = mod_util::get_section_url($course, 1);
+
+        $expected = new \moodle_url('/course/view.php', ['id' => $course->id], 'section-1');
+        $this->assertSame($expected->out(false), $url->out(false));
+    }
+
+    /**
+     * get_section_url adds no anchor for a format without sections.
+     */
+    public function test_get_section_url_without_sections(): void {
+        $this->resetAfterTest(true);
+        $course = $this->getDataGenerator()->create_course(['format' => 'social']);
+
+        $url = mod_util::get_section_url($course, 0);
+
+        $expected = new \moodle_url('/course/view.php', ['id' => $course->id]);
+        $this->assertSame($expected->out(false), $url->out(false));
     }
 }
