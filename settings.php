@@ -205,7 +205,7 @@ if ($hassiteconfig) {
         'naas/naas_require_integration_code',
         get_string('naas_settings_require_integration_code', 'naas'),
         get_string('naas_settings_require_integration_code_help', 'naas'),
-        0
+        '0'
     ));
 
     // Appearance.

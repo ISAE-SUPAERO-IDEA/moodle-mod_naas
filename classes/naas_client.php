@@ -337,7 +337,7 @@ class naas_client {
 
     /**
      * Retrieve data of a nugget from the NaaS.
-     * @param int $nuggetid
+     * @param string $nuggetid
      * @return array|mixed
      */
     public function get_nugget_data($nuggetid) {
