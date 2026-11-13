@@ -25,6 +25,7 @@
 namespace mod_naas;
 
 #[\PHPUnit\Framework\Attributes\CoversClass(\mod_naas\attempts::class)]
+#[\PHPUnit\Framework\Attributes\CoversFunction('naas_update_instance')]
 /**
  * Attempt accounting: only launches that received an outcome are attempts.
  *
@@ -32,6 +33,7 @@ namespace mod_naas;
  * @copyright  2026 onwards ISAE-SUPAERO (https://www.isae-supaero.fr/)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @covers     \mod_naas\attempts
+ * @covers     ::naas_update_instance
  */
 final class attempts_test extends \advanced_testcase {
     /**

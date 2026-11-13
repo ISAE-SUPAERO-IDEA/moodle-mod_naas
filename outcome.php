@@ -420,13 +420,13 @@ class mod_naas_outcome {
         } catch (moodle_exception $e) {
             $status = $e->errorcode === 'error:oauth_invalid' ? 401 : 400;
             return ['status' => $status, 'body' => self::response_xml($xml, false, $e->getMessage())];
-        } catch (\Throwable $e) {
             // @codeCoverageIgnoreStart
+        } catch (\Throwable $e) {
             // A PHP error (TypeError, ...): same answer as an internal Moodle error.
             debugging('NaaS outcome failed: ' . $e->getMessage(), DEBUG_DEVELOPER);
             return ['status' => 500, 'body' => self::response_xml($xml, false, 'The score could not be recorded.')];
-            // @codeCoverageIgnoreEnd
         }
+        // @codeCoverageIgnoreEnd
     }
 
     /**
