@@ -261,7 +261,10 @@ final class media_proxy_test extends advanced_testcase {
             'https://api.naas.example/t?width=700&height=394&hash=abc',
             media_proxy::with_size('https://api.naas.example/t?hash=abc&width=1', 700, 394)
         );
-        $this->assertSame('https://api.naas.example/t?hash=abc', media_proxy::with_size('https://api.naas.example/t?hash=abc', 0, 0));
+        $this->assertSame(
+            'https://api.naas.example/t?hash=abc',
+            media_proxy::with_size('https://api.naas.example/t?hash=abc', 0, 0)
+        );
     }
 
     public function test_fetch_returns_and_caches_an_image(): void {
