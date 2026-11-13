@@ -426,7 +426,7 @@ final class root_scripts_coverage_test extends \advanced_testcase {
             'naasrefresh_cache_ui', 'naasheading_privacy', 'naasnaas_privacy_learner_mail',
             'naasnaas_privacy_learner_name', 'naasheading_learner', 'naasnaas_feedback', 'naasnaas_nugbot',
             'naasheading_catalogue', 'naasnaas_license_filter', 'naasnaas_access_filter', 'naasnaas_filter',
-            'naasheading_appearance', 'naasnaas_css', 'naasheading_advanced', 'naasnaas_timeout',
+            'naasnaas_require_integration_code', 'naasheading_appearance', 'naasnaas_css', 'naasheading_advanced', 'naasnaas_timeout',
             'naasnaas_ssl_noverify', 'naasnaas_require_outcome_oauth', 'naasnaas_refresh_limit',
         ];
         $this->assertSame($expected, array_keys((array) $settings->settings));
