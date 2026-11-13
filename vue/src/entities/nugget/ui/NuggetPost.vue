@@ -272,6 +272,23 @@ function truncate(text: string, length: number): string {
   color: #fff;
 }
 
+/* Icon-only badge: a round lock, the same height as the duration badge. */
+.nugget-badge-locked {
+  justify-content: center;
+  min-width: 1.6rem;
+  padding-inline: 0.4rem;
+}
+
+/* Moodle's .icon gives every icon a fixed width and a right margin: the
+   badges and buttons space their icon with their own gap instead. */
+.nugget-badge .icon,
+.nugget-btn .icon {
+  width: auto;
+  height: auto;
+  margin: 0;
+  font-size: inherit;
+}
+
 /* Read by screen readers, not shown. */
 .nugget-sr-only {
   position: absolute;
